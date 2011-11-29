@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.6" type="plugin" group="authentication" method="upgrade">
+	<name>plg_authentication_jmapmyldap</name>
+	<author>Shaun Maunder</author>
+	<creationDate>June 2011</creationDate>
+	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.2</version>
+	<buildDate>Mon Oct 24 18:20:34 BST 2011</buildDate>
+	<description>PLG_AUTHENTICATION_JMAPMYLDAP_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="jmapmyldap">jmapmyldap.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_authentication_jmapmyldap.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_authentication_jmapmyldap.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="spacer6" type="spacer" class="text" label="PLG_AUTHENTICATION_JMAPMYLDAP_SPACER_OPTS"/>
+				<field name="use_ldapV3" type="radio" default="0" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_V3_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_V3_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field name="negotiate_tls" type="radio" default="0" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_NEGOCIATE_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_NEGOCIATE_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field name="follow_referrals" type="radio" default="0" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_REFERRALS_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_REFERRALS_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field name="spacer5" type="spacer" hr="true"/>
+			
+				<field name="spacer" type="spacer" class="text" label="PLG_AUTHENTICATION_JMAPMYLDAP_SPACER_CONNECT"/>
+				<field name="host" type="text" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_HOST_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_HOST_LABEL" size="20"/>
+
+				<field name="port" type="text" default="389" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_PORT_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_PORT_LABEL" size="20"/>
+				<field name="spacer1" type="spacer" hr="true"/>
+				<field name="spacer2" type="spacer" class="text" label="PLG_AUTHENTICATION_JMAPMYLDAP_SPACER_CREDENTIALS"/>
+				
+				<field name="connect_username" type="text" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_USERNAME_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_USERNAME_LABEL" size="20"/>
+
+				<field name="connect_password" type="password" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_PASSWORD_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_PASSWORD_LABEL" size="20"/>
+				
+				<field name="spacer3" type="spacer" hr="true"/>
+
+				<field name="spacer8" type="spacer" class="text" label="PLG_AUTHENTICATION_JMAPMYLDAP_SPACER_BIND"/>
+
+				<field name="use_search" type="radio" default="0" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_USESEARCH_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_USESEARCH_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field name="base_dn" type="text" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_BASEDN_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_BASEDN_LABEL" size="20"/>
+
+				<field name="user_qry" type="text" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_USERQRY_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_USERQRY_LABEL" size="20"/>
+
+				<field name="spacer7" type="spacer" hr="true"/>
+				<field name="spacer9" type="spacer" class="text" label="PLG_AUTHENTICATION_JMAPMYLDAP_SPACER_MAPPING"/>
+
+				<field name="ldap_uid" type="text" default="uid" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_UID_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_UID_LABEL" size="20"/>
+
+				<field name="ldap_fullname" type="text" default="fullName" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_FULLNAME_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_FULLNAME_LABEL" size="20"/>
+				
+				<field name="ldap_email" type="text" default="mail" description="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_EMAIL_DESC" label="PLG_AUTHENTICATION_JMAPMYLDAP_FIELD_EMAIL_LABEL" size="20"/>
+				
+			</fieldset>
+		</fields>
+	</config>
+</extension>

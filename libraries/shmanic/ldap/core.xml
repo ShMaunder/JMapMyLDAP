@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.6" type="library" method="upgrade">
+	<name>LDAP Core Library</name>
+	<libraryname>shmanic/ldap</libraryname>
+	<author>Shaun Maunder</author>
+	<creationDate>August 2011</creationDate>
+	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.2</version>
+	<buildDate>Mon Oct 24 18:20:34 BST 2011</buildDate>
+	<description/>
+	<files>
+		<file>event.php</file>
+		<file>helper.php</file>
+		<file>index.html</file>
+	</files>
+	<languages>
+	</languages>
+</extension>
