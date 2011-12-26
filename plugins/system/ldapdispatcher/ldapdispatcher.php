@@ -36,8 +36,6 @@ class plgSystemLDAPDispatcher extends JPlugin
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
 		
-		// Bit nasty: allow it to be picked up later if need be
-		LdapHelper::$auth_plugin = $this->params->get('auth_plugin', 'jmapmyldap');
 	}
 	
 	public function onAfterInitialise() 
@@ -98,4 +96,31 @@ class plgSystemLDAPDispatcher extends JPlugin
 		
 	}
 
+	public function onContentPrepareForm($form, $data) {
+		
+		/*if (!($form instanceof JForm)) {
+			$this->_subject->setError('JERROR_NOT_A_FORM');
+			return false;
+		}
+
+		$forms = explode(';', 'com_config.application');
+		
+		// Check we are manipulating a valid form
+		if (!in_array($form->getName(), $forms)) {
+			return true;
+		}
+		
+		
+			// Load in the profile XML file
+		if(($xml = JFactory::getXML(JPATH_PLUGINS . '/system/ldapdispatcher/ldap_global_config.xml', true)) 
+			&& ($form->load($xml, false, false))) {			
+
+			// :: success ::
+			return true;
+		}*/
+		
+		//echo '<br><br><br><br>';
+		//print_r($form);
+	}
+	
 }

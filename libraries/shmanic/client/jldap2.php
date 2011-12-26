@@ -10,6 +10,8 @@
 
 defined('_JEXEC') or die;
 
+jimport('shmanic.log.ldaphelper');
+
 /**
  * An LDAP authentication and modification class for all LDAP operations. 
  * Forked from the inbuilt Joomla LDAP for enhanced search and increased 
@@ -136,31 +138,12 @@ class JLDAP2 extends JObject
 	/**
 	 * Class constructor.
 	 *
-	 * @param   JRegistry  &$parameters  JRegistry parameters for use in this library. This
+	 * @param   JRegistry  $parameters  JRegistry parameters for use in this library. This
 	 *                       can normally be found from loading in the authentication plugin's parameters.
 	 *                       This parameter can also take the array type form as well.
 	 *
 	 * @since   1.0
 	 */
-	/*function __construct(&$parameters) 
-	{
-		$lang = JFactory::getLanguage();
-		$lang->load('lib_jldap2', JPATH_SITE); //for errors
-		
-		//if creating your own plugin - you can override the validation methods if they are in a different mask/format
-		
-		$classVars = get_class_vars(get_class($this));
-		foreach (array_keys($classVars) as $classVar) { //we will loop through all the declared variables in this class
-			if(!is_null($parameters->get($classVar))) {
-				$method = 'validate_' . $classVar;
-				if(method_exists($this, $method)) {
-					$this->$classVar = $this->$method($parameters->get($classVar)); 
-				} else {
-					$this->$classVar = $parameters->get($classVar);
-				}
-			}
-		}
-	}*/
 	function __construct($parameters) 
 	{
 		if($parameters instanceof JRegistry) {
@@ -171,13 +154,29 @@ class JLDAP2 extends JObject
 
 		$lang = JFactory::getLanguage();
 		$lang->load('lib_jldap2', JPATH_SITE); //for errors
+		
+		// add the loggers
+		JLogLdapHelper::addLoggers();
 	}
 	
+	/**
+	* Singleton for JLDAP2
+	*
+	* @param  $params  array  An array of parameters for JLDAP2
+	*
+	* @return  JLDAP2  Reference to a instance of JLDAP2
+	* @since   2.0
+	*/
 	public static function getInstance($params = null)
 	{
 		static $instance;
-		if(!is_object($instance) && !is_null($params)) {
-			$instance = new self($params);
+
+		if(!is_object($instance)) {
+			if(!is_null($params)) {
+				$instance = new self($params);
+			} else {
+				return new self(LdapHelper::getParams());
+			}
 		}
 		
 		return $instance;
@@ -186,39 +185,54 @@ class JLDAP2 extends JObject
 	/**
 	 * Attempt connection to an LDAP server and returns result.
 	 *
-	 * @return  Mixed  True on successful connection, or JException on error
+	 * @return  Boolean  True on successful connection
 	 * @since   1.0
 	 */
 	public function connect() 
 	{
 		
-		if (!$this->host) {
-			return new JException(JText::_('LIB_JLDAP2_ERROR_NO_HOST_PARAM'));
-		}
-		
-		/* in most cases, even if we cannot connect, we won't
-		 * be able to find out until we have done our first
-		 * bind! Annoying as.
-		 */
-		$this->ds = @ ldap_connect($this->host, $this->port);
-		if (!$this->ds) {
-			return new JException(JText::sprintf('LIB_JLDAP2_ERROR_FAILED_CONNECT', $this->getErrorMsg()));
-		}
-			
-		if ($this->use_ldapV3) {
-			if (!@ldap_set_option($this->ds, LDAP_OPT_PROTOCOL_VERSION, 3)) {
-				return new JException(JText::_('LIB_JLDAP2_ERROR_V3_FAIL'));
+		try {
+			if (!$this->host) {
+				throw new Exception(JText::_('LIB_JLDAP2_ERROR_NO_HOST_PARAM'));
 			}
-		}
 			
-		if (!@ldap_set_option($this->ds, LDAP_OPT_REFERRALS, intval($this->no_referrals))) {
-			return new JException(JText::_('LIB_JLDAP2_ERROR_REFERRALS_FAIL'));
-		}
-			
-		if ($this->negotiate_tls) {
-			if (!@ldap_start_tls($this->ds)) {
-				return new JException(JText::_('LIB_JLDAP2_ERROR_TLS_START_FAIL'));
+			//TODO: lang file
+			JLogLdapHelper::addDebugEntry('Attempting connection to LDAP with host ' . $this->host, __CLASS__);
+
+			/* in most cases, even if we cannot connect, we won't
+			 * be able to find out until we have done our first
+			 * bind! Annoying as.
+			 */
+			$this->ds = @ ldap_connect($this->host, $this->port);
+			if (!$this->ds) {
+				throw new Exception(JText::sprintf('LIB_JLDAP2_ERROR_FAILED_CONNECT', ' '));
 			}
+			
+			//TODO: lang file
+			$msg = 'Successfully connected to ' . $this->host . '. Setting the following parameters:' .
+				($this->use_ldapV3 ? ' ldapV3' : '') . ($this->no_referrals ? ' Referrals' : '') . 
+					($this->negotiate_tls ? ' TLS.' : '');
+			JLogLdapHelper::addDebugEntry($msg, __CLASS__);
+				
+			if ($this->use_ldapV3) {
+				if (!@ldap_set_option($this->ds, LDAP_OPT_PROTOCOL_VERSION, 3)) {
+					throw new Exception(JText::_('LIB_JLDAP2_ERROR_V3_FAIL'));
+				}
+			}
+				
+			if (!@ldap_set_option($this->ds, LDAP_OPT_REFERRALS, intval($this->no_referrals))) {
+				throw new Exception(JText::_('LIB_JLDAP2_ERROR_REFERRALS_FAIL'));
+			}
+				
+			if ($this->negotiate_tls) {
+				if (!@ldap_start_tls($this->ds)) {
+					throw new Exception(JText::_('LIB_JLDAP2_ERROR_TLS_START_FAIL'));
+				}
+			}
+		} catch(Exception $e) {
+			$this->setError($this->getErrorMsg());
+			JLogLdapHelper::addErrorEntry($e->getMessage(), __CLASS__);
+			return false;
 		}
 		
 		return true;
@@ -228,8 +242,8 @@ class JLDAP2 extends JObject
 	* Will check ds for a reference - this isn't reliable (only checks if
 	* a connection has been attempted really).
 	*
-	* @return  mixed   Is there a DS reference
-	* @since   1.0
+	* @return  boolean  True if there is a connection
+	* @since   2.0
 	*/
 	public function isConnected() 
 	{
@@ -375,7 +389,11 @@ class JLDAP2 extends JObject
 	 */
 	public function modify($dn, $attributes) 
 	{
-		return @ldap_modify($this->ds, $dn, $attributes);
+		if(!$result = @ldap_modify($this->ds, $dn, $attributes)) {
+			$this->setError($this->getErrorMsg());
+		}
+		
+		return $result;
 	}
 	
 	/**
@@ -479,15 +497,24 @@ class JLDAP2 extends JObject
 	{
 
 		if(!$this->user_qry) { //no query specified (filter or dn)
-			return new JException(JText::_('LIB_JLDAP2_ERROR_NO_DN_FILTER_PARAM'));
+			JLogLdapHelper::addErrorEntry(JText::_('LIB_JLDAP2_ERROR_NO_DN_FILTER_PARAM'), __CLASS__);
+			return false;
 		}
 		
-		$DNs = $this->use_search ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
+		JLogLdapHelper::addDebugEntry('Attempting to get user dn with \'' . str_replace('[username]', $username, $this->user_qry) . 
+			'\'' . ($this->use_search ? ' using ' : ' NOT using ') . 'search'  , __CLASS__);
 		
-		if(JError::isError($DNs)) return $DNs; //this is an error not an array
+		$DNs = $this->use_search ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
 
+		if($DNs===false) {
+			return false;
+		}
+	
 		if(!count($DNs)) { //the username is wrong
-			return new JException(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL', $this->getErrorMsg(), $username));
+			$this->setError($this->getErrorMsg());
+			JLogLdapHelper::addErrorEntry('An unknown login was attempted using ' . $username . '.', __CLASS__);
+			return false;
+			//return new JException(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL', $this->getErrorMsg(), $username));
 		}
 		
 		if($authenticate) {
@@ -496,13 +523,19 @@ class JLDAP2 extends JObject
 			 */
 			foreach($DNs as $dn) {
 				//returns the first successfully authenticating dn
-				if($this->bind($dn, $password)) return $dn; 
+				if($this->bind($dn, $password)) {
+					JLogLdapHelper::addDebugEntry('Using dn \'' . $dn . '\' for user ' . $username, __CLASS__);
+					return $dn; 
+				}
 			}
 			
 			if(count($DNs) && $this->use_search) { //this is a password issue, not a parameter
 				return false; 
 			} elseif(count($DNs)) { //this is either a credentials or user dn parameter issue
-				return new JException(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL_PASS', $this->getErrorMsg(), $username));
+				$this->setError($this->getErrorMsg());
+				JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL_PASS', '', $username), __CLASS__);
+				return false;
+				//return new JException(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL_PASS', $this->getErrorMsg(), $username));
 			}
 			
 		} else {
@@ -518,15 +551,21 @@ class JLDAP2 extends JObject
 			if($this->bind($this->connect_username, $this->connect_password)) { 
 				//first DN to exist will return
 				foreach($DNs as $dn) {
-					if(count($this->read($dn, null, array('dn')))) return $dn;
+					if(count($this->read($dn, null, array('dn')))) {
+						JLogLdapHelper::addDebugEntry('Using dn \'' . $dn . '\' for user ' . $username, __CLASS__);
+						return $dn;
+					}
 				}
 			} else {
 				//we can't check the directory so we have to assume this is correct
+				JLogLdapHelper::addDebugEntry('Using dn \'' . $DNs[0] . '\' for user ' . $username, __CLASS__);
 				return $DNs[0];
 			}
 		}
 
-		return new JException(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL', $this->getErrorMsg(), $username));
+		JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL', $this->getErrorMsg(), $username), __CLASS__);
+		return false;
+		//return new JException(JText::sprintf('LIB_JLDAP2_ERROR_USER_DN_FAIL', $this->getErrorMsg(), $username));
 
 	}
 	
@@ -543,7 +582,7 @@ class JLDAP2 extends JObject
 	{
 		//this method uses the query as a filter to find where the user is located in the directory
 		$return 	= array();
-		$username 	= JLDAPHelper::escape($username); //fixes special usernames and provides protection against filter ldap injections
+		$username 	= LdapHelper::escape($username); //fixes special usernames and provides protection against filter ldap injections
 		$search 	= str_replace('[username]', $username, $this->user_qry);
 		
 		/*
@@ -556,10 +595,11 @@ class JLDAP2 extends JObject
 		}
 		
 		// search requires a base dn
-		if(is_null($this->base_dn)) {
-			return new JException(JText::sprintf('LIB_JLDAP2_ERROR_NO_BASE_DN'));
+		if(!$this->base_dn) { 
+			JLogLdapHelper::addErrorEntry(JText::_('LIB_JLDAP2_ERROR_NO_BASE_DN'), __CLASS__);
+			return false;
 		}
-
+		
 		if($this->bind($this->connect_username, $this->connect_password)) {
 			$result = new JLDAPResult($this->search(null, $search, array($this->ldap_uid)));
 				
@@ -568,7 +608,8 @@ class JLDAP2 extends JObject
 			}
 				
 		} else {
-			return new JException(JText::sprintf('LIB_JLDAP2_ERROR_BIND_SEARCH_USER', $this->getErrorMsg()));
+			JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_JLDAP2_ERROR_BIND_SEARCH_USER', $this->getErrorMsg()), __CLASS__);
+			return false;
 		}
 		
 		return $return;
@@ -588,7 +629,7 @@ class JLDAP2 extends JObject
 	{
 		//this method uses the query directly to bind as a user (the query must be a dn)
 		$return 	= array();
-		$username 	= JLDAPHelper::escape($username, true); //fixes special usernames and provides protection against dn ldap injections
+		$username 	= LdapHelper::escape($username, true); //fixes special usernames and provides protection against dn ldap injections
 		$search 	= str_replace('[username]', $username, $this->user_qry);
 		$DNs 		= explode(';', $search);
 		
@@ -597,7 +638,8 @@ class JLDAP2 extends JObject
 		* No DN starts and ends with brackets.
 		*/
 		if(preg_match('/\((.)*\)/', $search)) {
-			return new JException(JText::sprintf('LIB_JLDAP2_ERROR_VALIDATION_DN', $this->getErrorMsg()));
+			JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_JLDAP2_ERROR_VALIDATION_DN', $this->getErrorMsg()), __CLASS__);
+			return false;
 		}
 		
 		foreach($DNs as $dn) { //we need to find the correct dn from the semi-colon'd delimited list specified
@@ -611,6 +653,24 @@ class JLDAP2 extends JObject
 	}
 	
 	
+	/**
+	* Get an array of user detail attributes for the user. By default this method will return the
+	* mapping uid, fullname and email fields. It will also try to get all the attributes required
+	* for group mapping, though this is optional.
+	*
+	* @param  string  $dn       The dn of the user
+	* @param  array   $options  An optional array of options (
+	*   string  $lookupType   => Type of group lookup to perform on user (i.e. forward or reverse)
+	*   string  $lookupKey    => Group attribute for group lookup (i.e. groupMembership or member)
+	*   string  $lookupMember => User attribute to use when searching for group membership (i.e. dn or uid)
+	*   string  $dnAttribute  => Set the recursive forward lookup attribute (i.e. distinguishedName)
+	*   string  $recurseDepth => Define the max depth for recursion (i.e. set to 0 for unlimited OR set to null for no recursion)
+	*   array   $extras       => Any extra user attributes to get
+	* )
+	* @return  mixed  On success shall return an array of attributes, otherwise
+	*                   returns a JException to indicate an error.
+	* @since   1.0
+	*/
 	public function getUserDetails($dn, $attributes = array())
 	{
 
@@ -639,7 +699,9 @@ class JLDAP2 extends JObject
 		//get our ldap user attributes and check we have a valid result
 		$result	= new JLDAPResult($this->read($dn, null, $attributes)); 
 		if(is_null($result->getValue(0,'dn',0))) {
-			return new JException(JText::_('LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL'));
+			JLogLdapHelper::addErrorEntry(JText::_('LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL'), __CLASS__);
+			return false;
+			//return new JException(JText::_('LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL'));
 		}
 		
 		
@@ -656,124 +718,16 @@ class JLDAP2 extends JObject
 		
 		$result = $dispatcher->trigger('onLdapAfterRead', array(&$this, &$return, array('dn'=>$dn,'source'=>'getuser')));
 		if(in_array(false, $result, true)) {
-			return new JException(JText::_('Cancelled Login')); //TODO: put in a language file
+			
+			JLogLdapHelper::addErrorEntry(JText::_('Cancelled Login'), __CLASS__); //TODO: put in a language file
+			return false;
+			//return new JException(JText::_('Cancelled Login'));
 		}
 		
 		return $return;
 		
 	}
-	
-	/**
-	 * Get an array of user detail attributes for the user. By default this method will return the
-	 * mapping uid, fullname and email fields. It will also try to get all the attributes required
-	 * for group mapping, though this is optional.
-	 * 
-	 * @param  string  $dn       The dn of the user
-	 * @param  array   $options  An optional array of options (
-	 *   string  $lookupType   => Type of group lookup to perform on user (i.e. forward or reverse)
-	 *   string  $lookupKey    => Group attribute for group lookup (i.e. groupMembership or member)
-	 *   string  $lookupMember => User attribute to use when searching for group membership (i.e. dn or uid)
-	 *   string  $dnAttribute  => Set the recursive forward lookup attribute (i.e. distinguishedName)
-	 *   string  $recurseDepth => Define the max depth for recursion (i.e. set to 0 for unlimited OR set to null for no recursion)
-	 *   array   $extras       => Any extra user attributes to get
-	 * )
-	 * @return  mixed  On success shall return an array of attributes, otherwise
-	 *                   returns a JException to indicate an error.
-	 * @since   1.0
-	 */
-	public function OLDgetUserDetails($dn, $options = array())
-	{
-		
-		$dnAttribute 	= isset($options['dnAttribute']) ? $options['dnAttribute'] : 'distinguishedName';
-		$lookupMember 	= isset($options['lookupMember']) ? $options['lookupMember'] : 'dn';
-		$attributes = array($lookupMember, $this->ldap_fullname, $this->ldap_uid);
-		if(strpos($this->ldap_email, '[username]')===false) { //check for a 'fake' email
-			$attributes[] = $this->ldap_email;
-		}
-		
-		isset($options['extras']) ? $extras = $options['extras'] : $extras = array();
-		$attributes		= (array_unique(array_merge($attributes, $extras)));
-		
-		$return 	= $attributes;
-		$lookupKey 	= null;
-		$lookupType = null;
-		
-		//check if we need to do group mapping
-		if(isset($options['lookupKey']) && isset($options['lookupType']) && !is_null($options['lookupKey']) && !is_null($options['lookupType'])) {
-			$lookupType		= $options['lookupType'];
-			$lookupKey 		= $options['lookupKey'];
-			
-			if($lookupType=='forward') {
-				$attributes[] 	= $options['lookupKey'];
-				$return 		= $attributes;
 
-			} elseif($lookupType=='reverse') {
-				$return[] 		= $options['lookupKey'];
-			}
-		}
-		
-		$return = array_fill_keys($return, null); //lets get our result ready
-		
-		//get our ldap user attributes and check we have a valid result
-		$result	= new JLDAPResult($this->read($dn, null, $attributes)); 
-		if(is_null($result->getValue(0,'dn',0))) {
-			return new JException(JText::_('LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL'));
-		}
-		
-		$groups = array();
-		
-		
-		if(!is_null($lookupKey)) {
-			//need to process first level user groups from the ldap result
-			if($lookupType=='forward') {
-				$groups		= $result->getAttribute(0,$lookupKey, true);
-			} elseif($lookupType=='reverse') {
-
-				$lookupValue = $result->getValue(0,$lookupMember,0); //we need to get the right attribute
-				$search = $lookupKey . '=' . $lookupValue;
-				$search = JLDAPHelper::buildFilter(array($search));
-				$reverse = new JLDAPResult($this->search(null, $search, array('dn')));
-				for($i=0;$i<$reverse->countEntries();$i++) { 
-					$groups[] = $reverse->getValue($i,'dn',0); //extract the group from the result
-				}
-			}
-			
-			//need to process the recursion using the first level user groups as a basis
-			$depth = isset($options['recurseDepth']) ? $options['recurseDepth'] : null;
-			if(!is_null($depth)) { // Lets do our recursion
-				$outcome 	= array();
-				
-				if($lookupType == 'reverse') { //we need to override the lookup attribute for reverse recursion
-					$this->getRecursiveGroups($groups, $depth, $outcome, 'dn', $lookupKey);
-				} elseif($lookupType == 'forward') {
-					$this->getRecursiveGroups($groups, $depth, $outcome, $lookupKey, $dnAttribute);
-				}
-					
-				// we need to merge them back together without duplicates
-				$groups = array_unique(array_merge($groups, $outcome));
-			}
-			
-		}
-		
-		//lets store everything we've done
-		foreach($return as $attribute=>$rubbish) {
-
-			$return[$attribute] = $result->getAttribute(0, $attribute);
-			
-			if($attribute == $lookupKey) { //we want to override the group as we have this stored somewhere else
-				$return[$attribute] = $groups;
-			}	
-		}
-		
-		//if we used a fake email, then lets insert it
-		if(strpos($this->ldap_email, '[username]')!==false) { //check for a 'fake' email
-			$email = str_replace('[username]', $return[$this->ldap_uid][0], $this->ldap_email);
-			$return[$this->ldap_email] = array($email);
-		}
-		
-		return $return;
-				
-	}
 
 	/**
 	 * Get an array of all the nested groups through the use of group recursion.
@@ -804,7 +758,7 @@ class JLDAP2 extends JObject
 
 		if(!count($filters)) { return $result; }
 
-		$search = JLDAPHelper::buildFilter($filters, '|'); //build a filter using the OR operator
+		$search = LdapHelper::buildFilter($filters, '|'); //build a filter using the OR operator
 		$results = new JLDAPResult($this->search(null, $search, array($attribute)));
 
 		$entryCount = $results->countEntries();
@@ -835,94 +789,6 @@ class JLDAP2 extends JObject
 	
 }
 
-/**
- * An LDAP helper class. All methods are static and don't require any
- * new instance of the class.
- *
- * @package		Shmanic
- * @subpackage	Ldap
- * @since		1.0
- */
-class JLDAPHelper 
-{
-	
-	/**
-	 * Escape characters based on the type of query (DN or Filter). This 
-	 * method follows the RFC2254 guidelines.
-	 * Adapted from source: http://www.php.net/manual/en/function.ldap-search.php#90158
-	 *
-	 * @param  string   $inn   Input string to escape
-	 * @param  boolean  $isDn  Set the type of query; true for DN; false for filter (default false) 
-	 * 
-	 * @return  string  An escaped string
-	 * @since   1.0
-	 */
-	public static function escape($inn, $isDn = false) 
-	{
-		$metaChars = $isDn ? array(',','=', '+', '<','>',';', '\\', '"', '#') : 
-			array('*', '(', ')', '\\', chr(0));	
-		
-		$quotedMetaChars = array();   	    
-		foreach ($metaChars as $key => $value) {
-			$quotedMetaChars[$key] = '\\'.str_pad(dechex(ord($value)), 2, '0');
-		}
-		
-		return str_replace($metaChars, $quotedMetaChars, $inn);
-		
-	}
-
-	/**
-	 * Escape the filter characters and build the filter with brackets 
-	 * using the operator specified.
-	 *
-	 * @param  array   $filters   An array of inner filters (i.e. array(uid=shaun, cn=uk))
-	 * @param  string  $operator  Set operator to carry out (null by default for no operator)  
-	 * 
-	 * @return  string  An escaped filter with filter operation
-	 * @since   1.0
-	 */
-	public static function buildFilter($filters, $operator = null) 
-	{
-		$return = null;
-		
-		if(!count($filters)) return $return;
-		
-		$string = null;
-		foreach($filters as $filter) {
-			$filter = JLDAPHelper::escape($filter);
-			$string .= '(' . $filter . ')';
-		}
-		
-		$return = is_null($operator) ? $string : '(' . $operator . $string . ')';
-		
-		return $return;
-	}
-	
-	/**
-	 * Converts a dot notation IP address to net address (e.g. for Netware).
-	 * Taken from the inbuilt Joomla LDAP library.
-	 *
-	 * @param   string  $ip  An IP address to convert (e.g. xxx.xxx.xxx.xxx)
-	 *
-	 * @return  string  Net address
-	 * @since   1.0
-	 */
-	public static function ipToNetAddress($ip) 
-	{
-		$parts = explode('.', $ip);
-		$address = '1#';
-
-		foreach ($parts as $int) {
-			$tmp = dechex($int);
-			if (strlen($tmp) != 2) {
-				$tmp = '0' . $tmp;
-			}
-			$address .= '\\' . $tmp;
-		}
-		return $address;
-	}
-	
-}
 
 /**
  * An LDAP result class to help get results from ldap searches. It

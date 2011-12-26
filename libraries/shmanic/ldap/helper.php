@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('shmanic.client.jldap2');
 jimport('shmanic.ldap.event');
+jimport('shmanic.log.ldaphelper');
 
 /**
  * Holds the parameter settings for the jmapmyldap class.
@@ -133,30 +134,36 @@ class LdapUserHelper extends JObject
 	public static function getAttributes($user) 
 	{
 		
-		$ldap = LdapHelper::getConnection(false);
+		if($ldap = LdapHelper::getConnection(false)) {
 		
-		$dn = $ldap->getUserDN($user['username'], null, false);
-		if(JError::isError($dn)) {
-			return false;
+			$dn = $ldap->getUserDN($user['username'], null, false);
+			if(JError::isError($dn)) {
+				return false;
+			}
+				
+			$attributes = $ldap->getUserDetails($dn);
+			if(JError::isError($attributes)) {
+				return false;
+			}
+				
+			$ldap->close();
+	
+			return $attributes;
 		}
-			
-		$attributes = $ldap->getUserDetails($dn);
-		if(JError::isError($attributes)) {
-			return false;
-		}
-			
-		$ldap->close();
-
-		return $attributes;
-		
 	}
+	
 }
 
-
+/**
+* An LDAP helper class. All methods are static and don't require any
+* new instance of the class.
+*
+* @package		Shmanic
+* @subpackage	Ldap
+* @since		2.0
+*/
 class LdapHelper extends JObject
 {
-	
-	public static $auth_plugin = null;
 	
 	/* get a connection and bind if specified */
 	public static function getConnection($bind = false, $username = null, $password = null)
@@ -190,7 +197,8 @@ class LdapHelper extends JObject
 	{
 		
 		if(is_null($auth)) {
-			$auth = self::$auth_plugin;
+			//$auth = self::$auth_plugin;
+			self::getGlobalParam('auth_plugin', 'jmapmyldap');
 		}
 		
 		/*if($plugin = JPluginHelper::getPlugin('authentication', $options['authplugin'])) {*/
@@ -295,7 +303,93 @@ class LdapHelper extends JObject
 	
 	}
 	
+	/**
+	* Escape characters based on the type of query (DN or Filter). This
+	* method follows the RFC2254 guidelines.
+	* Adapted from source: http://www.php.net/manual/en/function.ldap-search.php#90158
+	*
+	* @param  string   $inn   Input string to escape
+	* @param  boolean  $isDn  Set the type of query; true for DN; false for filter (default false)
+	*
+	* @return  string  An escaped string
+	* @since   1.0
+	*/
+	public static function escape($inn, $isDn = false)
+	{
+		$metaChars = $isDn ? array(',','=', '+', '<','>',';', '\\', '"', '#') :
+		array('*', '(', ')', '\\', chr(0));
 	
+		$quotedMetaChars = array();
+		foreach ($metaChars as $key => $value) {
+			$quotedMetaChars[$key] = '\\'.str_pad(dechex(ord($value)), 2, '0');
+		}
+	
+		return str_replace($metaChars, $quotedMetaChars, $inn);
+	
+	}
+	
+	/**
+	 * Escape the filter characters and build the filter with brackets
+	 * using the operator specified.
+	 *
+	 * @param  array   $filters   An array of inner filters (i.e. array(uid=shaun, cn=uk))
+	 * @param  string  $operator  Set operator to carry out (null by default for no operator)
+	 *
+	 * @return  string  An escaped filter with filter operation
+	 * @since   1.0
+	 */
+	public static function buildFilter($filters, $operator = null)
+	{
+		$return = null;
+	
+		if(!count($filters)) return $return;
+	
+		$string = null;
+		foreach($filters as $filter) {
+			$filter = JLDAPHelper::escape($filter);
+			$string .= '(' . $filter . ')';
+		}
+	
+		$return = is_null($operator) ? $string : '(' . $operator . $string . ')';
+	
+		return $return;
+	}
+	
+	/**
+	 * Converts a dot notation IP address to net address (e.g. for Netware).
+	 * Taken from the inbuilt Joomla LDAP library.
+	 *
+	 * @param   string  $ip  An IP address to convert (e.g. xxx.xxx.xxx.xxx)
+	 *
+	 * @return  string  Net address
+	 * @since   1.0
+	 */
+	public static function ipToNetAddress($ip)
+	{
+		$parts = explode('.', $ip);
+		$address = '1#';
+	
+		foreach ($parts as $int) {
+			$tmp = dechex($int);
+			if (strlen($tmp) != 2) {
+				$tmp = '0' . $tmp;
+			}
+			$address .= '\\' . $tmp;
+		}
+		return $address;
+	}
+	
+	public static function getGlobalParam($field, $default = null)
+	{
+		
+		$params = JComponentHelper::getParams('com_ldapadmin');
+		
+		
+		return($params->get($field, $default));
+		
+		
+	}
+
 }
 
 class LdapEventHelper extends JObject
@@ -325,10 +419,10 @@ class LdapEventHelper extends JObject
 	
 	public static function loadEvents($dispatcher)
 	{
-		/* We need to check if this session is a LDAP
-		 * based session (i.e. if a user is logged on
-		 * then, did they use LDAP).
-		 */
+		// Initialise logging
+		JLogLdapHelper::addLoggers();
+		
+		// Creates a new instance of events binding it to the dispatcher
 		return LdapEvent::getInstance($dispatcher);
 	}
 	

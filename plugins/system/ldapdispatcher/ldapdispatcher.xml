@@ -18,15 +18,4 @@
 		<language tag="en-GB">language/en-GB/en-GB.plg_system_ldapdispatcher.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.plg_system_ldapdispatcher.sys.ini</language>
 	</languages>
-	<config>
-		<fields name="params">
-			<fieldset name="basic">
-				<field name="auth_plugin" type="text" default="jmapmyldap" description="PLG_SYSTEM_LDAPDISPATCHER_FIELD_AUTHPLUGIN_DESC" label="PLG_SYSTEM_LDAPDISPATCHER_FIELD_AUTHPLUGIN_LABEL"/>
-				<field name="autoregister" type="radio" default="1" description="PLG_SYSTEM_LDAPDISPATCHER_FIELD_REGISTER_DESC" label="PLG_SYSTEM_LDAPDISPATCHER_FIELD_REGISTER_LABEL">
-					<option value="0">JNo</option>
-					<option value="1">JYes</option>
-				</field>
-			</fieldset>
-		</fields>
-	</config>
 </extension>

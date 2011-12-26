@@ -8,9 +8,10 @@
  * @license		GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 jimport('joomla.plugin.plugin');
+jimport('shmanic.log.ldaphelper');
 
 /**
  * LDAP Authentication Plugin
@@ -34,11 +35,14 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 	{
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
+
 	}
 	
 	/**
 	 * This method handles the Ldap authentication and reports 
 	 * back to the subject. 
+	 * 
+	 * There is no custom logging in the authentication.
 	 *
 	 * @param  array   $credentials  Array holding the user credentials
 	 * @param  array   $options      Array of extra options
@@ -49,11 +53,16 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 	 */
 	public function onUserAuthenticate($credentials, $option, &$response)
 	{
+
+		// add the loggers
+		JLogLdapHelper::addLoggers();
+		
 		// If JLDAP2 fails to import then exit
 		jimport('shmanic.client.jldap2');
 		if(!class_exists('JLDAP2')) { 
-			$response->status = JAUTHENTICATE_STATUS_FAILURE;
-			$response->error_message = $this->_reportError(JText::sprintf('PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_MISSING_LIBRARY', 'JLDAP2'));
+			$response->status = JAuthentication::STATUS_FAILURE;
+			$response->error_message = JText::sprintf('PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_MISSING_LIBRARY', 'JLDAP2');
+			JLogLdapHelper::addErrorEntry(JText::sprintf('PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_MISSING_LIBRARY', 'JLDAP2'), __CLASS__);
 			return false;
 		}
 		
@@ -61,18 +70,18 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 		
 		// Must have a password to deny anonymous binding
 		if(empty($credentials['password'])) {
-			$response->status = JAUTHENTICATE_STATUS_FAILURE;
+			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('JGLOBAL_AUTH_PASS_BLANK');
+			JLogLdapHelper::addInfoEntry(JText::_('JGLOBAL_AUTH_PASS_BLANK'), __CLASS__);
 			return false;
 		}
 		
-		$ldap = new JLDAP2($this->params);
+		$ldap = JLDAP2::getInstance($this->params);
 		
 		// Start the LDAP connection procedure
-		$result = $ldap->connect();
-		if(JError::isError($result)) {
-			$response->status = JAUTHENTICATE_STATUS_FAILURE;
-			$response->error_message = $this->_reportError($result);
+		if(!$result = $ldap->connect()) {
+			$response->status = JAuthentication::STATUS_FAILURE;
+			$response->error_message = 'could not connect';
 			return;
 		}
 		
@@ -82,33 +91,23 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 		 * is returned, it is a successfully authenticated
 		 * user.
 		 */
-		$dn = $ldap->getUserDN($credentials['username'], $credentials['password'], true); 
-		if(JError::isError($dn)) {
-			$response->status = JAUTHENTICATE_STATUS_FAILURE;
-			$response->error_message = $this->_reportError($dn);
-			return;
-		}
-		
-		/* Let's check we have authenticated successfully. 
-		 * If not, then this is probably a password issue.
-		 */
-		if(!$dn) { 
-			$response->status = JAUTHENTICATE_STATUS_FAILURE;
+		if(!$dn = $ldap->getUserDN($credentials['username'], $credentials['password'], true)) {
+			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('JGLOBAL_AUTH_BIND_FAILED');
 			$ldap->close();
 			return;
 		}
 		
 		/* Let's get the user attributes for this dn. */
-		$details = $ldap->getUserDetails($dn);
-		if(JError::isError($details)) {
-			$response->status = JAUTHENTICATE_STATUS_FAILURE;
+		if(!$details = $ldap->getUserDetails($dn)) {
+			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = $this->_reportError(JText::_('PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_ATTRIBUTES_FAIL'));
+			$ldap->close();
 			return false;
 		}
 		
 		/* Set the required Joomla user fields with the Ldap
-		 * user fields.
+		 * user attributes.
 		 */
 		if(isset($details[$ldap->ldap_uid][0])) 
 			$response->username 	= $details[$ldap->ldap_uid][0];
@@ -119,25 +118,104 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 		if(isset($details[$ldap->ldap_email][0])) 
 			$response->email 		= $details[$ldap->ldap_email][0];
 			
-		$response->set('password_clear',''); //joomla password should always be blank
+		$response->set('password_clear', ''); //joomla password should always be blank TODO: review this for password plug-in
 		
 		/* store for the user plugin so we do not have
 		 * to requery everything with the ldap server.
+		 * 
+		 * NOTE: This uses attributes and is hard coded!
+		 * Therefore when querying ldap stuff back, we must
+		 * use attributes - TODO: make this a constant!
 		*/
 		$response->set('attributes', $details);
 		
-		$response->status			= JAUTHENTICATE_STATUS_SUCCESS;
+		// Successful authentication, report back and say goodbye!
+		JLogLdapHelper::addInfoEntry('User ' . $response->username . ' successfully logged in.', __CLASS__);
+		$response->status			= JAuthentication::STATUS_SUCCESS;
 		$response->error_message 	= '';
-		
-		/* we should never require an ldap connection
-		 * again - hasta la vista, baby!
-		 */
 		$ldap->close();
 		
 		return true;
 		
 	}
 	
+	// new sso method ?? i cant see this working!
+	public function onUserAuthorisation($response, $options=Array())
+	{
+		
+	}
+	
+	
+	protected function logtesting()
+	{
+		
+		/* SYSTEM TESTING FOR ERRORS */
+		 /*JLog::addLogger(			array('logger'=>'messagequeue'),
+		JLog::INFO,
+		array('ldap'));*/
+		
+		// Both of these should be file and on-screen
+		
+		
+		
+		/* Add file based loggers */
+		/*JLog::addLogger(
+		array('logger'=>'formattedtext', 'text_file'=>'myext.info.log.php'), JLog::INFO,
+		array('myextension'));
+		
+		JLog::addLogger(
+		array('logger'=>'formattedtext', 'text_file'=>'myext.error.log.php'), JLog::ERROR,
+		array('myextension'));*/
+		
+		/* Add on-screen based loggers */
+		/*JLog::addLogger(array('logger'=>'messagequeue'), JLog::INFO, array('myextension'));
+		JLog::addLogger(array('logger'=>'messagequeue'), JLog::ERROR, array('myextension'));*/
+		
+		/* These both should print to screen and save to file */
+		/*JLog::add('THIS IS INFO2', JLog::INFO, 'myextension');
+		JLog::add('THIS IS ERROR2', JLog::ERROR, 'myextension');*/
+		
+		
+		/*JLogLdapHelper::addErrorEntry('THIS IS ERROR', '12345');
+		JLogLdapHelper::addErrorEntry('THIS IS ERROR2', '12345');
+		 JLogLdapHelper::addInfoEntry('THIS IS INFO', '1234');
+		// In file only
+		JLogLdapHelper::addDebugEntry('THIS IS DEBUG', '123456');*/
+		
+		
+		
+		//die();
+		
+		//$testing = new JLogEntryLdapEntry('someshit', 'you are shit', JLog::ERROR, 'jldap2');
+		//$tmp = array_change_key_case(get_object_vars($testing), CASE_UPPER);
+		//print_r($tmp); die();
+		//JLog::add($testing);
+		
+		/*JLog::add('this is info',		JLog::INFO,		'ldap');
+		
+		JLog::add('oh no an error',		JLog::ERROR,	'ldap');
+		
+		JLog::add('this is some debug',	JLog::DEBUG,	'ldap');
+		
+		// this is being printed to my info log file :(
+		JLog::add('this is nothing to do with ldap', JLog::INFO);
+		
+		JLog::add('why are you printing to my ldap log again', JLog::WARNING);
+		
+		JLog::add('this should be printed out to screen and saved in log', JLog::WARNING, 'ldap');*/
+		
+		//return;
+		
+		
+		
+		// on-screen messages
+		/*JFactory::getApplication()->enqueueMessage('This is a message', 	'message ldap');
+		JFactory::getApplication()->enqueueMessage('This is a warning', 	'warning ldap');
+		JFactory::getApplication()->enqueueMessage('This is a notice', 		'notice ldap');
+		JFactory::getApplication()->enqueueMessage('This is a error', 		'error ldap');
+		*/
+		
+	}
 	
 	/**
 	 * This method should handle the SSO Ldap authentication (though

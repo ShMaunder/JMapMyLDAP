@@ -129,7 +129,7 @@ class LdapEvent extends JEvent
 		 * the user has the attributes element. If not then it can
 		 * be assumed that the JMapMyLDAP authentication wasn't used.
 		 */
-		if(!isset($JUser['attributes'])) {
+		if(!isset($user['attributes'])) {
 			if($attributes = LdapUserHelper::getAttributes($user)) {
 				$user['attributes'] = $attributes;	
 			} else {
