@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset 
+		name="component"
+		label="COM_LDAPADMIN_FIELDSET_CONFIG_LABEL"
+		description="COM_LDAPADMIN_FIELDSET_CONFIG_DESC"
+	>
+		<field
+			name="auth_plugin"
+			type="text"
+			default="jmapmyldap"
+			label="COM_LDAPADMIN_FIELD_AUTHPLUGIN_LABEL"
+			description="COM_LDAPADMIN_FIELD_AUTHPLUGIN_DESC" 
+		/>
+		<field
+			name="dispatcher_plugin"
+			type="text"
+			default="ldapdispatcher"
+			label="COM_LDAPADMIN_FIELD_DISPATCHER_LABEL"
+			description="COM_LDAPADMIN_FIELD_DISPATCHER_DESC" 
+		/>
+		<field
+			name="plugin_type"
+			type="text"
+			default="ldap"
+			label="COM_LDAPADMIN_FIELD_PLUGINTYPE_LABEL"
+			description="COM_LDAPADMIN_FIELD_PLUGINTYPE_DESC" 
+		/>
+		<field name="autoregister" type="list"
+			default="1"
+			description="COM_LDAPADMIN_FIELD_REGISTER_DESC"
+			label="COM_LDAPADMIN_FIELD_REGISTER_LABEL"
+		>
+			<option value="0">COM_LDAPADMIN_FIELD_REGISTER_INHERIT_NO</option>
+			<option value="1">COM_LDAPADMIN_FIELD_REGISTER_INHERIT_YES</option>
+			<option value="override0">COM_LDAPADMIN_FIELD_OVERRIDE_NO</option>
+			<option value="override1">COM_LDAPADMIN_FIELD_OVERRIDE_YES</option>
+		</field>
+		<field name="spacer1" type="spacer" hr="true" />
+		<field name="file_debug" type="list"
+			default="error_only"
+			description="COM_LDAPADMIN_FIELD_FILEDEBUG_DESC"
+			label="COM_LDAPADMIN_FIELD_FILEDEBUG_LABEL"
+		>
+			<option value="full">COM_LDAPADMIN_FIELD_FILEDEBUG_FULL</option>
+			<option value="error_info">COM_LDAPADMIN_FIELD_FILEDEBUG_ERROR_INFO</option>
+			<option value="error_only">COM_LDAPADMIN_FIELD_FILEDEBUG_ERROR_ONLY</option>
+			<option value="info_only">COM_LDAPADMIN_FIELD_FILEDEBUG_INFO_ONLY</option>
+			<option value="none">COM_LDAPADMIN_FIELD_FILEDEBUG_NONE</option>
+		</field>
+		<field name="screen_debug" type="list"
+			default="error_only"
+			description="COM_LDAPADMIN_FIELD_SCREENDEBUG_DESC"
+			label="COM_LDAPADMIN_FIELD_SCREENDEBUG_LABEL"
+		>
+			<option value="full">COM_LDAPADMIN_FIELD_SCREENDEBUG_FULL</option>
+			<option value="error_only">COM_LDAPADMIN_FIELD_SCREENDEBUG_ERROR_ONLY</option>
+			<option value="info_only">COM_LDAPADMIN_FIELD_SCREENDEBUG_INFO_ONLY</option>
+			<option value="none">COM_LDAPADMIN_FIELD_SCREENDEBUG_NONE</option>
+		</field>
+	</fieldset>
+	<fieldset
+		name="permissions"
+		label="JCONFIG_PERMISSIONS_LABEL"
+		description="JCONFIG_PERMISSIONS_DESC">
+
+		<field
+			name="rules"
+			type="rules"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			filter="rules"
+			validate="rules"
+			component="com_ldapadmin"
+			section="component">
+			<action
+				name="core.admin"
+				title="JACTION_ADMIN"
+				description="JACTION_ADMIN_COMPONENT_DESC" />
+
+			<action
+				name="core.manage"
+				title="JAction_Manage"
+				description="JACTION_MANAGE_COMPONENT_DESC" />
+				
+			<action
+				name="core.edit"
+				title="JAction_Edit"
+				description="JACTION_EDIT_COMPONENT_DESC" />
+		</field>
+	</fieldset>
+</config>
