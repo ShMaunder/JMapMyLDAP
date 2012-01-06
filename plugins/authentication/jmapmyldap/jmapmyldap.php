@@ -139,7 +139,7 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 		
 	}
 	
-	// new sso method ?? i cant see this working!
+	// new sso method ?? i cant see this working - the response is not a reference :(!
 	public function onUserAuthorisation($response, $options=Array())
 	{
 		

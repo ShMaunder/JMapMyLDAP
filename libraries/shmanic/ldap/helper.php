@@ -135,7 +135,7 @@ class LdapUserHelper extends JObject
 	{
 		
 		if($ldap = LdapHelper::getConnection(false)) {
-		
+			
 			$dn = $ldap->getUserDN($user['username'], null, false);
 			if(JError::isError($dn)) {
 				return false;
@@ -172,7 +172,7 @@ class LdapHelper extends JObject
 		if(!$params = self::getParams()) {
 			return false;
 		}
-
+		
 		$ldap = JLDAP2::getInstance($params);
 		
 		if($ldap->isConnected() || $ldap->connect()) {
@@ -197,8 +197,7 @@ class LdapHelper extends JObject
 	{
 		
 		if(is_null($auth)) {
-			//$auth = self::$auth_plugin;
-			self::getGlobalParam('auth_plugin', 'jmapmyldap');
+			$auth = self::getGlobalParam('auth_plugin', 'jmapmyldap');
 		}
 		
 		/*if($plugin = JPluginHelper::getPlugin('authentication', $options['authplugin'])) {*/
@@ -346,7 +345,7 @@ class LdapHelper extends JObject
 	
 		$string = null;
 		foreach($filters as $filter) {
-			$filter = JLDAPHelper::escape($filter);
+			$filter = LdapHelper::escape($filter);
 			$string .= '(' . $filter . ')';
 		}
 	
@@ -379,14 +378,13 @@ class LdapHelper extends JObject
 		return $address;
 	}
 	
+	// Gets a global wide (common) parameter for the LDAP extensions
 	public static function getGlobalParam($field, $default = null)
 	{
-		
+		// TODO: Hmm, what can we do for the platform??
 		$params = JComponentHelper::getParams('com_ldapadmin');
 		
-		
 		return($params->get($field, $default));
-		
 		
 	}
 

@@ -388,7 +388,7 @@ class JLDAP2 extends JObject
 	 * @since   2.0
 	 */
 	public function modify($dn, $attributes) 
-	{
+	{		
 		if(!$result = @ldap_modify($this->ds, $dn, $attributes)) {
 			$this->setError($this->getErrorMsg());
 		}
@@ -435,6 +435,13 @@ class JLDAP2 extends JObject
 	 */
 	public function replaceAttributes($dn, $attributes) 
 	{
+		foreach($attributes as $attribute) {
+			echo count($attribute);
+			foreach($attribute as $value) {
+				if(!$value) echo 'trolol';
+			}
+		}
+		
 		return @ldap_mod_replace($this->ds, $dn, $attributes);
 	}
 

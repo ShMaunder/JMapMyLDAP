@@ -157,14 +157,16 @@ class LdapProfile extends JObject
 		return $attributes;
 	}
 	
+	//$user - LDAP stuff
 	public function saveProfile($xml, $instance, $user, $options)
 	{
-		if($uid = $instance->get('id')) {
+		if($uid = (int)$instance->get('id')) {
 			
 			try {
 				
+				// Delete all current profile records for this user from the database
 				$db = &JFactory::getDbo();
-				$db->setQuery('DELETE FROM #__user_profiles WHERE user_id = '.$uid.' AND profile_key LIKE \'ldap.%\'');
+				$db->setQuery('DELETE FROM #__user_profiles WHERE user_id = '. $uid .' AND profile_key LIKE \'ldap.%\'');
 				if (!$db->query()) {
 					throw new Exception($db->getErrorMsg());
 				}
@@ -173,14 +175,40 @@ class LdapProfile extends JObject
 				$tuples = array();
 				$attributes = $this->getAttributes($xml);
 				
-				/* TODO: delimiting will NOT WORK here at the moment. URGENT FIX REQUIRED */
 				foreach($attributes as $attribute) {
-					if(isset($user['attributes'][$attribute][0]) && ($value = $user['attributes'][$attribute][0])) {
+					
+					// Lets check for a delimiter (this is the indicator that multiple values are supported)
+					$delimiter 	= null;
+					$xmlField = $xml->xpath("fieldset/field[@name='$attribute']");
+					
+					
+					if($delimiter = (string)$xmlField[0]['delimiter']) { 
+						
+						// There is a delimiter so we treat this as an attribute that supports multiple values
+						
+						if(strToUpper($delimiter) == 'NEWLINE') $delimiter = "\n";
+						
+						$value = '';
+						foreach($user['attributes'][$attribute] as $values) {
+							$value .= $values . $delimiter;
+						}
+						
+						// Queue as a record to the DB
 						$tuples[] = '(' . $uid . ', ' . $db->quote('ldap.'.$attribute) . ', ' . $db->quote($value)
-						 . ', ' . $order++ . ')';
+							. ', ' . $order++ . ')';
+						
+					} else {
+						
+						// No delimiter so we assume that only one value is supported
+						if(isset($user['attributes'][$attribute][0]) && ($value = $user['attributes'][$attribute][0])) {
+							// Queue as a record to the DB
+							$tuples[] = '(' . $uid . ', ' . $db->quote('ldap.'.$attribute) . ', ' . $db->quote($value)
+							. ', ' . $order++ . ')';
+						}
+						
 					}
 				}
-				
+
 				if(count($tuples)) {
 
 					$db->setQuery('INSERT INTO #__user_profiles VALUES '.implode(', ', $tuples));
@@ -194,9 +222,7 @@ class LdapProfile extends JObject
 				$this->setError($e->getError());
 				return false;
 			}
-		
 		}
-
 	}
 	
 	/* clean up input fields to ensure that disabled options have been honoured */
@@ -227,13 +253,11 @@ class LdapProfile extends JObject
 		 */
 		if($ldap = LdapHelper::getConnection(true)) {
 
-			$dn = $ldap->getUserDN($username, null, false);
-			if(JError::isError($dn)) {
+			if(!$dn = $ldap->getUserDN($username, null, false)) {
 				return false;
 			}
-			
-			$user = $ldap->getUserDetails($dn);
-			if(JError::isError($user)) {
+
+			if(!$user = $ldap->getUserDetails($dn)) {
 				return false;
 			}
 
@@ -271,14 +295,24 @@ class LdapProfile extends JObject
 					
 				}
 			}
+			print_r($user); die();
+			print_r($modify);
+			$modify = array();
+			$modify['url'] = array();
+			print_r($modify);
 			
 			if(count($modify)) {
-				$ldap->modify($dn, $modify);
+				//$ldap->modify($dn, $modify);
+				//$ldap->deleteAttributes($dn, $modify);
 			}
 			
 			if(count($addition)) {
-				$ldap->add($dn, $addition);
+				//$ldap->add($dn, $addition);
 			}
+			
+			//echo 'modify '; print_r($modify); echo '<br /><br />addition: '; print_r($addition);
+			//echo $ldap->getErrorMsg();
+			//die();
 			
 			if(count($modify) || count($addition)) {
 				// Refresh profile for this user in J! database
@@ -294,20 +328,23 @@ class LdapProfile extends JObject
 				
 			}	
 			
-		}
+		} 
 	}
 	
-	// @RETURN: 0-discard, 1-modify, 2-addition
+	// @RETURN: 0-discard, 1-modify, 2-addition, 3-delete
 	protected function checkField($user, $key, $interval, $value) 
 	{
 		
 		if(array_key_exists($key, $user)) {
-			// LDAP attribute exists, we can use modify
+			// LDAP attribute exists
 			
 			if(isset($user[$key][$interval])) {
 				if($user[$key][$interval] == $value) {
 					return 0; // Same value - no need to update
 				}
+				/*if(is_null($value) || !$value) {
+					return 3;
+				}*/
 			}
 		
 			return 1;
