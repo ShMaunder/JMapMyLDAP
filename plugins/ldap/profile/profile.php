@@ -156,26 +156,12 @@ class plgLdapProfile extends JPlugin
 		$userId = isset($data->id) ? $data->id : 0;
 		
 		// Load the profile data from the database.
-		$db = &JFactory::getDbo();
-		$db->setQuery(
-			'SELECT profile_key, profile_value FROM #__user_profiles' .
-			' WHERE user_id = '.(int) $userId .
-			' AND profile_key LIKE \'ldap.%\'' .
-			' ORDER BY ordering'
-		);
-		$results = $db->loadRowList();
+		$records = $this->profile->queryProfile($userId, true);
 		
-		// Check for a database error.
-		if ($db->getErrorNum()) {
-			$this->_subject->setError($db->getErrorMsg());
-			return false;
-		}
-		
-		// Merge the profile data.
+		// Merge the profile data
 		$data->ldap_profile = array();
-		foreach ($results as $v) {
-			$k = str_replace('ldap.', '', $v[0]);
-			$data->ldap_profile[$k] = $v[1];
+		foreach($records as $record) {
+			$data->ldap_profile[$record['profile_key']] = $record['profile_value'];
 		}
 		
 		return true;

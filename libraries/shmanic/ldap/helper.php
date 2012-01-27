@@ -387,6 +387,136 @@ class LdapHelper extends JObject
 		return($params->get($field, $default));
 		
 	}
+	
+	// current - the current set of full ldap attributes
+	// changes - array of changes to make
+	// multiple - a boolean if this attribute in changes is multiple values
+	// Return - Boolean to Success
+	public static function makeChanges($dn, $current, $changes = array())
+	{
+		
+		if(!count($changes)) {
+				return false; // There is nothing to change
+		}
+	
+		$deleteEntries 		= array();
+		$addEntries 		= array();
+		$replaceEntries		= array();
+		
+		foreach($changes as $key=>$value) {
+			
+			$return = 0;
+			
+			// Check this attribute for multiple values
+			if(is_array($value)) {
+				
+				/* This is a multiple value attriute and to preserve
+				 * order we must replace the whole thing if changes
+				 * are required.
+				 */
+				$modification = false;
+				$new = array();
+				$count = 0;
+				
+				for($i=0; $i<count($value); $i++) {
+					
+					if($return = self::checkField($current, $key, $count, $value[$i])) {
+						$modification = true;
+					}
+					
+					if($return!=3 && $value[$i]) {
+						$new[] = $value[$i]; //We don't want to save deletes
+						$count++;
+					}
+				}
+
+				if($modification) {
+					$deleteEntries[$key] = array(); // We want to delete it first
+					if(count($new)) {
+						$addEntries[$key] = array_reverse($new); // Now lets re-add them
+					}
+				}
+				
+				
+			} else {
+				
+				/* This is a single value attribute and we now need to 
+				 * determine if this needs to be ignored, added, 
+				 * modified or deleted.
+				 */
+				$return = self::checkField($current, $key, 0, $value);
+				
+				switch($return) {
+				
+					case 1:
+						$replaceEntries[$key] = $value;
+						break;
+						
+					case 2:
+						$addEntries[$key] = $value;
+						break;
+						
+					case 3:
+						$deleteEntries[$key] = array();
+						break;
+				
+				}
+			}
+		}
+		
+		/* We can now commit the changes to the 
+		 * LDAP server for this DN.
+		 */
+		$results 	= array();
+		$ldap 		= JLDAP2::getInstance();
+		
+		if(count($deleteEntries)) { print_r($deleteEntries);
+			$results[] = $ldap->deleteAttributes($dn, $deleteEntries);
+		}
+		
+		if(count($addEntries)) {
+			$results[] = $ldap->addAttributes($dn, $addEntries);
+		}
+		
+		if(count($replaceEntries)) {
+			$results[] = $ldap->replaceAttributes($dn, $replaceEntries);
+		}
+
+		if(!in_array(false, $results, true)) {
+			return true;
+		}
+	}
+	
+	// @RETURN: 0-same/ignore, 1-modify, 2-addition, 3-delete
+	protected static function checkField($current, $key, $interval, $value)
+	{
+	
+		// Check if the LDAP attribute exists
+		if(array_key_exists($key, $current)) {
+				
+			if(isset($current[$key][$interval])) { 
+				if($current[$key][$interval] == $value) {
+					return 0; // Same value - no need to update
+				}
+				if(is_null($value) || !$value) {
+					return 3; // We don't want to include a blank or null value
+				}
+			}
+			
+			if(is_null($value) || !$value) {
+				return 0; // We don't want to include a blank or null value
+			}
+	
+			return 1;
+	
+		} else {
+			if(!is_null($value) && $value) {
+				return 2; // We need to create a new LDAP attribute
+			} else {
+				return 0; // We don't want to include a blank or null value
+			}
+		}
+	}
 
 }
 
