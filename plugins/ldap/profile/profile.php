@@ -199,10 +199,16 @@ class plgLdapProfile extends JPlugin
 		
 	}
 	
-	
-	public function onLdapBeforeSave($user, $isnew, $new) 
+	// Delete the profile
+	public function onLdapAfterDelete($user, $success, $msg)
 	{
-
+		if (!$success) {
+			return false;
+		}
+		
+		if($userId = JArrayHelper::getValue($user, 'id', 0, 'int')) {
+			$this->profile->deleteProfile($userId);
+		}
 		
 	}
 	
@@ -246,6 +252,8 @@ class plgLdapProfile extends JPlugin
 	 * 
 	 * @return  void
 	 * @since   1.0
+	 * 
+	 * @deprecated old ways
 	 */
 	protected function _reportError($exception = null) 
 	{

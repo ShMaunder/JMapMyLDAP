@@ -92,6 +92,8 @@ class LdapUserHelper extends JObject
 	 *
 	 * @return  mixed  True on success, otherwise either false or Exception on error
 	 * @since   1.0
+	 * 
+	 * @deprecated this method is broken and doesn't save parameters - use JUser::save()
 	 */
 	public static function saveUser(&$instance) 
 	{
@@ -568,6 +570,15 @@ class LdapEventHelper extends JObject
 		
 		return false;
 		
+	}
+	
+	public static function isUserLdap($userId = null) 
+	{
+		if(is_null($userId)) {
+			$user = JFactory::getUser();
+		} else {
+			$user = JFactory::getUser($userId);
+		}
 	}
 	
 	public static function loadPlugins($type = 'ldap')

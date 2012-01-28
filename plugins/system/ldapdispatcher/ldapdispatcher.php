@@ -19,7 +19,7 @@ jimport('shmanic.client.jldap2');
  *
  * @package     Shmanic.Plugin
  * @subpackage  System.LDAPDispatcher
- * @since       1.0
+ * @since       2.0
  */
 class plgSystemLDAPDispatcher extends JPlugin 
 {	
@@ -40,12 +40,15 @@ class plgSystemLDAPDispatcher extends JPlugin
 	
 	public function onAfterInitialise() 
 	{	
+		/* Determine if the current user is a LDAP user and if so then
+		 * allow LDAP events to be fired.
+		 */
 		if(class_exists('LdapEventHelper')) {
-			$dispatcher = JDispatcher::getInstance();
 			LdapEventHelper::loadPlugins('ldap');
-			// Determine if the current session is a logged-in LDAP user
 			if(LdapEventHelper::isLdapSession()) {
-				LdapEventHelper::loadEvents($dispatcher);
+				LdapEventHelper::loadEvents(
+					JDispatcher::getInstance()
+				);
 			}
 		}
 	}
@@ -54,11 +57,54 @@ class plgSystemLDAPDispatcher extends JPlugin
 	public function onUserLogin($user, $options = array()) 
 	{
 		if($user['type'] == 'LDAP' && class_exists('LdapEventHelper')) {
-			$dispatcher = JDispatcher::getInstance();
-			$events = LdapEventHelper::loadEvents($dispatcher);
-			$options['authplugin'] 		= $this->params->get('auth_plugin', 'jmapmyldap');
-			$options['autoregister'] 	= $this->params->get('autoregister', true);
+
+			$events = LdapEventHelper::loadEvents(
+				JDispatcher::getInstance()
+			);
+			//$options['authplugin'] 		= $this->params->get('auth_plugin', 'jmapmyldap');
+			//$options['autoregister'] 	= $this->params->get('autoregister', true);
+			//$options['authplugin'] = LdapHelper::getGlobalParam('auth_plugin', 'jmapmyldap');
+			
+			// Autoregistration with optional override
+			$autoRegister = LdapHelper::getGlobalParam('autoregister', true);
+			if($autoRegister == '0' || $autoRegister == '1') {
+				// inherited registration
+				$options['autoregister'] = isset($options['autoregister']) ? $options['autoregister'] : $autoRegister;
+			} else {
+				// override registration
+				$options['autoregister'] = ($autoRegister == 'override1') ? 1 : 0;
+			}
+
 			return $events->onUserLogin($user, $options);
+		}
+	}
+	
+	/**
+	* Method is called after user data is deleted from the database
+	*
+	* @param	array		$user		Holds the user data
+	* @param	boolean		$success	True if user was succesfully stored in the database
+	* @param	string		$msg		Message
+	*/
+	public function onUserAfterDelete($user, $success, $msg)
+	{  
+		if($params = JArrayHelper::getValue($user, 'params', 0, 'string')) {
+
+			$reg = new JRegistry();
+			$reg->loadString($params);
+
+			/* This was an LDAP user so lets fire the LDAP specific
+			 * on user deletion
+			 */
+			if($reg->get('authtype')=='LDAP') {
+				
+				$events = LdapEventHelper::loadEvents(
+					JDispatcher::getInstance()
+				);
+				
+				return $events->onUserAfterDelete($user, $success, $msg);
+				
+			}
 		}
 	}
 	
@@ -71,6 +117,8 @@ class plgSystemLDAPDispatcher extends JPlugin
 	 * 
 	 * @return  JError  Error based on comment from exception
 	 * @since   1.0
+	 * 
+	 * @deprecated We now use the new 11.3 JLogging
 	 */
 	protected function _reportError($exception = null) 
 	{
@@ -96,31 +144,5 @@ class plgSystemLDAPDispatcher extends JPlugin
 		
 	}
 
-	public function onContentPrepareForm($form, $data) {
-		
-		/*if (!($form instanceof JForm)) {
-			$this->_subject->setError('JERROR_NOT_A_FORM');
-			return false;
-		}
-
-		$forms = explode(';', 'com_config.application');
-		
-		// Check we are manipulating a valid form
-		if (!in_array($form->getName(), $forms)) {
-			return true;
-		}
-		
-		
-			// Load in the profile XML file
-		if(($xml = JFactory::getXML(JPATH_PLUGINS . '/system/ldapdispatcher/ldap_global_config.xml', true)) 
-			&& ($form->load($xml, false, false))) {			
-
-			// :: success ::
-			return true;
-		}*/
-		
-		//echo '<br><br><br><br>';
-		//print_r($form);
-	}
 	
 }

@@ -138,16 +138,26 @@ class LdapEvent extends JEvent
 			}
 		}
 		
+		/* Set a session variable so we can easily evaluate if this
+		 * login is LDAP authenticated.
+		 */
 		$session = JFactory::getSession();
 		$session->set('authtype', 'LDAP');
 			
 		$instance = LdapUserHelper::getUser($user, $options);
+		
+		/* Set a user parameter to distinguish the authentication
+		* type even when this user is not logged in.
+		*/
+		$instance->setParam('authtype', 'LDAP');
+		
+		// Fire the ldap specific on login events
 		$result = LdapEventHelper::triggerEvent('onLdapLogin', array(&$instance, $user, $options));
-	
-		if($result) {
-			LdapUserHelper::saveUser($instance, $options);
-		}
 
+		if($result) {
+			$instance->save();
+		}
+		
 		return $result;
 	}
 	

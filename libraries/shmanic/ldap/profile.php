@@ -11,8 +11,9 @@
 
 defined('_JEXEC') or die;
 
-jimport('joomla.version');
 jimport('shmanic.client.jldap2');
+
+//TODO: implement logging options, docblock this and the plug-in
 
 /**
  * Maps LDAP profile data and Joomla profile data.
@@ -90,7 +91,14 @@ class LdapProfile extends JObject
 		}
 	}
 	
-	// get the full xml path
+	/**
+	* Builds and returns the full path to the profile XML.
+	*
+	* @param  string  $base  Optional base path to find the profile XML (default is ./profiles)
+	*
+	* @return  string  Full path to the profile XML
+	* @since   2.0
+	*/
 	public function getXMLPath($base = null) 
 	{
 		
@@ -110,7 +118,17 @@ class LdapProfile extends JObject
 		
 	}
 	
-	/* get the xml fields and include the languages */
+	/**
+	* Include the optional profile language and return 
+	* the XML profile fields.
+	*
+	* @param  string  $xmlPath   Optional full path to the profile XML
+	* @param  string  $langpath  Optional base path to the profile languages
+	* @param  string  $fields    Optional name of the XML field to use
+	*
+	* @return  JXMLElement  Required XML profile fields
+	* @since   2.0
+	*/
 	public function getXMLFields($xmlPath = null, $langPath = null, $fields = null)
 	{
 
@@ -135,14 +153,20 @@ class LdapProfile extends JObject
 				// Attempt to load profile language
 				$lang = JFactory::getLanguage();
 				$lang->load($this->profile_name, $langPath);
-				
 				return $xml[0];
 				
 			}
 		}
-		
 	}
 	
+	/**
+	* Return the attributes required from the users LDAP account.
+	*
+	* @param  JXMLElement  $xml  XML profile fields
+	*
+	* @return  array  An array of attributes
+	* @since   2.0
+	*/
 	public function getAttributes($xml) 
 	{
 		$attributes = array();
@@ -156,7 +180,14 @@ class LdapProfile extends JObject
 		return $attributes;
 	}
 	
-	
+	/**
+	* Delete the entire profile of the user.
+	*
+	* @param  integer  $userId   The user ID of the JUser
+	*
+	* @return  boolean  True on success
+	* @since   2.0
+	*/
 	public function deleteProfile($userId)
 	{
 		if(!$userId = (int)$userId) {
@@ -179,7 +210,15 @@ class LdapProfile extends JObject
 		return true;
 	}
 	
-	//$clean - remove the ldap. from the keys
+	/**
+	* Return the records of a users profile.
+	*
+	* @param  integer  $userId   The user ID of the JUser
+	* @param  boolean  $clean    If true remove the profile prefix from the keys
+	*
+	* @return  array  Associated array of records (profile_key=>, profile_value=>)
+	* @since   2.0
+	*/
 	public function queryProfile($userId, $clean = false)
 	{
 		if(!$userId = (int)$userId) {
@@ -209,6 +248,17 @@ class LdapProfile extends JObject
 		
 	}
 	
+	/**
+	* Add profile records (attributes) for a user 
+	* to the database.
+	*
+	* @param  integer  $userId      The user ID of the JUser
+	* @param  array    $attributes  An array of associated attributes (profile_key=>profile_value)
+	* @param  integer  $order       The ordering number to use as a base
+	*
+	* @return  boolean  True on success
+	* @since   2.0
+	*/
 	public function addRecords($userId, $attributes, $order)
 	{
 		if(!$userId = (int)$userId) {
@@ -237,6 +287,16 @@ class LdapProfile extends JObject
 		return true;
 	}
 	
+	/**
+	* Update profile records (attributes) for a user
+	* to the database.
+	*
+	* @param  integer  $userId      The user ID of the JUser
+	* @param  array    $attributes  An array of associated attributes (profile_key=>profile_value)
+	*
+	* @return  boolean  True on success
+	* @since   2.0
+	*/
 	public function updateRecords($userId, $attributes)
 	{
 		if(!$userId = (int)$userId) {
@@ -266,6 +326,16 @@ class LdapProfile extends JObject
 		return true;
 	}
 	
+	/**
+	* Delete profile records (attributes) for a user
+	* from the database.
+	*
+	* @param  integer  $userId      The user ID of the JUser
+	* @param  array    $attributes  An array of attribute/profile keys
+	*
+	* @return  boolean  True on success
+	* @since   2.0
+	*/
 	public function deleteRecords($userId, $attributes)
 	{
 		
@@ -296,7 +366,18 @@ class LdapProfile extends JObject
 
 	}
 	
-	public function saveProfile($xml, $instance, $user, $options) 
+	/**
+	* Save the users profile to the database.
+	*
+	* @param  JXMLElement  $xml        XML profile fields
+	* @param  JUser        &$instance  The Joomla user
+	* @param  array        $user       Contains all the LDAP response data including attributes
+	* @param  array        $options    An optional set of options
+	*
+	* @return  boolean  True on success
+	* @since   2.0
+	*/
+	public function saveProfile($xml, &$instance, $user, $options = array()) 
 	{
 		if(!$userId = (int)$instance->get('id')) {
 			return false;
@@ -374,7 +455,10 @@ class LdapProfile extends JObject
 				
 		}
 		
-		
+		/* Lets commit these differences to the database
+		 * in steps (delete, add, update) and return the 
+		 * result.
+		 */
 		$results 	= array();
 		
 		if(count($deleteRecords)) {
@@ -395,17 +479,26 @@ class LdapProfile extends JObject
 		
 	}
 	
-	
-	// @RETURN: 0-same/ignore, 1-modify, 2-addition, 3-delete
-	// Check if the SQL database at $attribute has $value
-	protected function checkSqlField($sql, $attribute, $value)
+	/**
+	* Check the database (sql parameter) for the
+	* current status of a key and its value. This
+	* method will return with either a 0-match, 1-modify,
+	* 2-addition or 3-deletion flag for this key.
+	*
+	* @param  array   $sql    Associated array of records (profile_key=>, profile_value=>)
+	* @param  string  $key    The profile key to check
+	* @param  string  $value  The profile value to check against the key
+	*
+	* @return  integer  0-match | 1-modify | 2-addition | 3-delete
+	* @since   2.0
+	*/
+	protected function checkSqlField($sql, $key, $value)
 	{
-		
 		$status = 2;
 		
 		foreach($sql as $record) {
 			
-			if($record['profile_key']==$attribute) {
+			if($record['profile_key']==$key) {
 				$status = 1;
 				if($record['profile_value']==$value) {
 					$status = 0;
@@ -414,7 +507,6 @@ class LdapProfile extends JObject
 		}
 	
 		return $status;
-
 	}
 	
 	
@@ -493,9 +585,15 @@ class LdapProfile extends JObject
 					return false;
 				}
 				
-				$instance = JFactory::getUser(); //THIS IS WRONG!! The logged on user may be editing somebody else's profile TODO TODO
+				if($userId = JUserHelper::getUserId($username)) {
 				
-				$this->saveProfile($xml, $instance, array('attributes'=>$current), array());
+					$instance = new JUser($userId);
+				
+					$this->saveProfile($xml, $instance, array('attributes'=>$current), array());
+					$instance->save();
+					
+					return true;
+				}
 				
 			}
 			
