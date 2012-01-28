@@ -2,6 +2,7 @@
 
 defined('JPATH_PLATFORM') or die;
 
+jimport('shmanic.ldap.helper');
 jimport('joomla.log.logger');
 jimport('shmanic.log.ldapentry');
 

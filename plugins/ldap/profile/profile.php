@@ -18,7 +18,7 @@ jimport('shmanic.ldap.profile');
  * LDAP Profile Plugin
  *
  * @package     Shmanic.Plugin
- * @subpackage  System.LdapProfile
+ * @subpackage  Ldap.Profile
  * @since       2.0
  */
 class plgLdapProfile extends JPlugin 
@@ -124,7 +124,9 @@ class plgLdapProfile extends JPlugin
 		}
 		
 		if(isset($user['attributes'])) {
+			// Mandatory Joomla field processing and saving
 			$this->profile->doSync($instance, $user, $this->nameKey, $this->emailKey);
+			// Save the profile as defined from the XML
 			$this->profile->saveProfile($this->xml, $instance, $user, $options);
 		} else {
 			$this->_reportError('No attributes to process');
@@ -145,6 +147,10 @@ class plgLdapProfile extends JPlugin
 	*/
 	public function onLdapContentPrepareData($context, $data)
 	{
+		// Check if the profile parameter is enabled
+		if(!$this->params->get('use_profile', 0)) {
+			return true;
+		}
 		
 		$forms = explode(';', $this->params->get('permitted_forms'));
 		
@@ -178,6 +184,11 @@ class plgLdapProfile extends JPlugin
 	 */
 	public function onLdapContentPrepareForm($form, $data)
 	{
+		// Check if the profile parameter is enabled
+		if(!$this->params->get('use_profile', 0)) {
+			return true;
+		}
+		
 		if (!($form instanceof JForm)) {
 			$this->_subject->setError('JERROR_NOT_A_FORM');
 			return false;
@@ -212,16 +223,29 @@ class plgLdapProfile extends JPlugin
 		
 	}
 	
-	public function onLdapAfterSave($data, $isNew, $result, $error) {
+	public function onLdapAfterSave($data, $isNew, $result, $error) 
+	{
 		
-		if ($result && isset($data['ldap_profile']) && (count($data['ldap_profile'])))
-		{
+		if($result) {
+		
+			$profileData = array();
+			
 			$username = JArrayHelper::getValue($data, 'username', 0, 'string');
 			
-			// Remove any disabled elements from being saved
-			$toSave = $this->profile->cleanInput($this->xml, $data['ldap_profile']);
+			/* Include the mandatory Joomla fields (fullname and email) */
+			$mandatoryData = array(
+				'name'=>JArrayHelper::getValue($data, 'name'), 
+				'email'=>JArrayHelper::getValue($data, 'email')
+			);
 			
-			$this->profile->saveToLDAP($this->xml, $username, $toSave);	
+			if(isset($data['ldap_profile']) && (count($data['ldap_profile']))) {
+	
+				// Only get profile data and enabled elements.
+				$profileData = $this->profile->cleanInput($this->xml, $data['ldap_profile']);
+
+			}
+			
+			$this->profile->saveToLDAP($this->xml, $username, $profileData, $mandatoryData);
 		}
 		
 	}
@@ -230,8 +254,8 @@ class plgLdapProfile extends JPlugin
 	 * Called just before a user LDAP read to gather
 	 * extra user ldap attributes required for this plugin.
 	 *  
-	 * @param  JLDAP2  $ldap
-	 * @param  array   $options
+	 * @param  JLDAP2  $ldap     An active instance of JLDAP2
+	 * @param  array   $options  Optional extra options
 	 * 
 	 * @return  array  Array of attributes required for this plug-in
 	 * @since   2.0
@@ -244,15 +268,6 @@ class plgLdapProfile extends JPlugin
 	}
 	
 	/**
-	 * Reports an error to the screen and log. If debug mode is on 
-	 * then it displays the specific error on screen, if debug mode 
-	 * is off then it displays a generic error.
-	 *
-	 * @param  string  $exception  The error
-	 * 
-	 * @return  void
-	 * @since   1.0
-	 * 
 	 * @deprecated old ways
 	 */
 	protected function _reportError($exception = null) 

@@ -13,10 +13,10 @@ defined('_JEXEC') or die;
 
 jimport('shmanic.client.jldap2');
 
-//TODO: implement logging options, docblock this and the plug-in
+//TODO: implement logging options, docblock the plug-in, languages
 
 /**
- * Maps LDAP profile data and Joomla profile data.
+ * Maps LDAP profile data to Joomla and vice-versa.
  *
  * @package		Shmanic.Ldap
  * @subpackage	Profile
@@ -26,19 +26,21 @@ class LdapProfile extends JObject
 {
 	/**
 	* Synchronise fullname with joomla database
+	* 0-No Sync | 1-Sync From LDAP | 2- Sync To and From LDAP
 	*
-	* @var    boolean
+	* @var    integer
 	* @since  1.0
 	*/
-	protected $sync_name = false;
+	protected $sync_name = null;
 	
 	/**
 	 * Synchronise email with joomla database
+	 * 0-No Sync | 1-Sync From LDAP | 2- Sync To and From LDAP
 	 *
-	 * @var    boolean
+	 * @var    integer
 	 * @since  1.0
 	 */
-	protected $sync_email = false;
+	protected $sync_email = null;
 	
 	/**
 	* Profile XML name to use
@@ -369,15 +371,15 @@ class LdapProfile extends JObject
 	/**
 	* Save the users profile to the database.
 	*
-	* @param  JXMLElement  $xml        XML profile fields
-	* @param  JUser        &$instance  The Joomla user
-	* @param  array        $user       Contains all the LDAP response data including attributes
-	* @param  array        $options    An optional set of options
+	* @param  JXMLElement  $xml       XML profile fields
+	* @param  JUser        $instance  The Joomla user
+	* @param  array        $user      Contains all the LDAP response data including attributes
+	* @param  array        $options   An optional set of options
 	*
 	* @return  boolean  True on success
 	* @since   2.0
 	*/
-	public function saveProfile($xml, &$instance, $user, $options = array()) 
+	public function saveProfile($xml, $instance, $user, $options = array()) 
 	{
 		if(!$userId = (int)$instance->get('id')) {
 			return false;
@@ -510,7 +512,16 @@ class LdapProfile extends JObject
 	}
 	
 	
-	/* clean up input fields to ensure that disabled options have been honoured */
+	/**
+	* Return form fields that are enabled only in the
+	* XML.
+	*
+	* @param  JXMLElement  $xml     XML profile fields
+	* @param  array        $fields  An array of fields to be processed
+	*
+	* @return  array  An array of fields that are enabled
+	* @since   2.0
+	*/
 	public function cleanInput($xml, $fields = array())
 	{
 		$clean = array();
@@ -527,9 +538,20 @@ class LdapProfile extends JObject
 		return $clean;
 	}
 	
-	
-	/* save the new profile attributes to ldap and J! database */
-	public function saveToLDAP($xml, $username, $fields = array())
+	/**
+	* Save the profile to LDAP and then call for a
+	* Joomla! database refresh so both data sources 
+	* have the same information.
+	*
+	* @param  JXMLElement  $xml        XML profile fields
+	* @param  string       $username   The username of the profile to save
+	* @param  array        $profile    Array of profile fields to save (key=>value)
+	* @param  array        $mandatory  Array of mandatory joomla fields to save like name and email
+	*
+	* @return  boolean  True on success
+	* @since   2.0
+	*/
+	public function saveToLDAP($xml, $username, $profile = array(), $mandatory = array())
 	{
 		
 		/* Get a connection to ldap using the authentication
@@ -545,9 +567,9 @@ class LdapProfile extends JObject
 				return false;
 			}
 			
-			$new = array();
+			$processed = array();
 			
-			foreach($fields as $key=>$value) {
+			foreach($profile as $key=>$value) {
 				
 				$delimiter 	= null;
 				$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
@@ -563,22 +585,34 @@ class LdapProfile extends JObject
 					$newValues = preg_split("/$delimiter/", $value);
 					
 					for($i=0; $i<count($newValues); $i++) {
-						$new[$key][$i] = $newValues[$i];
+						$processed[$key][$i] = $newValues[$i];
 					}
 					
 				} else {
 					
 					// Single Value
-					$new[$key] = $value;
+					$processed[$key] = $value;
 
 				}
 			}
-
 			
-			if(count($new)) {
+			// Do the Mandatory Joomla field saving
+			if($this->get('sync_name', 0) == 2) {
+				if(($key = $ldap->ldap_fullname) && ($value = JArrayHelper::getValue($mandatory, 'name'))) {
+					$processed[$key] = $value;
+				}
+			}
+			
+			if($this->get('sync_email', 0) == 2) {
+				if(($key = $ldap->ldap_email) && ($value = JArrayHelper::getValue($mandatory, 'email'))) {
+					$processed[$key] = $value;
+				}
+			}
+			
+			if(count($processed)) {
 			
 				// Lets save the new (current) fields to the LDAP DN
-				LdapHelper::makeChanges($dn, $current, $new);
+				LdapHelper::makeChanges($dn, $current, $processed);
 
 				// Refresh profile for this user in J! database
 				if(!$current = $ldap->getUserDetails($dn)) {
@@ -588,9 +622,7 @@ class LdapProfile extends JObject
 				if($userId = JUserHelper::getUserId($username)) {
 				
 					$instance = new JUser($userId);
-				
 					$this->saveProfile($xml, $instance, array('attributes'=>$current), array());
-					$instance->save();
 					
 					return true;
 				}
