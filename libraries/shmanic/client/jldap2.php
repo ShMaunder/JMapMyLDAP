@@ -435,13 +435,6 @@ class JLDAP2 extends JObject
 	 */
 	public function replaceAttributes($dn, $attributes) 
 	{
-		foreach($attributes as $attribute) {
-			echo count($attribute);
-			foreach($attribute as $value) {
-				if(!$value) echo 'trolol';
-			}
-		}
-		
 		return @ldap_mod_replace($this->ds, $dn, $attributes);
 	}
 

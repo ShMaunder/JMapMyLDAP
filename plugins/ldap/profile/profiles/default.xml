@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
 	<fields name="ldap_profile">
-		<fieldset name="ldapprofile"
-			label="Basic Information"
+		<fieldset name="personal"
+			label="PLG_LDAP_PROFILE_FIELDSET_PERSONAL_LABEL"
 		>
 			<field
 				name="telephoneNumber"
@@ -12,7 +12,6 @@
 				size="30"
 				filter="tel"
 				required="false"
-				sync="true"
 				disabled="false"
 			/>
 			<field
@@ -24,34 +23,34 @@
 				rows="5"
 				filter="safehtml"
 				required="false"
-				sync="true"
 				disabled="false"
 			/>
 		</fieldset>
 		<fieldset name="website"
-			label="Website Stuff"
+			label="PLG_LDAP_PROFILE_FIELDSET_WEBSITE_LABEL"
 		>
 			<field
 				name="wWWHomePage"
 				type="text"
-				description="Your Shitty Homepage"
-				label="Homepage"
+				description="PLG_LDAP_PROFILE_FIELD_HOMEPAGE_DESC"
+				label="PLG_LDAP_PROFILE_FIELD_HOMEPAGE_LABEL"
 				size="30"
 				filter="string"
-				required="false"
+				required="true"
 				sync="true"
 				disabled="false"
 			/>
 			<field
 				name="url"
-				type="text"
-				description="Any of your other shitty homepages"
-				label="Other Web Page"
+				type="textarea"
+				description="PLG_LDAP_PROFILE_FIELD_LINKS_DESC"
+				label="PLG_LDAP_PROFILE_FIELD_LINKS_LABEL"
 				cols="30"
 				filter="string"
 				required="false"
 				sync="true"
 				disabled="false"
+				delimiter="NEWLINE"
 			/>
 		</fieldset>
 	</fields>

@@ -398,7 +398,7 @@ class LdapHelper extends JObject
 	{
 		
 		if(!count($changes)) {
-				return false; // There is nothing to change
+			return false; // There is nothing to change
 		}
 	
 		$deleteEntries 		= array();
@@ -472,7 +472,7 @@ class LdapHelper extends JObject
 		$results 	= array();
 		$ldap 		= JLDAP2::getInstance();
 		
-		if(count($deleteEntries)) { print_r($deleteEntries);
+		if(count($deleteEntries)) { 
 			$results[] = $ldap->deleteAttributes($dn, $deleteEntries);
 		}
 		

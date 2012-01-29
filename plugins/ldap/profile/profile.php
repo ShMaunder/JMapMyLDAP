@@ -109,7 +109,7 @@ class plgLdapProfile extends JPlugin
 	 * Checks to ensure that required variables are set before
 	 * calling the main do mapping library routine.
 	 *
-	 * @param  object  $instance  A JUser object for the authenticating user
+	 * @param  JUser   $instance  A JUser object for the authenticating user
 	 * @param  array   $user      The auth response including LDAP attributes
 	 * @param  array   $options   Array holding options
 	 *
@@ -119,7 +119,7 @@ class plgLdapProfile extends JPlugin
 	public function onLdapSync(&$instance, $user, $options = array()) 
 	{
 		if(!class_exists('LdapProfile')) {
-			$this->_reportError('Missing LDAP Profile Class');
+			JLogLdapHelper::addErrorEntry(JText::_('Missing LDAP Profile Class (LdapProfile).'), __CLASS__);
 			return false;
 		}
 		
@@ -127,24 +127,24 @@ class plgLdapProfile extends JPlugin
 			// Mandatory Joomla field processing and saving
 			$this->profile->doSync($instance, $user, $this->nameKey, $this->emailKey);
 			// Save the profile as defined from the XML
-			$this->profile->saveProfile($this->xml, $instance, $user, $options);
+			return $this->profile->saveProfile($this->xml, $instance, $user, $options);
 		} else {
-			$this->_reportError('No attributes to process');
+			JLogLdapHelper::addErrorEntry(JText::_sprintf('There are no user attributes to process for username \'%1$s\'.', $instance->username), __CLASS__);
 			return false;
 		}
 		
 	}
 	
 	/**
-	 * LDAP profile adapted from docs.joomla.org/Creating_a_profile_plugin
+	 * Get the profile data then merge it with the 
+	 * form so it can be displayed.
 	 * 
-	* @param  string  $context  The context for the data
-	* @param  int     $data     The user id
-	* @param  object
-	*
-	* @return  boolean
-	* @since   2.0
-	*/
+	 * @param  string  $context  The context for the data (i.e. the form name)
+	 * @param  object  $data     Associated data for the form (this should be JUser in this context)
+	 *
+	 * @return  boolean
+	 * @since   2.0
+	 */
 	public function onLdapContentPrepareData($context, $data)
 	{
 		// Check if the profile parameter is enabled
@@ -174,7 +174,8 @@ class plgLdapProfile extends JPlugin
 	}
 	
 	/**
-	 * LDAP profile adapted from docs.joomla.org/Creating_a_profile_plugin
+	 * Loads the profile XML and passes it to the form to
+	 * load the fields (excluding data).
 	 * 
 	 * @param  JForm  $form  The form to be altered.
 	 * @param  array  $data  The associated data for the form.
@@ -223,11 +224,11 @@ class plgLdapProfile extends JPlugin
 		
 	}
 	
+	/* Save profile data to LDAP */
 	public function onLdapAfterSave($data, $isNew, $result, $error) 
 	{
-		
 		if($result) {
-		
+			
 			$profileData = array();
 			
 			$username = JArrayHelper::getValue($data, 'username', 0, 'string');
@@ -265,14 +266,6 @@ class plgLdapProfile extends JPlugin
 		if($this->xml) {
 			return $this->profile->getAttributes($this->xml);
 		}
-	}
-	
-	/**
-	 * @deprecated old ways
-	 */
-	protected function _reportError($exception = null) 
-	{
-		//TODO: An error routine...
 	}
 
 }

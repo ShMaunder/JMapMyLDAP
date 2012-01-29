@@ -385,6 +385,8 @@ class LdapProfile extends JObject
 			return false;
 		}
 		
+		JLogLdapHelper::addDebugEntry(JText::sprintf('Attempting to sync the profile of user \'%1$s\'.', $instance->username), __CLASS__);
+		
 		$addRecords		= array();
 		$updateRecords 	= array();
 		$deleteRecords	= array();
@@ -475,9 +477,13 @@ class LdapProfile extends JObject
 			$results[] = $this->updateRecords($userId, $updateRecords);
 		}
 		
-		if(!in_array(false, $results, true)) {
-			return true;
-		}
+		$return = (!in_array(false, $results, true));
+		
+		count($results) ? 
+			JLogLdapHelper::addDebugEntry(JText::sprintf('Updated one or more profile fields in the Joomla database for user \'%1$s\' with result %2$s.', $instance->username, $return == 1 ? 'success' : 'fail'), __CLASS__) : 
+			JLogLdapHelper::addDebugEntry(JText::sprintf('It appears the profile fields in the Joomla database for user \'%1$s\' are already up to date.', $instance->username), __CLASS__);
+		
+		return $return;
 		
 	}
 	
@@ -621,6 +627,8 @@ class LdapProfile extends JObject
 				
 				if($userId = JUserHelper::getUserId($username)) {
 				
+					JLogLdapHelper::addInfoEntry(JText::sprintf('Updated profile for \'%1$s\'.', $username), __CLASS__);
+					
 					$instance = new JUser($userId);
 					$this->saveProfile($xml, $instance, array('attributes'=>$current), array());
 					
