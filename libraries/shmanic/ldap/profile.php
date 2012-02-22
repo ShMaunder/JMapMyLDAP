@@ -66,7 +66,7 @@ class LdapProfile extends JObject
 		parent::__construct($parameters);
 		
 		$lang = JFactory::getLanguage();
-		$lang->load('lib_ldapprofile', JPATH_SITE); //for errors
+		$lang->load('lib_ldap_profile', JPATH_SITE); //for errors
 		
 	}
 	
@@ -116,6 +116,9 @@ class LdapProfile extends JObject
 		
 		if(is_file($file)) {
 			return $file;
+		} else {
+			// XML file doesn't exist
+			JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_LDAP_PROFILE_XML_NOT_EXISTS', $file), __CLASS__);
 		}
 		
 	}
@@ -152,12 +155,24 @@ class LdapProfile extends JObject
 			// Get only the required header - i.e. ldap_profile
 			if($xml = $xml->xpath("/form/fields[@name='$fields']")) {
 				
+				JLogLdapHelper::addDebugEntry(JText::_('LIB_LDAP_PROFILE_XML_LOADED_VALID'), __CLASS__);
+				
 				// Attempt to load profile language
 				$lang = JFactory::getLanguage();
 				$lang->load($this->profile_name, $langPath);
 				return $xml[0];
 				
+			} else {
+				
+				// Invalid profile XML
+				JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_LDAP_PROFILE_FAILED_LOAD_XML', $xmlPath), __CLASS__);
+				
 			}
+		} else {
+			
+			// Cannot load the XML file
+			JLogLdapHelper::addErrorEntry(JText::sprintf('LIB_LDAP_PROFILE_FAILED_LOAD_XML', $xmlPath), __CLASS__);
+			
 		}
 	}
 	
@@ -195,6 +210,8 @@ class LdapProfile extends JObject
 		if(!$userId = (int)$userId) {
 			return false;
 		}
+		
+		JLogLdapHelper::addInfoEntry(JText::sprintf('LIB_LDAP_PROFILE_DELETED_PROFILE', $userId), __CLASS__);
 
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
@@ -385,7 +402,7 @@ class LdapProfile extends JObject
 			return false;
 		}
 		
-		JLogLdapHelper::addDebugEntry(JText::sprintf('Attempting to sync the profile of user \'%1$s\'.', $instance->username), __CLASS__);
+		JLogLdapHelper::addDebugEntry(JText::sprintf('LIB_LDAP_PROFILE_ATTEMPT_TO_SYNC', $instance->username), __CLASS__);
 		
 		$addRecords		= array();
 		$updateRecords 	= array();
@@ -480,8 +497,8 @@ class LdapProfile extends JObject
 		$return = (!in_array(false, $results, true));
 		
 		count($results) ? 
-			JLogLdapHelper::addDebugEntry(JText::sprintf('Updated one or more profile fields in the Joomla database for user \'%1$s\' with result %2$s.', $instance->username, $return == 1 ? 'success' : 'fail'), __CLASS__) : 
-			JLogLdapHelper::addDebugEntry(JText::sprintf('It appears the profile fields in the Joomla database for user \'%1$s\' are already up to date.', $instance->username), __CLASS__);
+			JLogLdapHelper::addDebugEntry(JText::sprintf('LIB_LDAP_PROFILE_UPDATED_DATABASE_FIELDS', $instance->username, $return == 1 ? JText::_('LIB_LDAP_PROFILE_SUCCESS') : JText::_('LIB_LDAP_PROFILE_FAIL')), __CLASS__) : 
+			JLogLdapHelper::addDebugEntry(JText::sprintf('LIB_LDAP_PROFILE_UP_TO_DATE', $instance->username), __CLASS__);
 		
 		return $return;
 		
@@ -627,7 +644,7 @@ class LdapProfile extends JObject
 				
 				if($userId = JUserHelper::getUserId($username)) {
 				
-					JLogLdapHelper::addInfoEntry(JText::sprintf('Updated profile for \'%1$s\'.', $username), __CLASS__);
+					JLogLdapHelper::addInfoEntry(JText::sprintf('LIB_LDAP_PROFILE_UPDATED_PROFILE', $username), __CLASS__);
 					
 					$instance = new JUser($userId);
 					$this->saveProfile($xml, $instance, array('attributes'=>$current), array());

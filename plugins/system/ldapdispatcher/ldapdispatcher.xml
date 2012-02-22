@@ -7,8 +7,8 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.2</version>
-	<buildDate>Mon Oct 24 18:20:35 BST 2011</buildDate>
+	<version>2.0.0.5</version>
+	<buildDate>Fri Jan 27 19:10:07 GMT 2012</buildDate>
 	<description>PLG_SYSTEM_LDAPDISPATCHER_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="ldapdispatcher">ldapdispatcher.php</filename>
