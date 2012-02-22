@@ -1,7 +1,7 @@
 <h1>JMapMyLDAP</h1>
 <p>Welcome to the project home for JMapMyLDAP (jmmLDAP).</p>
-<p>Currently, the main site at http://shmanic.com/tools/jmapmyldap contains all the documentation and updates for this project. Until I am used to Github, please use the tracker at http://joomlacode.org/gf/project/jmapmyldap/tracker/ to report bugs or feature requests.</p>
-<p>Discussions for this tool can be found in the Joomla! Forums http://forum.joomla.org/viewtopic.php?f=46&t=657124</p>
+<p>Currently, the main site at <a href="http://shmanic.com/tools/jmapmyldap">http://shmanic.com/tools/jmapmyldap</a> contains all the documentation and updates for this project. Until I am used to Github, please use the tracker at <a href="http://joomlacode.org/gf/project/jmapmyldap/tracker/">http://joomlacode.org/gf/project/jmapmyldap/tracker</a> to report bugs or feature requests.</p>
+<p>Discussions for this tool can be found in the Joomla! Forums <a href="http://forum.joomla.org/viewtopic.php?f=46&t=657124">http://forum.joomla.org/viewtopic.php?f=46&t=657124</a></p>
 
 <h2>Version Information</h2>
 <p>Version <strong>1.x</strong></p>
