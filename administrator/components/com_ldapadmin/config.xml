@@ -39,24 +39,24 @@
 		<field name="spacer1" type="spacer" hr="true" />
 		<field name="file_debug" type="list"
 			default="error_only"
-			description="COM_LDAPADMIN_FIELD_FILEDEBUG_DESC"
-			label="COM_LDAPADMIN_FIELD_FILEDEBUG_LABEL"
+			description="COM_LDAPADMIN_FIELD_FILE_DEBUG_DESC"
+			label="COM_LDAPADMIN_FIELD_FILE_DEBUG_LABEL"
 		>
-			<option value="full">COM_LDAPADMIN_FIELD_FILEDEBUG_FULL</option>
-			<option value="error_info">COM_LDAPADMIN_FIELD_FILEDEBUG_ERROR_INFO</option>
-			<option value="error_only">COM_LDAPADMIN_FIELD_FILEDEBUG_ERROR_ONLY</option>
-			<option value="info_only">COM_LDAPADMIN_FIELD_FILEDEBUG_INFO_ONLY</option>
-			<option value="none">COM_LDAPADMIN_FIELD_FILEDEBUG_NONE</option>
+			<option value="full">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_FULL</option>
+			<option value="error_info">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_ERROR_INFO</option>
+			<option value="error_only">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_ERROR_ONLY</option>
+			<option value="info_only">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_INFO_ONLY</option>
+			<option value="none">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_NONE</option>
 		</field>
 		<field name="screen_debug" type="list"
 			default="error_only"
-			description="COM_LDAPADMIN_FIELD_SCREENDEBUG_DESC"
-			label="COM_LDAPADMIN_FIELD_SCREENDEBUG_LABEL"
+			description="COM_LDAPADMIN_FIELD_SCREEN_DEBUG_DESC"
+			label="COM_LDAPADMIN_FIELD_SCREEN_DEBUG_LABEL"
 		>
-			<option value="full">COM_LDAPADMIN_FIELD_SCREENDEBUG_FULL</option>
-			<option value="error_only">COM_LDAPADMIN_FIELD_SCREENDEBUG_ERROR_ONLY</option>
-			<option value="info_only">COM_LDAPADMIN_FIELD_SCREENDEBUG_INFO_ONLY</option>
-			<option value="none">COM_LDAPADMIN_FIELD_SCREENDEBUG_NONE</option>
+			<option value="full">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_FULL</option>
+			<option value="error_only">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_ERROR_ONLY</option>
+			<option value="info_only">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_INFO_ONLY</option>
+			<option value="none">COM_LDAPADMIN_FIELD_DEBUG_LEVEL_NONE</option>
 		</field>
 	</fieldset>
 	<fieldset
