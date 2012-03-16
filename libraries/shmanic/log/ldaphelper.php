@@ -111,21 +111,24 @@ class JLogLdapHelper
 	}
 	
 	
-	public static function addDebugEntry($message, $class = null) {
-		return self::addEntry($message, $class, JLog::DEBUG);
+	public static function addDebugEntry($message, $class = null, $id = 0) {
+		return self::addEntry($message, $class, JLog::DEBUG, $id);
 		
 	}
 	
-	public static function addErrorEntry($message, $class = null) { 
-		return self::addEntry($message, $class, JLog::ERROR);
+	public static function addErrorEntry($message, $class = null, $id = 0) { 
+		return self::addEntry($message, $class, JLog::ERROR, $id);
 	}
 	
 	
-	public static function addInfoEntry($message, $class = null) { 
-		return self::addEntry($message, $class, JLog::INFO);
+	public static function addInfoEntry($message, $class = null, $id = 0) { 
+		return self::addEntry($message, $class, JLog::INFO, $id);
 	}
 	
-	public static function addEntry($message, $class = null, $level = JLog::INFO) {	
+	public static function addEntry($message, $class = null, $level = JLog::INFO, $id = 0) {
+
+		if($id)	$message = JText::sprintf('LIB_JLDAP2_LOG_ERROR_WID', $message, $id);
+		
 		if($entry = new JLogEntryLdapEntry($message, $class, $level)) {
 			JLog::add($entry);
 			return true;
