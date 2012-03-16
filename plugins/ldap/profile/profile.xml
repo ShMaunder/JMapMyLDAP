@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="1.6" type="plugin" group="ldap" method="upgrade">
+<extension version="2.5" type="plugin" group="ldap" method="upgrade">
 	<name>plg_ldap_profile</name>
 	<author>Shaun Maunder</author>
 	<creationDate>September 2011</creationDate>
@@ -7,8 +7,8 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.5</version>
-	<buildDate>Fri Jan 27 19:10:07 GMT 2012</buildDate>
+	<version>2.0.0.11</version>
+	<buildDate>Fri Mar 16 23:33:03 GMT 2012</buildDate>
 	<description>PLG_LDAP_PROFILE_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="profile">profile.php</filename>
@@ -21,52 +21,28 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="onlogin" type="radio" 
-					default="1" 
-					description="PLG_LDAP_PROFILE_FIELD_ONLOGIN_DESC" 
-					label="PLG_LDAP_PROFILE_FIELD_ONLOGIN_LABEL"
-				>
+				<field name="onlogin" type="radio" default="1" description="PLG_LDAP_PROFILE_FIELD_ONLOGIN_DESC" label="PLG_LDAP_PROFILE_FIELD_ONLOGIN_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
 				<field name="spacer1" type="spacer" hr="true"/>
-				<field name="sync_name" type="list"
-					default="1"
-					description="PLG_LDAP_PROFILE_FIELD_SYNC_NAME_DESC"
-					label="PLG_LDAP_PROFILE_FIELD_SYNC_NAME_LABEL"
-				>
+				<field name="sync_name" type="list" default="1" description="PLG_LDAP_PROFILE_FIELD_SYNC_NAME_DESC" label="PLG_LDAP_PROFILE_FIELD_SYNC_NAME_LABEL">
 					<option value="0">PLG_LDAP_PROFILE_FIELD_SYNC_NO</option>
 					<option value="1">PLG_LDAP_PROFILE_FIELD_SYNC_YESFL</option>
 					<option value="2">PLG_LDAP_PROFILE_FIELD_SYNC_YESTFL</option>
 				</field>
-				<field name="sync_email" type="list"
-					default="1"
-					description="PLG_LDAP_PROFILE_FIELD_SYNC_EMAIL_DESC"
-					label="PLG_LDAP_PROFILE_FIELD_SYNC_EMAIL_LABEL"
-				>
+				<field name="sync_email" type="list" default="1" description="PLG_LDAP_PROFILE_FIELD_SYNC_EMAIL_DESC" label="PLG_LDAP_PROFILE_FIELD_SYNC_EMAIL_LABEL">
 					<option value="0">PLG_LDAP_PROFILE_FIELD_SYNC_NO</option>
 					<option value="1">PLG_LDAP_PROFILE_FIELD_SYNC_YESFL</option>
 					<option value="2">PLG_LDAP_PROFILE_FIELD_SYNC_YESTFL</option>
 				</field>
 				<field name="spacer2" type="spacer" hr="true"/>
-				<field name="use_profile" type="radio" 
-					default="0" 
-					description="PLG_LDAP_PROFILE_FIELD_USEPROFILE_DESC" 
-					label="PLG_LDAP_PROFILE_FIELD_USEPROFILE_LABEL"
-				>
+				<field name="use_profile" type="radio" default="0" description="PLG_LDAP_PROFILE_FIELD_USEPROFILE_DESC" label="PLG_LDAP_PROFILE_FIELD_USEPROFILE_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="profile_name" type="text" 
-					default="default" 
-					description="PLG_LDAP_PROFILE_FIELD_PROFILENAME_DESC" 
-					label="PLG_LDAP_PROFILE_FIELD_PROFILENAME_LABEL"
-				/>
-				<field name="permitted_forms" type="text" 
-					default="com_users.profile; com_users.registration; com_users.user; com_admin.profile" 
-					description="PLG_LDAP_PROFILE_FIELD_PERMITTEDFORMS_DESC" 
-					label="PLG_LDAP_PROFILE_FIELD_PERMITTEDFORMS_LABEL"
-				/>
+				<field name="profile_name" type="text" default="default" description="PLG_LDAP_PROFILE_FIELD_PROFILENAME_DESC" label="PLG_LDAP_PROFILE_FIELD_PROFILENAME_LABEL"/>
+				<field name="permitted_forms" type="text" default="com_users.profile; com_users.registration; com_users.user; com_admin.profile" description="PLG_LDAP_PROFILE_FIELD_PERMITTEDFORMS_DESC" label="PLG_LDAP_PROFILE_FIELD_PERMITTEDFORMS_LABEL"/>
 			</fieldset>
 		</fields>
 	</config>

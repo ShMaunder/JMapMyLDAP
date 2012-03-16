@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="library" method="upgrade">
-	<name>JLDAP2 Library</name>
-	<libraryname>shmanic/client</libraryname>
+	<name>LDAP Logging Library</name>
+	<libraryname>shmanic/log</libraryname>
 	<author>Shaun Maunder</author>
-	<creationDate>June 2011</creationDate>
+	<creationDate>September 2011</creationDate>
 	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
@@ -12,10 +12,10 @@
 	<buildDate>Fri Mar 16 23:33:02 GMT 2012</buildDate>
 	<description/>
 	<files>
-		<file>jldap2.php</file>
+		<file>ldapentry.php</file>
+		<file>ldaplog.php</file>
 		<file>index.html</file>
 	</files>
 	<languages>
-		<language tag="en-GB">language/en-GB/en-GB.lib_jldap2.ini</language>
 	</languages>
 </extension>

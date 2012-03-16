@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="1.6" type="plugin" group="authentication" method="upgrade">
+<extension version="2.5" type="plugin" group="authentication" method="upgrade">
 	<name>plg_authentication_jmapmyldap</name>
 	<author>Shaun Maunder</author>
 	<creationDate>June 2011</creationDate>
@@ -7,8 +7,8 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.5</version>
-	<buildDate>Fri Jan 27 19:10:07 GMT 2012</buildDate>
+	<version>2.0.0.11</version>
+	<buildDate>Fri Mar 16 23:33:02 GMT 2012</buildDate>
 	<description>PLG_AUTHENTICATION_JMAPMYLDAP_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="jmapmyldap">jmapmyldap.php</filename>
