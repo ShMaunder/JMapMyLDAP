@@ -1,5 +1,13 @@
 #!/bin/bash
-# JMapMyLDAP 2.x extensions build script
+# -- JMapMyLDAP extensions build script --
+# 1) Run with "bash build.sh"
+# 2) Specify a version - for example 2.0.0.25
+# 3) Wait till completed
+# 4) Joomla packages can be found inside ./2.0.0.25/public/
+
+# TODO:
+# - Allow optional read-only pull from GIT
+# - MAJOR: add the component package
 
 # Updates an XML. Assumed current directory contains file.
 # @param $1 file
@@ -60,21 +68,24 @@ function copylang {
 
 }
 
-echo ":: JMapMyLDAP 2.x extensions build script ::"
+echo "============================================"
+echo "===  JMapMyLDAP extensions build script  ==="
+echo "============================================"
+echo
 
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-echo "Specify version folder"
+echo "Please specify a version for this package (e.g. 2.0.0.25):"
 read VER
 
 WORKDIR="$DIR/$VER/"
 
 # Set to the trunk directory (this can be external)
 #TRUNK="$DIR/trunk"
-TRUNK="$DIR/git"
+TRUNK="$DIR"
 
 # Set to the templates directory (should contain LICENSE.txt and index.html)
-TEMPLATE="$DIR/template"
+TEMPLATE="$DIR/extras"
 
 # If the directory already exists then this version has been built in the past .:. therefore exit
 if [ ! -d $WORKDIR ]; then
