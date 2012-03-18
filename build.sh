@@ -3,11 +3,10 @@
 # 1) Run with "bash build.sh"
 # 2) Specify a version - for example 2.0.0.25
 # 3) Wait till completed
-# 4) Joomla packages can be found inside ./2.0.0.25/public/
+# 4) Joomla packages can be found inside ./_build/2.0.0.25/public/
 
 # TODO:
-# - Allow optional read-only pull from GIT
-# - MAJOR: add the component package
+# - Allow optional read-only pull from GIT - have to find a way to override build.sh working file
 
 # Updates an XML. Assumed current directory contains file.
 # @param $1 file
@@ -68,6 +67,9 @@ function copylang {
 
 }
 
+# Error trapping - remove if causing problems!
+trap 'echo "There was an error - exiting..." && exit' ERR
+
 echo "============================================"
 echo "===  JMapMyLDAP extensions build script  ==="
 echo "============================================"
@@ -75,17 +77,19 @@ echo
 
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+# Set to the trunk directory (this can be external)
+# TRUNK="$DIR/trunk"
+TRUNK="$DIR"
+
+echo "Your trunk directory is $TRUNK"
+
 echo "Please specify a version for this package (e.g. 2.0.0.25):"
 read VER
 
-WORKDIR="$DIR/$VER/"
-
-# Set to the trunk directory (this can be external)
-#TRUNK="$DIR/trunk"
-TRUNK="$DIR"
+WORKDIR="$DIR/_build/$VER/"
 
 # Set to the templates directory (should contain LICENSE.txt and index.html)
-TEMPLATE="$DIR/extras"
+TEMPLATE="$DIR/_build"
 
 # If the directory already exists then this version has been built in the past .:. therefore exit
 if [ ! -d $WORKDIR ]; then
@@ -136,6 +140,32 @@ if [ ! -d $WORKDIR ]; then
 #	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
 
 	compress "$WORKDIR" "$NAME"
+
+
+# LDAP Admin Component
+	NAME="com_ldapadmin"
+	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
+
+	mkdir controllers
+	mkdir help
+	mkdir helpers
+	mkdir views
+
+	cp "$TRUNK/administrator/components/$NAME/config.xml" "."
+	cp "$TRUNK/administrator/components/$NAME/controller.php" "."
+	cp "$TRUNK/administrator/components/$NAME/ldapadmin.php" "."
+	cp "$TRUNK/administrator/components/$NAME/ldapadmin.xml" "."
+	cp -r "$TRUNK/administrator/components/$NAME/controllers/" "./controllers"
+	cp -r "$TRUNK/administrator/components/$NAME/help/" "./help"
+	cp -r "$TRUNK/administrator/components/$NAME/helpers/" "./helpers"
+	cp -r "$TRUNK/administrator/components/$NAME/views/" "./views"
+
+	xmlupdate ldapadmin.xml "$VER"
+
+#	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
+
+	compress "$WORKDIR" "$NAME"
+
 
 # LDAP Mapping Library
 	NAME="lib_ldapmapping"
@@ -248,6 +278,7 @@ if [ ! -d $WORKDIR ]; then
 	mkdir "packages"
 
 	cp "$TEMPLATE/$NAME.xml" "."
+	cp "$WORKDIR/public/com_ldapadmin.zip" "packages"
 	cp "$WORKDIR/public/lib_ldaplog.zip" "packages"
 	cp "$WORKDIR/public/lib_ldapcore.zip" "packages"
 	cp "$WORKDIR/public/plg_system_ldapdispatcher.zip" "packages"
@@ -257,11 +288,11 @@ if [ ! -d $WORKDIR ]; then
 
 	compress "$WORKDIR" "$NAME"
 
-
-
 	exit
 
-# :: OLD STUFF ::
+# =======================
+# ===  OLD SSO Stuff  ===
+# =======================
 
 #JSSOMySite Library
 	NAME="lib_jssomysite"
@@ -324,40 +355,6 @@ if [ ! -d $WORKDIR ]; then
 
 #Build Packages
 	echo "Building packages..."
-
-#JLDAP2 Package
-	NAME="pkg_jldap2"
-	mkdir "$WORKDIR/$NAME"
-	cd "$WORKDIR/$NAME"
-	mkdir "packages"
-
-	cp "$TEMPLATE/LICENSE.txt" "."
-	cp "$TEMPLATE/$NAME.xml" "."
-
-	cp "$WORKDIR/public/lib_jldap2.zip" "packages"
-	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
-
-	cd ..
-	zip -r "$WORKDIR/public/$NAME.zip" $NAME
-	tar -zcvf "$WORKDIR/public/$NAME.tar.gz" $NAME
-
-#JMapMyLDAP Package
-	NAME="pkg_jmapmyldap"
-	mkdir "$WORKDIR/$NAME"
-	cd "$WORKDIR/$NAME"
-	mkdir "packages"
-
-	cp "$TEMPLATE/LICENSE.txt" "."
-	cp "$TEMPLATE/$NAME.xml" "."
-
-	cp "$WORKDIR/public/lib_jldap2.zip" "packages"
-	cp "$WORKDIR/public/lib_jmapmyldap.zip" "packages"
-	cp "$WORKDIR/public/plg_user_jmapmyldap.zip" "packages"
-	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
-
-	cd ..
-	zip -r "$WORKDIR/public/$NAME.zip" $NAME
-	tar -zcvf "$WORKDIR/public/$NAME.tar.gz" $NAME
 
 #JSSOMySite Core Package
 	NAME="pkg_jssomysite_core"
