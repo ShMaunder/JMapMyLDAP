@@ -162,7 +162,7 @@ if [ ! -d $WORKDIR ]; then
 
 	xmlupdate ldapadmin.xml "$VER"
 
-#	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
+	copylang "$WORKDIR" "$NAME" "$TRUNK/administrator/language" "en-GB"
 
 	compress "$WORKDIR" "$NAME"
 
