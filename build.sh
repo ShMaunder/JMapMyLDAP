@@ -114,7 +114,7 @@ if [ ! -d $WORKDIR ]; then
 
 
 # LDAP Core Library
-	NAME="lib_ldapcore"
+	NAME="lib_ldap_core"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/ldap/event.php" "."
@@ -128,7 +128,7 @@ if [ ! -d $WORKDIR ]; then
 	compress "$WORKDIR" "$NAME"
 
 # LDAP Logging Library
-	NAME="lib_ldaplog"
+	NAME="lib_ldap_log"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/log/ldapentry.php" "."
@@ -155,10 +155,10 @@ if [ ! -d $WORKDIR ]; then
 	cp "$TRUNK/administrator/components/$NAME/controller.php" "."
 	cp "$TRUNK/administrator/components/$NAME/ldapadmin.php" "."
 	cp "$TRUNK/administrator/components/$NAME/ldapadmin.xml" "."
-	cp -r "$TRUNK/administrator/components/$NAME/controllers/" "./controllers"
-	cp -r "$TRUNK/administrator/components/$NAME/help/" "./help"
-	cp -r "$TRUNK/administrator/components/$NAME/helpers/" "./helpers"
-	cp -r "$TRUNK/administrator/components/$NAME/views/" "./views"
+	cp -r "$TRUNK/administrator/components/$NAME/controllers/" "."
+	cp -r "$TRUNK/administrator/components/$NAME/help/" "."
+	cp -r "$TRUNK/administrator/components/$NAME/helpers/" "."
+	cp -r "$TRUNK/administrator/components/$NAME/views/" "."
 
 	xmlupdate ldapadmin.xml "$VER"
 
@@ -168,7 +168,7 @@ if [ ! -d $WORKDIR ]; then
 
 
 # LDAP Mapping Library
-	NAME="lib_ldapmapping"
+	NAME="lib_ldap_mapping"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/ldap/mapping.php" "."
@@ -279,8 +279,9 @@ if [ ! -d $WORKDIR ]; then
 
 	cp "$TEMPLATE/$NAME.xml" "."
 	cp "$WORKDIR/public/com_ldapadmin.zip" "packages"
-	cp "$WORKDIR/public/lib_ldaplog.zip" "packages"
-	cp "$WORKDIR/public/lib_ldapcore.zip" "packages"
+	cp "$WORKDIR/public/lib_ldap_log.zip" "packages"
+	cp "$WORKDIR/public/lib_ldap_core.zip" "packages"
+	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
 	cp "$WORKDIR/public/plg_system_ldapdispatcher.zip" "packages"
 	cp "$WORKDIR/public/lib_jldap2.zip" "packages"
 

@@ -325,7 +325,7 @@ class LdapMapping extends JObject
 		$this->validate();
 		
 		$lang = JFactory::getLanguage();
-		$lang->load('lib_ldapmapping', JPATH_SITE); //for errors
+		$lang->load('lib_ldap_mapping', JPATH_SITE); //for errors
 		
 	}
 	

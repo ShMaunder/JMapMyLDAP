@@ -13,7 +13,7 @@
 	<description/>
 	<files>
 		<file>ldapentry.php</file>
-		<file>ldaplog.php</file>
+		<file>ldaphelper.php</file>
 		<file>index.html</file>
 	</files>
 	<languages>

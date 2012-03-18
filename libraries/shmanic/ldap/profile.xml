@@ -15,6 +15,6 @@
 		<file>profile.php</file>
 	</files>
 	<languages>
-		<language tag="en-GB">language/en-GB/en-GB.lib_ldapprofile.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.lib_ldap_profile.ini</language>
 	</languages>
 </extension>

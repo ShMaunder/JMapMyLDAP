@@ -15,6 +15,6 @@
 		<file>mapping.php</file>
 	</files>
 	<languages>
-		<language tag="en-GB">language/en-GB/en-GB.lib_ldapmapping.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.lib_ldap_mapping.ini</language>
 	</languages>
 </extension>

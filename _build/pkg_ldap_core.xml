@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>JMapMyLDAP Authentication Package</name>
+	<name>JMapMyLDAP Core Package</name>
 	<packagename>ldap_core</packagename>
 	<version>2.0.0</version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
 	<author>Shaun Maunder</author>
-	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_authentication.zip</packagerurl>
+	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_core.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>JMapMyLDAP Authentication Package consisting of a auth plugin and library. This package doesn't contain any group mapping functions.</description>
+	<description>JMapMyLDAP Core Package. This package doesn't contain any group mapping functions - you must install plg_ldap_mapping for group mapping.</description>
 	<files folder="packages">
 		<file type="component" id="ldapadmin">com_ldapadmin.zip</file>
 		<file type="library" id="ldapcore">lib_ldapcore.zip</file>
 		<file type="library" id="ldaplog">lib_ldaplog.zip</file>
+		<file type="plugin" id="jmapmyldap" group="authentication">plg_authentication_jmapmyldap.zip</file>
 		<file type="plugin" id="ldapdispatcher" group="system">plg_system_ldapdispatcher.zip</file>
 		<file type="library" id="jldap2">lib_jldap2.zip</file>
 	</files>
