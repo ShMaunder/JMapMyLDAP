@@ -119,23 +119,23 @@ if [ ! -d $WORKDIR ]; then
 
 	cp "$TRUNK/libraries/shmanic/ldap/event.php" "."
 	cp "$TRUNK/libraries/shmanic/ldap/helper.php" "."
-	cp "$TRUNK/libraries/shmanic/ldap/core.xml" "."
+	cp "$TRUNK/libraries/shmanic/ldap/$NAME.xml" "."
 
-	xmlupdate core.xml "$VER"
+	xmlupdate $NAME.xml "$VER"
 
 #	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
 
 	compress "$WORKDIR" "$NAME"
 
 # LDAP Logging Library
-	NAME="lib_ldap_log"
+	NAME="lib_log_ldap"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/log/ldapentry.php" "."
 	cp "$TRUNK/libraries/shmanic/log/ldaphelper.php" "."
-	cp "$TRUNK/libraries/shmanic/log/ldaplog.xml" "."
+	cp "$TRUNK/libraries/shmanic/log/$NAME.xml" "."
 
-	xmlupdate ldaplog.xml "$VER"
+	xmlupdate $NAME.xml "$VER"
 
 #	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
 
@@ -172,9 +172,9 @@ if [ ! -d $WORKDIR ]; then
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/ldap/mapping.php" "."
-	cp "$TRUNK/libraries/shmanic/ldap/mapping.xml" "."
+	cp "$TRUNK/libraries/shmanic/ldap/$NAME.xml" "."
 
-	xmlupdate mapping.xml "$VER"
+	xmlupdate $NAME.xml "$VER"
 
 	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
 
@@ -186,9 +186,9 @@ if [ ! -d $WORKDIR ]; then
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/ldap/profile.php" "."
-	cp "$TRUNK/libraries/shmanic/ldap/profile.xml" "."
+	cp "$TRUNK/libraries/shmanic/ldap/$NAME.xml" "."
 
-	xmlupdate profile.xml "$VER"
+	xmlupdate $NAME.xml "$VER"
 
 	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
 
@@ -243,6 +243,7 @@ if [ ! -d $WORKDIR ]; then
 
 	cp "$TRUNK/plugins/ldap/profile/profile.php" "."
 	cp "$TRUNK/plugins/ldap/profile/profile.xml" "."
+	cp -r "$TRUNK/plugins/ldap/profile/profiles/" "."
 
 	xmlupdate profile.xml "$VER"
 
@@ -264,7 +265,7 @@ if [ ! -d $WORKDIR ]; then
 
 	cp "$TEMPLATE/$NAME.xml" "."
 	cp "$WORKDIR/public/com_ldapadmin.zip" "packages"
-	cp "$WORKDIR/public/lib_ldap_log.zip" "packages"
+	cp "$WORKDIR/public/lib_log_ldap.zip" "packages"
 	cp "$WORKDIR/public/lib_ldap_core.zip" "packages"
 	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
 	cp "$WORKDIR/public/plg_system_ldapdispatcher.zip" "packages"

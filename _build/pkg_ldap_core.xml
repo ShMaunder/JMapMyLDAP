@@ -10,9 +10,9 @@
 	<buildDate></buildDate>
 	<description>JMapMyLDAP Core Package. This package doesn't contain any group mapping functions.</description>
 	<files folder="packages">
-		<file type="component" id="ldapadmin">com_ldapadmin.zip</file>
-		<file type="library" id="ldap_core">lib_ldap_core.zip</file>
-		<file type="library" id="ldap_log">lib_ldap_log.zip</file>
+		<file type="component" id="com_ldapadmin">com_ldapadmin.zip</file>
+		<file type="library" id="lib_ldap_core">lib_ldap_core.zip</file>
+		<file type="library" id="lib_log_ldap">lib_log_ldap.zip</file>
 		<file type="plugin" id="jmapmyldap" group="authentication">plg_authentication_jmapmyldap.zip</file>
 		<file type="plugin" id="ldapdispatcher" group="system">plg_system_ldapdispatcher.zip</file>
 		<file type="library" id="jldap2">lib_jldap2.zip</file>

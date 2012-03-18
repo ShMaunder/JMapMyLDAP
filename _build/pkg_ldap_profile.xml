@@ -10,7 +10,7 @@
 	<buildDate></buildDate>
 	<description>JMapMyLDAP Profile Package.</description>
 	<files folder="packages">
-		<file type="library" id="ldap_profile">lib_ldap_profile.zip</file>
+		<file type="library" id="lib_ldap_profile">lib_ldap_profile.zip</file>
 		<file type="plugin" id="profile" group="ldap">plg_ldap_profile.zip</file>
 	</files>
  	<updateservers>

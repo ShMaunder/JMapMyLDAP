@@ -10,7 +10,7 @@
 	<buildDate></buildDate>
 	<description>JMapMyLDAP Group Mapping Package.</description>
 	<files folder="packages">
-		<file type="library" id="ldap_mapping">lib_ldap_mapping.zip</file>
+		<file type="library" id="lib_ldap_mapping">lib_ldap_mapping.zip</file>
 		<file type="plugin" id="mapping" group="ldap">plg_ldap_mapping.zip</file>
 	</files>
  	<updateservers>
