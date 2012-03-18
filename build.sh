@@ -182,7 +182,7 @@ if [ ! -d $WORKDIR ]; then
 
 
 # LDAP Profile Library
-	NAME="lib_ldapprofile"
+	NAME="lib_ldap_profile"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
 
 	cp "$TRUNK/libraries/shmanic/ldap/profile.php" "."
@@ -256,21 +256,6 @@ if [ ! -d $WORKDIR ]; then
 	echo "Building packages..."
 
 
-# Authentication Only Package
-	NAME="pkg_ldap_authentication"
-	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
-	cd "$WORKDIR/$NAME"
-	mkdir "packages"
-
-	cp "$TEMPLATE/$NAME.xml" "."
-	cp "$WORKDIR/public/lib_jldap2.zip" "packages"
-	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
-
-	xmlupdate "$NAME.xml" "$VER"
-
-	compress "$WORKDIR" "$NAME"
-
-
 # LDAP Core Framework Package
 	NAME="pkg_ldap_core"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
@@ -284,6 +269,36 @@ if [ ! -d $WORKDIR ]; then
 	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
 	cp "$WORKDIR/public/plg_system_ldapdispatcher.zip" "packages"
 	cp "$WORKDIR/public/lib_jldap2.zip" "packages"
+
+	xmlupdate "$NAME.xml" "$VER"
+
+	compress "$WORKDIR" "$NAME"
+
+
+# LDAP Group Mapping Package
+	NAME="pkg_ldap_mapping"
+	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
+	cd "$WORKDIR/$NAME"
+	mkdir "packages"
+
+	cp "$TEMPLATE/$NAME.xml" "."
+	cp "$WORKDIR/public/lib_ldap_mapping.zip" "packages"
+	cp "$WORKDIR/public/plg_ldap_mapping.zip" "packages"
+
+	xmlupdate "$NAME.xml" "$VER"
+
+	compress "$WORKDIR" "$NAME"
+
+
+# LDAP Profile Package
+	NAME="pkg_ldap_profile"
+	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
+	cd "$WORKDIR/$NAME"
+	mkdir "packages"
+
+	cp "$TEMPLATE/$NAME.xml" "."
+	cp "$WORKDIR/public/lib_ldap_profile.zip" "packages"
+	cp "$WORKDIR/public/plg_ldap_profile.zip" "packages"
 
 	xmlupdate "$NAME.xml" "$VER"
 

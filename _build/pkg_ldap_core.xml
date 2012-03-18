@@ -8,11 +8,11 @@
 	<author>Shaun Maunder</author>
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_core.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>JMapMyLDAP Core Package. This package doesn't contain any group mapping functions - you must install plg_ldap_mapping for group mapping.</description>
+	<description>JMapMyLDAP Core Package. This package doesn't contain any group mapping functions.</description>
 	<files folder="packages">
 		<file type="component" id="ldapadmin">com_ldapadmin.zip</file>
-		<file type="library" id="ldapcore">lib_ldapcore.zip</file>
-		<file type="library" id="ldaplog">lib_ldaplog.zip</file>
+		<file type="library" id="ldap_core">lib_ldap_core.zip</file>
+		<file type="library" id="ldap_log">lib_ldap_log.zip</file>
 		<file type="plugin" id="jmapmyldap" group="authentication">plg_authentication_jmapmyldap.zip</file>
 		<file type="plugin" id="ldapdispatcher" group="system">plg_system_ldapdispatcher.zip</file>
 		<file type="library" id="jldap2">lib_jldap2.zip</file>
