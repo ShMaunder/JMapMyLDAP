@@ -39,7 +39,7 @@ class MappingEntry extends JObject
 	* @var    string
 	* @since  1.0
 	*/
-	protected $dn 		= null;
+	protected $dn 		= false;
 	
 	/**
 	* Valid entry
@@ -61,22 +61,33 @@ class MappingEntry extends JObject
 	/**
 	 * Class constructor.
 	 *
-	 * @param  string  $dn      The dn thats to hold the associated groups
-	 * @param  array   $groups  The assocaited groups of the dn
+	 * @param  string   $dn          The dn thats to hold the associated groups
+	 * @param  array    $groups      The assocaited groups of the dn
+	 * @param  boolean  $validateDN  When set to true, the DN is processed with ldap_explode_dn() else a simple string comparison is used
 	 *
 	 * @since   1.0
 	 */
-	function __construct($dn = null, $groups = array()) 
+	function __construct($dn, $groups = array(), $validateDN = true) 
 	{ 
-		$this->dn = 'INVALID'; //we just default to anything to ensure we've something later on
 		
-		$explode 		=  ldap_explode_dn($dn, 0);
-		if(isset($explode['count']) && $explode['count']>0) {
-			$this->rdn 		= array_map('strToLower', $explode); //break up the dn into an array and lowercase it
-			$this->dn 		= $dn; //store the original dn string
-			$this->groups 	= array_map('strToLower', $groups);
-			$this->valid	= true;
+		if(!$dn) return;
+		
+		if($validateDN) {
+			/* Breaks up the DN into RDNs - in this plugin, this
+			 * method is only used when validateDN is true.
+			 */
+			$explode = ldap_explode_dn($dn, 0);
+			
+			if(JArrayHelper::getValue($explode, 'count', false)) {
+				$this->rdn = array_map('strToLower', $explode); //break up the dn into an array and lowercase it
+			} else {
+				return;
+			}
 		}
+		
+		$this->dn 		= $dn; 
+		$this->groups 	= array_map('strToLower', $groups);
+		$this->valid	= true;
 
 	}	
 	
@@ -133,7 +144,7 @@ class MappingEntry extends JObject
 				$return[] = $parameter;
 			}
 		}
-		
+		//die();
 		return $return;
 	}
 	
@@ -153,19 +164,32 @@ class MappingEntry extends JObject
 	{
 		$matches 	= array();
 		
-		if($parameter->dn=='INVALID' || $ldapGroups->dn=='INVALID') {
+		if($parameter->dn === false || $ldapGroups->dn === false) {
 			return false; //we only get here if our DN was invalid syntax
 		}
 		
 		foreach($ldapGroups->groups as $ldapGroup) {
-			//we need to convert to lower because escape characters return with uppercase hex ascii codes
-			$explode = array_map('strToLower', ldap_explode_dn($ldapGroup,0));
-			if(count($explode)) {
-				if(self::compareDN($parameter->rdn, $explode)) {
+			/* If there is currently no RDNs (i.e. non validated DN) 
+			 * then we will use a simple string comparison.
+			 */
+			if(count($parameter->rdn)) {
+				// We need to convert to lower because escape characters return with uppercase hex ascii codes
+				$explode = array_map('strToLower', ldap_explode_dn($ldapGroup,0));
+				if(count($explode)) {
+					if(self::compareValidatedDN($parameter->rdn, $explode)) {
+						return true;
+					}
+				}
+			} else {
+				// Simple string comparison instead of the validated DN method
+				//echo strToLower(trim($ldapGroup)); echo ' == '; echo strToLower(trim($parameter->dn)); echo '<br />';
+				
+				if(strToLower(trim($ldapGroup)) == strToLower(trim($parameter->dn))) {
 					return true;
 				}
+				
 			}
-		}
+		} 
 	}
 	
 	/**
@@ -181,7 +205,7 @@ class MappingEntry extends JObject
 	 * @return  Boolean  Returns the comparasion result
 	 * @since   1.0
 	 */
-	public static function compareDN($source, $compare) 
+	public static function compareValidatedDN($source, $compare) 
 	{
 		if(count($source)==0 || count($compare)==0 || $source['count']>$compare['count']) {
 			return false;
@@ -251,6 +275,14 @@ class LdapMapping extends JObject
 	 * @since  1.0
 	 */
 	protected $list = array();
+	
+	/**
+	 * When set to true each DN is processed with ldap_explode_dn()
+	 * 
+	 * @var    boolean
+	 * @since  2.0
+	*/
+	protected $dn_validate 	= true;
 	
 	/**
 	 * Lookup type (reverse or forward) 
@@ -533,7 +565,7 @@ class LdapMapping extends JObject
 		 * are of interest when compared to the parameter list.
 		 */
 		if(isset($attributes['dn']) && isset($attributes[$this->lookup_attribute])) {
-			$ldapUser = new MappingEntry($attributes['dn'], $attributes[$this->lookup_attribute]);
+			$ldapUser = new MappingEntry($attributes['dn'], $attributes[$this->lookup_attribute], $this->dn_validate);
 		} else {
 			$this->setError(JText::_('LIB_LDAPMAPPING_ERROR_NO_GROUPS'));
 			return false;
@@ -598,7 +630,7 @@ class LdapMapping extends JObject
 
 			if(count($groups)>0 && strpos($entryDN, '=')>0) {
 				$this->addManagedGroups($groups, $JGroups); //if there isn't one valid group then there will never ever be any managed groups
-				$newEntry = new MappingEntry($entryDN, $groups);
+				$newEntry = new MappingEntry($entryDN, $groups, $this->dn_validate);
 				if($newEntry->valid) {
 					$list[] = $newEntry;
 				}

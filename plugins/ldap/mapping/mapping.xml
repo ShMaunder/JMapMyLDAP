@@ -39,6 +39,11 @@
 				<field name="publicid" type="text" default="1" description="PLG_LDAP_MAPPING_FIELD_PUBLICID_DESC" label="PLG_LDAP_MAPPING_FIELD_PUBLICID_LABEL"/>
 				<field name="spacer2" type="spacer" hr="true"/>
 				<field name="list" type="textarea" cols="50" description="PLG_LDAP_MAPPING_FIELD_LIST_DESC" label="PLG_LDAP_MAPPING_FIELD_LIST_LABEL" rows="6" default="cn=group,ou=users : 2"/>
+				<field name="dn_validate" type="radio" default="1" description="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_DESC" label="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				
 				<field name="spacer3" type="spacer" hr="true"/>
 				<field name="lookup_type" type="list" default="forward" description="PLG_LDAP_MAPPING_FIELD_LOOKUPTYPE_DESC" label="PLG_LDAP_MAPPING_FIELD_LOOKUPTYPE_LABEL">
 					<option value="forward">PLG_LDAP_MAPPING_FIELD_LOOKUPTYPE_FORWARD</option>
