@@ -125,6 +125,17 @@ class MappingEntry extends JObject
 	}
 	
 	/**
+	* Return if a valid entry
+	*
+	* @return  boolean  Valid entry
+	* @since   2.0
+	*/
+	public function isValid()
+	{
+		return $this->valid;
+	}
+	
+	/**
 	 * Compares all the group mapping entries to all the ldap user
 	 * groups and returns an array of JMapMyEntry parameters that
 	 * match. 
@@ -144,7 +155,7 @@ class MappingEntry extends JObject
 				$return[] = $parameter;
 			}
 		}
-		//die();
+
 		return $return;
 	}
 	
@@ -169,21 +180,26 @@ class MappingEntry extends JObject
 		}
 		
 		foreach($ldapGroups->groups as $ldapGroup) {
+			
 			/* If there is currently no RDNs (i.e. non validated DN) 
 			 * then we will use a simple string comparison.
 			 */
 			if(count($parameter->rdn)) {
-				// We need to convert to lower because escape characters return with uppercase hex ascii codes
-				$explode = array_map('strToLower', ldap_explode_dn($ldapGroup,0));
-				if(count($explode)) {
+				
+				$explode = ldap_explode_dn($ldapGroup,0);
+				
+				if(is_array($explode) && count($explode)) {
+					// We need to convert to lower because escape characters return with uppercase hex ascii codes
+					$explode = array_map('strToLower', ldap_explode_dn($ldapGroup,0));
+				
 					if(self::compareValidatedDN($parameter->rdn, $explode)) {
 						return true;
 					}
 				}
-			} else {
-				// Simple string comparison instead of the validated DN method
-				//echo strToLower(trim($ldapGroup)); echo ' == '; echo strToLower(trim($parameter->dn)); echo '<br />';
 				
+			} else {
+				
+				// Simple string comparison instead of the validated DN method
 				if(strToLower(trim($ldapGroup)) == strToLower(trim($parameter->dn))) {
 					return true;
 				}
@@ -628,9 +644,12 @@ class LdapMapping extends JObject
 				}
 			}
 
-			if(count($groups)>0 && strpos($entryDN, '=')>0) {
-				$this->addManagedGroups($groups, $JGroups); //if there isn't one valid group then there will never ever be any managed groups
+			if(count($groups)>0) {
 				$newEntry = new MappingEntry($entryDN, $groups, $this->dn_validate);
+				if($newEntry->isValid()) {
+					//if there isn't one valid group then there will never ever be any managed groups
+					$this->addManagedGroups($groups, $JGroups); 
+				}
 				if($newEntry->valid) {
 					$list[] = $newEntry;
 				}
