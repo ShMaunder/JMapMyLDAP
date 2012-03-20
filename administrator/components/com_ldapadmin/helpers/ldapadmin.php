@@ -222,7 +222,7 @@ class LdapAdminHelper
 		
 		$config = JComponentHelper::getParams('com_ldapadmin');	
 		
-		$type = $config->get('plugin_type', 'ldap');
+		$type = $config->get('ldap_plugin_type', 'ldap');
 		
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);

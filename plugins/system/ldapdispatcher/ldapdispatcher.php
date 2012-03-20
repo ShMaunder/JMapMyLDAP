@@ -36,47 +36,63 @@ class plgSystemLDAPDispatcher extends JPlugin
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
 		
+		if(!class_exists('LdapEventHelper')) {
+			JFactory::getApplication()->enqueueMessage('LDAP Dispatcher: there are missing LDAP libraries!', 'error');
+		}
+		
+		if(!class_exists('LdapUserHelper')) {
+			JFactory::getApplication()->enqueueMessage('LDAP Dispatcher: there are missing LDAP libraries!', 'error');
+		}
+		
 	}
 	
 	public function onAfterInitialise() 
 	{	
-		/* Determine if the current user is a LDAP user and if so then
-		 * allow LDAP events to be fired.
+
+		LdapEventHelper::loadPlugins();
+		
+		/* Check if a user is currently logged in and 
+		 * if so then attempt single sign on.
 		 */
-		if(class_exists('LdapEventHelper')) {
-			LdapEventHelper::loadPlugins('ldap');
-			if(LdapEventHelper::isLdapSession()) {
-				LdapEventHelper::loadEvents(
-					JDispatcher::getInstance()
-				);
-			}
+		if(!JFactory::getUser()->get('id')) { 
+			$this->_attemptSSO();
+			return;
 		}
+		
+		/* Determine if the current user is a LDAP user and if so then
+		* allow LDAP events to be fired.
+		*/
+		if(LdapUserHelper::isUserLdap()) {
+			LdapEventHelper::loadEvents(
+				JDispatcher::getInstance()
+			);
+		}
+
 	}
 	
 
 	public function onUserLogin($user, $options = array()) 
-	{
-		if($user['type'] == 'LDAP' && class_exists('LdapEventHelper')) {
-
-			$events = LdapEventHelper::loadEvents(
-				JDispatcher::getInstance()
-			);
-			//$options['authplugin'] 		= $this->params->get('auth_plugin', 'jmapmyldap');
-			//$options['autoregister'] 	= $this->params->get('autoregister', true);
-			//$options['authplugin'] = LdapHelper::getGlobalParam('auth_plugin', 'jmapmyldap');
-			
-			// Autoregistration with optional override
-			$autoRegister = LdapHelper::getGlobalParam('autoregister', true);
-			if($autoRegister == '0' || $autoRegister == '1') {
-				// inherited registration
-				$options['autoregister'] = isset($options['autoregister']) ? $options['autoregister'] : $autoRegister;
-			} else {
-				// override registration
-				$options['autoregister'] = ($autoRegister == 'override1') ? 1 : 0;
-			}
-
-			return $events->onUserLogin($user, $options);
+	{ 
+		if($user['type'] != 'LDAP') {
+			return;
 		}
+
+		$events = LdapEventHelper::loadEvents(
+			JDispatcher::getInstance()
+		);
+			
+		// Autoregistration with optional override
+		$autoRegister = LdapHelper::getGlobalParam('autoregister', true);
+		if($autoRegister == '0' || $autoRegister == '1') {
+			// inherited registration
+			$options['autoregister'] = isset($options['autoregister']) ? $options['autoregister'] : $autoRegister;
+		} else {
+			// override registration
+			$options['autoregister'] = ($autoRegister == 'override1') ? 1 : 0;
+		}
+
+		return $events->onUserLogin($user, $options);
+
 	}
 	
 	/**
@@ -109,40 +125,69 @@ class plgSystemLDAPDispatcher extends JPlugin
 	}
 	
 	/**
-	 * Reports an error to the screen and log. If debug mode is on 
-	 * then it displays the specific error on screen, if debug mode 
-	 * is off then it displays a generic error.
-	 *
-	 * @param  JException  $exception  The authentication error
+	 * Method for attempting single sign on.
 	 * 
-	 * @return  JError  Error based on comment from exception
-	 * @since   1.0
-	 * 
-	 * @deprecated We now use the new 11.3 JLogging
+	 * @return  void
+	 * @since   2.0
 	 */
-	protected function _reportError($exception = null) 
+	protected function _attemptSSO() 
 	{
-		/*
-		* The mapping was not successful therefore
-		* we should report what happened to the logger
-		* for admin inspection and user should be informed
-		* all is not well.
-		*/
-		$comment = is_null($exception) ? JText::_('PLG_JMAPMYLDAP_ERROR_UNKNOWN') : $exception;
-		
-		$errorlog = array('status'=>'JMapMyLDAP Fail: ', 'comment'=>$comment);
-		
-		jimport('joomla.error.log');
-		$log = JLog::getInstance();
-		$log->addEntry($errorlog);
-		
-		if(JDEBUG) {
-			return JERROR::raiseWarning('SOME_ERROR_CODE', $comment);
+		// Check if SSO is disabled via the config parameter
+		if(!LdapHelper::getGlobalParam('sso_enabled', false)) {
+			return;
 		}
 		
-		return JERROR::raiseWarning('SOME_ERROR_CODE', JText::_('PLG_JMAPMYLDAP_ERROR_GENERAL'));
+		jimport('shmanic.sso.authentication');
+		jimport('shmanic.sso.helper');
 		
+		// If the libraries are not installed, then no SSO for you!
+		if(
+			!class_exists('SSOHelper') ||
+			!class_exists('SSOAuthentication')
+		) return;
+		
+		if($urlBypass = LdapHelper::getGlobalParam('sso_url_bypass')) {
+			$bypassValue = JFactory::getApplication()->input->get($urlBypass);
+			if($bypassValue == 1) SSOHelper::disableSession();
+			elseif($bypassValue == 0) SSOHelper::enableSession();
+		}
+		
+		// Check if SSO is disabled via the session
+		if(SSOHelper::isDisabled()) {
+			return;
+		}
+		
+		/* Lets check the IP rule is valid before we continue -
+		 * if the IP rule is false then SSO is not allowed here.
+		 */
+		$myIP = JRequest::getVar('REMOTE_ADDR', 0, 'server');
+		$ipList = explode("\n", LdapHelper::getGlobalParam('sso_ip_list'));
+		$ipCheck = SSOHelper::doIPCheck($myIP, $ipList, LdapHelper::getGlobalParam('sso_ip_rule', 'allowall')=='allowall');
+		
+		if(!$ipCheck) return; // this ip isn't allowed
+		
+		$options = array();
+		$options['action'] = 'core.login.site';
+		
+		/*
+		 * We are going to check if we are in backend.
+		 * If so then we need to check if sso is allowed
+		 * to execute on the backend.
+		 * 
+		 */
+		if(JFactory::getApplication()->isAdmin()) {
+			if(!LdapHelper::getGlobalParam('sso_backend', 0)) return;
+			$options['action'] = 'core.login.admin';
+		}
+			
+		$options['autoregister'] = LdapHelper::getGlobalParam('sso_auto_register', false);
+			
+		$sso = new SSOAuthentication(
+			LdapHelper::getGlobalParam('sso_plugin_type', 'sso')
+		);
+		$sso->login($options);
+			
+	
 	}
-
 	
 }

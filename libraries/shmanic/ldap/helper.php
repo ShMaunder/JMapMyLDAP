@@ -15,27 +15,19 @@ jimport('shmanic.ldap.event');
 jimport('shmanic.log.ldaphelper');
 
 /**
- * Holds the parameter settings for the jmapmyldap class.
+ * Ldap User Helper class.
  *
  * @package		Shmanic
- * @subpackage	Ldap
- * @since		1.0
- */
-
-/**
- * A Ldap group mapping class to initiate and commit group mappings.
- *
- * @package		Shmanic
- * @subpackage	Ldap
- * @since		1.0
+ * @subpackage	Ldap.Helper
+ * @since		2.0
  */
 class LdapUserHelper extends JObject 
 {
 	/**
 	 * This method returns a user object. If options['autoregister'] is true, 
-	 * and if the user doesn't exist yet then it'll be created.
+	 * and if the user doesn't exist, then it'll be created.
 	 * 
-	 * Dear Joomla, can you please put this into a library for people to use.
+	 * Dear Joomla, can you please put this into a library for everyone to use.
 	 * 
 	 * @param  array  $user     Holds the user data.
 	 * @param  array  $options  Array holding options (remember, autoregister, group).
@@ -83,59 +75,9 @@ class LdapUserHelper extends JObject
 		return $instance;
 	}
 	
-	/**
-	 * Save the attributes of the specified JUser to the database. This
-	 * method has been adapted from the JUser::save() method to bypass
-	 * ACL checks for super users.
-	 *
-	 * @param  JUser  &$instance  The JUser object to save
-	 *
-	 * @return  mixed  True on success, otherwise either false or Exception on error
-	 * @since   1.0
-	 * 
-	 * @deprecated this method is broken and doesn't save parameters - use JUser::save()
-	 */
-	public static function saveUser(&$instance) 
-	{
-		//we have to have a group if they're none
-		$table			= $instance->getTable();
-		$table->bind($instance->getProperties());
-
-		// Check and store the object.
-		if (!$table->check()) {
-			return false;
-		}
-			
-		$my = JFactory::getUser();
-
-		//we aren't allowed to create new users return
-		if(empty($instance->id)) {
-			return true;
-		}
-			
-		// Store the user data in the database
-		if (!$table->store()) {
-			throw new Exception($table->getError());
-		}
-
-		// Set the id for the JUser object in case we created a new user.
-		if (empty($instance->id)) {
-			$instance->id = $table->get('id');
-		}
-
-		if ($my->id == $table->id) {
-			$registry = new JRegistry;
-			$registry->loadString($table->params);
-			$my->setParameters($registry);
-		}
-
-		return true;
-	}
-	
 	// get and return the user attributes (array) from LDAP
 	public static function getAttributes($user) 
 	{
-		
 		if($ldap = LdapHelper::getConnection(false)) {
 			
 			$dn = $ldap->getUserDN($user['username'], null, false);
@@ -152,6 +94,38 @@ class LdapUserHelper extends JObject
 	
 			return $attributes;
 		}
+	}
+	
+	/**
+	 * Returns if the current or specified user was 
+	 * authenticated via LDAP.
+	 * 
+	 * @param  integer  $userId  Optional user id
+	 * 
+	 * @return  boolean
+	 * @since   2.0
+	 */
+	public static function isUserLdap($userId = null)
+	{	
+		if(JFactory::getUser($userId)->getParam('authtype') == 'LDAP') {
+			return true;
+		}		
+	}
+	
+	/**
+	 * Sets the flag for the specified user's 
+	 * parameters for LDAP authentication.
+	 * 
+	 * @param  JUser  &$user  Specified user to set parameter
+	 * 
+	 * @return  void
+	 * @since   2.0
+	 */
+	public static function setUserLdap(&$user) 
+	{
+		if($user instanceof JUser) {
+			$user->setParam('authtype', 'LDAP');
+		} 
 	}
 	
 }
@@ -194,24 +168,20 @@ class LdapHelper extends JObject
 		}
 	}
 	
-	/* get the LDAP plug-in parameters */
+	/* get the authentication LDAP plug-in parameters */
 	public static function getParams($auth = null)
 	{
-		
 		if(is_null($auth)) {
 			$auth = self::getGlobalParam('auth_plugin', 'jmapmyldap');
 		}
 		
-		/*if($plugin = JPluginHelper::getPlugin('authentication', $options['authplugin'])) {*/
 		if($plugin = JPluginHelper::getPlugin('authentication', $auth)) {
 				
 			$params = new JRegistry;
 			$params->loadString($plugin->params);
 				
-			return self::convert($params, 'JLDAP2');
-				
+			return self::convert($params, 'JLDAP2');		
 		}
-
 	}
 	
 	
@@ -525,28 +495,6 @@ class LdapHelper extends JObject
 class LdapEventHelper extends JObject
 {
 	
-	/*function __construct()
-	{
-		$lang = JFactory::getLanguage();
-		$lang->load('lib_ldapcore', JPATH_SITE); //for errors
-		
-		// Load in plugins by type
-		//$this->load('ldap');
-		
-		parent::__construct();
-		
-	}*/
-	
-	/*public static function getInstance()
-	{
-		static $instance;
-		if(!is_object($instance)) {
-			$instance = new self;
-		}
-		
-		return $instance;
-	}*/
-	
 	public static function loadEvents($dispatcher)
 	{
 		// Initialise logging
@@ -556,33 +504,12 @@ class LdapEventHelper extends JObject
 		return LdapEvent::getInstance($dispatcher);
 	}
 	
-	public static function isLdapSession() 
+	public static function loadPlugins($type = null)
 	{
-		$user 		= JFactory::getUser();
-		$session 	= JFactory::getSession();
-
-		// Return true only when this is a ldap session
-		if($user->get('id') !=0 || $user->get('tmp_user')) {
-			if($session->get('authtype') == 'LDAP') {
-				return true;
-			}
+		if(is_null($type)) {
+			$type = LdapHelper::getGlobalParam('ldap_plugin_type', 'ldap');
 		}
 		
-		return false;
-		
-	}
-	
-	public static function isUserLdap($userId = null) 
-	{
-		if(is_null($userId)) {
-			$user = JFactory::getUser();
-		} else {
-			$user = JFactory::getUser($userId);
-		}
-	}
-	
-	public static function loadPlugins($type = 'ldap')
-	{
 		$loaded = JPluginHelper::importPlugin($type);
 		return $loaded;
 	}
@@ -599,15 +526,9 @@ class LdapEventHelper extends JObject
 	 */
 	public static function triggerEvent($event, $args = null)
 	{
-
-		$dispatcher = JDispatcher::getInstance();
-		$result = $dispatcher->trigger($event, $args);
-		
+		$result = JDispatcher::getInstance()->trigger($event, $args);
 		return(!in_array(false, $result, true));
-
 	}
-	
 
-	
 	
 }

@@ -128,6 +128,7 @@ class plgAuthenticationJMapMyLDAP extends JPlugin
 
 		$retResponse = new JAuthenticationResponse();
 		
+		$response->type = 'LDAP';
 		$ldap 	= JLDAP2::getInstance($this->params);
 		$dn 	= $response->get('dn');
 		
