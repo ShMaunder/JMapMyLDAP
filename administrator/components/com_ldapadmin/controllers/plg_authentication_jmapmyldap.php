@@ -24,7 +24,7 @@ class LdapAdminControllerplg_authentication_jmapmyldap extends JController
 	/* 
 	 * Display the default ldap_auth view for this plugin.
 	 */
-	public function display()
+	public function display($cachable = false, $urlparams = false)
 	{ 
 		require_once JPATH_COMPONENT.'/helpers/ldapadmin.php';
 		

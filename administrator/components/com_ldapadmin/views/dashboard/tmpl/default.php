@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 //JHtml::_('behavior.tooltip');
 //JHtml::_('behavior.multiselect');
 
-$counter	= 1;
+$counter	= 0;
 $user		= JFactory::getUser();
 
 foreach($this->items as &$item) {
@@ -38,12 +38,12 @@ if(!$this->ldapExt) JERROR::raiseNotice('SOME_NUMBER', JText::_('COM_LDAPADMIN_L
 //$listDirn	= $this->escape($this->state->get('list.direction'));
 ?>
 <table style="width:100%">
-<tr valign="top">
+
 <?php foreach($this->items as &$item): ?>
 <?php if($counter % 3 == 0): ?>
 <tr>
 <?php endif; ?>
-<td style="width:33%">
+<td style="width:33%;vertical-align:top;">
 <div class="width-100">
 <fieldset class="adminform">
  <legend><?php echo $item['name']; ?></legend>

@@ -134,6 +134,7 @@ class JLDAP2 extends JObject
 	 * @since  1.0
 	 */
 	protected $ds = null;
+
 	
 	/**
 	 * Class constructor.
@@ -161,8 +162,8 @@ class JLDAP2 extends JObject
 	
 	/**
 	* Singleton for JLDAP2
-	*
-	* @param  $params  array  An array of parameters for JLDAP2
+	* 
+	* @param  $params  array    An array of parameters for JLDAP2
 	*
 	* @return  JLDAP2  Reference to a instance of JLDAP2
 	* @since   2.0

@@ -13,7 +13,7 @@ $ajax = "
             var x = new Request({
                 url: url, 
                 method: 'post', 
-		onSuccess: function(responseText){
+		onSuccess: function(responseText){ 
 		    document.getElementById('ajax_container').innerHTML = responseText;
 		}
             }).send();      //  To pass values :    }).send('country_id=' + document.getElementById('country_id').value );
@@ -21,8 +21,10 @@ $ajax = "
     })
     /* ]]> */
     " ;
-$doc = & JFactory::getDocument();
+$doc = JFactory::getDocument();
 $doc->addScriptDeclaration( $ajax );
+//$doc->
+
 ?>
 
 <div><a id="start_ajax" href="#">Click here</a> to start Ajax request</div>

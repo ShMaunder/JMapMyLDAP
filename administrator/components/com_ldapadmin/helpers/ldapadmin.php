@@ -35,7 +35,7 @@ class LdapAdminHelper
 		);
 		JSubMenuHelper::addEntry(
 			JText::_('COM_LDAPADMIN_SECTION_SYNC'),
-			'index.php?option=com_jmapmyldap&view=sync',
+			'index.php?option=com_ldapadmin&view=sync',
 			$vName == 'sync'
 		);
 		

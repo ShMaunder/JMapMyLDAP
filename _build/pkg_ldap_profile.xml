@@ -2,6 +2,7 @@
 <extension type="package" version="2.5" method="upgrade">
 	<name>JMapMyLDAP Profile Package</name>
 	<packagename>ldap_profile</packagename>
+	<creationDate>March 2012</creationDate>
 	<version>2.0.0</version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>

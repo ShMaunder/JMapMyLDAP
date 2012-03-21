@@ -17,5 +17,6 @@
 		<file>index.html</file>
 	</files>
 	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.lib_sso_core.ini</language>
 	</languages>
 </extension>

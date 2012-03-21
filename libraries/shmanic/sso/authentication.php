@@ -23,6 +23,8 @@ jimport('joomla.user.authentication');
 /**
  * Provides a framework for SSO and login methods. The framework
  * is similar to the JAuthTools framework.
+ * 
+ * Former name was JSSOMySite.
  *
  * @package		Shmanic
  * @subpackage	SSO
@@ -40,13 +42,12 @@ class SSOAuthentication extends JObservable
 	 */
 	public function __construct($pluginGroup = 'sso') 
 	{
-		JFactory::getLanguage()->load('lib_sso', JPATH_SITE);
+		JFactory::getLanguage()->load('lib_sso_core', JPATH_SITE);
 		
 		$this->pluginGroup = $pluginGroup;
-		$isLoaded = JPluginHelper::importPlugin($this->pluginGroup);
-
-		if(!$isLoaded) {
-			$this->_reportError(new JException(JText::_('LIB_JSSOMYSITE_ERROR_IMPORT_PLUGINS')));
+		
+		if(!JPluginHelper::importPlugin($this->pluginGroup)) {
+			$this->_reportError(new JException(JText::_('LIB_SSOAUTHENTICATION_ERROR_IMPORT_PLUGINS')));
 		}
 	}
 
@@ -72,13 +73,14 @@ class SSOAuthentication extends JObservable
 			if(class_exists($className)) { 
 				$plugin = new $className($this, (array)$plugin);
 			} else {
-				$this->_reportError(new JException(JText::sprintf('LIB_JSSOMYSITE_ERROR_PLUGIN_CLASS', $className, $name)));
+				$this->_reportError(new JException(JText::sprintf('LIB_SSOAUTHENTICATION_ERROR_PLUGIN_CLASS', $className, $name)));
 				continue;
 			}
 
 			// we need to check the ip rule & list before attempting anything...
 			$params = new JRegistry;
-			$params->loadJSON($plugin->params);
+			//$params->loadJSON($plugin->params);
+			$params->loadString($plugin->params);
 			
 			$myip = JRequest::getVar('REMOTE_ADDR', 0, 'server');
 			
@@ -102,7 +104,7 @@ class SSOAuthentication extends JObservable
 	
 	/**
 	 * If a detection has been successful then it will try to
-	 * authenticate with the special onSSOAuthenticate method
+	 * authenticate with the onUserAuthorisation method
 	 * in any of the authentication plugins. 
 	 *
 	 * @param  string  $username  String containing detected username
@@ -111,9 +113,8 @@ class SSOAuthentication extends JObservable
 	 * @return  mixed  Returns a JAuthenticationReponse on success, nothing on failure
 	 * @since   1.0
 	 */
-	public function authenticate($username, $options) 
+	public function authorise($username, $options) 
 	{
-
 		JAuthentication::getInstance();
 		$response = new JAuthenticationResponse();
 		
@@ -125,52 +126,16 @@ class SSOAuthentication extends JObservable
 		foreach($authorisations as $authorisation) {
 			
 			if ($authorisation->status === JAuthentication::STATUS_SUCCESS) {
-				
 				// This username is authorised to use the system
 				$response->status = JAuthentication::STATUS_SUCCESS;
 				return $response;
-				
 			}
 			
 		}
 		
 		// No authorises found
 		return false;
-		
-		// Get plugins
-		$plugins = JPluginHelper::getPlugin('authentication');
 
-		// Create authencication response
-		JAuthentication::getInstance();
-		$response = new JAuthenticationResponse;
-
-		/*
-		 * Loop through the plugins and await until one succeeds
-		 *
-		 * Any errors raised in the plugin should be returned via the JAuthenticationResponse
-		 * and handled appropriately.
-		 */
-		foreach ($plugins as $plugin) {
-			$className = 'plg' . $plugin->type . $plugin->name;
-			if(class_exists($className)) {
-				$plugin = new $className($this, (array)$plugin);
-				
-				if(method_exists($plugin, 'onSSOAuthenticate')) {
-					//try to authenticate
-					$plugin->onSSOAuthenticate($username, $options, $response);
-	
-					// If authentication is successful break out of the loop
-					if($response->status === JAUTHENTICATE_STATUS_SUCCESS) {
-						if(empty($response->type)) {
-							$response->type = isset($plugin->_name) ? $plugin->_name : $plugin->name;
-						}
-						return $response;
-					}
-				}
-			}
-		}
-		
-		return false;
 	}
 	
 	/**
@@ -185,29 +150,36 @@ class SSOAuthentication extends JObservable
 	 */
 	public function login($options = array()) 
 	{
-		if($this->detect($options)) { //get the sso username through detection methods
-			$app = JFactory::getApplication();
-			$response = $this->authenticate($options['username'], $options);
-			//print_r($response); die();
-			if($response) {
-				//import the user plugin group.
-				JPluginHelper::importPlugin('user');
-
-				//lets fire the onUserLogin event
-				$results = $app->triggerEvent('onUserLogin', array((array)$response, $options));
-				
-				if(!in_array(false, $results, true)) {
-					return true;
-				} else {
-					// User plugin error
-					$this->_reportError(new JException(JText::sprintf('LIB_JSSOMYSITE_ERROR_USER_PLUGIN', $options['username'])));
-					return false;	
-				}
-			}
-			
-			$this->_reportError(new JException(JText::sprintf('LIB_JSSOMYSITE_ERROR_AUTHENTICATION', $options['username'])));
+		// Get the sso username through detection plugins
+		if(!$this->detect($options)) { 
 			return false;
 		}
+		
+		// Authorise the detected username
+		if($response = $this->authorise($options['username'], $options)) {
+
+			/* Username has been authorised. We can now proceed
+			 * with standard Joomla logon by calling the user's
+			 * onUserLogin event.
+			 */
+			JPluginHelper::importPlugin('user');
+
+			$results = JFactory::getApplication()->triggerEvent('onUserLogin', array((array)$response, $options));
+				
+			if(!in_array(false, $results, true)) {
+				// onUserLogin event success
+				return true;
+			}
+					
+			// Something failed within the onUserLogin event
+			$this->_reportError(new JException(JText::sprintf('LIB_SSOAUTHENTICATION_ERROR_USER_PLUGIN', $options['username'])));
+			return false;	
+				
+		}
+ 
+		$this->_reportError(new JException(JText::sprintf('LIB_SSOAUTHENTICATION_ERROR_AUTHENTICATION', $options['username'])));
+		return false;
+
 	}
 	
 	/**
@@ -219,10 +191,12 @@ class SSOAuthentication extends JObservable
 	 * 
 	 * @return  string  Exception comment string
 	 * @since   1.0
+	 * 
+	 * @deprecated  This is shit code. Lets use the new LDAP logging!
 	 */
 	protected function _reportError($exception = null) 
 	{
-		$comment = is_null($exception) ? JText::_('LIB_JSSOMYSITE_ERROR_UNKNOWN') : $exception;
+		$comment = is_null($exception) ? JText::_('LIB_SSOAUTHENTICATION_ERROR_UNKNOWN') : $exception;
 		
 		$errorlog = array('status'=>'SSO Fail: ', 'comment'=>$comment);
 		

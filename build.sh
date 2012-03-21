@@ -127,6 +127,22 @@ if [ ! -d $WORKDIR ]; then
 
 	compress "$WORKDIR" "$NAME"
 
+
+# SSO Core Library
+	NAME="lib_sso_core"
+	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
+
+	cp "$TRUNK/libraries/shmanic/sso/authentication.php" "."
+	cp "$TRUNK/libraries/shmanic/sso/helper.php" "."
+	cp "$TRUNK/libraries/shmanic/sso/$NAME.xml" "."
+
+	xmlupdate $NAME.xml "$VER"
+
+	copylang "$WORKDIR" "$NAME" "$TRUNK/language" "en-GB"
+
+	compress "$WORKDIR" "$NAME"
+
+
 # LDAP Logging Library
 	NAME="lib_log_ldap"
 	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
@@ -255,6 +271,26 @@ if [ ! -d $WORKDIR ]; then
 
 #Build Packages
 	echo "Building packages..."
+
+
+# jmmldap Basics Framework Package
+	NAME="pkg_jmmldap_basics"
+	newplugin "$WORKDIR" "$NAME" "$TEMPLATE" 
+	cd "$WORKDIR/$NAME"
+	mkdir "packages"
+
+	cp "$TEMPLATE/$NAME.xml" "."
+	cp "$WORKDIR/public/com_ldapadmin.zip" "packages"
+	cp "$WORKDIR/public/lib_log_ldap.zip" "packages"
+	cp "$WORKDIR/public/lib_ldap_core.zip" "packages"
+	cp "$WORKDIR/public/lib_sso_core.zip" "packages"
+	cp "$WORKDIR/public/plg_authentication_jmapmyldap.zip" "packages"
+	cp "$WORKDIR/public/plg_system_ldapdispatcher.zip" "packages"
+	cp "$WORKDIR/public/lib_jldap2.zip" "packages"
+
+	xmlupdate "$NAME.xml" "$VER"
+
+	compress "$WORKDIR" "$NAME"
 
 
 # LDAP Core Framework Package
