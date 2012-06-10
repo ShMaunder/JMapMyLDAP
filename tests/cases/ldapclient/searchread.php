@@ -58,7 +58,7 @@ class TCasesLdapclientSearchread extends TPluginsTestcasesTestcase implements TP
 		$results = array();
 		
 		// Test: Bind proxy user should work
-		$a = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(1));
+		$a = new SHLdap(TCasesLdapclientHelper::getLdapConfig(1));
 		$a->connect();
 		$a->proxyBind();
 		

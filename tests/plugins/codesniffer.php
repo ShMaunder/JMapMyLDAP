@@ -154,7 +154,7 @@ class TPluginsCodesniffer extends TCorePlugin
 			echo $e->getMessage();
 			return false;
 		}
-		
+
 		return true;
 
 	}
@@ -190,7 +190,9 @@ class TPluginsCodesniffer extends TCorePlugin
 	protected function getAttributes()
 	{
 		$attributes = array();
-		$attributes['standard'] 		= 'PEAR';
+		//$attributes['standard'] 		= 'PEAR';
+		//$attributes['standard']			= JPATH_TESTS . '/3rdparty/joomla-coding-standards';
+		$attributes['standard']			= 'Joomla';
 		$attributes['verbosity'] 		= 0;
 		$attributes['tabWidth'] 		= 4;
 		$attributes['encoding'] 		= 'iso-8859-1';

@@ -58,7 +58,7 @@ class TCasesLdapclientBind extends TPluginsTestcasesTestcase implements TPlugins
 		$results = array();
 		
 		// Test: Bind proxy user should work
-		$a = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(1));
+		$a = new SHLdap(TCasesLdapclientHelper::getLdapConfig(1));
 		$a->connect();
 		$result = $a->proxyBind();
 		
@@ -67,7 +67,7 @@ class TCasesLdapclientBind extends TPluginsTestcasesTestcase implements TPlugins
 		);
 		
 		// Test: Bind proxy user should NOT work
-		$b = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(3));
+		$b = new SHLdap(TCasesLdapclientHelper::getLdapConfig(3));
 		$b->connect();
 		$result = $b->proxyBind();
 		
@@ -76,7 +76,7 @@ class TCasesLdapclientBind extends TPluginsTestcasesTestcase implements TPlugins
 		);
 		
 		// Test: Attempt anonymous bind (should fail)
-		$c = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(1));
+		$c = new SHLdap(TCasesLdapclientHelper::getLdapConfig(1));
 		$c->connect();
 		$c->allowAnonymous(true);
 		$result = $c->bind();
@@ -86,7 +86,7 @@ class TCasesLdapclientBind extends TPluginsTestcasesTestcase implements TPlugins
 		);
 		
 		// Test: Attempt anonymous bind (should fail)
-		$d = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(1));
+		$d = new SHLdap(TCasesLdapclientHelper::getLdapConfig(1));
 		$d->connect();
 		$result = $d->bind();
 		
@@ -96,7 +96,7 @@ class TCasesLdapclientBind extends TPluginsTestcasesTestcase implements TPlugins
 		
 		// Test: Attempt good standard bind
 		$config = TCasesLdapclientHelper::getLdapConfig(6);
-		$e = new SHLdapClient($config);
+		$e = new SHLdap($config);
 		$e->connect();
 		$result = $e->bind($config['test_username'], $config['test_password']);
 		
@@ -106,7 +106,7 @@ class TCasesLdapclientBind extends TPluginsTestcasesTestcase implements TPlugins
 		
 		// Test: Attempt bad standard bind
 		$config = TCasesLdapclientHelper::getLdapConfig(7);
-		$f = new SHLdapClient($config);
+		$f = new SHLdap($config);
 		$f->connect();
 		$result = $f->bind($config['test_username'], $config['test_password']);
 		

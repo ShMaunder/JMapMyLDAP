@@ -59,7 +59,7 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 
 		
 		// Test: No host
-		$a = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(4));
+		$a = new SHLdap(TCasesLdapclientHelper::getLdapConfig(4));
 		$result = $a->connect();
 		
 		TPluginsTestcasesHelper::pushTestUnit(
@@ -67,7 +67,7 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 		);
 		
 		// Test: Try to start TLS
-		$b = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(5));
+		$b = new SHLdap(TCasesLdapclientHelper::getLdapConfig(5));
 		$result = $b->connect();
 		
 		TPluginsTestcasesHelper::pushTestUnit(
@@ -75,7 +75,7 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 		);
 		
 		// Test: Should work (AD)
-		$c = new SHLdapClient(TCasesLdapclientHelper::getLdapConfig(1));
+		$c = new SHLdap(TCasesLdapclientHelper::getLdapConfig(1));
 		$result = $c->connect();
 		
 		TPluginsTestcasesHelper::pushTestUnit(
