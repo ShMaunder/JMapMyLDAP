@@ -1,0 +1,43 @@
+#!/usr/bin/php
+<?php
+/**
+ * Auto testing starter file. This must be executed from the command
+ * line. 
+ * 
+ * PHP version 5
+ * 
+ * @category  Shmanic.Testing
+ * @package   Testing
+ * @author    Shaun Maunder <shaun@shmanic.com>
+ * @copyright 2012 Shaun Maunder (C). All rights reserved.
+ * @license   GNU General Public License version 2 or later; see LICENSE.txt
+ * @link      shmanic.com
+ */
+
+// Only start if being run from the command line
+if (php_sapi_name()!='cli') { 
+	echo 'The auto testing must be run from the command line!';
+	exit;
+}
+
+fwrite(STDOUT, "Starting auto testing...\n");
+
+// Launch the testing bootstrap
+require_once(realpath(__DIR__) . '/tests/bootstrap.php');
+
+if (class_exists('TCoreApplication')) {
+	$app = new TCoreApplication();
+	$results = $app->initiate();
+	$app->printSummary($results);
+	
+	// Return the exit code back to the shell
+	foreach ($results as $result) {
+		if (!$result) {
+			exit(1); // There were errors
+		}
+	}
+		
+	exit(0); // Success
+}
+
+exit(1); // Initialising testing failed

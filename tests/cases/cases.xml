@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests>
+ <category name="ldapclient">
+  <case name="connect" />
+  <case name="bind" />
+  <case name="searchread" />
+ </category>
+</tests>

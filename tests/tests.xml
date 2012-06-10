@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests>
+ <test name="CodeSniffer" 
+ 	class="TPluginsCodesniffer"
+ 	params="{&quot;files&quot;:&quot;ROOT_PATH/index.php;ROOT_PATH/includes&quot;,&quot;type&quot;:&quot;summary&quot;,&quot;width&quot;:&quot;80&quot;,&quot;path&quot;:&quot;TESTS_PATH/3rdparty/CodeSniffer&quot;}" 
+ />
+ <test name="TestCases"
+ 	class="TPluginsTestcases"
+ 	params="{&quot;caseNS&quot;:&quot;TCases&quot;,&quot;xml&quot;:&quot;TESTS_PATH/cases/cases.xml&quot;}" 
+ />
+</tests>

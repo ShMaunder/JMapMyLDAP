@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configs>
+	<config id="1" comment="Correct [AD Win2K8 HOME.LOCAL]">
+		<host>dc</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+	</config>
+
+	<config id="2" comment="Bad Host Name [AD Win2K8 HOME.LOCAL]">
+		<host>notexists</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+	</config>
+	
+	<config id="3" comment="Bad Proxy [AD Win2K8 HOME.LOCAL]">
+		<host>dc</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>asfasf</proxy_password>
+	</config>
+	
+	<config id="4" comment="No Host [AD Win2K8 HOME.LOCAL]">
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+	</config>
+	
+	<config id="5" comment="Bad Start TLS [AD Win2K8 HOME.LOCAL]">
+		<host>dc</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>1</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+	</config>
+	
+	<config id="6" comment="Good test user [AD Win2K8 HOME.LOCAL]">
+		<host>dc</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+		<test_username>HOME\tuser2</test_username>
+		<test_password>tuser2</test_password>
+	</config>
+	
+	<config id="7" comment="Bad test user [AD Win2K8 HOME.LOCAL]">
+		<host>dc</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+		<test_username>HOME\tuser2</test_username>
+		<test_password>jfuyfgjh</test_password>
+	</config>
+	
+	<config id="80" comment="Correct MOVE TO EXTENDED [AD Win2K8 HOME.LOCAL]">
+		<host>dc</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>HOME\tuser1</proxy_username>
+		<proxy_password>tuser1</proxy_password>
+		<base_dn>dc=home,dc=local</base_dn>
+		<use_search>1</use_search>
+		<user_qry>(sAMAccountName=[username])</user_qry>
+		<test_username>HOME\tuser2</test_username>
+		<test_password>tuser2</test_password>
+	</config>
+</configs>
