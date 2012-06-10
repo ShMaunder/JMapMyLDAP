@@ -7,8 +7,8 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.11</version>
-	<buildDate>Fri Mar 16 23:33:03 GMT 2012</buildDate>
+	<version>2.0.0.70</version>
+	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
 	<description>PLG_LDAP_PROFILE_XML_DESCRIPTION</description>
 	<files>
 		<folder>profiles</folder>

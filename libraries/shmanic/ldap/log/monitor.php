@@ -1,12 +1,9 @@
 <?php
 /**
- * Orginally forked from the Joomla LDAP (JLDAP 11.1) for enhanced search and increased 
- * functionality with partial backward compatibility in the helper file.
- * 
  * PHP Version 5.3
  *
  * @package     Shmanic.Libraries
- * @subpackage  Ldap
+ * @subpackage  Ldap.Log
  * @author      Shaun Maunder <shaun@shmanic.com>
  * 
  * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
@@ -16,10 +13,10 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * An LDAP authentication and modification class for all LDAP operations. 
+ * A built in log monitor for debugging purposes only.
  *
  * @package     Shmanic.Libraries
- * @subpackage  Ldap
+ * @subpackage  Ldap.Log
  * @since       2.0
  */
 class SHLdapLogMonitor extends JEvent
@@ -50,14 +47,18 @@ class SHLdapLogMonitor extends JEvent
 
 	protected function setup()
 	{
-		if ($this->enabled)
+		if (!$this->enabled)
 		{
-			JLog::addLogger(
-				array('logger' => 'messagequeue'),
-				$this->level,
-				array('ldap')
-			);
+			return;
 		}
+
+		// Setup the new on-screen logger
+		JLog::addLogger(
+			array('logger' => 'messagequeue'),
+			$this->level,
+			array('ldap')
+		);
+
 	}
 
 	public function onLogDebug($message)
@@ -74,5 +75,5 @@ class SHLdapLogMonitor extends JEvent
 	{
 		//JLog::add($message, JLog::INFO, 'ldap');
 	}
-	
+
 }

@@ -25,7 +25,7 @@ if (!defined('SHPATH_PLATFORM'))
 if (!class_exists('SHLoader'))
 {
 	// Include the autoloader
-	require_once JPATH_PLATFORM . '/shmanic/loader.php';
+	require_once SHPATH_PLATFORM . '/loader.php';
 }
 
 // Register the autoloader for all shmanic libraries
@@ -34,5 +34,5 @@ SHLoader::setup();
 if (!class_exists('SHFactory'))
 {
 	// Manually include the factory
-	require_once JPATH_PLATFORM . '/shmanic/factory.php';
+	require_once SHPATH_PLATFORM . '/factory.php';
 }

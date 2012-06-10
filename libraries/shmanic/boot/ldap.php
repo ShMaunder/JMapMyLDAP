@@ -21,16 +21,16 @@ if (!defined('SHPATH_PLATFORM'))
 
 if (!defined('SHLDAP_VERSION'))
 {
-	// Define the JMapMyLDAP version [TODO: make nicer]
+	// Define the JMapMyLDAP version [TODO: move to platform]
 	define('SHLDAP_VERSION', '2.0.0');
 }
 
 // Setup and get the Ldap dispatcher
 $dispatcher = SHFactory::getDispatcher('ldap');
 
-// Setup the global debug Ldap log monitor if it exists
-if (class_exists('SHLdapLogMonitor'))
+if (class_exists('SHLdapLogMonitor') && defined('JDEBUG'))
 {
+	// Setup the global debug Ldap log monitor (used only in debugging mode)
 	new SHLdapLogMonitor(
 		$dispatcher,
 		array('enabled' => true, 'level' => JLog::ALL)
