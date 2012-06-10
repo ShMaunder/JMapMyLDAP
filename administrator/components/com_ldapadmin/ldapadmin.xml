@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 2 or later; see	LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>1.1.0</version>
+	<version>2.0.0.70</version>
 	<description>COM_LDAPADMIN_XML_DESCRIPTION</description>
 	<administration>
 		<menu link="option=com_ldapadmin">com_ldapadmin</menu>

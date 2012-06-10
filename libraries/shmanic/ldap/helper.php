@@ -96,21 +96,7 @@ class LdapUserHelper extends JObject
 		}
 	}
 	
-	/**
-	 * Returns if the current or specified user was 
-	 * authenticated via LDAP.
-	 * 
-	 * @param  integer  $userId  Optional user id
-	 * 
-	 * @return  boolean
-	 * @since   2.0
-	 */
-	public static function isUserLdap($userId = null)
-	{	
-		if(JFactory::getUser($userId)->getParam('authtype') == 'LDAP') {
-			return true;
-		}		
-	}
+
 	
 	/**
 	 * Sets the flag for the specified user's 
@@ -138,8 +124,38 @@ class LdapUserHelper extends JObject
 * @subpackage	Ldap
 * @since		2.0
 */
-class LdapHelper extends JObject
+abstract class SHLdapHelper extends JObject
 {
+
+	/**
+	 * Returns if the current or specified user was authenticated 
+	 * via LDAP.
+	 * 
+	 * @param   integer  $userId  Optional user id.
+	 * 
+	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
+	 * 
+	 * @since   2.0
+	 */
+	public static function isUserLdap($userId = null)
+	{
+		if (JFactory::getUser($userId)->getParam('authtype') == 'LDAP')
+		{
+			return true;
+		}
+	}
+
+	// Get the LDAP configuration for the specified identifier
+	public static function getConfig($id) 
+	{
+		self::getParams();
+	}
+	
+	// Get the config ID from the $domain field
+	public static function getConfigId($domain)
+	{
+		return 0;
+	}
 	
 	/* get a connection and bind if specified */
 	public static function getConnection($bind = false, $username = null, $password = null)
@@ -149,7 +165,7 @@ class LdapHelper extends JObject
 			return false;
 		}
 		
-		$ldap = JLDAP2::getInstance($params);
+		$ldap = JLDAP2::getInstance(0, $params);
 		
 		if($ldap->isConnected() || $ldap->connect()) {
 			
@@ -353,6 +369,8 @@ class LdapHelper extends JObject
 	// Gets a global wide (common) parameter for the LDAP extensions
 	public static function getGlobalParam($field, $default = null)
 	{
+		jimport('joomla.application.component.helper');
+		
 		// TODO: Hmm, what can we do for the platform??
 		$params = JComponentHelper::getParams('com_ldapadmin');
 		
@@ -366,22 +384,22 @@ class LdapHelper extends JObject
 	// Return - Boolean to Success
 	public static function makeChanges($dn, $current, $changes = array())
 	{
-		
+
 		if(!count($changes)) {
 			return false; // There is nothing to change
 		}
-	
+
 		$deleteEntries 		= array();
 		$addEntries 		= array();
 		$replaceEntries		= array();
-		
+
 		foreach($changes as $key=>$value) {
-			
+
 			$return = 0;
-			
+
 			// Check this attribute for multiple values
 			if(is_array($value)) {
-				
+
 				/* This is a multiple value attriute and to preserve
 				 * order we must replace the whole thing if changes
 				 * are required.
@@ -389,13 +407,13 @@ class LdapHelper extends JObject
 				$modification = false;
 				$new = array();
 				$count = 0;
-				
+
 				for($i=0; $i<count($value); $i++) {
-					
+
 					if($return = self::checkField($current, $key, $count, $value[$i])) {
 						$modification = true;
 					}
-					
+
 					if($return!=3 && $value[$i]) {
 						$new[] = $value[$i]; //We don't want to save deletes
 						$count++;
@@ -408,48 +426,48 @@ class LdapHelper extends JObject
 						$addEntries[$key] = array_reverse($new); // Now lets re-add them
 					}
 				}
-				
-				
+
+
 			} else {
-				
+
 				/* This is a single value attribute and we now need to 
 				 * determine if this needs to be ignored, added, 
 				 * modified or deleted.
 				 */
 				$return = self::checkField($current, $key, 0, $value);
-				
+
 				switch($return) {
-				
+
 					case 1:
 						$replaceEntries[$key] = $value;
 						break;
-						
+
 					case 2:
 						$addEntries[$key] = $value;
 						break;
-						
+
 					case 3:
 						$deleteEntries[$key] = array();
 						break;
-				
+
 				}
 			}
 		}
-		
+
 		/* We can now commit the changes to the 
 		 * LDAP server for this DN.
 		 */
 		$results 	= array();
 		$ldap 		= JLDAP2::getInstance();
-		
+
 		if(count($deleteEntries)) { 
 			$results[] = $ldap->deleteAttributes($dn, $deleteEntries);
 		}
-		
+
 		if(count($addEntries)) {
 			$results[] = $ldap->addAttributes($dn, $addEntries);
 		}
-		
+
 		if(count($replaceEntries)) {
 			$results[] = $ldap->replaceAttributes($dn, $replaceEntries);
 		}
@@ -458,14 +476,14 @@ class LdapHelper extends JObject
 			return true;
 		}
 	}
-	
+
 	// @RETURN: 0-same/ignore, 1-modify, 2-addition, 3-delete
 	protected static function checkField($current, $key, $interval, $value)
 	{
-	
+
 		// Check if the LDAP attribute exists
 		if(array_key_exists($key, $current)) {
-				
+
 			if(isset($current[$key][$interval])) { 
 				if($current[$key][$interval] == $value) {
 					return 0; // Same value - no need to update
@@ -474,13 +492,13 @@ class LdapHelper extends JObject
 					return 3; // We don't want to include a blank or null value
 				}
 			}
-			
+
 			if(is_null($value) || !$value) {
 				return 0; // We don't want to include a blank or null value
 			}
-	
+
 			return 1;
-	
+
 		} else {
 			if(!is_null($value) && $value) {
 				return 2; // We need to create a new LDAP attribute
@@ -494,26 +512,26 @@ class LdapHelper extends JObject
 
 class LdapEventHelper extends JObject
 {
-	
+
 	public static function loadEvents($dispatcher)
 	{
 		// Initialise logging
 		JLogLdapHelper::addLoggers();
-		
+
 		// Creates a new instance of events binding it to the dispatcher
 		return LdapEvent::getInstance($dispatcher);
 	}
-	
+
 	public static function loadPlugins($type = null)
 	{
 		if(is_null($type)) {
 			$type = LdapHelper::getGlobalParam('ldap_plugin_type', 'ldap');
 		}
-		
+
 		$loaded = JPluginHelper::importPlugin($type);
 		return $loaded;
 	}
-		
+
 	/**
 	 * Calls all handlers associated with an event group.
 	 *
@@ -530,5 +548,4 @@ class LdapEventHelper extends JObject
 		return(!in_array(false, $result, true));
 	}
 
-	
 }

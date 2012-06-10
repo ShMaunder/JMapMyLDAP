@@ -1,0 +1,38 @@
+<?php
+/**
+ * Bootstrap for Shmanic Platform. Loads the Autoloader and Factory.
+ * 
+ * PHP Version 5.3
+ *
+ * @package    Shmanic.Libraries
+ * @author     Shaun Maunder <shaun@shmanic.com>
+ * 
+ * @copyright  Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license    GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
+defined('JPATH_PLATFORM') or die;
+
+// Load the global language file
+JFactory::getLanguage()->load('shmanic', JPATH_ROOT);
+
+// Platform directory location
+if (!defined('SHPATH_PLATFORM'))
+{
+	define('SHPATH_PLATFORM', JPATH_PLATFORM . '/shmanic');
+}
+
+if (!class_exists('SHLoader'))
+{
+	// Include the autoloader
+	require_once JPATH_PLATFORM . '/shmanic/loader.php';
+}
+
+// Register the autoloader for all shmanic libraries
+SHLoader::setup();
+
+if (!class_exists('SHFactory'))
+{
+	// Manually include the factory
+	require_once JPATH_PLATFORM . '/shmanic/factory.php';
+}
