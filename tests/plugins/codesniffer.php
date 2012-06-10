@@ -28,7 +28,23 @@ class TPluginsCodesniffer extends TCorePlugin
 	 * @since 1.0
 	 */
 	protected $width = 80;
-	
+
+	/**
+	 * The coding standard to use
+	 * 
+	 * @var   string
+	 * @since 1.0
+	 */
+	protected $standard = null;
+
+	/**
+	 * Tab width for coding standards
+	 * 
+	 * @var   integer
+	 * @since 1.0
+	 */
+	protected $tabwidth = 4;
+
 	/**
 	 * Array of files to inspect
 	 * 
@@ -123,6 +139,11 @@ class TPluginsCodesniffer extends TCorePlugin
 		// We need to add the specified files to the attributes
 		$values['files'] = $this->files;
 		
+		// Override the standard
+		if (!is_null($this->standard)) {
+			$values['standard'] = $this->standard;
+		}
+
 		// Check for a valid standard
 		if (\PHP_CodeSniffer::isInstalledStandard($values['standard']) === false) {
 			echo 'ERROR: the "'.$values['standard'].
@@ -190,11 +211,9 @@ class TPluginsCodesniffer extends TCorePlugin
 	protected function getAttributes()
 	{
 		$attributes = array();
-		//$attributes['standard'] 		= 'PEAR';
-		//$attributes['standard']			= JPATH_TESTS . '/3rdparty/joomla-coding-standards';
-		$attributes['standard']			= 'Joomla';
+		$attributes['standard'] 		= 'PEAR'; // Default
 		$attributes['verbosity'] 		= 0;
-		$attributes['tabWidth'] 		= 4;
+		$attributes['tabWidth'] 		= $this->tabwidth;
 		$attributes['encoding'] 		= 'iso-8859-1';
 		$attributes['interactive'] 		= false;
 		$attributes['ignored']			= false;
