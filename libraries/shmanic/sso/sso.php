@@ -144,7 +144,7 @@ class SHSso extends JDispatcher
 	 * @param   string  $username  String containing detected username.
 	 * @param   array   $options   An array containing action, autoregister and detection name.
 	 *
-	 * @return  JAuthenticationResponse|False  A JAuthenticationReponse on success or False on failure.
+	 * @return  JAuthenticationResponse  Response from the authorise.
 	 *
 	 * @since   1.0
 	 */
@@ -175,6 +175,11 @@ class SHSso extends JDispatcher
 			}
 		}
 
+		// Import the authentication and user plug-ins in case they havent already
+		// J! Pull Request: https://github.com/joomla/joomla-platform/pull/1305
+		JPluginHelper::importPlugin('user');
+		JPluginHelper::importPlugin('authentication');
+
 		// We need to authorise our username to an authentication plugin
 		$authorisations = JAuthentication::authorise($response, $options);
 
@@ -189,7 +194,8 @@ class SHSso extends JDispatcher
 		}
 
 		// No authorises found
-		return false;
+		$response->status = JAuthentication::STATUS_FAILURE;
+		return $response;
 	}
 
 	/**
@@ -200,7 +206,7 @@ class SHSso extends JDispatcher
 	 * @param   string  $username  String containing detected username.
 	 * @param   array   $options   An array containing action, autoregister and detection name.
 	 *
-	 * @return  JAuthenticationResponse|False  A JAuthenticationReponse on success or False on failure.
+	 * @return  JAuthenticationResponse    Response from the Joomla authorise.
 	 *
 	 * @since   2.0
 	 */
