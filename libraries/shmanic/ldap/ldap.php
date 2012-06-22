@@ -1,14 +1,11 @@
 <?php
 /**
- * Orginally forked from the Joomla LDAP (JLDAP 11.1) for enhanced search and increased 
- * functionality with partial backward compatibility in the helper file.
- * 
  * PHP Version 5.3
- * 
+ *
  * @package     Shmanic.Libraries
  * @subpackage  Ldap
  * @author      Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -16,884 +13,540 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * An LDAP authentication and modification class for all LDAP operations.
- * 
+ * Provides common pre-defined queries that can be used to retrieve data from
+ * the LDAP client. This class extends the funtionality of the client.
+ *
  * @package     Shmanic.Libraries
  * @subpackage  Ldap
  * @since       2.0
  */
-class SHLdap extends JObject
+class SHLdap extends SHLdapBase
 {
-
 	/**
-	 * Size limit for some supported LDAP operations
-	 * 
-	 * @var    integer
-	 * @since  2.0
-	 */
-	const SIZE_LIMIT = 0;
-
-	/**
-	 * Time limit for some supported LDAP operations
-	 * 
-	 * @var    integer
-	 * @since  2.0
-	 */
-	const TIME_LIMIT = 0;
-
-	/**
-	 * Debug stack
-	 * 
-	 * @var    Array
-	 * @since  2.0
-	 */
-	protected $debug = array();
-
-	/**
-	 * Use LDAP version 3
-	 * 
-	 * @var    boolean
-	 * @since  1.0
-	 */
-	protected $use_v3 = false;
-
-	/**
-	 * Negotiate TLS (encrypted communications)
-	 * 
-	 * @var    boolean
-	 * @since  1.0
-	 */
-	protected $negotiate_tls = false;
-
-	/**
-	 * Use referrals (server transfers)
-	 * 
-	 * @var    boolean
-	 * @since  1.0
-	 */
-	protected $use_referrals = false;
-
-	/**
-	 * Hostname of LDAP server (multiple values supported; see PHP documentation)
-	 * 
-	 * @var    string
-	 * @since  1.0
-	 */
-	protected $host = null;
-
-	/**
-	 * Port of LDAP server
-	 * 
-	 * @var    integer
-	 * @since  1.0
-	 */
-	protected $port = null;
-
-	/**
-	 * Proxy username
-	 * 
+	 * Default filter when one is not specified
+	 *
 	 * @var    string
 	 * @since  2.0
 	 */
-	protected $proxy_username = null;
+	const DEFAULT_FILTER = '(objectclass=*)';
 
 	/**
-	 * Proxy user password
-	 * 
+	 * The placeholder for username replacement.
+	 *
 	 * @var    string
 	 * @since  2.0
 	 */
-	protected $proxy_password = null;
+	const USERNAME_REPLACE = '[username]';
 
 	/**
-	 * Fullname attribute (e.g. fullname / name)
-	 * 
-	 * @var    string
-	 * @since  1.0
-	 */
-	protected $ldap_fullname = null;
-
-	/**
-	 * Email attribute (e.g. mail)
-	 * 
-	 * @var    string
-	 * @since  1.0
-	 */
-	protected $ldap_email = null;
-
-	/**
-	 * UID attribute (e.g. uid / sAMAccountName)
-	 * 
-	 * @var    string
-	 * @since  1.0
-	 */
-	protected $ldap_uid = null;
-
-	/**
-	 * Allow anonymous binding.
-	 * 
+	 * Use the result object in place of an array when returning data results.
+	 *
 	 * @var    boolean
 	 * @since  2.0
 	 */
-	protected $allow_anon = false;
+	const USE_RESULT_OBJECT = true;
 
 	/**
-	 * LDAP resource handler 
-	 * 
-	 * @var    mixed
+	 * If true then use search to find user
+	 *
+	 * @var    boolean
 	 * @since  1.0
 	 */
-	protected $resource = null;
+	protected $use_search = false;
+
+	/**
+	 * Base DN to use for searching (e.g. dc=acme,dc=local / o=company)
+	 *
+	 * @var    string
+	 * @since  1.0
+	 */
+	protected $base_dn = null;
+
+	/**
+	 * User DN or Filter Query (e.g. (sAMAccountName=[username]) / cn=[username],dc=acme,dc=local)
+	 *
+	 * @var    string
+	 * @since  1.0
+	 */
+	protected $user_qry = null;
 
 	/**
 	 * Constructor
 	 *
 	 * @param   object  $configObj  An object of configuration variables
 	 *
-	 * @since   1.0
-	 * @throws  Exception
+	 * @since   2.0
 	 */
 	public function __construct($configObj = null)
 	{
-		if (is_null($configObj))
-		{
-			// Parameters will need setting later
-			$configArr = array();
-		}
-		elseif ($configObj instanceof JRegistry)
-		{
-			// JRegistry object needs to be converted to an array
-			$configArr = $configObj->toArray();
-		}
-		elseif (is_array($configObj))
-		{
-			// The parameter was an array already
-			$configArr = $configObj;
-		}
-		else
-		{
-			// Unknown format
-			throw new Exception('Unknown LDAP config object', 990);
-		}
-
-		// Passes the array back to the parent for class property assignment
-		parent::__construct($configArr);
+		parent::__construct($configObj);
 
 		// For front-end error translation
 		JFactory::getLanguage()->load('lib_jldap2', JPATH_BASE);
-
-		// Check the Ldap extension is loaded
-		if (!extension_loaded('ldap'))
-		{
-			// Ldap extension is not loaded
-			throw new Exception(JText::_('LIB_SHLDAPCLIENT_ERR_991'), 990);
-		}
-
-		// Reset resource & debug
-		$this->resource = null;
-		$this->debug = array();
-
 	}
 
 	/**
-	 * Add to the debug stack.
-	 * 
+	 * Inform any listening loggers of the debug message.
+	 *
 	 * @param   string  $message  String to push to stack
-	 * 
+	 *
 	 * @return  void
-	 * 
+	 *
 	 * @since  2.0
 	 */
 	public function addDebug($message)
 	{
-		$this->debug[] = $message;
+		// Add the debug message to any listening loggers
+		SHLdapHelper::triggerEvent('onDebug', array($message));
+
+		parent::addDebug($message);
 	}
 
 	/**
-	 * Returns the attribute key for fullname.
-	 * 
-	 * @return  string  Attribute key.
-	 * 
-	 * @since   2.0
+	 * (non-PHPdoc)
+	 * @see SHLdapClient::search()
 	 */
-	public function getFullname()
+	public function search($dn = null, $filter = null, $attributes = array())
 	{
-		return $this->ldap_fullname;
-	}
-
-	/**
-	 * Returns the attribute key for email.
-	 * 
-	 * @return  string  Email key.
-	 * 
-	 * @since   2.0
-	 */
-	public function getEmail()
-	{
-		return $this->ldap_email;
-	}
-
-	/**
-	 * Returns the attribute key for uid.
-	 * 
-	 * @return  string  Uid Key.
-	 * 
-	 * @since   2.0
-	 */
-	public function getUid()
-	{
-		return $this->ldap_uid;
-	}
-
-	/**
-	 * Attempt connection to an LDAP server and returns the result.
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   1.0
-	 */
-	public function connect()
-	{
-
-		// A host parameter must be specified to connect
-		if (empty($this->host))
+		if (is_null($dn))
 		{
-			$this->setError(new SHLdapException(null, 10001, JText::_('LIB_SHLDAPCLIENT_ERR_10001')));
-			return false;
+			// Use the base distinguished name in place of null value
+			$dn = $this->base_dn;
 		}
 
-		// If there is a connection already, then close it before progressing
-		$this->close();
-
-		try
+		if (is_null($filter))
 		{
+			// Use the default filter in place of null value
+			$filter = self::DEFAULT_FILTER;
+		}
 
-			$this->addDebug("Attempting connection to LDAP with host {$this->host}");
+		$result = parent::search($dn, $filter, $attributes);
 
+		if (!self::USE_RESULT_OBJECT || $result === false)
+		{
 			/*
-			 * In most cases, even if we cannot connect, we won't
-			 * be able to find out until we have done our first
-			 * bind! This is because it will allocate a resource
-			 * whether it was able to connect to a server or not.
+			 * Not using the special result object OR the operation failed,
+			 * therefore lets return now.
 			 */
-			$this->resource = ldap_connect($this->host, $this->port);
+			return $result;
+		}
 
-			if (!$this->isConnected())
+		return new SHLdapResult($result);
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see SHLdapClient::read()
+	 */
+	public function read($dn = null, $filter = null, $attributes = array())
+	{
+		if (is_null($dn))
+		{
+			// Use the base distinguished name in place of null value
+			$dn = $this->base_dn;
+		}
+
+		if (is_null($filter))
+		{
+			// Use the default filter in place of null value
+			$filter = self::DEFAULT_FILTER;
+		}
+
+		$result = parent::read($dn, $filter, $attributes);
+
+		if (!self::USE_RESULT_OBJECT || $result === false)
+		{
+			/*
+			 * Not using the special result object OR the operation failed,
+			 * therefore lets return now.
+			 */
+			return $result;
+		}
+
+		return new SHLdapResult($result);
+	}
+
+	/**
+	 * Get a users Ldap distinguished name with optional bind authentication.
+	 *
+	 * @param   string   $username      Authenticating username
+	 * @param   string   $password      Authenticating password
+	 * @param   boolean  $authenticate  Attempt to authenticate the user (i.e.
+	 *						bind the user with the password supplied)
+	 *
+	 * @return  string|false  On success returns a string containing users DN, otherwise
+	 *							returns False to indicate error.
+	 *
+	 * @since   1.0
+	 */
+	public function getUserDN($username = null, $password = null, $authenticate = false)
+	{
+
+		if (empty($this->user_qry))
+		{
+			// No user query specified, cannot proceed
+			$this->setError(new SHLdapException(null, 10301, JText::_('LIB_SHLDAP_ERR_10301')));
+			return false;
+		}
+
+		$replaced = str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
+
+		$this->addDebug(
+			"Attempt to retrieve user distinguished name using '{$replaced}' " .
+			($this->use_search ? ' with search.' : ' with direct bind.')
+		);
+
+		// Get a array of distinguished names from either the search or direct bind methods.
+		$DNs = $this->use_search ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
+
+		if ($DNs === false)
+		{
+			// An error occurred during distinguished name retrieval (error already set)
+			return false;
+		}
+
+		if (!is_array($DNs) || !count($DNs))
+		{
+			// Cannot find the specified username
+			$this->setError(new SHLdapException(null, 10302, JText::sprintf('LIB_SHLDAP_ERR_10302', $username)));
+			return false;
+		}
+
+		// Check if we have to authenticate the distinguished name with a password
+		if ($authenticate)
+		{
+			// Attempt to bind each distinguished name with the specified password then return it
+			foreach ($DNs as $dn)
 			{
-				// Failed to connect
-				throw new SHLdapException($this->getErrorCode(), 10002, JText::_('LIB_SHLDAPCLIENT_ERR_10002'));
-			}
-
-			$this->addDebug(
-				"Successfully connected to {$this->host}. Setting the following parameters:" .
-				($this->use_v3 ? ' ldapV3' : null) . ($this->use_referrals ? ' Referrals' : null) .
-				($this->negotiate_tls ? ' TLS.' : null)
-			);
-
-			// Attempt to configure LDAP version 3
-			if ($this->use_v3)
-			{
-				if (!ldap_set_option($this->resource, LDAP_OPT_PROTOCOL_VERSION, 3))
+				if ($this->bind($dn, $password))
 				{
-					// Failed to set LDAP version 3
-					throw new SHLdapException($this->getErrorCode(), 10003, JText::_('LIB_SHLDAPCLIENT_ERR_10003'));
+					// Successfully binded with this distinguished name
+					$this->addDebug("Successfully authenticated {$username} with distinguished name {$dn}.");
+					return $dn;
 				}
 			}
 
-			// Attempt to set the referrals option
-			if (!ldap_set_option($this->resource, LDAP_OPT_REFERRALS, intval($this->use_referrals)))
+			if ($this->use_search)
 			{
-				// Failed to set referrals
-				throw new SHLdapException($this->getErrorCode(), 10004, JText::_('LIB_SHLDAPCLIENT_ERR_10004'));
-			}
-
-			// Attempt to configure Start TLS
-			if ($this->negotiate_tls)
-			{
-				if (!@ldap_start_tls($this->resource))
-				{
-					// Failed to start TLS
-					throw new SHLdapException($this->getErrorCode(), 10005, JText::_('LIB_SHLDAPCLIENT_ERR_10005'));
-				}
-			}
-
-		}
-		catch (SHLdapException $e)
-		{
-			$this->setError($e);
-			return false;
-		}
-		catch (Exception $e)
-		{
-			$this->setError(new SHLdapException(null, 10000, $e->getMessage()));
-			return false;
-		}
-
-		// Connecting has been successful
-		$this->addDebug('Successfully connected.');
-		return true;
-	}
-
-	/**
-	* Checks whether a resource is defined in the LDAP resource variable.
-	* Note: this isn't reliable as an object is created when a connection is attempted.
-	*
-	* @return  boolean  Returns True on success or False on failure.
-	* 
-	* @since   2.0
-	*/
-	public function isConnected()
-	{
-		return is_resource($this->resource);
-	}
-
-	/**
-	 * Close the LDAP connection.
-	 *
-	 * @return  void
-	 * 
-	 * @since   1.0
-	 */
-	public function close()
-	{
-		if ($this->isConnected())
-		{
-			// Close the current connection to Ldap and reset the resource variable
-			ldap_close($this->resource);
-			$this->resource = null;
-			$this->addDebug('Closed connection.');
-		}
-	}
-
-	/**
-	 * Compare an entry and return the result
-	 *
-	 * @param   string  $dn         The distinguished name of the attribute to compare
-	 * @param   string  $attribute  The attribute name/key
-	 * @param   string  $value      The compared value of the attribute (case insensitive)
-	 *
-	 * @return  mixed   Returns True if value matches other returns False. -1 on error.
-	 * 
-	 * @since   1.0
-	 */
-	public function compare($dn, $attribute, $value)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return -1;
-		}
-
-		// Do the Ldap compare operation
-		$result = @ldap_compare($this->resource, $dn, $attribute, $value);
-
-		if ($result === -1)
-		{
-			// A error in the Ldap compare operation occurred
-			$this->setError(new SHLdapException($this->getErrorCode(), 10131, JText::_('LIB_SHLDAPCLIENT_ERR_10131')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Search directory and subtrees using a base dn and a filter, then returns
-	 * the attributes in an array.
-	 *
-	 * @param   string  $dn          A base dn
-	 * @param   string  $filter      Ldap filter to restrict results
-	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
-	 *
-	 * @return  array|false          Array of attributes and corresponding values or False on error
-	 * 
-	 * @since   1.0
-	 */
-	public function search($dn, $filter, $attributes = array())
-	{
-		try
-		{
-
-			if (!$this->isConnected())
-			{
-				// There is no Ldap connection
-				throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006'));
-			}
-
-			// Execute the Ldap search operation
-			$result = @ldap_search($this->resource, $dn, $filter, $attributes, 0, self::SIZE_LIMIT, self::TIME_LIMIT);
-
-			if ($result === false)
-			{
-				// An Ldap error has occurred
-				throw new SHLdapException($this->getErrorCode(), 10102, JText::_('LIB_SHLDAPCLIENT_ERR_10102'));
-			}
-
-			if ($result)
-			{
-				// Some results were found, lets import the results
-				return $this->getEntries($result);
+				// User found, but was unable to bind with the supplied password
+				$this->setError(new SHLdapException(null, 10303, JText::sprintf('LIB_SHLDAP_ERR_10303', $username)));
 			}
 			else
 			{
-				// No results found
-				return array();
+				// Unable to bind directly to the given distinguished name parameters
+				$this->setError(new SHLdapException(null, 10304, JText::sprintf('LIB_SHLDAP_ERR_10304', $username)));
 			}
 
-		}
-		catch (SHLdapException $e)
-		{
-			$this->setError($e);
 			return false;
 		}
-		catch (Exception $e)
-		{
-			$this->setError(new SHLdapException(null, 10100, $e->getMessage()));
-			return false;
-		}
-	}
-
-	/**
-	 * Read directory using given dn and filter, then returns the attributes 
-	 * in an array.
-	 *
-	 * @param   string  $dn          Dn of object to read
-	 * @param   string  $filter      Ldap filter to restrict results
-	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
-	 *
-	 * @return  array|false          Array of attributes and corresponding values or False on error
-	 * 
-	 * @since   1.0
-	 */
-	public function read($dn, $filter, $attributes = array())
-	{
-		try
+		else
 		{
 
-			if (!$this->isConnected())
-			{
-				// There is no Ldap connection
-				throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006'));
-			}
+			$result = false;
 
-			// Execute the Ldap read operation
-			$result = @ldap_read($this->resource, $dn, $filter, $attributes, 0, self::SIZE_LIMIT, self::TIME_LIMIT);
-
-			if ($result === false)
+			if ($this->use_search)
 			{
-				// An Ldap error has occurred
-				throw new SHLdapException($this->getErrorCode(), 10112, JText::_('LIB_SHLDAPCLIENT_ERR_10112'));
-			}
-
-			if ($result)
-			{
-				// Some results were found, lets import the results
-				return $this->getEntries($result);
+				/* We can be sure the distinguished name(s) exists in the Ldap
+				 * directory. However, we cannot be sure if the correct
+				 * distinguished name is returned for the specified user without
+				 * authenticating. Therefore, we have to assume the first (and
+				 * hopefully only) distinguished name is correct.
+				 * If the correct configuration has been given and the Ldap
+				 * directory is well organised, this will always be correct.
+				 */
+				$result = $DNs[0];
 			}
 			else
 			{
-				// No results found
-				return array();
-			}
-
-		}
-		catch (SHLdapException $e)
-		{
-			$this->setError($e);
-			return false;
-		}
-		catch (Exception $e)
-		{
-			$this->setError(new SHLdapException(null, 10110, $e->getMessage()));
-			return false;
-		}
-	}
-
-	/**
-	 * Process result object (usually from a LDAP search or read), then return the 
-	 * result entries in an array. For each entry, only attributes with values are
-	 * pushed onto the entry array.
-	 * Note: ldap_get_entries is not used due to the 1000 record limit
-	 * 
-	 * @param   resource  $result  The result object from a returned search or read
-	 * 
-	 * @return  array  An array of entries
-	 * 
-	 * @since   1.0
-	 */
-	public function getEntries($result)
-	{
-		if (!is_resource($result))
-		{
-			// The result parameter must be a resource
-			throw new Exception(JText::_('LIB_SHLDAPCLIENT_ERR_10121'), 10121);
-		}
-
-		// Store all entries inside the array
-		$entries = array();
-
-		// For each entry in results from the first entry till there are none left
-		for ($entry = @ldap_first_entry($this->resource, $result); $entry != false; $entry = @ldap_next_entry($this->resource, $entry))
-		{
-			// New entry, therefore, new array to store the data
-			$entries[] = array();
-
-			// Get the entry attributes that were requested and store in an array
-			$attributes = @ldap_get_attributes($this->resource, $entry);
-
-			/*
-			 * For each entry attribute, check there is a value from the result
-			 * and if and only if there is a value, push it onto the current entry's
-			 * array. This means that if a attribute has no values associated with it,
-			 * the key will NOT be included.
-			 *
-			 * Note: the count key is removed during this process.
-			 */
-			foreach ($attributes as $name => $value)
-			{
-				// Check the value is a valid array before checking for any valid result values
-				if (is_array($value) && $value['count'] > 0)
+				/* Unlike searching, binding directly means we cannot be sure
+				 * if the distinguished name(s) exists in the Ldap directory.
+				 * Therefore, lets attempt to bind with a proxy user, then Ldap
+				 * read each distinguished name's entity to check if it exists.
+				 * If binding with the proxy user fails, then we have no option
+				 * but to assume the first distinguished name exists.
+				 */
+				if ($this->proxyBind())
 				{
-					// Remove the count key before pushing it to the entry's array
-					unset($value['count']);
+					foreach ($DNs as $dn)
+					{
+						// Check if the distinguished name entity exists
+						if (count($this->read($dn, null, array('dn'))))
+						{
+							// It exists so we assume this is the correct distinguished name.
+							$result = $dn;
+							break;
+						}
+					}
 
-					// Push the attribute key and value to the entry's array
-					$entries[count($entries) - 1][$name] = $value;
+					if ($result === false)
+					{
+						// Failed to find any of the distinguished name(s) in the Ldap directory.
+						$this->setError(new SHLdapException(null, 10305, JText::sprintf('LIB_SHLDAP_ERR_10305', $username)));
+					}
+				}
+				else
+				{
+					// Unable to check Ldap directory, so have to assume the first is correct
+					$result = $DNs[0];
 				}
 			}
 
-			// Always add the distinguished name to the object regardless of the attribute result
-			$entries[count($entries) - 1]['dn'] = @ldap_get_dn($this->resource, $entry);
+			$this->addDebug("Using distinguished name {$result} for user {$username}.");
+			return $result;
 		}
-
-		return $entries;
 	}
 
 	/**
-	 * Set the allow anonymous binding flag.
-	 * 
-	 * @param   boolean  $value  True to allow anonymous binds or False to disable
-	 * 
-	 * @return  void
-	 * 
-	 * @since   2.0
-	 */
-	public function allowAnonymous($value = true)
-	{
-		$this->allow_anon = (bool) $value;
-	}
-
-	/**
-	 * Binds using a connect username and password.
-	 * Note: Anonymous binds are always allowed here.
-	 * 
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function proxyBind()
-	{
-		if (@ldap_bind($this->resource, $this->proxy_username, $this->proxy_password))
-		{
-			// Successful bind
-			return true;
-		}
-
-		// Unsuccessful bind
-		$this->addDebug("Unsuccessful proxy bind");
-		return false;
-	}
-
-	/**
-	 * Binds to the LDAP directory and returns the operation result.
-	 * Note: Anonymous bind can be disabled by passing allowAnonymous(false).
+	 * Get a user's dn by attempting to search for it in the directory.
 	 *
-	 * @param   string  $username  Bind username (anonymous bind if left blank)
-	 * @param   string  $password  Bind password (anonymous bind if left blank)
+	 * this method uses the query as a filter to find where the user is located in the directory
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
+	 * @param  string  $username  Authenticating username
+	 *
+	 * @return  array|false  On success shall return an array containing DNs, otherwise
+	 *                  returns a JException to indicate an error.
 	 * @since   1.0
 	 */
-	public function bind($username = null, $password = null)
+	public function getUserDnBySearch($username)
 	{
-		// Check if this is an anonymous bind attempt
-		if (empty($username) || empty($password))
+		// Fixes special usernames and provides simple protection against ldap injections
+		$username 	= SHLdapHelper::escape($username);
+		$search 	= str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
+
+
+		// Basic check for LDAP filter (i.e. brackets). Could still be a distinguished name.
+		if (!preg_match('/\((.)*\)/', $search))
 		{
-			if (!$this->allow_anon)
+			$search = "({$search})";
+		}
+
+		if (empty($this->base_dn))
+		{
+			// No base distinguished name specified, cannot proceed.
+			$this->setError(new SHLdapException(null, 10321, JText::_('LIB_SHLDAP_ERR_10321')));
+			return false;
+		}
+
+		// Bind using the proxy user so the user can be found in the Ldap directory.
+		if (!$this->proxyBind())
+		{
+			// Failed to bind with proxy user
+			$this->setError(new SHLdapException(null, 10322, JText::_('LIB_SHLDAP_ERR_10322')));
+			return false;
+		}
+
+		// Search the directory for the user
+		$result = $this->search(null, $search, array($this->ldap_uid));
+
+		if ($result === false)
+		{
+			// An Ldap error occurred whilst trying to lookup the user
+			return false;
+		}
+
+		$return 	= array();
+		$count 		= $result->countEntries();
+
+		// Store the distinguished name for each user found
+		for ($i = 0; $i < $count; ++$i)
+		{
+			$return[] = $result->getValue($i, 'dn', 0);
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Get a user's distinguished name by attempting to replace the username keyword
+	 * in the query. Supports multiple distinguished names in a list.
+	 *
+	 * @param   string  $username  Authenticating username.
+	 *
+	 * @return  array|false  On success an array containing distinguished names or False on error.
+	 *
+	 * @since   1.0
+	 */
+	public function getUserDnDirectly($username)
+	{
+		$return = array();
+
+		// Fixes special usernames and provides protection against distinguished name injection
+		$username = SHLdapHelper::escape($username, true);
+
+		// Replace the username placeholder with the authenticating username
+		$search = str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
+
+		// Splits each of the distinguished names into indivdual elements
+		$DNs = explode(';', $search);
+
+		/*
+		 * A basic check to ensure a filter isnt being used.
+		 * (i.e. distinguished names do not start and end with brackets).
+		 */
+		if (preg_match('/\((.)*\)/', $search))
+		{
+			// Cannot continue as brackets are present
+			$this->setError(new SHLdapException(null, 10331, JText::_('LIB_SHLDAP_ERR_10331')));
+			return false;
+		}
+
+		// We need to find the correct distinguished name from the set of elements
+		foreach ($DNs as $dn)
+		{
+			// Remove whitespacing from the distinguished name and check there is a length > 1
+			if ($dn = trim($dn))
 			{
-				// Anonymous binding disabled
-				$this->addDebug("Anonymous bind rejected {$username}");
-				return false;
+				$return[] = $dn;
 			}
-
-			// Anonymous bind allowed
-			$this->addDebug("Anonymous bind attempted {$username}");
 		}
 
-		if (@ldap_bind($this->resource, $username, $password))
-		{
-			// Successful bind
-			return true;
-		}
-
-		// Unsuccessful bind
-		$this->addDebug("Unsuccessful bind for {$username}");
-		return false;
-
+		return $return;
 	}
 
 	/**
-	 * Returns the last LDAP error code number.
-	 * 
-	 * @return  integer  Error code number
-	 * 
-	 * @since   2.0
-	 */
-	public function getErrorCode()
-	{
-		return (int) ldap_errno($this->resource);
-	}
-
-	/**
-	 * Returns the last LDAP error message.
+	 * Get an array of user detail attributes for the user. By default this method will return the
+	 * mapping uid, fullname and email fields. It will also try to get all the attributes required
+	 * for group mapping, though this is optional.
 	 *
-	 * @return  string  Error message string
-	 * 
+	 * @param   string  $dn          The dn of the user
+	 * @param   array   $attributes  An optional array of extra attributes
+	 *
+	 * @return  array|false  On success shall return an array of attributes, otherwise
+	 *                   returns a JException to indicate an error.
+	 *
 	 * @since   1.0
 	 */
-	public function getErrorMsg()
+	public function getUserDetails($dn, $attributes = array())
 	{
-		return ldap_error($this->resource);
-	}
 
-	/**
-	 * Modifies an existing entry (i.e. attributes) at the object-level in 
-	 * the Ldap directory.
-	 *
-	 * @param   string  $dn          The distinguished name of the entity
-	 * @param   array   $attributes  An array of attribute values to modify
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function modify($dn, $attributes)
-	{
-		if (!$this->isConnected())
+		// Call for any LDAP plug-ins that require extra attributes.
+		$extras = SHFactory::getDispatcher('ldap')->trigger(
+			'onBeforeRead',
+			array(&$this, array('dn' => $dn, 'source' => __METHOD__))
+		);
+
+		// For each of the LDAP plug-ins returned, merge their extra attributes.
+		foreach ($extras as $extra)
 		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
+			$attributes = array_merge($attributes, $extra);
+		}
+
+		// Add both of the uid and fullname to the set of attributes to get.
+		$attributes[] = $this->getFullname();
+		$attributes[] = $this->getUid();
+
+		// Check for a fake email
+		$fakeEmail = (strpos($this->getEmail(), self::USERNAME_REPLACE) !== false) ? true : false;
+
+		// Add the email attribute only if not a fake email is supplied.
+		if (!$fakeEmail)
+		{
+			$attributes[] = $this->getEmail();
+		}
+
+		// Re-order array to ensure an LDAP read is successful and no duplicates exist.
+		$attributes = array_values(array_unique($attributes));
+
+		// Swap the attribute names to array keys ready for the result
+		$return = array_fill_keys($attributes, null);
+
+		// Get Ldap user attributes and check we have a valid result
+		$result	= $this->read($dn, null, $attributes);
+		if ($result->getDN(0) === false)
+		{
+			// Failed to retrieve user attributes or total read fail.
+			$this->setError(new SHLdapException(null, 10341, JText::_('LIB_SHLDAP_ERR_10341')));
+
+			// TODO: we need to bring in the previous exception as well!
 			return false;
 		}
 
-		// Do the Ldap modify operation
-		$result = @ldap_modify($this->resource, $dn, $attributes);
-
-		if ($result === false)
+		// Lets store the results into the return array
+		foreach (array_keys($return) as $attribute)
 		{
-			// Ldap modify operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10141, JText::_('LIB_SHLDAPCLIENT_ERR_10141')));
+			$return[$attribute] = $result->getAttribute(0, $attribute);
+		}
+
+		if ($fakeEmail)
+		{
+			// Insert the fake email by replacing the username placeholder with the username from ldap
+			$email = str_replace(self::USERNAME_REPLACE, $return[$this->getUid()][0], $this->getEmail());
+			$return[$this->getEmail()] = array($email);
+		}
+
+		if (!SHLdapHelper::triggerEvent(
+			'onAfterRead',
+			array(&$this, &$return, array('dn' => $dn,'source' => __METHOD__))
+		))
+		{
+			// Cancelled login due to plug-in
+			$this->setError(new SHLdapException(null, 10342, JText::_('LIB_SHLDAP_ERR_10342')));
+			return false;
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Get an array of all the nested groups through the use of group recursion.
+	 * This is required usually only for Active Directory, however there could
+	 * be other LDAP platforms that cannot pick up nested groups.
+	 *
+	 * @param  array   $searchDNs       Initial user groups (or ones that have already been discovered)
+	 * @param  string  $depth           How far to search down until it should give up (0 means unlimited)
+	 * @param  array   &$result         Holds the result of every alliteration (this is a byreference)
+	 * @param  string  $attribute       The LDAP attribute to store after each ldap search
+	 * @param  string  $queryAttribute  The LDAP filter attribute to query
+	 *
+	 * @return  array  All user groups including the initial user groups
+	 * @since   1.0
+	 */
+	public function getRecursiveGroups($searchDNs, $depth = 0, &$result, $attribute, $queryAttribute = null)
+	{
+		//recurse through the search dn
+		$depth--;
+		$search			= null;
+		$next			= array();
+		$filters		= array();
+
+		if(!isset($searchDNs)) {
+			return $result;
+		}
+
+		foreach($searchDNs as $dn)
+			$filters[] = 	$queryAttribute . '=' . $dn;
+
+		if(!count($filters)) {
+			return $result;
+		}
+
+		$search = LdapHelper::buildFilter($filters, '|'); //build a filter using the OR operator
+		$results = new JLDAPResult($this->search(null, $search, array($attribute)));
+
+		$entryCount = $results->countEntries();
+		for($i=0; $i<$entryCount; $i++) { //will process each record that the searched container found
+
+			$dn = $results->getValue($i, 'dn', 0);
+
+			if(!in_array($dn, $result)) { //has this container already been processed previously
+				$result[] = $dn;
+				$valueCount = $results->countValues($i, $attribute);
+				for($j=0; $j<$valueCount; $j++) {
+					$value = $results->getValue($i, $attribute, $j);
+					$next[] = $value; //we want to process this object
+				}
+			}
+		}
+
+		/*
+		 * Only start the recursion when we have something to process
+		* next otherwise we would loop forever.
+		*/
+		if(count($next) && $depth!=0) {
+			$this->getRecursiveGroups($next, $depth, $result, $attribute, $queryAttribute);
 		}
 
 		return $result;
 	}
 
-	/**
-	 * Add one or more attributes to a already existing specified dn.
-	 *
-	 * @param   string  $dn          The dn which to add the attributes
-	 * @param   array   $attributes  An array of attributes to add
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function addAttributes($dn, $attributes)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return false;
-		}
-
-		// Do the Ldap modify add operation
-		$result = @ldap_mod_add($this->resource, $dn, $attributes);
-
-		if ($result === false)
-		{
-			// Ldap modify add operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10171, JText::_('LIB_SHLDAPCLIENT_ERR_10171')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Deletes one or more attributes from a specified distinguished name.
-	 *
-	 * @param   string  $dn          The dn which contains the attributes to remove
-	 * @param   array   $attributes  An array of attributes to remove
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function deleteAttributes($dn, $attributes)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return false;
-		}
-
-		// Do the Ldap modify delete operation
-		$result = @ldap_mod_del($this->resource, $dn, $attributes);
-
-		if ($result === false)
-		{
-			// Ldap modify delete operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10161, JText::_('LIB_SHLDAPCLIENT_ERR_10161')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Replaces one or more attributes from a specified distinguished name.
-	 *
-	 * @param   string  $dn          The distinguished name which contains the attributes to replace
-	 * @param   array   $attributes  An array of attribute values to replace
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function replaceAttributes($dn, $attributes)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return false;
-		}
-
-		// Do the Ldap modify replace operation
-		$result = @ldap_mod_modify($this->resource, $dn, $attributes);
-
-		if ($result === false)
-		{
-			// Ldap modify replace operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10151, JText::_('LIB_SHLDAPCLIENT_ERR_10151')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Add a new entry in the LDAP directory.
-	 *
-	 * @param   string  $dn          The distinguished name where to put the object
-	 * @param   array   $attributes  An array of arrays describing the object to add
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function add($dn, $attributes)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return false;
-		}
-
-		// Do the Ldap add operation
-		$result = @ldap_add($this->resource, $dn, $attributes);
-
-		if ($result === false)
-		{
-			// Ldap add operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10191, JText::_('LIB_SHLDAPCLIENT_ERR_10191')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Delete a entry from the LDAP directory.
-	 *
-	 * @param   string  $dn  The distinguished name of the object to delete
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function delete($dn)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return false;
-		}
-
-		// Do the Ldap delete operation
-		$result = @ldap_delete($this->resource, $dn);
-
-		if ($result === false)
-		{
-			// Ldap delete operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10181, JText::_('LIB_SHLDAPCLIENT_ERR_10181')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Rename the entry
-	 *
-	 * @param   string   $dn            The distinguished name of the entry at the moment
-	 * @param   string   $newRdn        The RDN of the new entry (e.g. cn=newvalue)
-	 * @param   string   $newParent     The full distinguished name of the parent (null by default)
-	 * @param   boolean  $deleteOldRdn  Delete the old values (true by default)
-	 *
-	 * @return  boolean  Returns True on success or False on failure.
-	 * 
-	 * @since   2.0
-	 */
-	public function rename($dn, $newRdn, $newParent = null, $deleteOldRdn = true)
-	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPCLIENT_ERR_10006')));
-			return false;
-		}
-
-		// Do the Ldap rename operation
-		$result = @ldap_rename($this->resource, $dn, $newRdn, $newParent, $deleteOldRdn);
-
-		if ($result === false)
-		{
-			// Ldap rename operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10201, JText::_('LIB_SHLDAPCLIENT_ERR_10201')));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Destructor
-	 * 
-	 * @since   2.0
-	 */
-	public function __destruct()
-	{
-		// Close the LDAP connection
-		$this->close();
-	}
 }

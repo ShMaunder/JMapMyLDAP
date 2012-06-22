@@ -72,6 +72,7 @@ class SHLdapException extends Exception
 	{
 		if (!is_null($this->ldapCode))
 		{
+			// TODO: fix this
 			return ldap_err2str($this->ldapCode);
 		}
 

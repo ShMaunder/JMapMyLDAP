@@ -5,7 +5,7 @@
  * @package     Shmanic.Libraries
  * @subpackage  Ldap.Log
  * @author      Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -39,13 +39,11 @@ class SHLdapLogMonitor extends JEvent
 			$this->level = $config['level'];
 		}
 
-		$this->setup();
-
 		parent::__construct($subject);
 
 	}
 
-	protected function setup()
+	public function onAfterInitialise()
 	{
 		if (!$this->enabled)
 		{
@@ -58,22 +56,27 @@ class SHLdapLogMonitor extends JEvent
 			$this->level,
 			array('ldap')
 		);
-
 	}
 
-	public function onLogDebug($message)
+	public function onDebug($message)
 	{
 		JLog::add($message, JLog::DEBUG, 'ldap');
 	}
 
-	public function onError()
+	public function onError($id = null, $message = null)
 	{
+		echo $message;
 		//JLog::add($message, JLog::ERROR, 'ldap');
 	}
 
-	public function onInformation()
+	public function onInformation($id = null, $message = null)
 	{
 		//JLog::add($message, JLog::INFO, 'ldap');
+	}
+
+	public function onException(SHLdapException $e, $id = null, $message = null)
+	{
+		echo $e;
 	}
 
 }

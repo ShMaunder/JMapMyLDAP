@@ -13,8 +13,8 @@
 
 defined('JPATH_PLATFORM') or die;
 
-// Load the global language file
-JFactory::getLanguage()->load('shmanic', JPATH_ROOT);
+// Load the global platform language file
+JFactory::getLanguage()->load('shmanic_platform', JPATH_ROOT);
 
 // Platform directory location
 if (!defined('SHPATH_PLATFORM'))

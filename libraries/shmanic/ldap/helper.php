@@ -3,12 +3,12 @@
  * @author      Shaun Maunder <shaun@shmanic.com>
  * @package     Shmanic
  * @subpackage  Ldap
- * 
+ *
  * @copyright	Copyright (C) 2011 Shaun Maunder. All rights reserved.
  * @license		GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 jimport('shmanic.client.jldap2');
 jimport('shmanic.ldap.event');
@@ -21,14 +21,14 @@ jimport('shmanic.log.ldaphelper');
  * @subpackage	Ldap.Helper
  * @since		2.0
  */
-class LdapUserHelper extends JObject 
+class LdapUserHelper extends JObject
 {
 	/**
-	 * This method returns a user object. If options['autoregister'] is true, 
+	 * This method returns a user object. If options['autoregister'] is true,
 	 * and if the user doesn't exist, then it'll be created.
-	 * 
+	 *
 	 * Dear Joomla, can you please put this into a library for everyone to use.
-	 * 
+	 *
 	 * @param  array  $user     Holds the user data.
 	 * @param  array  $options  Array holding options (remember, autoregister, group).
 	 *
@@ -74,46 +74,29 @@ class LdapUserHelper extends JObject
 
 		return $instance;
 	}
-	
+
 	// get and return the user attributes (array) from LDAP
-	public static function getAttributes($user) 
+	/** @deprecated */
+	public static function getAttributes($user)
 	{
 		if($ldap = LdapHelper::getConnection(false)) {
-			
+
 			$dn = $ldap->getUserDN($user['username'], null, false);
 			if(JError::isError($dn)) {
 				return false;
 			}
-				
+
 			$attributes = $ldap->getUserDetails($dn);
 			if(JError::isError($attributes)) {
 				return false;
 			}
-				
+
 			$ldap->close();
-	
+
 			return $attributes;
 		}
 	}
-	
 
-	
-	/**
-	 * Sets the flag for the specified user's 
-	 * parameters for LDAP authentication.
-	 * 
-	 * @param  JUser  &$user  Specified user to set parameter
-	 * 
-	 * @return  void
-	 * @since   2.0
-	 */
-	public static function setUserLdap(&$user) 
-	{
-		if($user instanceof JUser) {
-			$user->setParam('authtype', 'LDAP');
-		} 
-	}
-	
 }
 
 /**
@@ -128,256 +111,410 @@ abstract class SHLdapHelper extends JObject
 {
 
 	/**
-	 * Returns if the current or specified user was authenticated 
+	 * Key to store user attributes in the authentication Response
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	const ATTRIBUTE_KEY = 'attributes';
+
+	/**
+	 * Loads the correct Ldap configuration based on the record ID specified. Then uses
+	 * this configuration to instantiate an LdapExtended client.
+	 *
+	 * @param   integer    $id      Configuration record ID.
+	 * @param   JRegistry  $config  Optional override for platform configuration.
+	 *
+	 * @return  SHLdap  Ldap client with loaded configuration.
+	 *
+	 * @since   2.0
+	 */
+	public static function getClient($id = null, JRegistry $config = null)
+	{
+		if (is_null($config))
+		{
+			// Get the Ldap configuration from the factory
+			$config = SHFactory::getConfig();
+		}
+
+		$params = array();
+
+		// Get the Ldap configuration source (e.g. sql | plugin)
+		$source = $config->get('ldap.config', 'sql');
+
+		if ($source === 'sql')
+		{
+			// Get the number of servers configured in the database
+			$servers = (int) $config->get('ldap.servers', 0);
+
+			// Get the database table using the sh_ldap_config as default
+			$table = $config->get('ldap.table', '#__sh_ldap_config');
+
+			if (!$servers > 0 || is_null($id))
+			{
+				// No Ldap servers are configured!
+				return null;
+			}
+
+			// Get the global JDatabase object
+			$db = JFactory::getDbo();
+
+			$query = $db->getQuery(true);
+
+			// Do the SQL query
+			$query->select($query->qn('name'))
+				->select($query->qn('params'))
+				->from($query->qn($table))
+				->where($query->qn('enabled') . '>= 1')
+				->where($query->qn('ldap_id') . '=' . $query->q($id));
+
+			$db->setQuery($query);
+
+			// Execute the query
+			$results = $db->loadAssoc();
+
+			if (is_null($results))
+			{
+				// Unable to find specified Ldap configuration
+				return null;
+			}
+
+			if (isset($results['params']))
+			{
+				// Decode the JSON string direct from DB to an array
+				$params = (array) json_decode($results['params']);
+			}
+
+		}
+		elseif ($source === 'plugin')
+		{
+			// TODO: implement
+
+			if ($plugin = JPluginHelper::getPlugin('authentication', $id))
+			{
+				// Get the authentication LDAP plug-in parameters
+				$params = new JRegistry;
+				$params->loadString($plugin->params);
+
+				// We may have to convert if using the inbuilt JLDAP parameters
+				return self::convert($params, 'SHLdap');
+			}
+		}
+
+		return new SHLdap($params);
+
+	}
+
+	/**
+	 * Returns the ID of the SQL record for the specified Ldap name.
+	 *
+	 * @param   string  $name  Ldap name (i.e. domain).
+	 *
+	 * @return  integer  Record ID.
+	 *
+	 * @since   2.0
+	 */
+	public static function getConfigId($name)
+	{
+		// Get the Ldap configuration from the factory
+		$config = SHFactory::getConfig();
+
+		// Get the database table using the sh_ldap_config as default
+		$table = $config->get('ldap.table', '#__sh_ldap_config');
+
+		// Get the global JDatabase object
+		$db = JFactory::getDbo();
+
+		$query = $db->getQuery(true);
+
+		// Do the SQL query
+		$query->select($query->qn('ldap_id'))
+			->from($query->qn($table))
+			->where($query->qn('enabled') . '>= 1')
+			->where($query->qn('name') . '=' . $query->q($name));
+
+		$db->setQuery($query);
+
+		// Execute the query
+		$result = $db->loadResult();
+
+		return $result;
+	}
+
+	/**
+	 * Returns all the Ldap configured IDs and names in an associative array
+	 * where [id] => [name].
+	 *
+	 * @return  Array  Array of configured IDs
+	 *
+	 * @since   2.0
+	 */
+	public static function getConfigIDs()
+	{
+		// Get the Ldap configuration from the factory
+		$config = SHFactory::getConfig();
+
+		// Get the database table using the sh_ldap_config as default
+		$table = $config->get('ldap.table', '#__sh_ldap_config');
+
+		// Get the global JDatabase object
+		$db = JFactory::getDbo();
+
+		$query = $db->getQuery(true);
+
+		// Do the SQL query
+		$query->select($query->qn('ldap_id'))
+			->select($query->qn('name'))
+			->from($query->qn($table))
+			->where($query->qn('enabled') . '>= 1');
+
+		$db->setQuery($query);
+
+		// Execute the query
+		$results = $db->loadAssocList('ldap_id', 'name');
+
+		return $results;
+	}
+
+	/**
+	 * Returns if the current or specified user was authenticated
 	 * via LDAP.
-	 * 
-	 * @param   integer  $userId  Optional user id.
-	 * 
+	 *
+	 * @param   integer  $userId  Optional user id (if null then uses current user).
+	 *
 	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
-	 * 
+	 *
 	 * @since   2.0
 	 */
 	public static function isUserLdap($userId = null)
 	{
 		if (JFactory::getUser($userId)->getParam('authtype') == 'LDAP')
 		{
+			// This user has the LDAP auth type
 			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the flag for the specified user's parameters for
+	 * LDAP authentication.
+	 *
+	 * @param   JUser|Integer  &$user  Specified user to set parameter
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public static function setUserLdap(&$user = null)
+	{
+		if (is_null($user) || is_int($user))
+		{
+			// The input variable indicates we must load the user object
+			$obj = JFactory::getUser($user);
+			$obj->setParam('authtype', 'LDAP');
+		} elseif ($user instanceof JUser)
+		{
+			// Direct manipulation of the object
+			$user->setParam('authtype', 'LDAP');
 		}
 	}
 
-	// Get the LDAP configuration for the specified identifier
-	public static function getConfig($id) 
-	{
-		self::getParams();
-	}
-	
-	// Get the config ID from the $domain field
-	public static function getConfigId($domain)
-	{
-		return 0;
-	}
-	
-	/* get a connection and bind if specified */
-	public static function getConnection($bind = false, $username = null, $password = null)
-	{
-		
-		if(!$params = self::getParams()) {
-			return false;
-		}
-		
-		$ldap = JLDAP2::getInstance(0, $params);
-		
-		if($ldap->isConnected() || $ldap->connect()) {
-			
-			if($bind) {
-				
-				if(is_null($username)) {
-					$username = JArrayHelper::getValue($params, 'username');
-					$password = JArrayHelper::getValue($params, 'password');
-				}
-				
-				if(!$ldap->bind($username, $password)) return false;
-				
-			}
-			
-			return $ldap;
-		}
-	}
-	
-	/* get the authentication LDAP plug-in parameters */
-	public static function getParams($auth = null)
-	{
-		if(is_null($auth)) {
-			$auth = self::getGlobalParam('auth_plugin', 'jmapmyldap');
-		}
-		
-		if($plugin = JPluginHelper::getPlugin('authentication', $auth)) {
-				
-			$params = new JRegistry;
-			$params->loadString($plugin->params);
-				
-			return self::convert($params, 'JLDAP2');		
-		}
-	}
-	
-	
-	// $params - Jregistry or Jobject of current ldap parameters
-	// $convert - convert to either jldap2 or jldap
-	// return - array of converted parameters
-	public static function convert($params, $convert = 'JLDAP2')
+	/**
+	 * Attempts to convert the Ldap configuration parameters to a specified
+	 * library parameters. This method is not reliable and should not be used
+	 * in a live environment.
+	 *
+	 * @param   JRegistry  $params   Parameters for conversion.
+	 * @param   string     $convert  Library name conversion.
+	 *
+	 * @return  Array  Array of converted parameters
+	 *
+	 * @since   2.0
+	 */
+	public static function convert(JRegistry $params, $convert = 'SHLdap')
 	{
 		/*
 		 * Attempt to convert inbuilt JLDAP library parameters
 		* to the JLDAP2 parameters for backward compatibility.
 		*/
-	
+
 		$converted = array();
-	
-		// Detection for inbuilt JLDAP
-		if($params->get('auth_method') && $params->get('search_string') || $params->get('users_dn')) {
-				
-			if($convert=='JLDAP') {
+
+		// Dodgy detection for JLDAP parameters
+		if ($params->get('auth_method') && $params->get('search_string') || $params->get('users_dn'))
+		{
+			if ($convert === 'JLDAP')
+			{
+				// This appears to be converted already
 				return $params->toArray();
 			}
-				
+
+			// Convert all the parameters
 			$converted['host'] 				= $params->get('host');
 			$converted['port'] 				= $params->get('port');
-			$converted['use_ldapV3'] 		= $params->get('use_ldapV3');
+			$converted['use_v3'] 			= $params->get('use_ldapV3');
 			$converted['negotiate_tls']		= $params->get('negotiate_tls');
-			$converted['follow_referrals']	= $params->get('no_referrals');
-				
-			$converted['connect_username']	= $params->get('username');
-			$converted['connect_password']	= $params->get('password');
-				
+			$converted['use_referrals']		= (!$params->get('no_referrals'));
+
+			$converted['proxy_username']	= $params->get('username');
+			$converted['proxy_password']	= $params->get('password');
+
 			$converted['ldap_uid'] 			= $params->get('ldap_uid');
 			$converted['ldap_fullname']		= $params->get('ldap_fullname');
 			$converted['ldap_email']		= $params->get('ldap_email');
-				
+
 			$converted['base_dn']			= $params->get('base_dn');
-				
+
 			$converted['use_search'] = ($params->get('auth_method') == 'search') ?
-			true : false;
-	
-			if($converted['use_search']) {
+				true : false;
+
+			if ($converted['use_search'])
+			{
+				// Build the search filter
 				$tmp = trim($params->get('search_string'));
 				$tmp = str_replace('[search]', '[username]', $tmp);
 				$converted['user_qry'] = '(' . $tmp . ')';
 			} else {
+				// Build the direct user distinguished name
 				$converted['user_qry'] = $params->get('users_dn');
 			}
-	
+
 			return $converted;
-			
-			// Detection for JLDAP2
-		} elseif($params->get('user_qry') && $params->get('use_search')) {
-				
-			if($convert=='JLDAP2') {
+		}
+
+		// Dodgy detection for SHLdap parameters
+		elseif ($params->get('user_qry') && $params->get('use_search'))
+		{
+
+			if ($convert === 'SHLdap')
+			{
+				// This appears to be converted already
 				return $params->toArray();
 			}
-				
+
+			// Convert all the parameters
 			$converted['host'] 				= $params->get('host');
 			$converted['port'] 				= $params->get('port');
-			$converted['use_ldapV3'] 		= $params->get('use_ldapV3');
+			$converted['use_ldapV3'] 		= $params->get('use_v3');
 			$converted['negotiate_tls']		= $params->get('negotiate_tls');
-			$converted['no_referrals']		= $params->get('follow_referrals');
-				
-			$converted['username']			= $params->get('connect_username');
-			$converted['password']			= $params->get('connect_password');
-				
+			$converted['no_referrals']		= (!$params->get('use_referrals'));
+
+			$converted['username']			= $params->get('proxy_username');
+			$converted['password']			= $params->get('proxy_password');
+
 			$converted['ldap_uid'] 			= $params->get('ldap_uid');
 			$converted['ldap_fullname']		= $params->get('ldap_fullname');
 			$converted['ldap_email']		= $params->get('ldap_email');
-				
+
 			$converted['base_dn']			= $params->get('base_dn');
-				
+
 			$converted['auth_method'] = ($params->get('use_search')) ?
 					'search' : 'bind';
-				
-			if($converted['auth_method'] == 'search') {
+
+			if ($converted['auth_method'] == 'search')
+			{
 				$tmp = trim($params->get('user_qry'));
 				$tmp = str_replace('[username]', '[search]', $tmp);
-				$converted['search_string'] = substr($tmp, 1, strlen($tmp)-2);
+				$converted['search_string'] = substr($tmp, 1, strlen($tmp) - 2);
 			} else {
 				$converted['users_dn'] = $params->get('user_qry');
 			}
-				
+
 			return $converted;
-			
+
 		}
-	
-		//JLDAP libraryArray ( [host] => DC [port] => 389 [use_ldapV3] => 1 [negotiate_tls] => 0 [no_referrals] => 0 [auth_method] => search [base_dn] => DC=HOME,DC=LOCAL [search_string] => sAMAccountName=[search] [users_dn] => [username] => shaun@HOME.LOCAL [password] => password [ldap_fullname] => nam [ldap_email] => mail [ldap_uid] => sAMAccountName )
-		//JLDAP2 libraryArray ( [use_ldapV3] => 1 [negotiate_tls] => 0 [follow_referrals] => 0 [host] => DC [port] => 389 [connect_username] => shaun@HOME.LOCAL [connect_password] => password [use_search] => 1 [base_dn] => DC=HOME,DC=LOCAL [user_qry] => (sAMAccountName=[username]) [ldap_uid] => sAMAccountName [ldap_fullname] => name [ldap_email] => mail )
-	
+
 	}
-	
+
 	/**
-	* Escape characters based on the type of query (DN or Filter). This
+	* Escape an input string based on the type of query (DN or Filter). This
 	* method follows the RFC2254 guidelines.
 	* Adapted from source: http://www.php.net/manual/en/function.ldap-search.php#90158
 	*
-	* @param  string   $inn   Input string to escape
-	* @param  boolean  $isDn  Set the type of query; true for DN; false for filter (default false)
+	* @param   string   $str  Input string to escape.
+	* @param   boolean  $dn   Set flag to true if escaping a distinguished name.
 	*
-	* @return  string  An escaped string
+	* @return  string  An escaped string.
+	*
 	* @since   1.0
 	*/
-	public static function escape($inn, $isDn = false)
+	public static function escape($str, $dn = false)
 	{
-		$metaChars = $isDn ? array(',','=', '+', '<','>',';', '\\', '"', '#') :
-		array('*', '(', ')', '\\', chr(0));
-	
+		// Characters to escpae depending whether if the dn flag is set
+		$metaChars = $dn ? array(',', '=', '+', '<', '>', ';', '\\', '"', '#') :
+			array('*', '(', ')', '\\', chr(0));
+
 		$quotedMetaChars = array();
-		foreach ($metaChars as $key => $value) {
-			$quotedMetaChars[$key] = '\\'.str_pad(dechex(ord($value)), 2, '0');
+		foreach ($metaChars as $key => $value)
+		{
+			$quotedMetaChars[$key] = '\\' . str_pad(dechex(ord($value)), 2, '0');
 		}
-	
-		return str_replace($metaChars, $quotedMetaChars, $inn);
-	
+
+		return str_replace($metaChars, $quotedMetaChars, $str);
 	}
-	
+
 	/**
 	 * Escape the filter characters and build the filter with brackets
 	 * using the operator specified.
 	 *
-	 * @param  array   $filters   An array of inner filters (i.e. array(uid=shaun, cn=uk))
-	 * @param  string  $operator  Set operator to carry out (null by default for no operator)
+	 * @param   array   $filters   An array of inner filters (i.e. array(uid=shaun, cn=uk)).
+	 * @param   string  $operator  Set operator to carry out (null by default for no operator).
 	 *
-	 * @return  string  An escaped filter with filter operation
+	 * @return  string  An escaped filter with filter operation.
+	 *
 	 * @since   1.0
 	 */
 	public static function buildFilter($filters, $operator = null)
 	{
 		$return = null;
-	
-		if(!count($filters)) return $return;
-	
+
+		if (!count($filters))
+		{
+			return $return;
+		}
+
 		$string = null;
-		foreach($filters as $filter) {
+		foreach ($filters as $filter)
+		{
 			$filter = LdapHelper::escape($filter);
 			$string .= '(' . $filter . ')';
 		}
-	
+
 		$return = is_null($operator) ? $string : '(' . $operator . $string . ')';
-	
+
 		return $return;
 	}
-	
+
 	/**
 	 * Converts a dot notation IP address to net address (e.g. for Netware).
-	 * Taken from the inbuilt Joomla LDAP library.
+	 * Forked from the inbuilt Joomla LDAP (JLDAP 11.1) library.
 	 *
-	 * @param   string  $ip  An IP address to convert (e.g. xxx.xxx.xxx.xxx)
+	 * @param   string  $ip  An IP address to convert (e.g. xxx.xxx.xxx.xxx).
 	 *
-	 * @return  string  Net address
+	 * @return  string  Net address.
+	 *
 	 * @since   1.0
 	 */
 	public static function ipToNetAddress($ip)
 	{
 		$parts = explode('.', $ip);
 		$address = '1#';
-	
-		foreach ($parts as $int) {
+
+		foreach ($parts as $int)
+		{
 			$tmp = dechex($int);
-			if (strlen($tmp) != 2) {
+			if (strlen($tmp) != 2)
+			{
 				$tmp = '0' . $tmp;
 			}
 			$address .= '\\' . $tmp;
 		}
 		return $address;
 	}
-	
-	// Gets a global wide (common) parameter for the LDAP extensions
-	public static function getGlobalParam($field, $default = null)
-	{
-		jimport('joomla.application.component.helper');
-		
-		// TODO: Hmm, what can we do for the platform??
-		$params = JComponentHelper::getParams('com_ldapadmin');
-		
-		return($params->get($field, $default));
-		
-	}
-	
+
+
 	// current - the current set of full ldap attributes
 	// changes - array of changes to make
 	// multiple - a boolean if this attribute in changes is multiple values
@@ -430,8 +567,8 @@ abstract class SHLdapHelper extends JObject
 
 			} else {
 
-				/* This is a single value attribute and we now need to 
-				 * determine if this needs to be ignored, added, 
+				/* This is a single value attribute and we now need to
+				 * determine if this needs to be ignored, added,
 				 * modified or deleted.
 				 */
 				$return = self::checkField($current, $key, 0, $value);
@@ -454,13 +591,13 @@ abstract class SHLdapHelper extends JObject
 			}
 		}
 
-		/* We can now commit the changes to the 
+		/* We can now commit the changes to the
 		 * LDAP server for this DN.
 		 */
 		$results 	= array();
 		$ldap 		= JLDAP2::getInstance();
 
-		if(count($deleteEntries)) { 
+		if(count($deleteEntries)) {
 			$results[] = $ldap->deleteAttributes($dn, $deleteEntries);
 		}
 
@@ -484,7 +621,7 @@ abstract class SHLdapHelper extends JObject
 		// Check if the LDAP attribute exists
 		if(array_key_exists($key, $current)) {
 
-			if(isset($current[$key][$interval])) { 
+			if(isset($current[$key][$interval])) {
 				if($current[$key][$interval] == $value) {
 					return 0; // Same value - no need to update
 				}
@@ -508,32 +645,8 @@ abstract class SHLdapHelper extends JObject
 		}
 	}
 
-}
-
-class LdapEventHelper extends JObject
-{
-
-	public static function loadEvents($dispatcher)
-	{
-		// Initialise logging
-		JLogLdapHelper::addLoggers();
-
-		// Creates a new instance of events binding it to the dispatcher
-		return LdapEvent::getInstance($dispatcher);
-	}
-
-	public static function loadPlugins($type = null)
-	{
-		if(is_null($type)) {
-			$type = LdapHelper::getGlobalParam('ldap_plugin_type', 'ldap');
-		}
-
-		$loaded = JPluginHelper::importPlugin($type);
-		return $loaded;
-	}
-
 	/**
-	 * Calls all handlers associated with an event group.
+	 * Calls any registered Ldap events associated with an event group.
 	 *
 	 * @param   string  $event  The event name.
 	 * @param   array   $args   An array of arguments.
@@ -544,7 +657,7 @@ class LdapEventHelper extends JObject
 	 */
 	public static function triggerEvent($event, $args = null)
 	{
-		$result = JDispatcher::getInstance()->trigger($event, $args);
+		$result = SHFactory::getDispatcher('ldap')->trigger($event, $args);
 		return(!in_array(false, $result, true));
 	}
 

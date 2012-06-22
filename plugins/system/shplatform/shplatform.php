@@ -5,7 +5,7 @@
  * @package     Shmanic.Plugins
  * @subpackage  System
  * @author      Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -13,20 +13,20 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * Boots the Shmanic platform and Ldap libraries for the CMS. 
+ * Boots the Shmanic platform and associated project libraries for the CMS.
  *
  * @package     Shmanic.Plugins
  * @subpackage  System
  * @since       2.0
  */
-class PlgSystemLDAPBoot extends JPlugin
+class PlgSystemSHPlatform extends JPlugin
 {
 	/**
-	 * Initialises and boots the Shmanic platform and ldap libraries.
-	 * This is fired on application initialise typically on the CMS.
-	 * 
+	 * Initialises and boots the Shmanic platform and project libraries.
+	 * This is fired on application initialise typically by the CMS.
+	 *
 	 * @return  void
-	 * 
+	 *
 	 * @since   2.0
 	 */
 	public function onAfterInitialise()
@@ -50,14 +50,29 @@ class PlgSystemLDAPBoot extends JPlugin
 			}
 		}
 
-		// Shmanic Ldap Boot
-		if (!shBoot('ldap'))
+		// Container to store project specific boot results
+		$results = array();
+
+		// Use the default SQL configuration
+		$config = SHFactory::getConfig();
+
+		// Get all the bootable projects
+		if ($boot = json_decode($config->get('platform.boot')))
 		{
-			// Failed to boot Ldap
+			foreach ($boot as $project)
+			{
+				// Attempts to boot the specified project
+				$results[] = shBoot(trim($project));
+			}
+		}
+
+		if (in_array(false, $results, true))
+		{
+			// One of the specific projects failed to boot
 			return false;
 		}
 
-		// Everything booted and ready to go
+		// Everything booted successfully
 		return true;
 	}
 }

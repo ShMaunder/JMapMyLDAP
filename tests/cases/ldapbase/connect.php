@@ -1,7 +1,7 @@
 <?php
 /**
  * Example Test Case.
- * 
+ *
  * PHP Version 5.3
  *
  * @package     JMMLDAP.Tests
@@ -15,20 +15,20 @@ defined('JPATH_PLATFORM') or die;
 
 /**
  * Example Test Case Class.
- * 
+ *
  * @package     JMMLDAP.Tests
  * @subpackage  Cases
  * @since       2.0
  */
-class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPluginsTestcasesItestcase
+class TCasesLdapbaseConnect extends TPluginsTestcasesTestcase implements TPluginsTestcasesItestcase
 {
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see     TPluginsTestcasesItestcase::initialise()
 	 * @return  boolean
-	 * 
+	 *
 	 * @since  2.0
 	 */
 	public function initialise()
@@ -36,48 +36,48 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 		// Ensure the JMMLdap Factory & Autoloader have been registered
 		if (!defined('SH_PLATFORM'))
 		{
-			if (!TCasesLdapclientHelper::doBoot())
+			if (!TCasesHelper::doBoot())
 			{
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see     TPluginsTestcasesItestcase::runTests()
 	 * @return  TPluginsTestcasesUnitresult[]
-	 * 
+	 *
 	 * @since  2.0
 	 */
 	public function runTests()
 	{
 		$results = array();
 
-		
+
 		// Test: No host
-		$a = new SHLdap(TCasesLdapclientHelper::getLdapConfig(4));
+		$a = new SHLdapBase(TCasesHelper::getLdapConfig(4));
 		$result = $a->connect();
-		
+
 		TPluginsTestcasesHelper::pushTestUnit(
 			$results, 'NoHost', array($result, &$a)
 		);
-		
+
 		// Test: Try to start TLS
-		$b = new SHLdap(TCasesLdapclientHelper::getLdapConfig(5));
+		$b = new SHLdapBase(TCasesHelper::getLdapConfig(5));
 		$result = $b->connect();
-		
+
 		TPluginsTestcasesHelper::pushTestUnit(
 			$results, 'StartTLS', array($result, &$b)
 		);
-		
+
 		// Test: Should work (AD)
-		$c = new SHLdap(TCasesLdapclientHelper::getLdapConfig(1));
+		$c = new SHLdapBase(TCasesHelper::getLdapConfig(1));
 		$result = $c->connect();
-		
+
 		TPluginsTestcasesHelper::pushTestUnit(
 			$results, 'Good', array($result, &$c)
 		);
@@ -88,11 +88,11 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 	/*
 	 * The following methods check the result and are passed a
 	 * reference to a UnitResult. They return a boolean value
-	 * where True means passed and False means failed. 
-	 * 
+	 * where True means passed and False means failed.
+	 *
 	 * -- These will not use PHPdoc --
 	 */
-	
+
 	public function testNoHost(TPluginsTestcasesUnitresult &$result)
 	{
 		$value = $result->getResult();
@@ -105,7 +105,7 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 			$result->addMessage('Function didnt return false');
 			return false;
 		}
-		
+
 		$error = $object->getError(null, false);
 		if ($error instanceOf SHLdapException)
 		{
@@ -122,25 +122,25 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 			$result->addMessage('No SHLdapExeception occurred');
 			return false;
 		}
-		
+
 		$result->addMessage('Successfully caught the error');
 		$result->setStatus(TPluginsTestcasesUnitresult::STATUS_SUCCESS);
 		return true;
 	}
-	
+
 	public function testStartTLS(TPluginsTestcasesUnitresult &$result)
 	{
 		$value = $result->getResult();
-	
+
 		$retVal = $value[0];
 		$object = $value[1];
-	
+
 		if ($retVal !== false) {
 			$result->setStatus(TPluginsTestcasesUnitresult::STATUS_FAILED);
 			$result->addMessage('Function didnt return false');
 			return false;
 		}
-	
+
 		$error = $object->getError(null, false);
 		if ($error instanceOf SHLdapException)
 		{
@@ -150,21 +150,21 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 				$result->addMessage("Incorrect internal error code {$error->getCode()} should be 10005");
 				return false;
 			}
-			
+
 			if ($error->getLdapCode() != '52')
 			{
 				$result->setStatus(TPluginsTestcasesUnitresult::STATUS_FAILED);
 				$result->addMessage("Incorrect ldap error code {$error->getLdapCode()} should be 52");
 				return false;
 			}
-			
+
 			if ($error->getLdapMessage() != 'Server is unavailable')
 			{
 				$result->setStatus(TPluginsTestcasesUnitresult::STATUS_FAILED);
 				$result->addMessage("Incorrect ldap message {$error->getLdapMessage()}");
 				return false;
 			}
-			
+
 		}
 		else
 		{
@@ -172,32 +172,32 @@ class TCasesLdapclientConnect extends TPluginsTestcasesTestcase implements TPlug
 			$result->addMessage('No SHLdapExeception occurred');
 			return false;
 		}
-	
+
 		$result->addMessage('Successfully caught the error');
 		$result->setStatus(TPluginsTestcasesUnitresult::STATUS_SUCCESS);
 		return true;
 	}
-	
+
 	public function testGood(TPluginsTestcasesUnitresult &$result)
 	{
 		$value = $result->getResult();
-	
+
 		$retVal = $value[0];
 		$object = $value[1];
-	
+
 		if ($retVal !== true) {
 			$result->setStatus(TPluginsTestcasesUnitresult::STATUS_FAILED);
 			$result->addMessage('Function did not succeed');
 			return false;
 		}
-		
+
 		if ($object->getError() !== false)
 		{
 			$result->setStatus(TPluginsTestcasesUnitresult::STATUS_FAILED);
 			$result->addMessage('An error has occurred, but shouldnt have');
 			return false;
 		}
-		
+
 		$result->addMessage('No error found');
 		$result->setStatus(TPluginsTestcasesUnitresult::STATUS_SUCCESS);
 		return true;

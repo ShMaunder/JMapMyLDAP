@@ -1,12 +1,12 @@
 <?php
 /**
  * Bootstrap for JMapMyLDAP.
- * 
+ *
  * PHP Version 5.3
  *
  * @package    Shmanic.Libraries
  * @author     Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright  Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -25,10 +25,13 @@ if (!defined('SHLDAP_VERSION'))
 	define('SHLDAP_VERSION', '2.0.0');
 }
 
+// Load the global Ldap language file
+JFactory::getLanguage()->load('shmanic_ldap', JPATH_ROOT);
+
 // Setup and get the Ldap dispatcher
 $dispatcher = SHFactory::getDispatcher('ldap');
 
-if (class_exists('SHLdapLogMonitor') && defined('JDEBUG'))
+if (class_exists('SHLdapLogMonitor') && defined('JDEBUG') && JDEBUG)
 {
 	// Setup the global debug Ldap log monitor (used only in debugging mode)
 	new SHLdapLogMonitor(
@@ -46,10 +49,13 @@ JPluginHelper::importPlugin('ldaplog', null, true, $dispatcher);
 // Employ the event bouncer to control the global Joomla event triggers
 if (class_exists('SHLdapEventBouncer'))
 {
-	new SHLdapEventBouncer(
+	$instance = new SHLdapEventBouncer(
 		JDispatcher::getInstance()
 	);
-}
 
-// Call the after boot trigger
-$dispatcher->trigger('onAfterBoot');
+	if (method_exists($instance, 'onAfterInitialise'))
+	{
+		// This is during initialisation
+		$instance->onAfterInitialise();
+	}
+}
