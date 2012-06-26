@@ -28,38 +28,62 @@ abstract class SHUtilIp
 	 *
 	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
 	 *
-	 * @param  $ip        string   String of IP address to check
-	 * @param  $ranges    array    An array of IP range addresses
+	 * @param   string  $ip      String of IP address to check
+	 * @param   array   $ranges  An array of IP range addresses
 	 *
 	 * @return  boolean  True means the ip is in the range
+	 *
 	 * @since   1.0
 	 */
 	public static function check($ip, $ranges)
 	{
-		if (!count($ranges) || $ranges[0]=='')
+		if (!is_array($ranges) && !count($ranges))
 		{
 			return false;
 		}
 
 		foreach ($ranges as $range)
 		{
-			$type = null;
-			if(strpos($range, '*')) 		$type = 'wildcard';
-			elseif(strpos($range, '/')) 	$type = 'mask';
-			elseif(strpos($range, '-')) 	$type = 'section';
-			elseif(ip2long($range)) 		$type = 'single';
 
-			if ($type)
+			if (empty($range))
 			{
-				$sub_rst = call_user_func(array('self', '_sub_checker_' . $type), $range, $ip);
+				// This IP range contains nothing
+				continue;
+			}
 
-				if ($sub_rst)
-				{
-					return true;
-				}
+			// Trim any whitespace for the range
+			$range = trim($range);
+
+			/*
+			 * Detect the type of range this IP address is then
+			 * execute the correct sub routine to identify whether
+			 * the IP is in the range.
+			 */
+			if (strpos($range, '*'))
+			{
+				$result = self::check_wildcard($range, $ip);
+			}
+			elseif (strpos($range, '/'))
+			{
+				$result = self::_sub_checker_mask($range, $ip);
+			}
+			elseif (strpos($range, '-'))
+			{
+				$result = self::_sub_checker_section($range, $ip);
+			}
+			elseif (ip2long($range))
+			{
+				$result = self::_sub_checker_single($range, $ip);
+			}
+
+			if ($result)
+			{
+				// Match found
+				return true;
 			}
 		}
 
+		// No matches
 		return false;
 	}
 
@@ -68,10 +92,11 @@ abstract class SHUtilIp
 	 *
 	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
 	 *
-	 * @param  $allowed   string   A single IP address
-	 * @param  $ip        string   String of IP address to check
+	 * @param   string  $allowed  A single IP address
+	 * @param   string  $ip       String of IP address to check
 	 *
 	 * @return  boolean  True means the ip is matching
+	 *
 	 * @since   1.0
 	 */
 	protected static function _sub_checker_single($allowed, $ip)
@@ -90,22 +115,27 @@ abstract class SHUtilIp
 	 * @return  boolean  True means the ip is matching
 	 * @since   1.0
 	 */
-	protected static function _sub_checker_wildcard($allowed, $ip)
+	protected static function check_wildcard($allowed, $ip)
 	{
 		$allowed_ip_arr = explode('.', $allowed);
 		$ip_arr = explode('.', $ip);
-		for ($i = 0;$i < count($allowed_ip_arr);$i++)
+
+		// For each dot inside the allowed ip address
+		for ($i = 0; $i < count($allowed_ip_arr); ++$i)
 		{
+			// Look out for the occurence of the wildcard
 			if ($allowed_ip_arr[$i] == '*')
 			{
 				return true;
 			}
 
-			if (false == ($allowed_ip_arr[$i] == $ip_arr[$i]))
+			// Check if the IP address matches up to this point
+			if ($allowed_ip_arr[$i] != $ip_arr[$i])
 			{
 				return false;
 			}
 		}
+
 	}
 
 	/**

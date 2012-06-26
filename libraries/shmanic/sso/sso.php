@@ -86,6 +86,34 @@ class SHSso extends JDispatcher
 				continue;
 			}
 
+			// Check if parameters exist for this observer/plugin
+			if (property_exists($this->_observers[$key], 'params'))
+			{
+				$params = $this->_observers[$key]->params;
+
+				// Get the rule and list from the plug-in parameters
+				$ipRule = $params->get('ip_rule', false);
+				$ipList = $params->get('ip_list', false);
+
+				// Check that both the rule and list have been set
+				if ($ipRule !== false && $ipList !== false)
+				{
+					// Get the IP address of this client
+					jimport('joomla.application.input');
+					$input = new JInput($_SERVER);
+					$myIp = $input->get('REMOTE_ADDR', false, 'string');
+
+					// Split the list into newline entries
+					$ranges = explode("\n", $ipList);
+
+					if (!SHSsoHelper::doIPCheck($myIp, $ranges, $ipRule))
+					{
+						// IP address denies this plug-in from executing
+						continue;
+					}
+				}
+			}
+
 			// Fire the event for an object based observer.
 			if (is_object($this->_observers[$key]))
 			{

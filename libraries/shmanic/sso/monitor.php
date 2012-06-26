@@ -78,16 +78,14 @@ class SHSsoMonitor extends JEvent
 			// Check whether the url has been set
 			if ($value !== false)
 			{
-				$value = (int) $value;
-
-				if ($value === 0)
+				if ($value == 0)
 				{
-					// Enable the SSO
+					// Enable the SSO in the session
 					SHSsoHelper::enableSession();
 				}
-				elseif ($value === 1)
+				elseif ($value == 1)
 				{
-					// Disable the SSO
+					// Disable the SSO in the session
 					SHSsoHelper::disableSession();
 					return;
 				}

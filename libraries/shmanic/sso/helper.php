@@ -99,8 +99,36 @@ abstract class SHSsoHelper
 	 */
 	public static function doIPCheck($ip, $ranges, $rule)
 	{
+
+		if (is_numeric($rule))
+		{
+			$rule = (int) $rule;
+
+			if ($rule === 1)
+			{
+				$rule = self::RULE_ALLOW_ALL;
+			}
+			else
+			{
+				$rule = self::RULE_DENY_ALL;
+			}
+		}
+		elseif (is_string($rule))
+		{
+			// Legacy rule conversion
+			if (strtolower(trim($rule)) == 'allowall')
+			{
+				$rule = self::RULE_ALLOW_ALL;
+			}
+			else
+			{
+				$rule = self::RULE_DENY_ALL;
+			}
+		}
+
+		// Check if the IP was in any of the ranges
 		$return = SHUtilIp::check($ip, $ranges);
 
-		return $rule === self::RULE_ALLOW_ALL ? !$return : $return;
+		return ($rule === self::RULE_ALLOW_ALL ? !$return : $return);
 	}
 }
