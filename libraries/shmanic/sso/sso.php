@@ -151,12 +151,10 @@ class SHSso extends JDispatcher
 	public function authorise($username, $options)
 	{
 		/*
-		 * This is odd. It will only allow me to create a new
-		 * instance of JAuthenticationResponse after autoloading
-		 * JAuthentication. Trying to import joomla.user.authentication
-		 * manually doesn't work neither. J! is bugged somewhere.
+		 * The response class is in the same file as authentication
+		 * therefore, we will need to manually register it.
 		 */
-		class_exists('JAuthentication');
+		JLoader::register('JAuthenticationResponse', JPATH_PLATFORM . '/joomla/user/authentication.php');
 		$response = new JAuthenticationResponse;
 
 		$response->username = $username;
@@ -212,8 +210,11 @@ class SHSso extends JDispatcher
 	 */
 	public function jAuthorise($username, $options)
 	{
-		// Create authencication response
-		class_exists('JAuthentication');
+		/*
+		 * The response class is in the same file as authentication
+		 * therefore, we will need to manually register it.
+		 */
+		JLoader::register('JAuthenticationResponse', JPATH_PLATFORM . '/joomla/user/authentication.php');
 		$response = new JAuthenticationResponse;
 
 		$response->username = $username;
