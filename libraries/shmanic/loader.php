@@ -1,12 +1,12 @@
 <?php
 /**
  * File adapted from Joomla's JLoader.
- * 
+ *
  * PHP Version 5.3
  *
  * @package    Shmanic.Libraries
  * @author     Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright  Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -154,27 +154,27 @@ abstract class SHLoader
 }
 
 /**
- * Executes a shmanic item booter.
- * 
+ * Executes a Shmanic importer.
+ *
  * @param   string  $item  Item or product.
- * 
- * @return  boolean  True on successful boot or False if boot not found.
- * 
+ *
+ * @return  boolean  True on successful import or False on file not found.
+ *
  * @since   2.0
  */
-function shBoot($item)
+function shImport($item)
 {
 	// Remove non-alphanumeric characters (except underscore)
 	$item = preg_replace('/\W/', null, $item);
 
-	$file = SHPATH_PLATFORM . "/boot/{$item}.php";
+	$file = SHPATH_PLATFORM . "/import/{$item}.php";
 
 	if (file_exists($file))
 	{
-		// Include the boot file
+		// Include the import file
 		return include_once $file;
 	}
 
-	// Failed to boot
+	// Failed to import
 	return false;
 }

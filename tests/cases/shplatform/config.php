@@ -36,7 +36,7 @@ class TCasesShplatformConfig extends TPluginsTestcasesTestcase implements TPlugi
 		// Ensure the JMMLdap Factory & Autoloader have been registered
 		if (!defined('SH_PLATFORM'))
 		{
-			$boot = JPATH_PLATFORM . '/shmanic/bootstrap.php';
+			$boot = JPATH_PLATFORM . '/shmanic/import.php';
 
 			if (is_file($boot))
 			{

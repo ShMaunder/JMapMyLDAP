@@ -1,12 +1,12 @@
 <?php
 /**
- * Bootstrap for Shmanic Platform. Loads the Autoloader and Factory.
- * 
+ * Import for Shmanic Platform. Loads the Autoloader and Factory.
+ *
  * PHP Version 5.3
  *
  * @package    Shmanic.Libraries
  * @author     Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright  Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */

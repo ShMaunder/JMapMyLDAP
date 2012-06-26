@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap for JMapMyLDAP.
+ * Import for JMapMyLDAP.
  *
  * PHP Version 5.3
  *
@@ -16,7 +16,7 @@ defined('JPATH_PLATFORM') or die;
 if (!defined('SHPATH_PLATFORM'))
 {
 	// Load the platform
-	require_once JPATH_PLATFORM . '/shmanic/bootstrap.php';
+	require_once JPATH_PLATFORM . '/shmanic/import.php';
 }
 
 if (!defined('SHLDAP_VERSION'))

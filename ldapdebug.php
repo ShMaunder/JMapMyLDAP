@@ -344,13 +344,13 @@ if ($reqResult = $input->get('result', 0, 'int'))
 		// Ensure the Shmanic platform have been loaded
 		if (!defined('SH_PLATFORM'))
 		{
-			require_once JPATH_PLATFORM . '/shmanic/bootstrap.php';
+			require_once JPATH_PLATFORM . '/shmanic/import.php';
 		}
 
-		// Boot JMapMyLDAP
-		if (!shBoot('ldap'))
+		// Import JMapMyLDAP
+		if (!shImport('ldap'))
 		{
-			throw new Exception('Failed to boot JMapMyLDAP');
+			throw new Exception('Failed to import JMapMyLDAP');
 		}
 
 		$client = new SHLdap($config);

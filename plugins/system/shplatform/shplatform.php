@@ -22,7 +22,7 @@ defined('JPATH_PLATFORM') or die;
 class PlgSystemSHPlatform extends JPlugin
 {
 	/**
-	 * Initialises and boots the Shmanic platform and project libraries.
+	 * Initialises and imports the Shmanic platform and project libraries.
 	 * This is fired on application initialise typically by the CMS.
 	 *
 	 * @return  void
@@ -31,48 +31,48 @@ class PlgSystemSHPlatform extends JPlugin
 	 */
 	public function onAfterInitialise()
 	{
-		// Check if the Shmanic platform has already been booted
+		// Check if the Shmanic platform has already been imported
 		if (!defined('SH_PLATFORM'))
 		{
-			$platform = JPATH_PLATFORM . '/shmanic/bootstrap.php';
+			$platform = JPATH_PLATFORM . '/shmanic/import.php';
 
 			if (!file_exists($platform))
 			{
-				// Failed to find the Shmanic platform bootstrap
+				// Failed to find the import file
 				return false;
 			}
 
-			// Shmanic Platform Boot
+			// Shmanic Platform import
 			if (!include_once $platform)
 			{
-				// Failed to boot the Shmanic platform
+				// Failed to import the Shmanic platform
 				return false;
 			}
 		}
 
-		// Container to store project specific boot results
+		// Container to store project specific import results
 		$results = array();
 
 		// Use the default SQL configuration
 		$config = SHFactory::getConfig();
 
-		// Get all the bootable projects
-		if ($boot = json_decode($config->get('platform.boot')))
+		// Get all the importable projects
+		if ($imports = json_decode($config->get('platform.import')))
 		{
-			foreach ($boot as $project)
+			foreach ($imports as $project)
 			{
-				// Attempts to boot the specified project
-				$results[] = shBoot(trim($project));
+				// Attempts to import the specified project
+				$results[] = shImport(trim($project));
 			}
 		}
 
 		if (in_array(false, $results, true))
 		{
-			// One of the specific projects failed to boot
+			// One of the specific projects failed to import
 			return false;
 		}
 
-		// Everything booted successfully
+		// Everything imported successfully
 		return true;
 	}
 }

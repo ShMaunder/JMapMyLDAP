@@ -22,8 +22,8 @@ if (php_sapi_name()!='cli') {
 
 fwrite(STDOUT, "Starting auto testing...\n");
 
-// Launch the testing bootstrap
-require_once(realpath(__DIR__) . '/tests/bootstrap.php');
+// Import the J! platform
+require_once(realpath(__DIR__) . '/tests/import.php');
 
 if (class_exists('TCoreApplication')) {
 	$app = new TCoreApplication();

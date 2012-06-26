@@ -253,7 +253,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 		$username, $password, $authenticate = true)
 	{
 
-		// Check the Shmanic platform has been loaded
+		// Check the Shmanic platform has been imported
 		if (!$this->_checkPlatform())
 		{
 			// Failed to boot the platform
@@ -369,8 +369,8 @@ class PlgAuthenticationSHLdap extends JPlugin
 	}
 
 	/**
-	 * If the platform or ldap project has not been loaded via the bootstraps
-	 * then load them now.
+	 * If the platform or ldap project has not been imported
+	 * then import them now.
 	 *
 	 * @return  boolean  True on successful load or False if failed.
 	 *
@@ -378,32 +378,32 @@ class PlgAuthenticationSHLdap extends JPlugin
 	 */
 	private function _checkPlatform()
 	{
-		// Check if the Shmanic platform has already been booted
+		// Check if the Shmanic platform has already been imported
 		if (!defined('SH_PLATFORM'))
 		{
-			$platform = JPATH_PLATFORM . '/shmanic/bootstrap.php';
+			$platform = JPATH_PLATFORM . '/shmanic/import.php';
 
 			if (!file_exists($platform))
 			{
-				// Failed to find the Shmanic platform bootstrap
+				// Failed to find the Shmanic platform import
 				return false;
 			}
 
-			// Shmanic Platform Boot
+			// Shmanic Platform import
 			if (!include_once $platform)
 			{
-				// Failed to boot the Shmanic platform
+				// Failed to import the Shmanic platform
 				return false;
 			}
 		}
 
-		if (!SHBoot('ldap'))
+		if (!SHImport('ldap'))
 		{
-			// Failed to boot the Ldap project
+			// Failed to import the Ldap project
 			return false;
 		}
 
-		// Everything booted successfully
+		// Everything imported successfully
 		return true;
 	}
 

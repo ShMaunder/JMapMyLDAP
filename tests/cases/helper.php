@@ -66,7 +66,7 @@ abstract class TCasesHelper
 
 	public static function doBoot()
 	{
-		$boot = JPATH_PLATFORM . '/shmanic/bootstrap.php';
+		$boot = JPATH_PLATFORM . '/shmanic/import.php';
 
 		if (is_file($boot))
 		{
@@ -78,6 +78,6 @@ abstract class TCasesHelper
 			return false;
 		}
 
-		return shBoot('ldap');
+		return shImport('ldap');
 	}
 }
