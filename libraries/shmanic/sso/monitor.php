@@ -72,8 +72,26 @@ class SHSsoMonitor extends JEvent
 		if ($config->get('sso.urlbypass', false))
 		{
 			// Check if the URL contains this key and the value assigned to it
-			$value = JFactory::getApplication()->input->get($bypass);
-			$value ? SHSsoHelper::disableSession() : SHSsoHelper::enableSession();
+			$input = new JInput;
+			$value = $input->get($bypass, false);
+
+			// Check whether the url has been set
+			if ($value !== false)
+			{
+				$value = (int) $value;
+
+				if ($value === 0)
+				{
+					// Enable the SSO
+					SHSsoHelper::enableSession();
+				}
+				elseif ($value === 1)
+				{
+					// Disable the SSO
+					SHSsoHelper::disableSession();
+					return;
+				}
+			}
 		}
 
 		// Check if SSO is disabled via the session
@@ -112,7 +130,7 @@ class SHSsoMonitor extends JEvent
 		 */
 		if (JFactory::getApplication()->isAdmin())
 		{
-			if ($config->get('sso.backend', false))
+			if (!$config->get('sso.backend', false))
 			{
 				// Not allowed to SSO on backend
 				return;

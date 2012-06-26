@@ -54,12 +54,9 @@ abstract class SHSsoHelper
 	 */
 	public static function isDisabled()
 	{
-		if (JFactory::getSession()->get(self::SESSION_KEY, false))
-		{
-			return true;
-		}
+		$session = JFactory::getSession();
 
-		return false;
+		return $session->get(self::SESSION_KEY, false);
 	}
 
 	/**
@@ -71,7 +68,8 @@ abstract class SHSsoHelper
 	 */
 	public static function enableSession()
 	{
-		JFactory::getSession()->clear(self::SESSION_KEY);
+		$session = JFactory::getSession();
+		$session->clear(self::SESSION_KEY);
 	}
 
 	/**
@@ -83,7 +81,8 @@ abstract class SHSsoHelper
 	 */
 	public static function disableSession()
 	{
-		JFactory::getSession()->set(self::SESSION_KEY, 1);
+		$session = JFactory::getSession();
+		$session->set(self::SESSION_KEY, 1);
 	}
 
 	/**
