@@ -50,6 +50,9 @@ class PlgSystemSHPlatform extends JPlugin
 			}
 		}
 
+		// Import the logging method
+		SHLog::import($this->params->get('log_group', 'shlog'));
+
 		// Container to store project specific import results
 		$results = array();
 

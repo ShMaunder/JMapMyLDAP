@@ -20,6 +20,7 @@
 defined('JPATH_PLATFORM') or die;
 
 jimport('joomla.user.authentication');
+JLoader::register('JAuthenticationResponse', JPATH_PLATFORM . '/joomla/user/authentication.php');
 
 /**
  * Provides a small pluggable framework for Single Sign On. This class
@@ -145,14 +146,7 @@ class SHSso extends JDispatcher
 				else
 				{
 					// Error: invalid plug-in response
-					JLog::add(
-						new SHLogEntriesId(
-							15061,
-							JText::_('LIB_SHSSO_ERR_15061', get_class($this->_observers[$key])),
-							JLog::ERROR,
-							'sso'
-						)
-					);
+					SHLog::add(JText::sprintf('LIB_SHSSO_ERR_15061', get_class($this->_observers[$key])), 15061, JLog::ERROR, 'sso');
 
 					// Try another plug-in.
 					continue;
@@ -178,11 +172,6 @@ class SHSso extends JDispatcher
 	 */
 	public function authorise($username, $options)
 	{
-		/*
-		 * The response class is in the same file as authentication
-		 * therefore, we will need to manually register it.
-		 */
-		JLoader::register('JAuthenticationResponse', JPATH_PLATFORM . '/joomla/user/authentication.php');
 		$response = new JAuthenticationResponse;
 
 		$response->username = $username;
@@ -238,11 +227,6 @@ class SHSso extends JDispatcher
 	 */
 	public function jAuthorise($username, $options)
 	{
-		/*
-		 * The response class is in the same file as authentication
-		 * therefore, we will need to manually register it.
-		 */
-		JLoader::register('JAuthenticationResponse', JPATH_PLATFORM . '/joomla/user/authentication.php');
 		$response = new JAuthenticationResponse;
 
 		$response->username = $username;

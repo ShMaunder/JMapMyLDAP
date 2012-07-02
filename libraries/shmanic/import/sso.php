@@ -28,17 +28,6 @@ if (!defined('SHSSO_VERSION'))
 // Load the global SSO language file
 JFactory::getLanguage()->load('shmanic_sso', JPATH_ROOT);
 
-// Setup the SSO error logger - this should be used with SHLogEntriesId
-JLog::addLogger(
-	array(
-		'logger' => 'formattedtext',
-		'text_file' => 'sso.error.php',
-		'text_entry_format' => '{DATETIME}	{ID}	{MESSAGE}'
-	),
-	JLog::ERROR,
-	array('sso')
-);
-
 // Employ the event monitor for SSO
 if (class_exists('SHSsoMonitor'))
 {

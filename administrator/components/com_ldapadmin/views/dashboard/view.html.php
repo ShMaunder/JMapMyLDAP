@@ -19,11 +19,7 @@ class LdapAdminViewDashboard extends JView
 	 */
 	public function display($tpl = null)
 	{
-		//$this->enabled		= JMapMyLDAPHelper::isEnabled();
-		//$this->items		= $this->get('Items');
-		//$this->pagination	= $this->get('Pagination');
-		//$this->state		= $this->get('State');
-		$this->items		= LdapAdminHelper::getPlugins(); 
+		$this->items		= LdapAdminHelper::getPlugins();
 		$this->ldapExt		= LdapAdminHelper::checkPhpLdap();
 
 		// Check for errors.
@@ -55,5 +51,5 @@ class LdapAdminViewDashboard extends JView
 		}
 		JToolBarHelper::help('dashboard', true);
 	}
-	
+
 }

@@ -18,4 +18,16 @@
 		<language tag="en-GB">language/en-GB/en-GB.plg_system_shplatform.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.plg_system_shplatform.sys.ini</language>
 	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="log_group" type="text"
+					description="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_DESC"
+					label="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_LABEL"
+					default="shlog"
+					size="20"
+				/>
+			</fieldset>
+		</fields>
+	</config>
 </extension>

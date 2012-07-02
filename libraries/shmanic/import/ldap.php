@@ -31,20 +31,8 @@ JFactory::getLanguage()->load('shmanic_ldap', JPATH_ROOT);
 // Setup and get the Ldap dispatcher
 $dispatcher = SHFactory::getDispatcher('ldap');
 
-if (class_exists('SHLdapLogMonitor') && defined('JDEBUG') && JDEBUG)
-{
-	// Setup the global debug Ldap log monitor (used only in debugging mode)
-	new SHLdapLogMonitor(
-		$dispatcher,
-		array('enabled' => true, 'level' => JLog::ALL)
-	);
-}
-
 // Import the Ldap group and use the ldap dispatcher
 JPluginHelper::importPlugin('ldap', null, true, $dispatcher);
-
-// Import the LdapLog group and use the ldap dispatcher
-JPluginHelper::importPlugin('ldaplog', null, true, $dispatcher);
 
 // Employ the event bouncer to control the global Joomla event triggers
 if (class_exists('SHLdapEventBouncer'))

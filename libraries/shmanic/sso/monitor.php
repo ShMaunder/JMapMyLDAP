@@ -51,15 +51,7 @@ class SHSsoMonitor extends JEvent
 		if (!(class_exists('SHSsoHelper') && class_exists('SHSso')))
 		{
 			// Error: classes missing
-			JLog::add(
-				new SHLogEntriesId(
-					15001,
-					JText::_('LIB_SHSSOMONITOR_ERR_15001'),
-					JLog::ERROR,
-					'sso'
-				)
-			);
-
+			SHLog::add(JText::_('LIB_SHSSOMONITOR_ERR_15001'), 15001, JLog::ERROR, 'sso');
 			return;
 		}
 

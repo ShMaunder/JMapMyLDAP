@@ -152,18 +152,12 @@ class PlgAuthenticationSHLdap extends JPlugin
 			if ($exception instanceof SHLdapException)
 			{
 				// Processes an exception log
-				SHLdapHelper::triggerEvent(
-					'onException',
-					array($exception, 12611, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'))
-				);
+				SHLog::add($exception, 12611, JLog::ERROR, 'ldap');
 			}
 			else
 			{
 				// Process a error log
-				SHLdapHelper::triggerEvent(
-					'onError',
-					array(12611, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'))
-				);
+				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
 			}
 
 			$ldap->close();
@@ -178,10 +172,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611');
 
 			// Process a error log
-			SHLdapHelper::triggerEvent(
-				'onError',
-				array(12611, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'))
-			);
+			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
 
 			$ldap->close();
 			unset($ldap);
@@ -223,10 +214,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 		 * Everything appears to be a success and therefore we shall log the user login
 		 * information then report back to the subject.
 		 */
-		SHLdapHelper::triggerEvent(
-			'onInformation',
-			array(12612, JText::sprintf('PLG_AUTHENTICATION_SHLDAP_INFO_12612', $response->username))
-		);
+		SHLog::add(JText::sprintf('PLG_AUTHENTICATION_SHLDAP_INFO_12612', $response->username), 12612, JLog::INFO, 'ldap');
 
 		$retResponse->status = JAuthentication::STATUS_SUCCESS;
 
@@ -272,10 +260,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603');
 
 			// Process a error log
-			SHLdapHelper::triggerEvent(
-				'onError',
-				array(12603, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603'))
-			);
+			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603'), 12603, JLog::ERROR, 'ldap');
 
 			return false;
 		}
@@ -299,18 +284,12 @@ class PlgAuthenticationSHLdap extends JPlugin
 					if ($exception instanceof SHLdapException)
 					{
 						// Processes an exception log
-						SHLdapHelper::triggerEvent(
-							'onException',
-							array($exception, 12605, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'))
-						);
+						SHLog::add($exception, 12605, JLog::ERROR, 'ldap');
 					}
 					else
 					{
 						// Process a error log
-						SHLdapHelper::triggerEvent(
-							'onError',
-							array(12605, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'))
-						);
+						SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'), 12605, JLog::ERROR, 'ldap');
 					}
 
 					// Unset this Ldap client and try the next configuration
@@ -334,18 +313,12 @@ class PlgAuthenticationSHLdap extends JPlugin
 					if ($exception instanceof SHLdapException)
 					{
 						// Processes an exception log
-						SHLdapHelper::triggerEvent(
-							'onException',
-							array($exception, 12606, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'))
-						);
+						SHLog::add($exception, 12606, JLog::ERROR, 'ldap');
 					}
 					else
 					{
 						// Process a error log
-						SHLdapHelper::triggerEvent(
-							'onError',
-							array(12606, JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'))
-						);
+						SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'), 12606, JLog::ERROR, 'ldap');
 					}
 
 					// Unset this Ldap client and try the next configuration

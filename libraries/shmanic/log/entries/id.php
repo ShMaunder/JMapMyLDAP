@@ -44,7 +44,7 @@ class SHLogEntriesId extends JLogEntry
 	{
 
 		// Internal ID code of this specific entry.
-		$this->id = $id;
+		$this->id = (int) $id;
 
 		// Pass the remaining attributes to the parent class for processing.
 		parent::__construct($message, $priority, $category, $date);

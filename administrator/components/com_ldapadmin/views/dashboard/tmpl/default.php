@@ -1,13 +1,5 @@
 <?php
-/**
- * @version		$Id: default.php 21595 2011-06-21 02:51:29Z dextercowley $
- * @package		Joomla.Administrator
- * @subpackage	com_redirect
- * @copyright	Copyright (C) 2005 - 2011 Open Source Matters, Inc. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
- */
 
-// No direct access.
 defined('_JEXEC') or die;
 
 // Include the component HTML helpers.
@@ -20,9 +12,9 @@ $user		= JFactory::getUser();
 
 foreach($this->items as &$item) {
 	$item['state'] = $item['enabled'];
-	if($item['enabled']==0) {
+	if($item['enabled'] == 0) {
 		$item['state'] = JHtml::_('jgrid.published', 0, 0, 'plugins.', 0) . ' ' . JText::_('JDISABLED');
-	} elseif($item['enabled']==1) {
+	} elseif($item['enabled'] == 1) {
 		$item['state'] = JHtml::_('jgrid.published', 1, 0, 'plugins.', 0) . ' ' . JText::_('JENABLED');
 	} else {
 		$item['state'] = JHtml::_('jgrid.published', 0, 0, 'plugins.', 0) . ' ' . JText::_('COM_LDAPADMIN_NOT_INSTALLED');

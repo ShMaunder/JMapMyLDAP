@@ -586,11 +586,10 @@ if ($reqResult = $input->get('result', 0, 'int'))
 						}
 
 					}
-
-				} else {
-
+				}
+				else
+				{
 					throw new Exception('UNKNOWN RESULT REQUEST');
-
 				}
 
 
