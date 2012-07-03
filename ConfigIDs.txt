@@ -1,0 +1,57 @@
+platform.schema
+ [Platform database version]
+
+platform.version
+ [Platform version]
+
+platform.import
+ [JSON of imports/boot]
+
+
+
+user.autoregister:
+ 0 - Inherited False
+ 1 - Inherited True
+ 2 - Override True
+ 3 - Override False
+
+user.defaultgroup:
+ [Default Group if Component non-exist]
+
+
+
+ldap.config
+ [SQL|Plugin - The source of the LDAP configuration]
+
+ldap.table
+ [When config is SQL, specify the SQL table to use for configuration]
+
+ldap.servers
+ [Number of servers configured in the LDAP configuration]
+
+
+
+
+sso.bypasskey:
+ [Bypass key like nosso for index.php?nosso=1]
+
+sso.urlbypass:
+ [1|0 to enable URL bypassing]
+
+sso.iprule:
+ [1|0 where 1 means allowall and 0 means denyall]
+
+sso.iplist:
+ [JSON of ip lists]
+
+sso.backend:
+ [1|0 where 1 means allow login to backend and 0 means disable backend login]
+
+sso.plugintype:
+ [The SSO plugin type e.g. sso]
+
+sso.autoregister
+ [1|0 where 1 means autoregister allowed and 0 means autoregister disabled]
+
+sso.doauthorise
+ [1|0 where 1 means to authorise the detected user with an authentication plugin and 0 means to log them in using Joomla database]

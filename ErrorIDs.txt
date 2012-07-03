@@ -1,0 +1,89 @@
+JOOMLA BUGS::
+JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
+
+
+
+990 - Unknown LDAP config object
+991 - Ldap extension not loaded [LIB_SHLDAPBASE_ERR_991]
+
+10000-11999 - Internal LDAP Errors (2000 Possible Errors)
+
+10000 - Global Unknown Exception
+
+10001-10099 :: CONNECTION RELATED FOR CLIENT
+10001 - Missing Host Parameter [LIB_SHLDAPBASE_ERR_10001] [LIB_JLDAP2_ERROR_NO_HOST_PARAM]
+10002 - Cannot connect [LIB_SHLDAPBASE_ERR_10002] [LIB_JLDAP2_ERROR_FAILED_CONNECT]
+10003 - LDAP V3 Failed [LIB_SHLDAPBASE_ERR_10003] [LIB_JLDAP2_ERROR_V3_FAIL]
+10004 - Referrals failed [LIB_SHLDAPBASE_ERR_10004] [LIB_JLDAP2_ERROR_REFERRALS_FAIL]
+10005 - Negotiate TLS failed [LIB_SHLDAPBASE_ERR_10005] [LIB_JLDAP2_ERROR_TLS_START_FAIL]
+10006 - Ldap not connected [LIB_SHLDAPBASE_ERR_10006]
+
+10100-10299 :: OPERATION RELATED FOR CLIENT
+10100 - Search method unknown exception - possible getEntries() problem 
+(! REPLACE BY 10006 !) 10101 - No ldap connection for search [LIB_SHLDAPBASE_ERR_10101]
+10102 - A Ldap search operation error occurred [LIB_SHLDAPBASE_ERR_10102]
+
+10110 - Read method unknown exception - possible getEntries() problem
+(! REPLACE BY 10006 !) 10111 - No ldap connection for read [LIB_SHLDAPBASE_ERR_10111]
+10112 - A Ldap read operation error occurred [LIB_SHLDAPBASE_ERR_10112]
+
+10121 - Result parameter for entries is not a resource [LIB_SHLDAPBASE_ERR_10121]
+
+10131 - Compare operation failed [LIB_SHLDAPBASE_ERR_10131]
+
+10141 - Modify operation failed [LIB_SHLDAPBASE_ERR_10141]
+
+10151 - Modify Replace operation failed [LIB_SHLDAPBASE_ERR_10151]
+
+10161 - Modify Delete operation failed [LIB_SHLDAPBASE_ERR_10161]
+
+10171 - Modify Add operation failed [LIB_SHLDAPBASE_ERR_10171]
+
+10181 - Delete operation failed [LIB_SHLDAPBASE_ERR_10181]
+
+10191 - Add operation failed [LIB_SHLDAPBASE_ERR_10191]
+
+10201 - Rename operation failed [LIB_SHLDAPBASE_ERR_10201]
+
+10300-10499 :: EXTENDED CLIENT
+
+10301 - No user query specified [LIB_SHLDAP_ERR_10301] [LIB_JLDAP2_ERROR_NO_DN_FILTER_PARAM]
+10302 - Cannot find ldap user. User typing incorrect username? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10302] [!LIB_JLDAP2_ERROR_USER_DN_FAIL]
+10303 - User found, but was unable to bind with the supplied password. User typing incorrect password? Hacking? [LIB_SHLDAP_ERR_10303]
+10304 - Unable to bind directly to the given distinguished name parameter. User error? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10304] [LIB_JLDAP2_ERROR_USER_DN_FAIL_PASS]
+10305 - Failed to find any of the distinguished name(s) in the Ldap directory. [LIB_SHLDAP_ERR_10305]
+
+
+10321 - No base DN specified [LIB_SHLDAP_ERR_10321] [LIB_JLDAP2_ERROR_NO_BASE_DN]
+10322 - Failed to bind with proxy user [LIB_SHLDAP_ERR_10322] [LIB_JLDAP2_ERROR_BIND_SEARCH_USER]
+
+10331 - Filter used instead of distinguished name (i.e. brackets present) [LIB_SHLDAP_ERR_10331]
+
+10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
+10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
+
+10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
+10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
+
+12000-14999 - LDAP Plug-in Errors (3000 Possible Errors)
+
+12000-12199 :: Ldap Group Mapping
+12200-12399 :: Ldap Profile
+12400-12599 :: Ldap Password
+
+12600-12799 :: SHLdap Authentication
+
+12601 - Failed to boot the SHLdap / SHPlatform [PLG_AUTHENTICATION_SHLDAP_ERR_12601]
+12602 - Blank passwords not allowed [PLG_AUTHENTICATION_SHLDAP_ERR_12602]
+12603 - No ldap configuration hosts found [PLG_AUTHENTICATION_SHLDAP_ERR_12603]
+12604 - No configurations could authenticate user [PLG_AUTHENTICATION_SHLDAP_ERR_12604]
+12605 - Failed to connect [PLG_AUTHENTICATION_SHLDAP_ERR_12605]
+12606 - Failed to get user dn [PLG_AUTHENTICATION_SHLDAP_ERR_12606]
+12611 - Failed to get user attributes [PLG_AUTHENTICATION_SHLDAP_ERR_12611] [PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_ATTRIBUTES_FAIL]
+12612 - Successfully logged in [PLG_AUTHENTICATION_SHLDAP_INFO_12612]
+
+15000-16999 - SSO Errors (2000 Possible Errors)
+
+15001 - Missing SSO libraries [LIB_SHSSOMONITOR_ERR_15001]
+15051 - Cannot import the plug-in group %1 [LIB_SHSSO_ERR_15051] [LIB_SSOAUTHENTICATION_ERROR_IMPORT_PLUGINS]
+15061 - Invalid detection response from plug-in [LIB_SHSSO_ERR_15061]
