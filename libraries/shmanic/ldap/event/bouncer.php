@@ -1,29 +1,34 @@
 <?php
 /**
- * @version     $Id:$
+ * PHP Version 5.3
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Event
  * @author      Shaun Maunder <shaun@shmanic.com>
- * @package     Shmanic.Ldap
- * @subpackage  Event
- * 
- * @copyright	Copyright (C) 2011 Shaun Maunder. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
-
-//jimport('shmanic.client.jldap2');
+defined('JPATH_PLATFORM') or die;
 
 /**
- * Handles all LDAP events.
+ * This class observes the global JDispatcher. On Joomla event calls, it evaluates whether
+ * the event should be passed onto the corresponding Ldap event by checking the event's context.
  *
- * @package		Shmanic.Ldap
- * @subpackage	Event
- * @since		2.0
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Event
+ * @since       2.0
  */
 class SHLdapEventBouncer extends JEvent
 {
-
-	protected $curUserLdap = false;
+	/**
+	 * Holds if the current user/session is Ldap based.
+	 *
+	 * @var    boolean
+	 * @since  2.0
+	 */
+	protected $isLdap = false;
 
 	/**
 	 * Constructor.
@@ -35,192 +40,354 @@ class SHLdapEventBouncer extends JEvent
 	public function __construct(&$subject)
 	{
 		// Check if the current user is Ldap authenticated
-		if (SHLdapHelper::isUserLdap())
-		{
-			$this->curUserLdap = true;
-		}
+		$this->isLdap = SHLdapHelper::isUserLdap();
 
 		parent::__construct($subject);
 	}
 
+	/**
+	 * Method is called after initialise.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onAfterInitialise()
+	{
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onAfterInitialise');
+		}
+	}
+
+	/**
+	 * Method is called after route.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onAfterRoute()
 	{
-		
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onAfterRoute');
+		}
 	}
-	
+
+	/**
+	 * Method is called after dispatch.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onAfterDispatch()
 	{
-		
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onAfterDispatch');
+		}
 	}
-	
+
+	/**
+	 * Method is called before render.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onBeforeRender()
 	{
-		
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onBeforeRender');
+		}
 	}
-	
+
+	/**
+	 * Method is called after render.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onAfterRender()
 	{
-		
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onAfterRender');
+		}
 	}
-	
+
+	/**
+	 * Method is called before compile head.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onBeforeCompileHead()
 	{
-		
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onBeforeCompileHead');
+		}
 	}
-	
+
 	/**
-	* @param  string  $context  The context for the data
-	* @param  int     $data     The user id
-	* @param  object
-	*
-	* @return  boolean
-	* @since   2.0
-	*/
+	 * Method prepares the data on a form.
+	 * Note: there is no Ldap session validation!
+	 *
+	 * @param   string  $context  Context / namespace of the form (i.e. form name).
+	 * @param   object  $data     The associated data for the form.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
 	public function onContentPrepareData($context, $data)
 	{
-		//$result = LdapEventHelper::triggerEvent('onLdapContentPrepareData', array($context, $data));
-		
-		//return $result;
+		return SHLdapHelper::triggerEvent('onContentPrepareData', array($context, $data));
 	}
-	
+
 	/**
-	* @param  JForm  $form  The form to be altered.
-	* @param  array  $data  The associated data for the form.
-	*
-	* @return  boolean
-	* @since   2.0
-	*/
+	 * Method prepares a form in the way of fields.
+	 * Note: there is no Ldap session validation!
+	 *
+	 * @param   JForm   $form  The form to be alterted.
+	 * @param   object  $data  The associated data for the form.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
 	public function onContentPrepareForm($form, $data)
 	{
-		//$result = LdapEventHelper::triggerEvent('onLdapContentPrepareForm', array($form, $data));
-		
-		//return $result;	
+		return SHLdapHelper::triggerEvent('onContentPrepareForm', array($form, $data));
 	}
-	
-	//public function onUserBeforeDelete() {}
-	
-	public function onUserAfterDelete($user, $success, $msg)
+
+	/**
+	 * Method is called before user data is deleted from the database.
+	 *
+	 * @param   array  $user  Holds the user data.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onUserBeforeDelete($user)
 	{
-		return;
-		
-			if($params = JArrayHelper::getValue($user, 'params', 0, 'string')) {
-
-			$reg = new JRegistry();
-			$reg->loadString($params);
-
-			/* This was an LDAP user so lets fire the LDAP specific
-			 * on user deletion
-			 */
-			if($reg->get('authtype')=='LDAP') {
-				
-				$events = LdapEventHelper::loadEvents(
-					JDispatcher::getInstance()
-				);
-				
-				return $events->onUserAfterDelete($user, $success, $msg);
-				
+		if ($params = JArrayHelper::getValue($user, 'params', false, 'string'))
+		{
+			if (self::_checkParameter($params))
+			{
+				SHLdapHelper::triggerEvent('onUserBeforeDelete', array($user));
 			}
 		}
-		
-		
-		//$result = LdapEventHelper::triggerEvent('onLdapAfterDelete', array($user, $success, $msg));
-	
-		//return $result;
 	}
-	
+
+	/**
+	 *  Method is called after user data is deleted from the database.
+	 *
+	 * @param   array    $user     Holds the user data.
+	 * @param   boolean  $success  True if user was successfully deleted from the database.
+	 * @param   string   $msg      An error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onUserAfterDelete($user, $success, $msg)
+	{
+		if ($params = JArrayHelper::getValue($user, 'params', false, 'string'))
+		{
+			if (self::_checkParameter($params))
+			{
+				SHLdapHelper::triggerEvent('onUserAfterDelete', array($user, $success, $msg));
+			}
+		}
+	}
+
+	/**
+	 * Method is called before user data is stored in the database.
+	 *
+	 * @param   array    $user   Holds the old user data.
+	 * @param   boolean  $isNew  True if a new user is stored.
+	 * @param   array    $new    Holds the new user data.
+	 *
+	 * @return  boolean  Cancels the save if False.
+	 *
+	 * @since   2.0
+	 */
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		//$result = LdapEventHelper::triggerEvent('onLdapBeforeSave', array($user, $isNew, $new));
-		
-		//return $result;
+		if ($params = JArrayHelper::getValue($new, 'params', false, 'string'))
+		{
+			if (self::_checkParameter($params))
+			{
+				return SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new));
+			}
+		}
 	}
-	
+
+	/**
+	 * Method is called after user data is stored in the database.
+	 *
+	 * @param   array    $user     Holds the new user data.
+	 * @param   boolean  $isNew    True if a new user has been stored.
+	 * @param   boolean  $success  True if user was successfully stored in the database.
+	 * @param   string   $msg      An error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		//$result = LdapEventHelper::triggerEvent('onLdapAfterSave', array($user, $isNew, $success, $msg));
-	
-		//return $result;
+		if ($params = JArrayHelper::getValue($user, 'params', false, 'string'))
+		{
+			if (self::_checkParameter($params))
+			{
+				SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
+			}
+		}
 	}
-	
+
+	/**
+	 * Method handles login logic and report back to the subject.
+	 *
+	 * @param   array  $user     Holds the user data.
+	 * @param   array  $options  Extra options such as autoregister.
+	 *
+	 * @return  boolean  Cancels login on False.
+	 *
+	 * @since   2.0
+	 */
 	public function onUserLogin($user, $options = array())
 	{
-		return;
-		
-		// START OF LDAP DISPATCHER
-		if($user['type'] != 'LDAP') {
+		// We can only process LDAP authentications
+		if (JArrayHelper::getValue($user, 'type') != 'LDAP')
+		{
 			return;
 		}
 
-		$events = LdapEventHelper::loadEvents(
-			JDispatcher::getInstance()
-		);
-			
-		// Autoregistration with optional override
-		$autoRegister = LdapHelper::getGlobalParam('autoregister', true);
-		if($autoRegister == '0' || $autoRegister == '1') {
-			// inherited registration
+		$config = SHFactory::getConfig();
+		$autoRegister = (int) $config->get('user.autoregister', 1);
+
+		if ($autoRegister === 0 || $autoRegister === 1)
+		{
+			// Inherited Auto-registration
 			$options['autoregister'] = isset($options['autoregister']) ? $options['autoregister'] : $autoRegister;
-		} else {
-			// override registration
-			$options['autoregister'] = ($autoRegister == 'override1') ? 1 : 0;
+		}
+		else
+		{
+			// Override Auto-registration
+			$options['autoregister'] = ($autoRegister === 2) ? 1 : 0;
 		}
 
-		return $events->onUserLogin($user, $options);
-		
-		// END OF LDAP DISPATCHER
-		
-		$result = false;
-		
 		/* Before firing the onLdapLogin method, we must make sure
 		 * the user has the attributes element. If not then it can
 		 * be assumed that the JMapMyLDAP authentication wasn't used.
 		 */
-		if(!isset($user['attributes'])) {
-			if($attributes = LdapUserHelper::getAttributes($user)) {
-				$user['attributes'] = $attributes;	
-			} else {
-				//TODO: raise an error - check auth plugin parameter
-				return false;
-			}
+		if (!isset($user[SHLdapHelper::ATTRIBUTE_KEY]))
+		{
+			// TODO: fix this!!
+			return false;
 		}
-			
-		$instance = LdapUserHelper::getUser($user, $options);
-		
-		/* Set a user parameter to distinguish the authentication
-		* type even when this user is not logged in.
-		*/
-		LdapUserHelper::setUserLdap($instance);
-		
+
+		$instance = SHUserHelper::getUser($user, $options);
+
+		if ($instance === false)
+		{
+			// Failed to get the user either due to save error or autoregister
+			return false;
+		}
+
 		// Fire the ldap specific on login events
-		$result = LdapEventHelper::triggerEvent('onLdapLogin', array(&$instance, $user, $options));
-		
-		if($result) {
+		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $user, $options));
+
+		if ($result)
+		{
 			$instance->save();
 		}
-		
+
+		// Allow Ldap events to be called
+		$this->isLdap = true;
+
 		return $result;
 	}
-	
+
+	/**
+	 * Method handles logout logic and reports back to the subject.
+	 *
+	 * @param   array  $user     Holds the user data.
+	 * @param   array  $options  Array holding options such as client.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @since   2.0
+	 */
 	public function onUserLogout($user, $options = array())
 	{
-		return;
-		$session = JFactory::getSession();
-		$session->clear('authtype');
-		
-		$result = LdapEventHelper::triggerEvent('onLdapLogout', array($user, $options));
-	
-		return $result;
+		if ($this->isLdap)
+		{
+			return SHLdapHelper::triggerEvent('onUserLogout', array($user, $options));
+		}
 	}
-	
+
+	/**
+	 * Method is called on user login failure.
+	 *
+	 * @param   array  $response  The authentication response.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onUserLoginFailure($response)
 	{
-		//Never would get executed?
-	}
-	
-	public function onUserLogoutFailure($parameters = array()) 
-	{
-		//Never would get executed?
-	}
-	
+		// Check if the attempted login was an Ldap user, if so then fire the event
+		if ($username = JArrayHelper::getValue($response, 'username', false, 'string'))
+		{
+			// Check if the user exists in the J! database
+			if ($id = JUserHelper::getUserId($username))
+			{
+				$user = JUser::getInstance($id);
 
+				if ($user->getParam('authtype') == 'LDAP')
+				{
+					SHLdapHelper::triggerEvent('onUserLoginFailure', array($response));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks whether the specified user parameters contain the LDAP
+	 * authtype parameter.
+	 *
+	 * @param   string  $parameters  User parameters.
+	 *
+	 * @return  boolean  True if user is LDAP.
+	 *
+	 * @since   2.0
+	 */
+	private static function _checkParameter($parameters)
+	{
+		// Load the user parameters into a registry object for inspection
+		$reg = new JRegistry;
+		$reg->loadString($parameters);
+
+		/**
+		 * Check whether this saved user was an LDAP user, and if so then
+		 * fire the LDAP event for it.
+		 */
+		if ($reg->get('authtype') == 'LDAP')
+		{
+			return true;
+		}
+
+		return false;
+	}
 }

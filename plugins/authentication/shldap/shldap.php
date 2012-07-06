@@ -250,6 +250,28 @@ class PlgAuthenticationSHLdap extends JPlugin
 			return false;
 		}
 
+		$ldap = SHLdapHelper::getClient(
+			array('username' => $username, 'password' => $password, 'authenticate' => $authenticate)
+		);
+
+		if (!$ldap)
+		{
+			// Failed to login
+			$response->status = JAuthentication::STATUS_FAILURE;
+			$response->error_message = JText::_('Failed to login');
+			return false;
+		}
+
+		/* Store the distinguished name of the user and the current
+		 * Ldap instance for authorisation (that happens next).
+		 */
+		$response->set('dn', $ldap->getLastUserDN());
+		$response->set('ldap', & $ldap);
+
+		return true;
+
+print_r($ldap); die;
+die;
 		// Retrieves all the SQL Ldap configuration hosts
 		$configs = SHLdapHelper::getConfigIDs();
 

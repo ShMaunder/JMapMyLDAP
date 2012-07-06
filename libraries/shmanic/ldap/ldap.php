@@ -47,7 +47,7 @@ class SHLdap extends SHLdapBase
 	const USE_RESULT_OBJECT = true;
 
 	/**
-	 * If true then use search to find user
+	 * If true then use search to find user.
 	 *
 	 * @var    boolean
 	 * @since  1.0
@@ -55,7 +55,7 @@ class SHLdap extends SHLdapBase
 	protected $use_search = false;
 
 	/**
-	 * Base DN to use for searching (e.g. dc=acme,dc=local / o=company)
+	 * Base DN to use for searching (e.g. dc=acme,dc=local / o=company).
 	 *
 	 * @var    string
 	 * @since  1.0
@@ -63,12 +63,20 @@ class SHLdap extends SHLdapBase
 	protected $base_dn = null;
 
 	/**
-	 * User DN or Filter Query (e.g. (sAMAccountName=[username]) / cn=[username],dc=acme,dc=local)
+	 * User DN or Filter Query (e.g. (sAMAccountName=[username]) / cn=[username],dc=acme,dc=local).
 	 *
 	 * @var    string
 	 * @since  1.0
 	 */
 	protected $user_qry = null;
+
+	/**
+	 * The last successful user distinguished name.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $last_user_dn = null;
 
 	/**
 	 * Constructor
@@ -97,14 +105,34 @@ class SHLdap extends SHLdapBase
 	public function addDebug($message)
 	{
 		// Add the debug message to any listening loggers
-		SHLdapHelper::triggerEvent('onDebug', array($message));
+		SHLog::add($message, 0, JLog::DEBUG, 'ldap');
 
 		parent::addDebug($message);
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see SHLdapClient::search()
+	 * Returns the last successful getUserDN distinguished name.
+	 *
+	 * @return  string  User distinguished name.
+	 *
+	 * @since   2.0
+	 */
+	public function getLastUserDN()
+	{
+		return $this->last_user_dn;
+	}
+
+	/**
+	 * Search directory and subtrees using a base dn and a filter, then returns
+	 * the attributes in an array.
+	 *
+	 * @param   string  $dn          A base dn
+	 * @param   string  $filter      Ldap filter to restrict results
+	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
+	 *
+	 * @return  SHLdapResult|false  Ldap Results or False on error
+	 *
+	 * @since   2.0
 	 */
 	public function search($dn = null, $filter = null, $attributes = array())
 	{
@@ -135,8 +163,16 @@ class SHLdap extends SHLdapBase
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see SHLdapClient::read()
+	 * Read directory using given dn and filter, then returns the attributes
+	 * in an array.
+	 *
+	 * @param   string  $dn          Dn of object to read
+	 * @param   string  $filter      Ldap filter to restrict results
+	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
+	 *
+	 * @return  SHLdapResult|false  Ldap Results or False on error
+	 *
+	 * @since   2.0
 	 */
 	public function read($dn = null, $filter = null, $attributes = array())
 	{
@@ -222,6 +258,7 @@ class SHLdap extends SHLdapBase
 				{
 					// Successfully binded with this distinguished name
 					$this->addDebug("Successfully authenticated {$username} with distinguished name {$dn}.");
+					$this->last_user_dn = $dn;
 					return $dn;
 				}
 			}
@@ -292,6 +329,7 @@ class SHLdap extends SHLdapBase
 			}
 
 			$this->addDebug("Using distinguished name {$result} for user {$username}.");
+			$this->last_user_dn = $result;
 			return $result;
 		}
 	}
@@ -299,12 +337,13 @@ class SHLdap extends SHLdapBase
 	/**
 	 * Get a user's dn by attempting to search for it in the directory.
 	 *
-	 * this method uses the query as a filter to find where the user is located in the directory
+	 * This method uses the query as a filter to find where the user is located in the directory
 	 *
-	 * @param  string  $username  Authenticating username
+	 * @param   string  $username  Authenticating username.
 	 *
 	 * @return  array|false  On success shall return an array containing DNs, otherwise
-	 *                  returns a JException to indicate an error.
+	 * 					returns a JException to indicate an error.
+	 *
 	 * @since   1.0
 	 */
 	public function getUserDnBySearch($username)
@@ -312,7 +351,6 @@ class SHLdap extends SHLdapBase
 		// Fixes special usernames and provides simple protection against ldap injections
 		$username 	= SHLdapHelper::escape($username);
 		$search 	= str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
-
 
 		// Basic check for LDAP filter (i.e. brackets). Could still be a distinguished name.
 		if (!preg_match('/\((.)*\)/', $search))
@@ -412,7 +450,7 @@ class SHLdap extends SHLdapBase
 	 * @param   array   $attributes  An optional array of extra attributes
 	 *
 	 * @return  array|false  On success shall return an array of attributes, otherwise
-	 *                   returns a JException to indicate an error.
+	 * 					returns a JException to indicate an error.
 	 *
 	 * @since   1.0
 	 */
@@ -421,7 +459,7 @@ class SHLdap extends SHLdapBase
 
 		// Call for any LDAP plug-ins that require extra attributes.
 		$extras = SHFactory::getDispatcher('ldap')->trigger(
-			'onBeforeRead',
+			'onLdapBeforeRead',
 			array(&$this, array('dn' => $dn, 'source' => __METHOD__))
 		);
 
@@ -475,7 +513,7 @@ class SHLdap extends SHLdapBase
 		}
 
 		if (!SHLdapHelper::triggerEvent(
-			'onAfterRead',
+			'onLdapAfterRead',
 			array(&$this, &$return, array('dn' => $dn,'source' => __METHOD__))
 		))
 		{
@@ -492,57 +530,76 @@ class SHLdap extends SHLdapBase
 	 * This is required usually only for Active Directory, however there could
 	 * be other LDAP platforms that cannot pick up nested groups.
 	 *
-	 * @param  array   $searchDNs       Initial user groups (or ones that have already been discovered)
-	 * @param  string  $depth           How far to search down until it should give up (0 means unlimited)
-	 * @param  array   &$result         Holds the result of every alliteration (this is a byreference)
-	 * @param  string  $attribute       The LDAP attribute to store after each ldap search
-	 * @param  string  $queryAttribute  The LDAP filter attribute to query
+	 * @param   array   $searchDNs       Initial user groups (or ones that have already been discovered).
+	 * @param   string  $depth           How far to search down until it should give up (0 means unlimited).
+	 * @param   array   &$result         Holds the result of every alliteration (by reference).
+	 * @param   string  $attribute       The LDAP attribute to store after each ldap search.
+	 * @param   string  $queryAttribute  The LDAP filter attribute to query.
 	 *
-	 * @return  array  All user groups including the initial user groups
+	 * @return  array  All user groups including the initial user groups.
+	 *
 	 * @since   1.0
 	 */
-	public function getRecursiveGroups($searchDNs, $depth = 0, &$result, $attribute, $queryAttribute = null)
+	public function getRecursiveGroups($searchDNs, $depth, &$result, $attribute, $queryAttribute = null)
 	{
-		//recurse through the search dn
-		$depth--;
-		$search			= null;
-		$next			= array();
-		$filters		= array();
+		$search		= null;
+		$next		= array();
+		$filters	= array();
 
-		if(!isset($searchDNs)) {
+		// As this is recursive, we want to be able to specify a optional depth
+		--$depth;
+
+		if (!isset($searchDNs))
+		{
 			return $result;
 		}
 
-		foreach($searchDNs as $dn)
-			$filters[] = 	$queryAttribute . '=' . $dn;
+		foreach ($searchDNs as $dn)
+		{
+			// Build one or more partial filters from the DN user groups
+			$filters[] = $queryAttribute . '=' . $dn;
+		}
 
-		if(!count($filters)) {
+		if (!count($filters))
+		{
+			// If there is no filter to process then we are finished
 			return $result;
 		}
 
-		$search = LdapHelper::buildFilter($filters, '|'); //build a filter using the OR operator
-		$results = new JLDAPResult($this->search(null, $search, array($attribute)));
+		// Build the full filter using the OR operator
+		$search = SHLdapHelper::buildFilter($filters, '|');
 
+		// Search for any groups that also contain the groups we have in the filter
+		$results = $this->search(null, $search, array($attribute));
+
+		// Lets process each group that was found
 		$entryCount = $results->countEntries();
-		for($i=0; $i<$entryCount; $i++) { //will process each record that the searched container found
+		for ($i = 0; $i < $entryCount; ++$i)
+		{
+			$dn = $results->getDN($i);
 
-			$dn = $results->getValue($i, 'dn', 0);
-
-			if(!in_array($dn, $result)) { //has this container already been processed previously
+			// We don't want to re-process a group that was processed previously
+			if (!in_array($dn, $result))
+			{
 				$result[] = $dn;
+
+				// Check if there are more groups we should process from the groups just discovered
 				$valueCount = $results->countValues($i, $attribute);
-				for($j=0; $j<$valueCount; $j++) {
+				for ($j = 0; $j < $valueCount; ++$j)
+				{
+					// We want to process this object
 					$value = $results->getValue($i, $attribute, $j);
-					$next[] = $value; //we want to process this object
+					$next[] = $value;
 				}
 			}
 		}
 
 		/*
-		 * Only start the recursion when we have something to process
-		* next otherwise we would loop forever.
-		*/
-		if(count($next) && $depth!=0) {
+		 * Only start the recursion when we have something to process next
+		 * otherwise, we would loop forever.
+		 */
+		if (count($next) && $depth != 0)
+		{
 			$this->getRecursiveGroups($next, $depth, $result, $attribute, $queryAttribute);
 		}
 

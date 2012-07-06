@@ -31,6 +31,12 @@ JFactory::getLanguage()->load('shmanic_ldap', JPATH_ROOT);
 // Setup and get the Ldap dispatcher
 $dispatcher = SHFactory::getDispatcher('ldap');
 
+// Start the LDAP event monitor for core event triggers
+if (class_exists('SHLdapEventMonitor'))
+{
+	new SHLdapEventMonitor($dispatcher);
+}
+
 // Import the Ldap group and use the ldap dispatcher
 JPluginHelper::importPlugin('ldap', null, true, $dispatcher);
 

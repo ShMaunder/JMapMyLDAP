@@ -23,79 +23,6 @@ jimport('shmanic.log.ldaphelper');
  */
 class LdapUserHelper extends JObject
 {
-	/**
-	 * This method returns a user object. If options['autoregister'] is true,
-	 * and if the user doesn't exist, then it'll be created.
-	 *
-	 * Dear Joomla, can you please put this into a library for everyone to use.
-	 *
-	 * @param  array  $user     Holds the user data.
-	 * @param  array  $options  Array holding options (remember, autoregister, group).
-	 *
-	 * @return  JUser  A JUser object containing the user
-	 * @since   1.0
-	 */
-	public static function &getUser($user, $options = array())
-	{
-		$instance = JUser::getInstance();
-		if($id = intval(JUserHelper::getUserId($user['username'])))  {
-			$instance->load($id);
-			return $instance;
-		}
-
-		jimport('joomla.application.component.helper');
-		$config	= JComponentHelper::getParams('com_users');
-		// Default to Registered.
-		$defaultUserGroup = $config->get('new_usertype', 2);
-
-		$acl = JFactory::getACL();
-
-		$instance->set('id'			, 0);
-		$instance->set('name'		, $user['fullname']);
-		$instance->set('username'	, $user['username']);
-		$instance->set('password_clear'	, $user['password_clear']);
-		$instance->set('email'		, $user['email']);	// Result should contain an email (check)
-		$instance->set('usertype'	, 'depreciated');
-		$instance->set('groups'		, array($defaultUserGroup));
-
-		//If autoregister is set let's register the user
-		$autoregister = isset($options['autoregister']) ? $options['autoregister'] : true;
-
-		if($autoregister) {
-			if(!$instance->save()) {
-				JERROR::raiseWarning('SOME_ERROR_CODE', $instance->getError());
-				$instance->set('error' , 1);
-			}
-		} else {
-			//we don't want to proceed if autoregister is not enabled
-			JERROR::raiseWarning('SOME_ERROR_CODE', JTEXT::_('JGLOBAL_AUTH_NO_USER'));
-			$instance->set('error' , 1);
-		}
-
-		return $instance;
-	}
-
-	// get and return the user attributes (array) from LDAP
-	/** @deprecated */
-	public static function getAttributes($user)
-	{
-		if($ldap = LdapHelper::getConnection(false)) {
-
-			$dn = $ldap->getUserDN($user['username'], null, false);
-			if(JError::isError($dn)) {
-				return false;
-			}
-
-			$attributes = $ldap->getUserDetails($dn);
-			if(JError::isError($attributes)) {
-				return false;
-			}
-
-			$ldap->close();
-
-			return $attributes;
-		}
-	}
 
 }
 
@@ -118,31 +45,36 @@ abstract class SHLdapHelper extends JObject
 	 */
 	const ATTRIBUTE_KEY = 'attributes';
 
+	const CONFIG_AUTO = 1;
+
+	const CONFIG_SQL = 2;
+
+	const CONFIG_FILE = 4;
+
+	const CONFIG_PLUGIN = 8;
+
 	/**
 	 * Loads the correct Ldap configuration based on the record ID specified. Then uses
 	 * this configuration to instantiate an LdapExtended client.
 	 *
-	 * @param   integer    $id      Configuration record ID.
-	 * @param   JRegistry  $config  Optional override for platform configuration.
+	 * @param   integer    $id      Configuration record ID (use 1 if only one record is present).
+	 * @param   JRegistry  $config  Platform configuration.
+	 * @param   string     $source  Parameter source such as CONFIG_AUTO, CONFIG_SQL, CONFIG_FILE or CONFIG_PLUGIN.
 	 *
-	 * @return  SHLdap  Ldap client with loaded configuration.
+	 * @return  false|JRegistry  Registry of parameters for Ldap or False on error.
 	 *
 	 * @since   2.0
 	 */
-	public static function getClient($id = null, JRegistry $config = null)
+	public static function getParams($id, JRegistry $config, $source = self::CONFIG_AUTO)
 	{
-		if (is_null($config))
+		// Process the correct parameter source
+		if ($source === self::CONFIG_AUTO)
 		{
-			// Get the Ldap configuration from the factory
-			$config = SHFactory::getConfig();
+			// Get the Ldap configuration source (e.g. sql | plugin | file)
+			$source = (int) $config->get('ldap.config', self::CONFIG_SQL);
 		}
 
-		$params = array();
-
-		// Get the Ldap configuration source (e.g. sql | plugin)
-		$source = $config->get('ldap.config', 'sql');
-
-		if ($source === 'sql')
+		if ($source === self::CONFIG_SQL)
 		{
 			// Get the number of servers configured in the database
 			$servers = (int) $config->get('ldap.servers', 0);
@@ -153,7 +85,7 @@ abstract class SHLdapHelper extends JObject
 			if (!$servers > 0 || is_null($id))
 			{
 				// No Ldap servers are configured!
-				return null;
+				return false;
 			}
 
 			// Get the global JDatabase object
@@ -176,17 +108,18 @@ abstract class SHLdapHelper extends JObject
 			if (is_null($results))
 			{
 				// Unable to find specified Ldap configuration
-				return null;
+				return false;
 			}
 
 			if (isset($results['params']))
 			{
 				// Decode the JSON string direct from DB to an array
-				$params = (array) json_decode($results['params']);
+				$params = new JRegistry;
+				$params->loadString($results['params']);
+				return $params;
 			}
-
 		}
-		elseif ($source === 'plugin')
+		elseif ($source === self::CONFIG_PLUGIN)
 		{
 			// TODO: implement
 
@@ -197,12 +130,191 @@ abstract class SHLdapHelper extends JObject
 				$params->loadString($plugin->params);
 
 				// We may have to convert if using the inbuilt JLDAP parameters
-				return self::convert($params, 'SHLdap');
+				//return self::convert($params, 'SHLdap');
+			}
+		}
+		elseif ($source === self::CONFIG_FILE)
+		{
+			// TODO: implement
+
+		}
+		else
+		{
+			// Invalid source
+			return false;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Find the correct Ldap parameters based on the authorised and configuration
+	 * specified. If found then return the successful Ldap object.
+	 *
+	 * Note: you can use SHLdap->getLastUserDN() for the user DN instead of rechecking again.
+	 *
+	 * @param   Array      $authorised  Optional authorisation/authentication options (authenticate, username, password).
+	 * @param   JRegistry  $config      Optional override for platform configuration.
+	 *
+	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public static function getClient(array $authorised = array(), JRegistry $config = null)
+	{
+		// Get the optional authentication/authorisation options
+		$authenticate = JArrayHelper::getValue($authorised, 'authenticate', false);
+		$username = JArrayHelper::getValue($authorised, 'username', null);
+		$password = JArrayHelper::getValue($authorised, 'password', null);
+
+		// Get the Ldap configuration from the factory if required
+		$config = is_null($config) ? SHFactory::getConfig() : $config;
+
+		// Get the source from the config
+		$source = (int) $config->get('ldap.config', self::CONFIG_SQL);
+
+		/*
+		 * SQL configuration may have multiple configurations, therefore
+		 * we must loop round each until we can find the username if one
+		 * has been specified otherwise, we just return the first known
+		 * configuration.
+		 */
+		if ($source === self::CONFIG_SQL)
+		{
+			// Get all the Ldap configuration from the database
+			$servers = self::getParamsIDs();
+
+			if (!is_array($servers))
+			{
+				// No Ldap configuration host results found
+				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603'), 12603, JLog::ERROR, 'ldap');
+				return false;
+			}
+
+			// Loop around all the Ldap configurations found
+			foreach (array_keys($servers) as $id)
+			{
+				// Get the parameters for this Ldap configuration
+				if ($params = self::getParams($id, $config, $source))
+				{
+					if ($ldap = self::authenticateLdap($params, $authenticate, $username, $password))
+					{
+						// This is the correct configuration so return the new client
+						return $ldap;
+					}
+				}
+			}
+
+		}
+		else
+		{
+			// We just get the Ldap parameters assuming there is only one configuration
+			if ($params = self::getParams(1, $config, $source))
+			{
+				if ($ldap = self::authenticateLdap($params, $authenticate, $username, $password))
+				{
+					// This is the correct configuration so return the new client
+					return $ldap;
+				}
 			}
 		}
 
-		return new SHLdap($params);
+		return false;
+	}
 
+	/**
+	 * Attempts to Ldap authorise/authenticate with the parameters specified.
+	 *
+	 * @param   mixed    $ldap          Either a JRegistry of parameters OR a SHLdap object.
+	 * @param   boolean  $authenticate  Authenticate the username and password supplied with the Ldap object.
+	 * @param   string   $username      Authorisation/authentication username.
+	 * @param   string   $password      Authentication password.
+	 *
+	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public static function authenticateLdap($ldap, $authenticate, $username, $password)
+	{
+		try
+		{
+			// Check if we have an already instantiated Ldap object
+			if (!$ldap instanceof SHLdap)
+			{
+				// Attempt to instantiate an Ldap client object with the configuration
+				if (!$ldap = new SHLdap($ldap))
+				{
+					return false;
+				}
+			}
+
+			// Start the LDAP connection procedure
+			if ($ldap->connect() !== true)
+			{
+				// Failed to connect
+				$exception = $ldap->getError(null, false);
+				if ($exception instanceof SHLdapException)
+				{
+					// Processes an exception log
+					SHLog::add($exception, 12605, JLog::ERROR, 'ldap');
+				}
+				else
+				{
+					// Process a error log
+					SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'), 12605, JLog::ERROR, 'ldap');
+				}
+
+				// Unset this Ldap client and try the next configuration
+				unset($ldap);
+				return false;
+			}
+
+			/*
+			 * Check if a username has been specified. If not then assume this is the correct
+			 * Ldap configuration and return it.
+			 */
+			if (!$authenticate && is_null($username))
+			{
+				return $ldap;
+			}
+
+			/* We will now get the authenticated user's dn.
+			 * In this method we are also going to test the
+			 * dn against the password. Therefore, if any dn
+			 * is returned, it is a successfully authenticated
+			 * user.
+			 */
+			if (!$dn = $ldap->getUserDN($username, $password, $authenticate))
+			{
+				// Failed to get users Ldap distinguished name
+				$exception = $ldap->getError(null, false);
+				if ($exception instanceof SHLdapException)
+				{
+					// Processes an exception log
+					SHLog::add($exception, 12606, JLog::ERROR, 'ldap');
+				}
+				else
+				{
+					// Process a error log
+					SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'), 12606, JLog::ERROR, 'ldap');
+				}
+
+				// Unset this Ldap client and try the next configuration
+				$ldap->close();
+				unset($ldap);
+				return false;
+			}
+
+			// Successfully authenticated and retrieved User DN.
+			return $ldap;
+		}
+		catch (Exception $e)
+		{
+			unset($ldap);
+			SHLog::add(JText::_('Something went very wrong with the Ldap client'), 0, JLog::ERROR, 'ldap');
+		}
+
+		return false;
 	}
 
 	/**
@@ -214,7 +326,7 @@ abstract class SHLdapHelper extends JObject
 	 *
 	 * @since   2.0
 	 */
-	public static function getConfigId($name)
+	public static function getParamsIDFromName($name)
 	{
 		// Get the Ldap configuration from the factory
 		$config = SHFactory::getConfig();
@@ -249,7 +361,7 @@ abstract class SHLdapHelper extends JObject
 	 *
 	 * @since   2.0
 	 */
-	public static function getConfigIDs()
+	public static function getParamsIDs()
 	{
 		// Get the Ldap configuration from the factory
 		$config = SHFactory::getConfig();
@@ -312,9 +424,9 @@ abstract class SHLdapHelper extends JObject
 		if (is_null($user) || is_int($user))
 		{
 			// The input variable indicates we must load the user object
-			$obj = JFactory::getUser($user);
-			$obj->setParam('authtype', 'LDAP');
-		} elseif ($user instanceof JUser)
+			JFactory::getUser($user)->setParam('authtype', 'LDAP');
+		}
+		elseif ($user instanceof JUser)
 		{
 			// Direct manipulation of the object
 			$user->setParam('authtype', 'LDAP');
@@ -376,7 +488,9 @@ abstract class SHLdapHelper extends JObject
 				$tmp = trim($params->get('search_string'));
 				$tmp = str_replace('[search]', '[username]', $tmp);
 				$converted['user_qry'] = '(' . $tmp . ')';
-			} else {
+			}
+			else
+			{
 				// Build the direct user distinguished name
 				$converted['user_qry'] = $params->get('users_dn');
 			}
@@ -418,7 +532,9 @@ abstract class SHLdapHelper extends JObject
 				$tmp = trim($params->get('user_qry'));
 				$tmp = str_replace('[username]', '[search]', $tmp);
 				$converted['search_string'] = substr($tmp, 1, strlen($tmp) - 2);
-			} else {
+			}
+			else
+			{
 				$converted['users_dn'] = $params->get('user_qry');
 			}
 
@@ -426,6 +542,35 @@ abstract class SHLdapHelper extends JObject
 
 		}
 
+	}
+
+	/**
+	 * Gets the user attributes from LDAP. This method will in fire the
+	 * individual LDAP plugin onLdapBeforeRead and onLdapAfterRead methods.
+	 *
+	 * Note: this only needs to be used when authentication/authorisation through
+	 * the SHLdap authentication plugin hasn't been fired.
+	 *
+	 * @param   string  $username  Specify username to return results on.
+	 *
+	 * @return  array|false  An array of attributes or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public static function getUserDetails($username)
+	{
+		if ($ldap = self::getClient(array('username' => $username)))
+		{
+			$dn = $ldap->getLastUserDN();
+
+			$attributes = $ldap->getUserDetails($dn);
+
+			$ldap->close();
+
+			return $attributes;
+		}
+
+		return false;
 	}
 
 	/**
@@ -478,7 +623,7 @@ abstract class SHLdapHelper extends JObject
 		$string = null;
 		foreach ($filters as $filter)
 		{
-			$filter = LdapHelper::escape($filter);
+			$filter = self::escape($filter);
 			$string .= '(' . $filter . ')';
 		}
 
@@ -565,7 +710,9 @@ abstract class SHLdapHelper extends JObject
 				}
 
 
-			} else {
+			}
+			else
+			{
 
 				/* This is a single value attribute and we now need to
 				 * determine if this needs to be ignored, added,
