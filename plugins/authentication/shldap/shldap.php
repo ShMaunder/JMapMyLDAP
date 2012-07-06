@@ -68,11 +68,38 @@ class PlgAuthenticationSHLdap extends JPlugin
 			return;
 		}
 
-		if ($this->_ldapAuthorise(
-			$response, $credentials['username'], $credentials['password'], true
+		// Check the Shmanic platform has been imported
+		if (!$this->_checkPlatform())
+		{
+			// Failed to boot the platform
+			$response->status = JAuthentication::STATUS_FAILURE;
+			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12601');
+			return false;
+		}
+
+		/*
+		 * Attempt to authenticate with Ldap. This method will automatically detect
+		 * the correct configuration (if multiple ones are specified) and return a
+		 * SHLdap object. If this method returns false, then the authentication was
+		 * unsuccessful.
+		 */
+		if ($ldap = SHLdapHelper::getClient(
+			array(
+				'username' => $credentials['username'],
+				'password' => $credentials['password'],
+				'authenticate' => true
+			)
 		))
 		{
-			// Successful authentication, report back and say goodbye!
+			/*
+			 * Successful authentication.
+			 * Store the distinguished name of the user and the current
+			 * Ldap instance for authorisation (that happens next).
+			 */
+			$response->set('dn', $ldap->getLastUserDN());
+			$response->set('ldap', & $ldap);
+
+			// Report back and say Goodbye!
 			$response->status			= JAuthentication::STATUS_SUCCESS;
 			$response->error_message 	= '';
 			return true;
@@ -84,6 +111,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12604');
 			return;
 		}
+
 	}
 
 	/**
@@ -123,15 +151,37 @@ class PlgAuthenticationSHLdap extends JPlugin
 		 */
 		if (!$ldap = $response->get('ldap', false))
 		{
-			// Get a Ldap connection and the distinguished name of the user
-			if (!$this->_ldapAuthorise($response, $response->username, null, false))
+
+			// Check the Shmanic platform has been imported
+			if (!$this->_checkPlatform())
+			{
+				// Failed to boot the platform
+				$response->status = JAuthentication::STATUS_FAILURE;
+				$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12601');
+				return false;
+			}
+
+			/*
+			 * Attempt to authorise with Ldap. This method will automatically detect
+			 * the correct configuration (if multiple ones are specified) and return a
+			 * SHLdap object. If this method returns false, then the authorise was
+			 * unsuccessful - basically the user was not found or configuration was
+			 * bad.
+			 */
+			if (!$ldap = SHLdapHelper::getClient(
+				array('username' => $response->username)
+			))
 			{
 				// Failed to authoriser the user, probably not an Ldap user
 				return;
 			}
 
-			// Copy the reference to the ldap client to a variable
-			$ldap = $response->ldap;
+			/*
+			 * Successful authorisation.
+			 * Update the users distinguished name for laters.
+			 */
+			$dn = $ldap->getLastUserDN();
+
 		}
 
 		/*
@@ -223,144 +273,6 @@ class PlgAuthenticationSHLdap extends JPlugin
 		unset($ldap);
 
 		return $retResponse;
-	}
-
-	/**
-	 * Attempt to authorise the user with all the configured Ldap servers.
-	 *
-	 * @param   JAuthenticationResponse  &$response     Authentication response.
-	 * @param   string                   $username      Username of the authenticating user.
-	 * @param   string                   $password      Password of the authenticating user.
-	 * @param   boolean                  $authenticate  Authenticate the authenticating user with Ldap.
-	 *
-	 * @return  boolean  True on success or False on failure.
-	 *
-	 * @since   2.0
-	 */
-	private function _ldapAuthorise(JAuthenticationResponse &$response,
-		$username, $password, $authenticate = true)
-	{
-
-		// Check the Shmanic platform has been imported
-		if (!$this->_checkPlatform())
-		{
-			// Failed to boot the platform
-			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12601');
-			return false;
-		}
-
-		$ldap = SHLdapHelper::getClient(
-			array('username' => $username, 'password' => $password, 'authenticate' => $authenticate)
-		);
-
-		if (!$ldap)
-		{
-			// Failed to login
-			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('Failed to login');
-			return false;
-		}
-
-		/* Store the distinguished name of the user and the current
-		 * Ldap instance for authorisation (that happens next).
-		 */
-		$response->set('dn', $ldap->getLastUserDN());
-		$response->set('ldap', & $ldap);
-
-		return true;
-
-print_r($ldap); die;
-die;
-		// Retrieves all the SQL Ldap configuration hosts
-		$configs = SHLdapHelper::getConfigIDs();
-
-		if (!is_array($configs))
-		{
-			// No Ldap configuration host results found
-			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603');
-
-			// Process a error log
-			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603'), 12603, JLog::ERROR, 'ldap');
-
-			return false;
-		}
-
-		// Loop around each host configuration
-		foreach (array_keys($configs) as $id)
-		{
-
-			// Attempt to instantiate an Ldap client object with the configuration at record ID
-			if ($ldap = SHLdapHelper::getClient($id))
-			{
-
-				// Start the LDAP connection procedure
-				if ($ldap->connect() !== true)
-				{
-					// Failed to connect
-					$response->status = JAuthentication::STATUS_FAILURE;
-					$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605');
-
-					$exception = $ldap->getError(null, false);
-					if ($exception instanceof SHLdapException)
-					{
-						// Processes an exception log
-						SHLog::add($exception, 12605, JLog::ERROR, 'ldap');
-					}
-					else
-					{
-						// Process a error log
-						SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'), 12605, JLog::ERROR, 'ldap');
-					}
-
-					// Unset this Ldap client and try the next configuration
-					unset($ldap);
-					continue;
-				}
-
-				/* We will now get the authenticated user's dn.
-				 * In this method we are also going to test the
-				 * dn against the password. Therefore, if any dn
-				 * is returned, it is a successfully authenticated
-				 * user.
-				 */
-				if (!$dn = $ldap->getUserDN($username, $password, $authenticate))
-				{
-					// Failed to get users Ldap distinguished name
-					$response->status = JAuthentication::STATUS_FAILURE;
-					$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606');
-
-					$exception = $ldap->getError(null, false);
-					if ($exception instanceof SHLdapException)
-					{
-						// Processes an exception log
-						SHLog::add($exception, 12606, JLog::ERROR, 'ldap');
-					}
-					else
-					{
-						// Process a error log
-						SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'), 12606, JLog::ERROR, 'ldap');
-					}
-
-					// Unset this Ldap client and try the next configuration
-					$ldap->close();
-					unset($ldap);
-					continue;
-				}
-
-				/* Store the distinguished name of the user and the current
-				 * Ldap instance for authorisation (that happens next).
-				 */
-				$response->set('dn', $dn);
-				$response->set('ldap', & $ldap);
-
-				return true;
-
-			}
-
-		}
-
 	}
 
 	/**
