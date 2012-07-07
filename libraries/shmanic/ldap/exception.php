@@ -5,7 +5,7 @@
  * @package     Shmanic.Libraries
  * @subpackage  Ldap
  * @author      Shaun Maunder <shaun@shmanic.com>
- * 
+ *
  * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
@@ -23,6 +23,13 @@ class SHLdapException extends Exception
 {
 	const HELP_SITE = 'http://docs.shmanic.com/ldap/?error_id=%1$s&version=%2$s';
 
+	/**
+	 * Records the parameter/argument for each method call within backtrace.
+	 * This is disabled by default for security reasons (i.e. LDAP password disclosure).
+	 *
+	 * @var    boolean
+	 * @since  2.0
+	 */
 	const PROVIDE_ARGS_BACKTRACE = false;
 
 	protected $ldapCode = null;
@@ -72,8 +79,8 @@ class SHLdapException extends Exception
 	{
 		if (!is_null($this->ldapCode))
 		{
-			// TODO: fix this
-			return ldap_err2str($this->ldapCode);
+			// Convert ID to string
+			return SHLdap::errorToString($this->ldapCode);
 		}
 
 		return null;
@@ -104,6 +111,6 @@ class SHLdapException extends Exception
 			}
 			$result .= "\n\n";
 		}
-		return nl2br($result);
+		return $result;
 	}
 }
