@@ -87,7 +87,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 			array(
 				'username' => $credentials['username'],
 				'password' => $credentials['password'],
-				'authenticate' => true
+				'authenticate' => SHLdapHelper::AUTH_USER
 			)
 		))
 		{

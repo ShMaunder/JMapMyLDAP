@@ -178,40 +178,4 @@ abstract class SHLdapMappingHelper
 		return $removeGroups;
 	}
 
-	/*public static function getGroupsToRemove(JUser $user, array $mapList, array $managed)
-	{
-		$removeGroups = array();
-
-		foreach ($user->groups as $JUserGroup)
-		{
-			// Check its in our managed pool
-			if (in_array($JUserGroup, $managed))
-			{
-				self::_groupsToRemoveHelper($mapList, $removeGroups, $JUserGroup);
-			}
-		}
-
-		return $removeGroups;
-
-	}*/
-
-
-
-	/**
-	 * Before adding to the remove list, check its not already on
-	 * the remove list and that its not in the mapping list.
-	 *
-	 * @param   array    $mapList        An array of matching group mapping entries
-	 * @param   array    &$removeGroups  Groups to remove (byref)
-	 * @param   integer  $JUserGroup     The Joomla group ID up for trial to be removed
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 */
-	private static function _groupsToRemoveHelper($mapList, &$removeGroups, $JUserGroup)
-	{
-
-	}
-
 }

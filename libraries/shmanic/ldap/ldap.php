@@ -94,6 +94,28 @@ class SHLdap extends SHLdapBase
 	}
 
 	/**
+	 * Overrides JObjects setError to log errors directly to event log
+	 * only when an exception object has been passed to error.
+	 *
+	 * @param   mixed  $error  Exception or error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 *
+	 * @see JObject::setError()
+	 */
+	public function setError($error)
+	{
+		if ($error instanceof Exception)
+		{
+			SHLog::add($error, 0, JLog::ERROR, 'ldap');
+		}
+
+		parent::setError($error);
+	}
+
+	/**
 	 * Inform any listening loggers of the debug message.
 	 *
 	 * @param   string  $message  String to push to stack
@@ -604,6 +626,201 @@ class SHLdap extends SHLdapBase
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Make changes to the attributes within an Ldap distinguished name object.
+	 * This method compares the current attribute values against a new changed
+	 * set of attribute values and commits the differences.
+	 *
+	 * @param   string  $dn       Distinguished name of object.
+	 * @param   array   $current  An array of attributes containing the current state of the object.
+	 * @param   array   $changes  An array of the new/changed attributes for the object.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public function makeChanges($dn, array $current, array $changes)
+	{
+
+		if (!count($changes))
+		{
+			// There is nothing to change
+			return false;
+		}
+
+		$deleteEntries 		= array();
+		$addEntries 		= array();
+		$replaceEntries		= array();
+
+		foreach ($changes as $key => $value)
+		{
+			$return = 0;
+
+			// Check this attribute for multiple values
+			if (is_array($value))
+			{
+				/* This is a multiple value attriute and to preserve
+				 * order we must replace the whole thing if changes
+				 * are required.
+				 */
+				$modification = false;
+				$new = array();
+				$count = 0;
+
+				for ($i = 0; $i < count($value); ++$i)
+				{
+
+					if ($return = self::checkFieldHelper($current, $key, $count, $value[$i]))
+					{
+						$modification = true;
+					}
+
+					if ($return !== 3 && $value[$i])
+					{
+						// We don't want to save deletes
+						$new[] = $value[$i];
+						++$count;
+					}
+				}
+
+				if ($modification)
+				{
+					// We want to delete it first
+					$deleteEntries[$key] = array();
+					if (count($new))
+					{
+						// Now lets re-add them
+						$addEntries[$key] = array_reverse($new);
+					}
+				}
+			}
+			else
+			{
+				/* This is a single value attribute and we now need to
+				 * determine if this needs to be ignored, added,
+				 * modified or deleted.
+				 */
+				$return = self::checkFieldHelper($current, $key, 0, $value);
+
+				switch ($return)
+				{
+					case 1:
+						$replaceEntries[$key] = $value;
+						break;
+
+					case 2:
+						$addEntries[$key] = $value;
+						break;
+
+					case 3:
+						$deleteEntries[$key] = array();
+						break;
+
+				}
+			}
+		}
+
+		/*
+		 * We can now commit the changes to the LDAP server for this DN.
+		 */
+		$operations	= array('delete' => $deleteEntries, 'add' => $addEntries, 'replace' => $replaceEntries);
+		$results 	= array();
+
+		foreach ($operations as $operation => $commit)
+		{
+			// Check there are some attributes to process for this commit
+			if (count($commit))
+			{
+				$method = "{$operation}Attributes";
+
+				// Commit the Ldap attribute operating
+				$result = $this->$method($dn, $commit);
+
+				// Determine whether the operating was a success then log it
+				$priority = ($result === false) ? JLog::ERROR : JLog::INFO;
+
+				// Log for audit
+				SHLog::add(
+					JText::sprintf(
+						'LDAP %1$s Attribute (%2$s): %3$s',
+						$operation,
+						$dn,
+						var_export($commit, true)
+					), 0, $priority, 'ldap'
+				);
+
+				// Add the result to the results array
+				$results[] = $result;
+			}
+		}
+
+		// Check if any of the operations failed
+		if (!in_array(false, $results, true))
+		{
+			return true;
+		}
+	}
+
+	/**
+	 * This method is used as a helper to the makeChanges() method. It checks
+	 * whether a field/attribute is up-to-date in the Ldap directory. The
+	 * method returns whether it is:
+	 * 0: up-to-date, no action required;
+	 * 1: attribute exists, but value must be updated;
+	 * 2: attribute doesnt exist, needs creating;
+	 * 3: attribute exists, but is no longer required and needs deleting.
+	 *
+	 * @param   array    $current   The current (or old) set of attributes to compare.
+	 * @param   string   $key       Key of the attribute.
+	 * @param   integer  $interval  The attribute number (in case of multiple values per key).
+	 * @param   string   $value     The new attribute value.
+	 *
+	 * @return  integer  See method description.
+	 *
+	 * @since   2.0
+	 */
+	protected static function checkFieldHelper(array $current, $key, $interval, $value)
+	{
+		// Check if the LDAP attribute exists
+		if (array_key_exists($key, $current))
+		{
+			if (isset($current[$key][$interval]))
+			{
+				if ($current[$key][$interval] == $value)
+				{
+					// Same value - no need to update
+					return 0;
+				}
+				if (is_null($value) || !$value)
+				{
+					// We don't want to include a blank or null value
+					return 3;
+				}
+			}
+
+			if (is_null($value) || !$value)
+			{
+				// We don't want to include a blank or null value
+				return 0;
+			}
+
+			return 1;
+		}
+		else
+		{
+			if (!is_null($value) && $value)
+			{
+				// We need to create a new LDAP attribute
+				return 2;
+			}
+			else
+			{
+				// We don't want to include a blank or null value
+				return 0;
+			}
+		}
 	}
 
 }

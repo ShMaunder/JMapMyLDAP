@@ -10,22 +10,6 @@
 
 defined('JPATH_PLATFORM') or die;
 
-jimport('shmanic.client.jldap2');
-jimport('shmanic.ldap.event');
-jimport('shmanic.log.ldaphelper');
-
-/**
- * Ldap User Helper class.
- *
- * @package		Shmanic
- * @subpackage	Ldap.Helper
- * @since		2.0
- */
-class LdapUserHelper extends JObject
-{
-
-}
-
 /**
 * An LDAP helper class. All methods are static and don't require any
 * new instance of the class.
@@ -34,9 +18,8 @@ class LdapUserHelper extends JObject
 * @subpackage	Ldap
 * @since		2.0
 */
-abstract class SHLdapHelper extends JObject
+abstract class SHLdapHelper
 {
-
 	/**
 	 * Key to store user attributes in the authentication Response
 	 *
@@ -45,12 +28,60 @@ abstract class SHLdapHelper extends JObject
 	 */
 	const ATTRIBUTE_KEY = 'attributes';
 
+	/**
+	 * No authentication option.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTH_NONE = 0;
+
+	/**
+	 * Authenticate as username and password.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTH_USER = 1;
+
+	/**
+	 * Authenticate as proxy user.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTH_PROXY = 2;
+
+	/**
+	 * Auto configuration.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
 	const CONFIG_AUTO = 1;
 
+	/**
+	 * SQL configuration.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
 	const CONFIG_SQL = 2;
 
+	/**
+	 * File configuration.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
 	const CONFIG_FILE = 4;
 
+	/**
+	 * Plugin configuration.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
 	const CONFIG_PLUGIN = 8;
 
 	/**
@@ -163,7 +194,7 @@ abstract class SHLdapHelper extends JObject
 	public static function getClient(array $authorised = array(), JRegistry $config = null)
 	{
 		// Get the optional authentication/authorisation options
-		$authenticate = JArrayHelper::getValue($authorised, 'authenticate', false);
+		$authenticate = JArrayHelper::getValue($authorised, 'authenticate', self::AUTH_NONE);
 		$username = JArrayHelper::getValue($authorised, 'username', null);
 		$password = JArrayHelper::getValue($authorised, 'password', null);
 
@@ -226,7 +257,7 @@ abstract class SHLdapHelper extends JObject
 	 * Attempts to Ldap authorise/authenticate with the parameters specified.
 	 *
 	 * @param   mixed    $ldap          Either a JRegistry of parameters OR a SHLdap object.
-	 * @param   boolean  $authenticate  Authenticate the username and password supplied with the Ldap object.
+	 * @param   integer  $authenticate  Authenticate the username and password supplied with the Ldap object.
 	 * @param   string   $username      Authorisation/authentication username.
 	 * @param   string   $password      Authentication password.
 	 *
@@ -270,10 +301,24 @@ abstract class SHLdapHelper extends JObject
 			}
 
 			/*
+			 * Check if we only want a proxy user. If so then we can just return after
+			 * connecting to one.
+			 */
+			if ($authenticate === self::AUTH_PROXY)
+			{
+				if ($ldap->proxyBind())
+				{
+					return $ldap;
+				}
+
+				return false;
+			}
+
+			/*
 			 * Check if a username has been specified. If not then assume this is the correct
 			 * Ldap configuration and return it.
 			 */
-			if (!$authenticate && is_null($username))
+			if (($authenticate === self::AUTH_NONE) && is_null($username))
 			{
 				return $ldap;
 			}
@@ -284,7 +329,7 @@ abstract class SHLdapHelper extends JObject
 			 * is returned, it is a successfully authenticated
 			 * user.
 			 */
-			if (!$dn = $ldap->getUserDN($username, $password, $authenticate))
+			if (!$dn = $ldap->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false))
 			{
 				// Failed to get users Ldap distinguished name
 				$exception = $ldap->getError(null, false);
@@ -392,18 +437,31 @@ abstract class SHLdapHelper extends JObject
 	 * Returns if the current or specified user was authenticated
 	 * via LDAP.
 	 *
-	 * @param   integer  $userId  Optional user id (if null then uses current user).
+	 * @param   integer  $user  Optional user id (if null then uses current user).
 	 *
 	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
 	 *
 	 * @since   2.0
 	 */
-	public static function isUserLdap($userId = null)
+	public static function isUserLdap($user = null)
 	{
-		if (JFactory::getUser($userId)->getParam('authtype') == 'LDAP')
+		if (is_null($user) || is_numeric($user))
 		{
-			// This user has the LDAP auth type
-			return true;
+			// The input variable indicates we must load the user object
+			if (JFactory::getUser($user)->getParam('authtype') == 'LDAP')
+			{
+				// This user has the LDAP auth type
+				return true;
+			}
+		}
+		elseif ($user instanceof JUser)
+		{
+			// Direct access of the object
+			if ($user->getParam('authtype') == 'LDAP')
+			{
+				// This user has the LDAP auth type
+				return true;
+			}
 		}
 
 		return false;
@@ -657,139 +715,6 @@ abstract class SHLdapHelper extends JObject
 			$address .= '\\' . $tmp;
 		}
 		return $address;
-	}
-
-
-	// current - the current set of full ldap attributes
-	// changes - array of changes to make
-	// multiple - a boolean if this attribute in changes is multiple values
-	// Return - Boolean to Success
-	public static function makeChanges($dn, $current, $changes = array())
-	{
-
-		if(!count($changes)) {
-			return false; // There is nothing to change
-		}
-
-		$deleteEntries 		= array();
-		$addEntries 		= array();
-		$replaceEntries		= array();
-
-		foreach($changes as $key=>$value) {
-
-			$return = 0;
-
-			// Check this attribute for multiple values
-			if(is_array($value)) {
-
-				/* This is a multiple value attriute and to preserve
-				 * order we must replace the whole thing if changes
-				 * are required.
-				 */
-				$modification = false;
-				$new = array();
-				$count = 0;
-
-				for($i=0; $i<count($value); $i++) {
-
-					if($return = self::checkField($current, $key, $count, $value[$i])) {
-						$modification = true;
-					}
-
-					if($return!=3 && $value[$i]) {
-						$new[] = $value[$i]; //We don't want to save deletes
-						$count++;
-					}
-				}
-
-				if($modification) {
-					$deleteEntries[$key] = array(); // We want to delete it first
-					if(count($new)) {
-						$addEntries[$key] = array_reverse($new); // Now lets re-add them
-					}
-				}
-
-
-			}
-			else
-			{
-
-				/* This is a single value attribute and we now need to
-				 * determine if this needs to be ignored, added,
-				 * modified or deleted.
-				 */
-				$return = self::checkField($current, $key, 0, $value);
-
-				switch($return) {
-
-					case 1:
-						$replaceEntries[$key] = $value;
-						break;
-
-					case 2:
-						$addEntries[$key] = $value;
-						break;
-
-					case 3:
-						$deleteEntries[$key] = array();
-						break;
-
-				}
-			}
-		}
-
-		/* We can now commit the changes to the
-		 * LDAP server for this DN.
-		 */
-		$results 	= array();
-		$ldap 		= JLDAP2::getInstance();
-
-		if(count($deleteEntries)) {
-			$results[] = $ldap->deleteAttributes($dn, $deleteEntries);
-		}
-
-		if(count($addEntries)) {
-			$results[] = $ldap->addAttributes($dn, $addEntries);
-		}
-
-		if(count($replaceEntries)) {
-			$results[] = $ldap->replaceAttributes($dn, $replaceEntries);
-		}
-
-		if(!in_array(false, $results, true)) {
-			return true;
-		}
-	}
-
-	// @RETURN: 0-same/ignore, 1-modify, 2-addition, 3-delete
-	protected static function checkField($current, $key, $interval, $value)
-	{
-
-		// Check if the LDAP attribute exists
-		if(array_key_exists($key, $current)) {
-
-			if(isset($current[$key][$interval])) {
-				if($current[$key][$interval] == $value) {
-					return 0; // Same value - no need to update
-				}
-				if(is_null($value) || !$value) {
-					return 3; // We don't want to include a blank or null value
-				}
-			}
-
-			if(is_null($value) || !$value) {
-				return 0; // We don't want to include a blank or null value
-			}
-
-			return 1;
-
-		} else {
-			if(!is_null($value) && $value) {
-				return 2; // We need to create a new LDAP attribute
-			} else {
-				return 0; // We don't want to include a blank or null value
-			}
-		}
 	}
 
 	/**
