@@ -681,13 +681,27 @@ class SHLdapBase extends JObject
 	/**
 	 * Returns the last LDAP error message.
 	 *
-	 * @return  string  Error message string
+	 * @return  string  Error message.
 	 *
 	 * @since   1.0
 	 */
 	public function getErrorMsg()
 	{
 		return ldap_error($this->resource);
+	}
+
+	/**
+	 * Converts an LDAP error ID to a string.
+	 *
+	 * @param   integer  $id  Ldap error ID.
+	 *
+	 * @return  string  Error message.
+	 *
+	 * @since   2.0
+	 */
+	public static function errorToString($id)
+	{
+		return ldap_err2str($id);
 	}
 
 	/**
@@ -804,7 +818,7 @@ class SHLdapBase extends JObject
 		}
 
 		// Do the Ldap modify replace operation
-		$result = @ldap_mod_modify($this->resource, $dn, $attributes);
+		$result = @ldap_mod_replace($this->resource, $dn, $attributes);
 
 		if ($result === false)
 		{
