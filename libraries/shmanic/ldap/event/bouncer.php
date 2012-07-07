@@ -355,7 +355,7 @@ class SHLdapEventBouncer extends JEvent
 			{
 				$user = JUser::getInstance($id);
 
-				if ($user->getParam('authtype') == 'LDAP')
+				if (SHLdapHelper::isUserLdap($user))
 				{
 					SHLdapHelper::triggerEvent('onUserLoginFailure', array($response));
 				}
