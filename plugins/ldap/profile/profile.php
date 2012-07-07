@@ -25,19 +25,21 @@ class plgLdapProfile extends JPlugin
 	/**
 	* An object to a instance of LdapProfile
 	*
-	* @var    LdapProfile
+	* @var    SHLdapProfile
 	* @since  2.0
 	*/
 	protected $profile = null;
 
 	/* holds the name ldap key value */
-	public $nameKey = null;
+	protected $nameKey = null;
 
 	/* holds the email ldap key value */
-	public $emailKey = null;
+	protected $emailKey = null;
 
 	/* holds the reference to the xml file */
 	protected $xml = null;
+
+	protected $permittedForms = array();
 
 	/**
 	 * Constructor
@@ -54,7 +56,26 @@ class plgLdapProfile extends JPlugin
 
 		$this->profile = new SHLdapProfile($this->params->toArray());
 
+		// Split and trim the permitted forms
+		$this->permittedForms = explode(';', $this->params->get('permitted_forms'));
+		array_walk($this->permittedForms, 'self::_trimValue');
+
+		// Process the profile XML (this only needs to be done once)
 		$this->xml = $this->profile->getXMLFields();
+	}
+
+	/**
+	 * Trims an array's elements. Use with array_walk.
+	 *
+	 * @param   string  &$value  Value of element.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	private function _trimValue(&$value)
+	{
+		$value = trim($value);
 	}
 
 	/**
@@ -117,13 +138,13 @@ class plgLdapProfile extends JPlugin
 	 */
 	public function onLdapSync(&$instance, $user, $options = array())
 	{
-		if (!class_exists('LdapProfile'))
+		if (!class_exists('SHLdapProfile'))
 		{
-			SHLog::add(JText::_('Missing LDAP Profile Class (LdapProfile).'), 0, JLog::ERROR, 'ldap');
+			SHLog::add(JText::_('Missing LDAP Profile Class (SHLdapProfile).'), 0, JLog::ERROR, 'ldap');
 			return false;
 		}
 
-		if (isset($user['attributes']))
+		if (isset($user[SHLdapHelper::ATTRIBUTE_KEY]))
 		{
 			// Mandatory Joomla field processing and saving
 			$this->profile->doSync($instance, $user, $this->nameKey, $this->emailKey);
@@ -136,7 +157,6 @@ class plgLdapProfile extends JPlugin
 			SHLog::add(JText::_sprintf('There are no user attributes to process for username \'%1$s\'.', $instance->username), 0, JLog::ERROR, 'ldap');
 			return false;
 		}
-
 	}
 
 	/**
@@ -150,7 +170,7 @@ class plgLdapProfile extends JPlugin
 	 *
 	 * @since   2.0
 	 */
-	public function onLdapContentPrepareData($context, $data)
+	public function onContentPrepareData($context, $data)
 	{
 		// Check if the profile parameter is enabled
 		if (!$this->params->get('use_profile', 0))
@@ -158,24 +178,27 @@ class plgLdapProfile extends JPlugin
 			return true;
 		}
 
-		$forms = explode(';', $this->params->get('permitted_forms'));
-
 		// Check we are manipulating a valid form
-		if (!in_array($context, $forms))
+		if (!in_array($context, $this->permittedForms))
 		{
 			return true;
 		}
 
-		$userId = isset($data->id) ? $data->id : 0;
-
-		// Load the profile data from the database.
-		$records = $this->profile->queryProfile($userId, true);
-
-		// Merge the profile data
-		$data->ldap_profile = array();
-		foreach ($records as $record)
+		// Check if this user should have a profile
+		if ($userId = isset($data->id) ? $data->id : 0)
 		{
-			$data->ldap_profile[$record['profile_key']] = $record['profile_value'];
+			if (SHLdapHelper::isUserLdap($userId))
+			{
+				// Load the profile data from the database.
+				$records = $this->profile->queryProfile($userId, true);
+
+				// Merge the profile data
+				$data->ldap_profile = array();
+				foreach ($records as $record)
+				{
+					$data->ldap_profile[$record['profile_key']] = $record['profile_value'];
+				}
+			}
 		}
 
 		return true;
@@ -206,25 +229,30 @@ class plgLdapProfile extends JPlugin
 			return false;
 		}
 
-		$forms = explode(';', $this->params->get('permitted_forms'));
-
 		// Check we are manipulating a valid form
-		if (!in_array($form->getName(), $forms))
+		if (!in_array($form->getName(), $this->permittedForms))
 		{
 			return true;
 		}
 
-		// Load in the profile XML file
-		if (($xml = JFactory::getXML($this->profile->getXMLPath(), true)) && ($form->load($xml, false, false)))
+		// Check if this user should have a profile
+		if ($userId = isset($data->id) ? $data->id : 0)
 		{
-			// :: success ::
-			return true;
+			if (SHLdapHelper::isUserLdap($userId))
+			{
+				// Load in the profile XML file to the form
+				if (($xml = JFactory::getXML($this->profile->getXMLPath(), true)) && ($form->load($xml, false, false)))
+				{
+					// Successfully loaded in the XML
+					return true;
+				}
+			}
 		}
 
 	}
 
 	// Delete the profile
-	public function onAfterDelete($user, $success, $msg)
+	public function onUserAfterDelete($user, $success, $msg)
 	{
 		if (!$success)
 		{
@@ -239,31 +267,34 @@ class plgLdapProfile extends JPlugin
 	}
 
 	/* Save profile data to LDAP */
-	public function onUserAfterSave($data, $isNew, $result, $error)
+	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		if ($result)
+		if (!$this->params->get('allow_ldap_save', 1))
 		{
-			$profileData = array();
-
-			$username = JArrayHelper::getValue($data, 'username', 0, 'string');
-
-			/* Include the mandatory Joomla fields (fullname and email) */
-			$mandatoryData = array(
-				'name' => JArrayHelper::getValue($data, 'name'),
-				'email' => JArrayHelper::getValue($data, 'email')
-			);
-
-			if (isset($data['ldap_profile']) && (count($data['ldap_profile'])))
-			{
-
-				// Only get profile data and enabled elements.
-				$profileData = $this->profile->cleanInput($this->xml, $data['ldap_profile']);
-
-			}
-
-			$this->profile->saveToLDAP($this->xml, $username, $profileData, $mandatoryData);
+			// Not allowed to save back to LDAP
+			return;
 		}
 
+		$profileData = array();
+
+		$username = JArrayHelper::getValue($new, 'username', false, 'string');
+		$password = JArrayHelper::getValue($new, 'password_clear', false, 'string');
+
+		/* Include the mandatory Joomla fields (fullname and email) */
+		$mandatoryData = array(
+			'name' => JArrayHelper::getValue($new, 'name'),
+			'email' => JArrayHelper::getValue($new, 'email')
+		);
+
+		if (isset($new['ldap_profile']) && (count($new['ldap_profile'])))
+		{
+			// Only get profile data and enabled elements.
+			$profileData = $this->profile->cleanInput($this->xml, $new['ldap_profile']);
+		}
+
+		$result = $this->profile->saveToLDAP($this->xml, $username, $password, $profileData, $mandatoryData);
+
+		return $result;
 	}
 
 	/**

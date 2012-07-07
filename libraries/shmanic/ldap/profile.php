@@ -84,6 +84,7 @@ class SHLdapProfile extends JObject
 		{
 			if ($name = $user['attributes'][$nameKey][0])
 			{
+				// Update the name of the JUser to the Ldap value
 				$instance->set('name', $name);
 			}
 		}
@@ -92,6 +93,7 @@ class SHLdapProfile extends JObject
 		{
 			if ($email = $user['attributes'][$emailKey][0])
 			{
+				// Update the email of the JUser to the Ldap value
 				$instance->set('email', $email);
 			}
 		}
@@ -422,7 +424,7 @@ class SHLdapProfile extends JObject
 	*
 	* @since   2.0
 	*/
-	public function saveProfile($xml, $instance, $user, $options = array())
+	public function saveProfile(JXMLElement $xml, JUser $instance, $user, $options = array())
 	{
 		if (!$userId = (int) $instance->get('id'))
 		{
@@ -553,7 +555,6 @@ class SHLdapProfile extends JObject
 		}
 
 		return $return;
-
 	}
 
 	/**
@@ -624,100 +625,123 @@ class SHLdapProfile extends JObject
 	* Joomla! database refresh so both data sources
 	* have the same information.
 	*
-	* @param   JXMLElement  $xml        XML profile fields
-	* @param   string       $username   The username of the profile to save
-	* @param   array        $profile    Array of profile fields to save (key=>value)
-	* @param   array        $mandatory  Array of mandatory joomla fields to save like name and email
+	* @param   JXMLElement  $xml        XML profile fields.
+	* @param   string       $username   Profile username to change.
+	* @param   string       $password   Optional profile password to use for LDAP bind.
+	* @param   array        $profile    Array of profile fields to save (key=>value).
+	* @param   array        $mandatory  Array of mandatory joomla fields to save like name and email.
 	*
 	* @return  boolean  True on success
 	*
 	* @since   2.0
 	*/
-	public function saveToLDAP($xml, $username, $profile = array(), $mandatory = array())
+	public function saveToLDAP(JXMLElement $xml, $username, $password = null, $profile = array(), $mandatory = array())
 	{
-return;
-		/* Get a connection to ldap using the authentication
-		 * username and password.
-		 */
-		if ($ldap = SHLdapHelper::getConnection(true))
-		{
 
+		if ($this->get('allow_ldap_proxy', 1))
+		{
+			// Get a connection to Ldap using the proxy username and password.
+			$auth = array('authenticate' => SHLdapHelper::AUTH_PROXY);
+		}
+		else
+		{
+			$auth = array(
+				'authenticate' => SHLdapHelper::AUTH_USER,
+				'username' => $username,
+				'password' => $password
+			);
+		}
+
+		if (!$ldap = SHLdapHelper::getClient($auth))
+		{
+			SHLog::add('Cannot connect to LDAP', 0, JLog::ERROR, 'ldap');
+			return false;
+		}
+
+		if ($auth['authenticate'] === SHLdapHelper::AUTH_PROXY)
+		{
 			if (!$dn = $ldap->getUserDN($username, null, false))
 			{
+				SHLog::add('Cannot find user DN', 0, JLog::ERROR, 'ldap');
+				return false;
+			}
+		}
+		else
+		{
+			$dn = $ldap->getLastUserDN();
+		}
+
+		if (!$current = $ldap->getUserDetails($dn))
+		{
+			return false;
+		}
+
+		$processed = array();
+
+		foreach ($profile as $key => $value)
+		{
+			$delimiter 	= null;
+			$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
+
+			if ($delimiter = (string) $xmlField[0]['delimiter'])
+			{
+				/* Multiple values - we will use a delimiter to represent
+				 * the extra data in Joomla. We also use a newline override
+				 * as this is probably going to be the most popular delimter.
+				 */
+				if (strToUpper($delimiter) == 'NEWLINE')
+				{
+					$delimiter = '\r\n|\r|\n';
+				}
+
+				$newValues = preg_split("/$delimiter/", $value);
+
+				for ($i = 0; $i < count($newValues); ++$i)
+				{
+					$processed[$key][$i] = $newValues[$i];
+				}
+
+			}
+			else
+			{
+
+				// Single Value
+				$processed[$key] = $value;
+
+			}
+		}
+
+		// Do the Mandatory Joomla field saving
+		if ($this->get('sync_name', 0) == 2)
+		{
+			if (($key = $ldap->getFullname()) && ($value = JArrayHelper::getValue($mandatory, 'name')))
+			{
+				$processed[$key] = $value;
+			}
+		}
+
+		if ($this->get('sync_email', 0) == 2)
+		{
+			if (($key = $ldap->getEmail()) && ($value = JArrayHelper::getValue($mandatory, 'email')))
+			{
+				$processed[$key] = $value;
+			}
+		}
+
+		if (count($processed))
+		{
+
+			// Lets save the new (current) fields to the LDAP DN
+			if (!$ldap->makeChanges($dn, $current, $processed))
+			{
 				return false;
 			}
 
-			if (!$current = $ldap->getUserDetails($dn))
+			// Refresh profile for this user in J! database
+			if ($current = $ldap->getUserDetails($dn))
 			{
-				return false;
-			}
-
-			$processed = array();
-
-			foreach ($profile as $key => $value)
-			{
-				$delimiter 	= null;
-				$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
-
-				if ($delimiter = (string) $xmlField[0]['delimiter'])
-				{
-					/* Multiple values - we will use a delimiter to represent
-					 * the extra data in Joomla. We also use a newline override
-					 * as this is probably going to be the most popular delimter.
-					 */
-					if (strToUpper($delimiter) == 'NEWLINE')
-					{
-						$delimiter = '\r\n|\r|\n';
-					}
-
-					$newValues = preg_split("/$delimiter/", $value);
-
-					for ($i = 0; $i < count($newValues); ++$i)
-					{
-						$processed[$key][$i] = $newValues[$i];
-					}
-
-				}
-				else
-				{
-
-					// Single Value
-					$processed[$key] = $value;
-
-				}
-			}
-
-			// Do the Mandatory Joomla field saving
-			if ($this->get('sync_name', 0) == 2)
-			{
-				if (($key = $ldap->ldap_fullname) && ($value = JArrayHelper::getValue($mandatory, 'name')))
-				{
-					$processed[$key] = $value;
-				}
-			}
-
-			if ($this->get('sync_email', 0) == 2)
-			{
-				if (($key = $ldap->ldap_email) && ($value = JArrayHelper::getValue($mandatory, 'email')))
-				{
-					$processed[$key] = $value;
-				}
-			}
-
-			if (count($processed))
-			{
-				// Lets save the new (current) fields to the LDAP DN
-				LdapHelper::makeChanges($dn, $current, $processed);
-
-				// Refresh profile for this user in J! database
-				if (!$current = $ldap->getUserDetails($dn))
-				{
-					return false;
-				}
-
 				if ($userId = JUserHelper::getUserId($username))
 				{
-
 					SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_UPDATED_PROFILE', $username), 0, JLog::INFO, 'ldap');
 
 					$instance = new JUser($userId);
@@ -725,10 +749,8 @@ return;
 
 					return true;
 				}
-
 			}
 
 		}
 	}
-
 }

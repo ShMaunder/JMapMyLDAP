@@ -38,6 +38,15 @@
 					<option value="2">PLG_LDAP_PROFILE_FIELD_SYNC_YESTFL</option>
 				</field>
 				<field name="spacer2" type="spacer" hr="true"/>
+				<field name="allow_ldap_save" type="radio" default="1" description="PLG_LDAP_PROFILE_FIELD_LDAPSAVE_DESC" label="PLG_LDAP_PROFILE_FIELD_LDAPSAVE_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="allow_ldap_proxy" type="radio" default="1" description="PLG_LDAP_PROFILE_FIELD_LDAPPROXY_DESC" label="PLG_LDAP_PROFILE_FIELD_LDAPPROXY_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="spacer3" type="spacer" hr="true"/>
 				<field name="use_profile" type="radio" default="0" description="PLG_LDAP_PROFILE_FIELD_USEPROFILE_DESC" label="PLG_LDAP_PROFILE_FIELD_USEPROFILE_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
