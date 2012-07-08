@@ -1,11 +1,23 @@
 <?php
+/**
+ * PHP Version 5.3
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Mapping
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
+defined('JPATH_PLATFORM') or die;
 
 /**
- * A Ldap group mapping helper for commiting groups to and from Joomla.
+ * An Ldap group mapping helper for commiting groups to and from Joomla.
  *
- * @package		Shmanic.Ldap
- * @subpackage	Mapping
- * @since		2.0
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Mapping
+ * @since       2.0
  */
 abstract class SHLdapMappingHelper
 {
