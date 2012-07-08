@@ -1,5 +1,24 @@
 <?php
+/**
+ * PHP Version 5.3
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Event
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
+defined('JPATH_PLATFORM') or die;
+
+/**
+ * A global LDAP event monitor.
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Event
+ * @since       2.0
+ */
 class SHLdapEventMonitor extends JEvent
 {
 
