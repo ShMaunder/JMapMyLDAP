@@ -1,22 +1,23 @@
 <?php
 /**
- * @version     $Id:$
- * @author      Shaun Maunder <shaun@shmanic.com>
- * @package     Shmanic.Ldap
- * @subpackage  Profile
+ * PHP Version 5.3
  *
- * @copyright	Copyright (C) 2011 Shaun Maunder. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 /**
  * Maps LDAP profile data to Joomla and vice-versa.
  *
- * @package		Shmanic.Ldap
- * @subpackage	Profile
- * @since		2.0
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap
+ * @since       2.0
  */
 class SHLdapProfile extends JObject
 {
