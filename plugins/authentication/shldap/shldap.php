@@ -198,17 +198,8 @@ class PlgAuthenticationSHLdap extends JPlugin
 			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611');
 
-			$exception = $ldap->getError(null, false);
-			if ($exception instanceof SHLdapException)
-			{
-				// Processes an exception log
-				SHLog::add($exception, 12611, JLog::ERROR, 'ldap');
-			}
-			else
-			{
-				// Process a error log
-				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
-			}
+			// Process a error log
+			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
 
 			$ldap->close();
 			unset($ldap);
