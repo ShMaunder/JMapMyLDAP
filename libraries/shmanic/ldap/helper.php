@@ -1,23 +1,24 @@
 <?php
 /**
- * @author      Shaun Maunder <shaun@shmanic.com>
- * @package     Shmanic
- * @subpackage  Ldap
+ * PHP Version 5.3
  *
- * @copyright	Copyright (C) 2011 Shaun Maunder. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('JPATH_PLATFORM') or die;
 
 /**
-* An LDAP helper class. All methods are static and don't require any
-* new instance of the class.
-*
-* @package		Shmanic
-* @subpackage	Ldap
-* @since		2.0
-*/
+ * An LDAP helper class.
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap
+ * @since       2.0
+ */
 abstract class SHLdapHelper
 {
 	/**
@@ -152,16 +153,27 @@ abstract class SHLdapHelper
 		}
 		elseif ($source === self::CONFIG_PLUGIN)
 		{
-			// TODO: implement
+			// Grab the plug-in name from the config
+			$name = $config->get('ldap.plugin', 'ldap');
 
-			if ($plugin = JPluginHelper::getPlugin('authentication', $id))
+			if ($plugin = JPluginHelper::getPlugin('authentication', $name))
 			{
 				// Get the authentication LDAP plug-in parameters
 				$params = new JRegistry;
 				$params->loadString($plugin->params);
 
-				// We may have to convert if using the inbuilt JLDAP parameters
-				//return self::convert($params, 'SHLdap');
+				/*
+				 * We may have to convert the parameters from the plugin so they can be
+				 * accepted into the SHLdap library. This is normally if we are using the
+				 * JLDAP parameters.
+				 */
+				$converted = self::convert($params, 'SHLdap');
+
+				// Reload the converted parameters into a registry before returning
+				$params = new JRegistry;
+				$params->loadArray($converted);
+
+				return $params;
 			}
 		}
 		elseif ($source === self::CONFIG_FILE)
@@ -282,18 +294,8 @@ abstract class SHLdapHelper
 			// Start the LDAP connection procedure
 			if ($ldap->connect() !== true)
 			{
-				// Failed to connect
-				$exception = $ldap->getError(null, false);
-				if ($exception instanceof SHLdapException)
-				{
-					// Processes an exception log
-					SHLog::add($exception, 12605, JLog::ERROR, 'ldap');
-				}
-				else
-				{
-					// Process a error log
-					SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'), 12605, JLog::ERROR, 'ldap');
-				}
+				// Failed to connect - process an error log
+				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'), 12605, JLog::ERROR, 'ldap');
 
 				// Unset this Ldap client and try the next configuration
 				unset($ldap);
@@ -331,18 +333,8 @@ abstract class SHLdapHelper
 			 */
 			if (!$dn = $ldap->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false))
 			{
-				// Failed to get users Ldap distinguished name
-				$exception = $ldap->getError(null, false);
-				if ($exception instanceof SHLdapException)
-				{
-					// Processes an exception log
-					SHLog::add($exception, 12606, JLog::ERROR, 'ldap');
-				}
-				else
-				{
-					// Process a error log
-					SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'), 12606, JLog::ERROR, 'ldap');
-				}
+				// Failed to get users Ldap distinguished name - process an error log
+				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'), 12606, JLog::ERROR, 'ldap');
 
 				// Unset this Ldap client and try the next configuration
 				$ldap->close();
@@ -356,7 +348,7 @@ abstract class SHLdapHelper
 		catch (Exception $e)
 		{
 			unset($ldap);
-			SHLog::add(JText::_('Something went very wrong with the Ldap client'), 0, JLog::ERROR, 'ldap');
+			SHLog::add(JText::_('Something went very wrong with the Ldap client ' . $e->getMessage()), 0, JLog::ERROR, 'ldap');
 		}
 
 		return false;
@@ -493,24 +485,29 @@ abstract class SHLdapHelper
 
 	/**
 	 * Attempts to convert the Ldap configuration parameters to a specified
-	 * library parameters. This method is not reliable and should not be used
-	 * in a live environment.
+	 * library parameters. This is to aid backward compatibility between the
+	 * two libraries. This method is not reliable and should be tested
+	 * before using in a live environment.
 	 *
-	 * @param   JRegistry  $params   Parameters for conversion.
-	 * @param   string     $convert  Library name conversion.
+	 * @param   array|JRegistry  $parameters  Parameters for conversion.
+	 * @param   string           $convert     Library name conversion.
 	 *
 	 * @return  Array  Array of converted parameters
 	 *
 	 * @since   2.0
 	 */
-	public static function convert(JRegistry $params, $convert = 'SHLdap')
+	public static function convert($parameters, $convert = 'SHLdap')
 	{
-		/*
-		 * Attempt to convert inbuilt JLDAP library parameters
-		* to the JLDAP2 parameters for backward compatibility.
-		*/
-
 		$converted = array();
+
+		$params = $parameters;
+
+		// Convert the parameters to a registry if its an array
+		if (is_array($parameters))
+		{
+			$param = new JRegistry;
+			$param->loadArray($parameters);
+		}
 
 		// Dodgy detection for JLDAP parameters
 		if ($params->get('auth_method') && $params->get('search_string') || $params->get('users_dn'))
@@ -526,10 +523,11 @@ abstract class SHLdapHelper
 			$converted['port'] 				= $params->get('port');
 			$converted['use_v3'] 			= $params->get('use_ldapV3');
 			$converted['negotiate_tls']		= $params->get('negotiate_tls');
-			$converted['use_referrals']		= (!$params->get('no_referrals'));
+			$converted['use_referrals']		= $params->get('no_referrals');
 
 			$converted['proxy_username']	= $params->get('username');
 			$converted['proxy_password']	= $params->get('password');
+			$converted['proxy_encryption']	= false;
 
 			$converted['ldap_uid'] 			= $params->get('ldap_uid');
 			$converted['ldap_fullname']		= $params->get('ldap_fullname');
@@ -571,7 +569,7 @@ abstract class SHLdapHelper
 			$converted['port'] 				= $params->get('port');
 			$converted['use_ldapV3'] 		= $params->get('use_v3');
 			$converted['negotiate_tls']		= $params->get('negotiate_tls');
-			$converted['no_referrals']		= (!$params->get('use_referrals'));
+			$converted['no_referrals']		= $params->get('use_referrals');
 
 			$converted['username']			= $params->get('proxy_username');
 			$converted['password']			= $params->get('proxy_password');
