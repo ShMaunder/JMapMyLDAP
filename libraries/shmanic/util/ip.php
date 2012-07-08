@@ -14,6 +14,7 @@ defined('JPATH_PLATFORM') or die;
 
 /**
  * Provides basic IP address helper methods.
+ * This class was adapted from http://www.php.net/manual/en/function.ip2long.php#102898.
  *
  * @package     Shmanic.Libraries
  * @subpackage  Util
@@ -25,8 +26,6 @@ abstract class SHUtilIp
 	 * Determine the type of each range entry in ranges. Then
 	 * call the corresponding method. This method shall return
 	 * true if any of the ranges match the ip.
-	 *
-	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
 	 *
 	 * @param   string  $ip      String of IP address to check
 	 * @param   array   $ranges  An array of IP range addresses
@@ -90,8 +89,6 @@ abstract class SHUtilIp
 	/**
 	 * Single IP address check (i.e. 192.168.0.2).
 	 *
-	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
-	 *
 	 * @param   string  $allowed  A single IP address
 	 * @param   string  $ip       String of IP address to check
 	 *
@@ -107,12 +104,11 @@ abstract class SHUtilIp
 	/**
 	 * Wildcard IP address check (i.e. 192.168.0.*).
 	 *
-	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
-	 *
-	 * @param  $allowed   string   A wildcard IP address
-	 * @param  $ip        string   String of IP address to check
+	 * @param   string  $allowed  A wildcard IP address
+	 * @param   string  $ip       IP address to check
 	 *
 	 * @return  boolean  True means the ip is matching
+	 *
 	 * @since   1.0
 	 */
 	protected static function check_wildcard($allowed, $ip)
@@ -141,12 +137,11 @@ abstract class SHUtilIp
 	/**
 	 * Mask based IP address check (i.e. 192.168.0.0/24).
 	 *
-	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
-	 *
-	 * @param  $allowed   string   A mask based IP address
-	 * @param  $ip        string   String of IP address to check
+	 * @param   string  $allowed  A mask based IP address
+	 * @param   string  $ip       IP address to check
 	 *
 	 * @return  boolean  True means the ip is matching
+	 *
 	 * @since   1.0
 	 */
 	protected static function _sub_checker_mask($allowed, $ip)
@@ -166,12 +161,11 @@ abstract class SHUtilIp
 	/**
 	 * Section based IP address check (i.e. 192.168.0.0-192.168.0.2).
 	 *
-	 * adapted from http://www.php.net/manual/en/function.ip2long.php#102898
-	 *
-	 * @param  $allowed   string   A section based IP address
-	 * @param  $ip        string   String of IP address to check
+	 * @param   string  $allowed  A section based IP address
+	 * @param   string  $ip       IP address to check
 	 *
 	 * @return  boolean  True means the ip is matching
+	 *
 	 * @since   1.0
 	 */
 	protected static function _sub_checker_section($allowed, $ip)
