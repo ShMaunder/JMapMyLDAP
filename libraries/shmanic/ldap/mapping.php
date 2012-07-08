@@ -1,28 +1,26 @@
 <?php
 /**
- * @version     $Id:$
- * @author      Shaun Maunder <shaun@shmanic.com>
- * @package     Shmanic.Ldap
- * @subpackage  Mapping
+ * PHP Version 5.3
  *
- * @copyright	Copyright (C) 2011 Shaun Maunder. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
-
-jimport('joomla.version');
+defined('JPATH_PLATFORM') or die;
 
 /**
- * A Ldap group mapping class to initiate and get group mappings.
+ * An Ldap group mapping class to initiate and get group mappings.
  *
- * @package		Shmanic.Ldap
- * @subpackage	Mapping
- * @since		1.0
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap
+ * @since       2.0
  */
 class SHLdapMapping extends JObject
 {
-
 	/**
 	 * Allow joomla group additions to users
 	 *
@@ -199,16 +197,16 @@ class SHLdapMapping extends JObject
 	 * Get any extra data from LDAP that is not returned from the
 	 * authentication read.
 	 *
-	 * @param  JLDAP2  &$ldap     An active JLDAP2 object connected to LDAP server
-	 * @param  array   &$details  An array of LDAP attributes that have already been returned
-	 * @param  array   $options   An array of options. The dn element must be set.
+	 * @param   SHLdap  &$ldap     An active SHLdap object connected to LDAP server.
+	 * @param   array   &$details  An array of LDAP attributes that have already been returned.
+	 * @param   array   $options   An array of options. The dn element must be set.
 	 *
-	 * @return  boolean  Returns true on success
+	 * @return  boolean  Returns true on success.
+	 *
 	 * @since   2.0
 	 */
-	public function getData(&$ldap, &$details = array(), $options = array())
+	public function getData(SHLdap &$ldap, &$details = array(), $options = array())
 	{
-
 		$attributes = array();
 		$return		= array();
 		$groups		= array();
@@ -217,93 +215,125 @@ class SHLdapMapping extends JObject
 		 * if a forward lookup is being used. If not then we need to find these
 		 * initial groups first.
 		 */
-		if($this->lookup_type == 'forward') {
+		if ($this->lookup_type == 'forward')
+		{
+			/*
+			 * Attempt to do a forward lookup if the Ldap user group attributes are
+			 * not present. Though in most cases, they should be present.
+			 */
+			if (!isset($details[$this->lookup_attribute]))
+			{
+				// We cannot get any more information if there is no source user DN
+				if (!isset($options['dn']) || is_null($options['dn']))
+				{
+					return false;
+				}
 
-			// Forward Lookup
-			if(!isset($details[$this->lookup_attribute])) {
-				// Need to attempt to do a forward lookup
-
-				// We cannot get any more information if there is no user dn
-				if(!isset($options['dn']) || is_null($options['dn'])) return true;
-
+				// Add to the user attribute request for an Ldap read
 				$attributes[] = $this->lookup_attribute;
 				$return = $attributes;
 
-
-			} else {
-				if(count($details[$this->lookup_attribute])) {
-					// Yes we have groups already, we just need to check for recursion later on
-					$groups = $details[$this->lookup_attribute];
-				} else {
-					// There are no groups
+			}
+			else
+			{
+				if (!count($details[$this->lookup_attribute]))
+				{
+					// There are no groups to process for this user (or the parameter was set incorrectly)
 					return true;
 				}
-			}
 
-		} else {
-			// Reverse Lookup
+				// Yes we have groups already, we just need to check for recursion if required laters
+				$groups = $details[$this->lookup_attribute];
+
+			}
+		}
+		else
+		{
+			// Attempt to do a reverse lookup
 			$return[] = $this->lookup_attribute;
 
-			if(!isset($details[$this->lookup_member]) || is_null($this->lookup_member)) {
-				// We cannot get any more information if there is no user dn
-				if(!isset($options['dn']) || is_null($options['dn'])) return true;
+			if (!isset($details[$this->lookup_member]) || is_null($this->lookup_member))
+			{
+				// We cannot get any more information if there is no source user DN
+				if (!isset($options['dn']) || is_null($options['dn']))
+				{
+					return false;
+				}
 
 				$attributes[] = $this->lookup_member;
 			}
 		}
 
-
-		$return = array_fill_keys($return, null); //lets get our result ready
+		// Lets get our result ready
+		$return = array_fill_keys($return, null);
 		$result = null;
-		if(count($attributes)) {
-			//get our ldap user attributes and check we have a valid result
-			$result	= new JLDAPResult($ldap->read($options['dn'], null, $attributes));
-			if(is_null($result->getValue(0,'dn',0))) {
-				$this->setError(JText::_('LIB_LDAPMAPPING_ERROR_NO_ATTRIBUTES')); //TODO: language file
-				return true;
+
+		if (count($attributes))
+		{
+			// Get our ldap user attributes and check we have a valid result
+			$result	= $ldap->read($options['dn'], null, $attributes);
+			if ($result === false)
+			{
+				// No user attributes found on the read
+				$this->setError(JText::_('LIB_LDAPMAPPING_ERROR_NO_ATTRIBUTES'));
+				return false;
 			}
 		}
 
-		if(!count($groups)) {
-			//need to process first level user groups from the ldap result
-			if($this->lookup_type == 'forward') {
-				$groups		= $result->getAttribute(0, $this->lookup_attribute, true);
-			} else {
-				$lookupValue = is_null($result) ? $details[$this->lookup_member] :
+		if (!count($groups))
+		{
+			// Need to process first level user groups from the ldap result
+			if ($this->lookup_type == 'forward')
+			{
+				// Forward lookup: all we need is the user group values
+				$groups = $result->getAttribute(0, $this->lookup_attribute, true);
+			}
+			else
+			{
+				// Reverse lookup: have to find the groups with the user dn present
+				$lookupValue = is_null($result) ? $details[$this->lookup_member][0] :
 					$result->getValue(0, $this->lookup_member, 0);
 
+				// Build the search filter for this
 				$search = $this->lookup_attribute . '=' . $lookupValue;
-				$search = JLDAPHelper::buildFilter(array($search));
-				$reverse = new JLDAPResult($ldap->search(null, $search, array('dn')));
-				for($i=0;$i<$reverse->countEntries();$i++) {
-					$groups[] = $reverse->getValue($i,'dn',0); //extract the group from the result
+				$search = SHLDAPHelper::buildFilter(array($search));
+
+				// Find all the groups that have this user present as a member
+				if (($reverse = $ldap->search(null, $search, array('dn'))) !== false)
+				{
+					for ($i = 0; $i < $reverse->countEntries(); ++$i)
+					{
+						// Extract the group distinguished name from the result
+						$groups[] = $reverse->getDN($i);
+					}
 				}
 			}
 		}
 
-		//need to process the recursion using the initial groups as a basis
-		if($this->recursion && count($groups)) {
-				$outcome 	= array();
+		// Need to process the recursion using the initial groups as a basis
+		if ($this->recursion && count($groups))
+		{
+				$outcome = array();
 
-				if($this->lookup_type == 'reverse') { //we need to override the lookup attribute for reverse recursion
-
-					$ldap->getRecursiveGroups($groups,
-						$this->recursion_depth, $outcome,
-						'dn', $this->lookup_attribute);
-
-				} else {
-
-					$ldap->getRecursiveGroups($groups,
-						$this->recursion_depth, $outcome,
-						$this->lookup_attribute,
-						$this->dn_attribute);
+				if ($this->lookup_type == 'reverse')
+				{
+					// We need to override the lookup attribute for reverse recursion
+					$ldap->getRecursiveGroups(
+						$groups, $this->recursion_depth, $outcome, 'dn', $this->lookup_attribute
+					);
+				}
+				else
+				{
+					$ldap->getRecursiveGroups(
+						$groups, $this->recursion_depth, $outcome, $this->lookup_attribute, $this->dn_attribute
+					);
 				}
 
-				// we need to merge them back together without duplicates
+				// We need to merge them back together without duplicates
 				$groups = array_unique(array_merge($groups, $outcome));
 		}
 
-		//lets store the groups
+		// Lets store the groups
 		$groups = array_values($groups);
 		$details[$this->lookup_attribute] = $groups;
 
@@ -531,7 +561,7 @@ class SHLdapMapping extends JObject
 				}
 			}
 		}
-		elseif($managed == 'yes')
+		elseif ($managed == 'yes')
 		{
 			// Yes means we want to add only groups that are defined in the mapping list
 			foreach ($groups as $group)
