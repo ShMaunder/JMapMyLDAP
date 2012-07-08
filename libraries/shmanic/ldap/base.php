@@ -24,7 +24,6 @@ defined('JPATH_PLATFORM') or die;
  */
 class SHLdapBase extends JObject
 {
-
 	/**
 	 * Size limit for some supported LDAP operations
 	 *
