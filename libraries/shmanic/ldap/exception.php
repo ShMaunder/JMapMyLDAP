@@ -21,6 +21,12 @@ defined('JPATH_PLATFORM') or die;
  */
 class SHLdapException extends Exception
 {
+	/**
+	 * URL to a help site with %1 being the Error ID and %2 being the version.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
 	const HELP_SITE = 'http://docs.shmanic.com/ldap/?error_id=%1$s&version=%2$s';
 
 	/**
@@ -32,10 +38,31 @@ class SHLdapException extends Exception
 	 */
 	const PROVIDE_ARGS_BACKTRACE = false;
 
+	/**
+	 * Holds the Ldap error ID.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
 	protected $ldapCode = null;
 
+	/**
+	 * Holds the backtrace.
+	 *
+	 * @var    array
+	 * @since  2.0
+	 */
 	protected $backTrace = array();
 
+	/**
+	 * Constructor
+	 *
+	 * @param   integer  $ldapCode  Ldap Error ID.
+	 * @param   integer  $code      Error ID.
+	 * @param   string   $message   Error message.
+	 *
+	 * @since   2.0
+	 */
 	public function __construct($ldapCode = null, $code = 0, $message = null)
 	{
 		$this->ldapCode = $ldapCode;
@@ -47,6 +74,13 @@ class SHLdapException extends Exception
 		parent::__construct($message, $code, null);
 	}
 
+	/**
+	 * Magic method to override the to string value for the exception.
+	 *
+	 * @return  string  Exception string.
+	 *
+	 * @since   2.0
+	 */
 	public function __toString()
 	{
 		if (is_null($this->ldapCode))
@@ -70,11 +104,25 @@ class SHLdapException extends Exception
 		}
 	}
 
+	/**
+	 * Returns the Ldap Error ID.
+	 *
+	 * @return  integer  Ldap Error ID.
+	 *
+	 * @since   2.0
+	 */
 	final public function getLdapCode()
 	{
 		return $this->ldapCode;
 	}
 
+	/**
+	 * Converts the Ldap Error ID into a readable message.
+	 *
+	 * @return  string  Error Message.
+	 *
+	 * @since   2.0
+	 */
 	final public function getLdapMessage()
 	{
 		if (!is_null($this->ldapCode))
@@ -86,17 +134,38 @@ class SHLdapException extends Exception
 		return null;
 	}
 
+	/**
+	 * Gets the help link for this specific error.
+	 *
+	 * @return  string  URL to Help Site.
+	 *
+	 * @since   2.0
+	 */
 	final public function getHelpSite()
 	{
 		// Generate the help site
 		return sprintf(self::HELP_SITE, $this->getCode(), SHLDAP_VERSION);
 	}
 
+	/**
+	 * Return the backtrace.
+	 *
+	 * @return  array  Backtrace.
+	 *
+	 * @since   2.0
+	 */
 	final public function getBackTrace()
 	{
 		return $this->backTrace;
 	}
 
+	/**
+	 * Converts the backtrace into a string then returns it.
+	 *
+	 * @return  string  Backtrace to string.
+	 *
+	 * @since   2.0
+	 */
 	final public function getBackTraceAsString()
 	{
 		$result = null;
