@@ -1,15 +1,30 @@
 <?php
+/**
+ * PHP Version 5.3
+ *
+ * @package    Shmanic.Libraries
+ * @author     Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright  Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license    GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 defined('JPATH_PLATFORM') or die;
 
 jimport('joomla.event.dispatcher');
 
+/**
+ * The SHPlatform main factory.
+ *
+ * @package  Shmanic.Libraries
+ * @since    2.0
+ */
 abstract class SHFactory
 {
 	/**
 	 * An array of dispatcher objects.
 	 *
-	 * @var    Array(JDispatcher)
+	 * @var    Array[JDispatcher]
 	 * @since  2.0
 	 */
 	public static $dispatcher = array();
@@ -21,7 +36,6 @@ abstract class SHFactory
 	 * @since  2.0
 	 */
 	public static $config = null;
-
 
 	/**
 	 * Returns a specific dispatcher object. This dispatcher is independent
