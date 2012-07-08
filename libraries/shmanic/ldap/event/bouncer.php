@@ -292,8 +292,27 @@ class SHLdapEventBouncer extends JEvent
 		 */
 		if (!isset($user[SHLdapHelper::ATTRIBUTE_KEY]))
 		{
-			// TODO: fix this!!
-			return false;
+
+			$authorised = array(
+				'authorise' => SHLdapHelper::AUTH_USER,
+				'username' => $user['username'],
+				'password' => $user['password']
+			);
+
+			if (!$ldap = SHLdapHelper::getClient($authorised))
+			{
+				// Failed to get an Ldap connection - this could be bad parameter conversion
+				return;
+			}
+
+			// Get the distinguished name of the authorised user
+			$dn = $ldap->getLastUserDN();
+
+			if (!$user[SHLdapHelper::ATTRIBUTE_KEY] = $ldap->getUserDetails($dn))
+			{
+				// Failed to get the user attribute details/values
+				return;
+			}
 		}
 
 		$instance = SHUserHelper::getUser($user, $options);
