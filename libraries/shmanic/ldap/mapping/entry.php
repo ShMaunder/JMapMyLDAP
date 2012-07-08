@@ -1,16 +1,27 @@
 <?php
+/**
+ * PHP Version 5.3
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Mapping
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
+defined('JPATH_PLATFORM') or die;
 
 /**
  * Holds each Ldap entry with its associated Joomla group. This
  * class also contains methods for comparing entries.
  *
- * @package		Shmanic.Ldap
- * @subpackage	Mapping
- * @since		1.0
+ * @package     Shmanic.Libraries
+ * @subpackage  Ldap.Mapping
+ * @since       2.0
  */
 class SHLdapMappingEntry extends JObject
 {
-
 	/**
 	* An array of RDNs to form the DN
 	*
@@ -98,9 +109,10 @@ class SHLdapMappingEntry extends JObject
 	}
 
 	/**
-	 * Return the rdn class variable
+	 * Return the RDN class variable.
 	 *
-	 * @return  array  Array of RDNs to form the DN
+	 * @return  array  RDNs to form the DN.
+	 *
 	 * @since   1.0
 	 */
 	public function getRDN()
@@ -109,9 +121,10 @@ class SHLdapMappingEntry extends JObject
 	}
 
 	/**
-	 * Return the dn class variable
+	 * Return the DN class variable.
 	 *
-	 * @return  string  The unaltered full dn
+	 * @return  string  Unaltered full DN.
+	 *
 	 * @since   1.0
 	 */
 	public function getDN()
@@ -120,9 +133,10 @@ class SHLdapMappingEntry extends JObject
 	}
 
 	/**
-	* Return if a valid entry
+	* Return whether this entry is valid.
 	*
-	* @return  boolean  Valid entry
+	* @return  boolean  Valid entry.
+	*
 	* @since   2.0
 	*/
 	public function isValid()
@@ -165,10 +179,11 @@ class SHLdapMappingEntry extends JObject
 	 * group mapping list dn entries matches any of the ldap user
 	 * groups and if so returns true.
 	 *
-	 * @param  JMapMyEntry  $parameter    A JMapMyEntry object to the group mapping list parameters
-	 * @param  JMapMyEntry  &$ldapGroups  A JMapMyEntry object to the ldap user groups
+	 * @param   self  $parameter    Group mapping list parameters.
+	 * @param   self  &$ldapGroups  Ldap user groups.
 	 *
-	 * @return  Boolean  Returns if this parameter entry is in the ldap user group
+	 * @return  Boolean  True on parameter entry is in the ldap user group.
+	 *
 	 * @since   1.0
 	 */
 	public static function compareGroup(self $parameter, self &$ldapGroups)
@@ -221,10 +236,11 @@ class SHLdapMappingEntry extends JObject
 	 * compare if a dn in the group mapping list matches a dn
 	 * from the Ldap directory.
 	 *
-	 * @param  Array  $source   The source dn (e.g. group mapping list parameter entry)
-	 * @param  Array  $compare  The comparasion dn (e.g. ldap group)
+	 * @param   Array  $source   The source dn (e.g. group mapping list parameter entry).
+	 * @param   Array  $compare  The comparasion dn (e.g. ldap group).
 	 *
-	 * @return  Boolean  Returns the comparasion result
+	 * @return  Boolean  Returns the comparasion result.
+	 *
 	 * @since   1.0
 	 */
 	public static function compareValidatedDN($source, $compare)
