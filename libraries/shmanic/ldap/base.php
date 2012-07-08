@@ -180,7 +180,7 @@ class SHLdapBase extends JObject
 		else
 		{
 			// Unknown format
-			throw new Exception('Unknown LDAP config object', 990);
+			throw new Exception(JText::_('LIB_SHLDAPBASE_ERR_990'), 990);
 		}
 
 		// Passes the array back to the parent for class property assignment
@@ -288,7 +288,9 @@ class SHLdapBase extends JObject
 			if (!$this->isConnected())
 			{
 				// Failed to connect
-				throw new SHLdapException($this->getErrorCode(), 10002, JText::_('LIB_SHLDAPBASE_ERR_10002'));
+				throw new SHLdapException(
+					$this->getErrorCode(), 10002, JText::sprintf('LIB_SHLDAPBASE_ERR_10002', $this->host . ':' . $this->port)
+				);
 			}
 
 			$this->addDebug(

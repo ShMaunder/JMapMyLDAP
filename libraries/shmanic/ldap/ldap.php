@@ -127,7 +127,7 @@ class SHLdap extends SHLdapBase
 	public function addDebug($message)
 	{
 		// Add the debug message to any listening loggers
-		SHLog::add($message, 0, JLog::DEBUG, 'ldap');
+		SHLog::add($message, 101, JLog::DEBUG, 'ldap');
 
 		parent::addDebug($message);
 	}
