@@ -29,6 +29,8 @@ ldap.table
 ldap.servers
  [Number of servers configured in the LDAP configuration]
 
+ldap.plugin
+ [Authentication Plugin name of the LDAP configuration]
 
 
 
