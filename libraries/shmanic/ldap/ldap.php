@@ -514,10 +514,11 @@ class SHLdap extends SHLdapBase
 		$result	= $this->read($dn, null, $attributes);
 		if ($result->getDN(0) === false)
 		{
-			// Failed to retrieve user attributes or total read fail.
-			$this->setError(new SHLdapException(null, 10341, JText::_('LIB_SHLDAP_ERR_10341')));
+			$exception = $this->getError(null, true);
 
-			// TODO: we need to bring in the previous exception as well!
+			// Failed to retrieve user attributes or total read fail.
+			$this->setError(new SHLdapException(null, 10341, JText::sprintf('LIB_SHLDAP_ERR_10341', $dn, $exception)));
+
 			return false;
 		}
 
