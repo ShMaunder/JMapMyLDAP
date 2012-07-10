@@ -186,9 +186,6 @@ class SHLdapBase extends JObject
 		// Passes the array back to the parent for class property assignment
 		parent::__construct($configArr);
 
-		// For front-end error translation
-		JFactory::getLanguage()->load('lib_jldap2', JPATH_BASE);
-
 		// Check the Ldap extension is loaded
 		if (!extension_loaded('ldap'))
 		{

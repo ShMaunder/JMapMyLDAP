@@ -88,9 +88,6 @@ class SHLdap extends SHLdapBase
 	public function __construct($configObj = null)
 	{
 		parent::__construct($configObj);
-
-		// For front-end error translation
-		JFactory::getLanguage()->load('lib_jldap2', JPATH_BASE);
 	}
 
 	/**
