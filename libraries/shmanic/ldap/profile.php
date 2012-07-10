@@ -62,8 +62,7 @@ class SHLdapProfile extends JObject
 		parent::__construct($parameters);
 
 		// Load languages for errors
-		$lang = JFactory::getLanguage();
-		$lang->load('lib_ldap_profile', JPATH_SITE);
+		JFactory::getLanguage()->load('lib_ldap_profile', JPATH_BASE);
 	}
 
 	/**
@@ -79,20 +78,20 @@ class SHLdapProfile extends JObject
 	 *
 	 * @since   2.0
 	 */
-	public function doSync(&$instance, $user, $nameKey, $emailKey)
+	public function updateMandatory(&$instance, $user, $nameKey, $emailKey)
 	{
-		if ($this->sync_name && !is_null($nameKey) && isset($user['attributes'][$nameKey][0]))
+		if ($this->sync_name && !is_null($nameKey) && isset($user[SHLdapHelper::ATTRIBUTE_KEY][$nameKey][0]))
 		{
-			if ($name = $user['attributes'][$nameKey][0])
+			if ($name = $user[SHLdapHelper::ATTRIBUTE_KEY][$nameKey][0])
 			{
 				// Update the name of the JUser to the Ldap value
 				$instance->set('name', $name);
 			}
 		}
 
-		if ($this->sync_email && !is_null($emailKey) && isset($user['attributes'][$emailKey][0]))
+		if ($this->sync_email && !is_null($emailKey) && isset($user[SHLdapHelper::ATTRIBUTE_KEY][$emailKey][0]))
 		{
-			if ($email = $user['attributes'][$emailKey][0])
+			if ($email = $user[SHLdapHelper::ATTRIBUTE_KEY][$emailKey][0])
 			{
 				// Update the email of the JUser to the Ldap value
 				$instance->set('email', $email);
@@ -131,7 +130,7 @@ class SHLdapProfile extends JObject
 		else
 		{
 			// XML file doesn't exist
-			SHLog(JText::sprintf('LIB_LDAP_PROFILE_XML_NOT_EXISTS', $file), 0, JLog::ERROR, 'ldap');
+			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12201', $file), 12201, JLog::ERROR, 'ldap');
 		}
 
 	}
@@ -161,7 +160,7 @@ class SHLdapProfile extends JObject
 			// Get only the required header - i.e. ldap_profile
 			if ($xml = $xml->xpath("/form/fields[@name='$fields']"))
 			{
-				SHLog::add(JText::_('LIB_LDAP_PROFILE_XML_LOADED_VALID'), 0, JLog::DEBUG, 'ldap');
+				SHLog::add(JText::_('LIB_LDAP_PROFILE_DEBUG_12202'), 12202, JLog::DEBUG, 'ldap');
 
 				// Attempt to load profile language
 				$lang = JFactory::getLanguage();
@@ -171,13 +170,13 @@ class SHLdapProfile extends JObject
 			else
 			{
 				// Invalid profile XML
-				SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_FAILED_LOAD_XML', $xmlPath), 0, JLog::ERROR, 'ldap');
+				SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12203', $xmlPath), 12203, JLog::ERROR, 'ldap');
 			}
 		}
 		else
 		{
 			// Cannot load the XML file
-			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_FAILED_LOAD_XML', $xmlPath), 0, JLog::ERROR, 'ldap');
+			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12203', $xmlPath), 12203, JLog::ERROR, 'ldap');
 		}
 	}
 
@@ -221,7 +220,7 @@ class SHLdapProfile extends JObject
 			return false;
 		}
 
-		SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_DELETED_PROFILE', $userId), 0, JLog::INFO, 'ldap');
+		SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12211', $userId), 12211, JLog::INFO, 'ldap');
 
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
@@ -285,8 +284,7 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Add profile records (attributes) for a user
-	* to the database.
+	* Add profile records (attributes) for a user to the database.
 	*
 	* @param   integer  $userId      The user ID of the JUser
 	* @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
@@ -432,7 +430,7 @@ class SHLdapProfile extends JObject
 			return false;
 		}
 
-		SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ATTEMPT_TO_SYNC', $instance->username), 0, JLog::DEBUG, 'ldap');
+		SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_DEBUG_12221', $instance->username), 12221, JLog::DEBUG, 'ldap');
 
 		$addRecords		= array();
 		$updateRecords 	= array();
@@ -471,9 +469,10 @@ class SHLdapProfile extends JObject
 				}
 
 				$value = '';
-				if (isset($user['attributes'][$attribute]))
+				if (isset($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute])
+					&& is_array($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute]))
 				{
-					foreach ($user['attributes'][$attribute] as $values)
+					foreach ($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute] as $values)
 					{
 						$value .= $values . $delimiter;
 					}
@@ -483,9 +482,9 @@ class SHLdapProfile extends JObject
 			else
 			{
 				// These are single values
-				if (isset($user['attributes'][$attribute][0]))
+				if (isset($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute][0]))
 				{
-					$value = $user['attributes'][$attribute][0];
+					$value = $user[SHLdapHelper::ATTRIBUTE_KEY][$attribute][0];
 				}
 			}
 
@@ -541,18 +540,21 @@ class SHLdapProfile extends JObject
 
 		if (count($results))
 		{
+			// Changes occurred so lets log it
 			SHLog::add(
 				JText::sprintf(
-					'LIB_LDAP_PROFILE_UPDATED_DATABASE_FIELDS',
+					'LIB_LDAP_PROFILE_DEBUG_12225',
 					$instance->username,
 					$return == 1 ? JText::_('LIB_LDAP_PROFILE_SUCCESS') : JText::_('LIB_LDAP_PROFILE_FAIL')
-				),
-				0, JLog::DEBUG, 'ldap'
+				), 12225, JLog::DEBUG, 'ldap'
 			);
 		}
 		else
 		{
-			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_UP_TO_DATE', $instance->username), 0, JLog::DEBUG, 'ldap');
+			// No changes occurred so log that the profile was up to date
+			SHLog::add(
+				JText::sprintf('LIB_LDAP_PROFILE_DEBUG_12226', $instance->username), 12226, JLog::DEBUG, 'ldap'
+			);
 		}
 
 		return $return;
@@ -592,13 +594,12 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Return form fields that are enabled only in the
-	* XML.
+	* Cleans the form fields to return only XML enabled form fields.
 	*
-	* @param   JXMLElement  $xml     XML profile fields
-	* @param   array        $fields  An array of fields to be processed
+	* @param   JXMLElement  $xml     XML profile fields.
+	* @param   array        $fields  An array of fields to be processed.
 	*
-	* @return  array  An array of fields that are enabled
+	* @return  array  An array of fields that are enabled.
 	*
 	* @since   2.0
 	*/
@@ -627,7 +628,7 @@ class SHLdapProfile extends JObject
 	* have the same information.
 	*
 	* @param   JXMLElement  $xml        XML profile fields.
-	* @param   string       $username   Profile username to change.
+	* @param   string       $username   Username of profile owner to change.
 	* @param   string       $password   Optional profile password to use for LDAP bind.
 	* @param   array        $profile    Array of profile fields to save (key=>value).
 	* @param   array        $mandatory  Array of mandatory joomla fields to save like name and email.
@@ -638,14 +639,15 @@ class SHLdapProfile extends JObject
 	*/
 	public function saveToLDAP(JXMLElement $xml, $username, $password = null, $profile = array(), $mandatory = array())
 	{
-
+		// Check how we are going to authenticate with ldap (i.e. proxy user or profile owner)
 		if ($this->get('allow_ldap_proxy', 1))
 		{
-			// Get a connection to Ldap using the proxy username and password.
+			// Use the proxy username and password for Ldap.
 			$auth = array('authenticate' => SHLdapHelper::AUTH_PROXY);
 		}
 		else
 		{
+			// Use the supplied username and password for Ldap.
 			$auth = array(
 				'authenticate' => SHLdapHelper::AUTH_USER,
 				'username' => $username,
@@ -655,30 +657,36 @@ class SHLdapProfile extends JObject
 
 		if (!$ldap = SHLdapHelper::getClient($auth))
 		{
-			SHLog::add('Cannot connect to LDAP', 0, JLog::ERROR, 'ldap');
+			// Error: failed to connect to LDAP
+			SHLog::add(JText::_('LIB_LDAP_PROFILE_ERR_12231'), 12231, JLog::ERROR, 'ldap');
 			return false;
 		}
 
 		if ($auth['authenticate'] === SHLdapHelper::AUTH_PROXY)
 		{
+			// Due to using the proxy user, we must find the owner of the profile in Ldap.
 			if (!$dn = $ldap->getUserDN($username, null, false))
 			{
-				SHLog::add('Cannot find user DN', 0, JLog::ERROR, 'ldap');
+				// Failed to find the Ldap user
+				SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12232', $username), 12232, JLog::ERROR, 'ldap');
 				return false;
 			}
 		}
 		else
 		{
+			// We can presume we used the owner of the profile to authenticate
 			$dn = $ldap->getLastUserDN();
 		}
 
 		if (!$current = $ldap->getUserDetails($dn))
 		{
+			// Retrieving user attributes failed
 			return false;
 		}
 
 		$processed = array();
 
+		// Loop around each profile field
 		foreach ($profile as $key => $value)
 		{
 			$delimiter 	= null;
@@ -695,8 +703,10 @@ class SHLdapProfile extends JObject
 					$delimiter = '\r\n|\r|\n';
 				}
 
+				// Split up the delimited profile field
 				$newValues = preg_split("/$delimiter/", $value);
 
+				// Resave the split profile field into a new array set
 				for ($i = 0; $i < count($newValues); ++$i)
 				{
 					$processed[$key][$i] = $newValues[$i];
@@ -705,14 +715,12 @@ class SHLdapProfile extends JObject
 			}
 			else
 			{
-
 				// Single Value
 				$processed[$key] = $value;
-
 			}
 		}
 
-		// Do the Mandatory Joomla field saving
+		// Do the Mandatory Joomla field saving for name/fullname
 		if ($this->get('sync_name', 0) == 2)
 		{
 			if (($key = $ldap->getFullname()) && ($value = JArrayHelper::getValue($mandatory, 'name')))
@@ -721,6 +729,7 @@ class SHLdapProfile extends JObject
 			}
 		}
 
+		// Do the Mandatory Joomla field saving for email
 		if ($this->get('sync_email', 0) == 2)
 		{
 			if (($key = $ldap->getEmail()) && ($value = JArrayHelper::getValue($mandatory, 'email')))
@@ -731,7 +740,6 @@ class SHLdapProfile extends JObject
 
 		if (count($processed))
 		{
-
 			// Lets save the new (current) fields to the LDAP DN
 			if (!$ldap->makeChanges($dn, $current, $processed))
 			{
@@ -743,11 +751,12 @@ class SHLdapProfile extends JObject
 			{
 				if ($userId = JUserHelper::getUserId($username))
 				{
-					SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_UPDATED_PROFILE', $username), 0, JLog::INFO, 'ldap');
+					SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12235', $username), 12235, JLog::INFO, 'ldap');
 
 					$instance = new JUser($userId);
 					$this->saveProfile($xml, $instance, array('attributes' => $current), array());
 
+					// Everything went well - we have updated both LDAP and the J! database.
 					return true;
 				}
 			}

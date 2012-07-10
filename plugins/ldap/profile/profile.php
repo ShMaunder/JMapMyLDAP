@@ -138,24 +138,13 @@ class plgLdapProfile extends JPlugin
 	 */
 	public function onLdapSync(&$instance, $user, $options = array())
 	{
-		if (!class_exists('SHLdapProfile'))
-		{
-			SHLog::add(JText::_('Missing LDAP Profile Class (SHLdapProfile).'), 0, JLog::ERROR, 'ldap');
-			return false;
-		}
-
 		if (isset($user[SHLdapHelper::ATTRIBUTE_KEY]))
 		{
 			// Mandatory Joomla field processing and saving
-			$this->profile->doSync($instance, $user, $this->nameKey, $this->emailKey);
+			$this->profile->updateMandatory($instance, $user, $this->nameKey, $this->emailKey);
 
 			// Save the profile as defined from the XML
 			return $this->profile->saveProfile($this->xml, $instance, $user, $options);
-		}
-		else
-		{
-			SHLog::add(JText::_sprintf('There are no user attributes to process for username \'%1$s\'.', $instance->username), 0, JLog::ERROR, 'ldap');
-			return false;
 		}
 	}
 
@@ -266,7 +255,19 @@ class plgLdapProfile extends JPlugin
 
 	}
 
-	/* Save profile data to LDAP */
+	/**
+	 * Method is called before user data is stored in the database.
+	 *
+	 * Saves profile data to LDAP if a profile form is detected.
+	 *
+	 * @param   array    $user   Holds the old user data.
+	 * @param   boolean  $isNew  True if a new user is stored.
+	 * @param   array    $new    Holds the new user data.
+	 *
+	 * @return  boolean  Cancels the save if False.
+	 *
+	 * @since   2.0
+	 */
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
 		if (!$this->params->get('allow_ldap_save', 1))
@@ -275,24 +276,28 @@ class plgLdapProfile extends JPlugin
 			return;
 		}
 
-		$profileData = array();
+		// Default the return result to true
+		$result = true;
 
-		$username = JArrayHelper::getValue($new, 'username', false, 'string');
-		$password = JArrayHelper::getValue($new, 'password_clear', false, 'string');
-
-		/* Include the mandatory Joomla fields (fullname and email) */
-		$mandatoryData = array(
-			'name' => JArrayHelper::getValue($new, 'name'),
-			'email' => JArrayHelper::getValue($new, 'email')
-		);
-
+		// Check there is a profile to save (i.e. this event may not have been called from the profile form)
 		if (isset($new['ldap_profile']) && (count($new['ldap_profile'])))
 		{
-			// Only get profile data and enabled elements.
-			$profileData = $this->profile->cleanInput($this->xml, $new['ldap_profile']);
-		}
+			// Get username and password to use for authenticating with Ldap
+			$username 	= JArrayHelper::getValue($new, 'username', false, 'string');
+			$password 	= JArrayHelper::getValue($new, 'password_clear', false, 'string');
 
-		$result = $this->profile->saveToLDAP($this->xml, $username, $password, $profileData, $mandatoryData);
+			// Include the mandatory Joomla fields (fullname and email)
+			$mandatoryData = array(
+				'name' => JArrayHelper::getValue($new, 'name'),
+				'email' => JArrayHelper::getValue($new, 'email')
+			);
+
+			// Only get profile data and enabled elements from the input
+			$profileData = $this->profile->cleanInput($this->xml, $new['ldap_profile']);
+
+			// Save the profile back to LDAP
+			$result = $this->profile->saveToLDAP($this->xml, $username, $password, $profileData, $mandatoryData);
+		}
 
 		return $result;
 	}
@@ -301,7 +306,7 @@ class plgLdapProfile extends JPlugin
 	 * Called just before a user LDAP read to gather
 	 * extra user ldap attributes required for this plugin.
 	 *
-	 * @param   JLDAP2  &$ldap    An active instance of JLDAP2
+	 * @param   SHLdap  &$ldap    An active instance of JLDAP2
 	 * @param   array   $options  Optional extra options
 	 *
 	 * @return  array  Array of attributes required for this plug-in
