@@ -24,27 +24,37 @@ class SHLdapEventMonitor extends JEvent
 
 	public function onAfterInitialise()
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11901, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserBeforeDelete($user)
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11902, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserAfterDelete($user, $success, $msg)
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11903, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11904, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11905, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserLogin($user, $options = array())
@@ -55,16 +65,22 @@ class SHLdapEventMonitor extends JEvent
 		 */
 		SHLdapHelper::setUserLdap($user);
 
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11906, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserLogout($user, $options = array())
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11907, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	public function onUserLoginFailure($response)
 	{
-		SHLog::add(__METHOD__ . ' called.', 0, JLog::DEBUG, 'ldap');
+		SHLog::add(
+			JText::sprintf('LIB_SHLDAPEVENTMONITOR_DEBUG_CALLED', __METHOD__), 11908, JLog::DEBUG, 'ldap'
+		);
 	}
 }
