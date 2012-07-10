@@ -32,6 +32,9 @@ ldap.servers
 ldap.plugin
  [Authentication Plugin name of the LDAP configuration]
 
+ldap.userfilter
+ [Used for cron job - filter for selected all users e.g. (objectclass=user)]
+
 
 
 sso.bypasskey:

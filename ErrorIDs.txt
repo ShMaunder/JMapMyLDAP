@@ -2,7 +2,6 @@ JOOMLA BUGS::
 JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 
 
-
 990 - Unknown LDAP config object
 991 - Ldap extension not loaded [LIB_SHLDAPBASE_ERR_991]
 
@@ -65,20 +64,32 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
 10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
 
+11901-11999 - LDAP plug-in calls
+
+
 12000-14999 - LDAP Plug-in Errors (3000 Possible Errors)
 
 12000-12199 :: Ldap Group Mapping
 12200-12399 :: Ldap Profile
+
+12201 - The XML profile at '%1$s' does not exist. [LIB_LDAP_PROFILE_ERR_12201]
+12202 - The XML profile is loaded and appears to be valid. [LIB_LDAP_PROFILE_DEBUG_12202]
+12203 - Failed to load in the profile XML '%1$s'. [LIB_LDAP_PROFILE_ERR_12203]
+
+12211 - Deleted LDAP profile for User ID %1$d. [LIB_LDAP_PROFILE_INFO_12211]
+
+12221 - Attempting to Sync profile for user '%1$s'. [LIB_LDAP_PROFILE_DEBUG_12221]
+
 12400-12599 :: Ldap Password
 
 12600-12799 :: SHLdap Authentication
 
 12601 - Failed to boot the SHLdap / SHPlatform [PLG_AUTHENTICATION_SHLDAP_ERR_12601]
 12602 - Blank passwords not allowed [PLG_AUTHENTICATION_SHLDAP_ERR_12602]
-12603 - No ldap configuration hosts found [PLG_AUTHENTICATION_SHLDAP_ERR_12603]
+[DEPRECATED] 12603 - No ldap configuration hosts found [PLG_AUTHENTICATION_SHLDAP_ERR_12603]
 12604 - No configurations could authenticate user [PLG_AUTHENTICATION_SHLDAP_ERR_12604]
-12605 - Failed to connect [PLG_AUTHENTICATION_SHLDAP_ERR_12605]
-12606 - Failed to get user dn [PLG_AUTHENTICATION_SHLDAP_ERR_12606]
+[DEPRECATED] 12605 - Failed to connect [PLG_AUTHENTICATION_SHLDAP_ERR_12605]
+[DEPRECATED] 12606 - Failed to get user dn [PLG_AUTHENTICATION_SHLDAP_ERR_12606]
 12611 - Failed to get user attributes [PLG_AUTHENTICATION_SHLDAP_ERR_12611] [PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_ATTRIBUTES_FAIL]
 12612 - Successfully logged in [PLG_AUTHENTICATION_SHLDAP_INFO_12612]
 
