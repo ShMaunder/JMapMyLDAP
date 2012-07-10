@@ -108,7 +108,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 		{
 			// No configurations could authenticate user
 			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12604');
+			$response->error_message = JText::sprintf('PLG_AUTHENTICATION_SHLDAP_ERR_12604', $credentials['username']);
 			return;
 		}
 
