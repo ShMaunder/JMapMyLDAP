@@ -95,15 +95,9 @@ class plgLdapMapping extends JPlugin
 				$this->_reportError($this->mapper->getError());
 				return false;
 			}
-		}
-		else
-		{
-			// Error: no user attributes to process
-			$this->_reportError('No attributes to process');
-			return false;
-		}
 
-		return true;
+			return true;
+		}
 	}
 
 	/**
