@@ -36,3 +36,6 @@ if (!class_exists('SHFactory'))
 	// Manually include the factory
 	require_once SHPATH_PLATFORM . '/factory.php';
 }
+
+// Register JComponentHelper in case it is required later
+JLoader::register('JComponentHelper', JPATH_PLATFORM . '/joomla/application/component/helper.php');
