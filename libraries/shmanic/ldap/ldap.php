@@ -47,6 +47,30 @@ class SHLdap extends SHLdapBase
 	const USE_RESULT_OBJECT = true;
 
 	/**
+	 * No authentication option.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTH_NONE = 0;
+
+	/**
+	 * Authenticate as username and password.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTH_USER = 1;
+
+	/**
+	 * Authenticate as proxy user.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTH_PROXY = 2;
+
+	/**
 	 * If true then use search to find user.
 	 *
 	 * @var    boolean
@@ -77,6 +101,84 @@ class SHLdap extends SHLdapBase
 	 * @since  2.0
 	 */
 	protected $last_user_dn = null;
+
+	/**
+	 * Filter to filter by user objects.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $all_user_filter = '(objectclass=user)';
+
+	/**
+	 * Find the correct Ldap parameters based on the authorised and configuration
+	 * specified. If found then return the successful Ldap object.
+	 *
+	 * Note: you can use SHLdap->getLastUserDN() for the user DN instead of rechecking again.
+	 *
+	 * @param   integer|string  $id          Optional configuration record ID.
+	 * @param   Array           $authorised  Optional authorisation/authentication options (authenticate, username, password).
+	 * @param   JRegistry       $registry    Optional override for platform configuration registry.
+	 *
+	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public static function getInstance($id = null, array $authorised = array(), JRegistry $registry = null)
+	{
+		// Get the platform registry config from the factory if required
+		$registry = is_null($registry) ? SHFactory::getConfig() : $registry;
+
+		// Get the optional authentication/authorisation options
+		$authenticate = JArrayHelper::getValue($authorised, 'authenticate', self::AUTH_NONE);
+		$username = JArrayHelper::getValue($authorised, 'username', null);
+		$password = JArrayHelper::getValue($authorised, 'password', null);
+
+		// Get all the Ldap configs that are enabled and available
+		if (!$configs = SHLdapHelper::getConfig($id, $registry))
+		{
+			// No configs found - check the log in this case
+			return false;
+		}
+
+		// Check if only one configuration result was found
+		if ($configs instanceof JRegistry)
+		{
+			// Get a new SHLdap object
+			$ldap = new SHLdap($configs);
+
+			// Check if the authenticate/authentication is successful
+			if ($ldap->authenticate($authenticate, $username, $password))
+			{
+				// This is the correct configuration so return the new client
+				return $ldap;
+			}
+
+			unset($ldap);
+
+		}
+		// Assume there are more than one configurations found
+		else
+		{
+			// Loop around each of the Ldap configs until one authenticates
+			foreach ($configs as $config)
+			{
+				// Get a new SHLdap object
+				$ldap = new SHLdap($config);
+
+				// Check if the authenticate/authentication is successful
+				if ($ldap->authenticate($authenticate, $username, $password))
+				{
+					// This is the correct configuration so return the new client
+					return $ldap;
+				}
+
+				unset($ldap);
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Constructor
@@ -139,6 +241,72 @@ class SHLdap extends SHLdapBase
 	public function getLastUserDN()
 	{
 		return $this->last_user_dn;
+	}
+
+	/**
+	 * Returns the all user filter.
+	 *
+	 * @return  string  User filter.
+	 *
+	 * @since   2.0
+	 */
+	public function getAllUserFilter()
+	{
+		return $this->all_user_filter;
+	}
+
+	/**
+	 * Attempts to Ldap authorise/authenticate with the parameters specified.
+	 *
+	 * @param   integer  $authenticate  Authenticate the username and password supplied with the Ldap object.
+	 * @param   string   $username      Authorisation/authentication username.
+	 * @param   string   $password      Authentication password.
+	 *
+	 * @return  boolean  True on success or False on failure.
+	 *
+	 * @since   2.0
+	 */
+	public function authenticate($authenticate = self::AUTH_NONE, $username = null, $password = null)
+	{
+		// Start the connection procedure
+		if ($this->connect() !== true)
+		{
+			// Failed to connect - review log for this error
+			return false;
+		}
+
+		/*
+		 * If no authentication is required, then check whether a username
+		 * has been specified. If not, then we can just return here. However,
+		 * if a username is specified then we want to authorise it instead.
+		 */
+		if (($authenticate === self::AUTH_NONE) && is_null($username))
+		{
+			return true;
+		}
+		// Check if we only want a proxy user.
+		elseif ($authenticate === self::AUTH_PROXY)
+		{
+			if ($this->proxyBind())
+			{
+				// Proxy bind success
+				return true;
+			}
+		}
+		// Assume we need to authenticate or authorise the specified user.
+		else
+		{
+			// If a DN is returned, then this user is successfully authenticated/authorised
+			if ($dn = $this->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false))
+			{
+				// Successfully authenticated and retrieved User DN.
+				return true;
+			}
+		}
+
+		// Close the connection and report a failure
+		$this->close();
+		return false;
 	}
 
 	/**

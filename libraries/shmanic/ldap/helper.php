@@ -30,30 +30,6 @@ abstract class SHLdapHelper
 	const ATTRIBUTE_KEY = 'attributes';
 
 	/**
-	 * No authentication option.
-	 *
-	 * @var    integer
-	 * @since  2.0
-	 */
-	const AUTH_NONE = 0;
-
-	/**
-	 * Authenticate as username and password.
-	 *
-	 * @var    integer
-	 * @since  2.0
-	 */
-	const AUTH_USER = 1;
-
-	/**
-	 * Authenticate as proxy user.
-	 *
-	 * @var    integer
-	 * @since  2.0
-	 */
-	const AUTH_PROXY = 2;
-
-	/**
 	 * Auto configuration.
 	 *
 	 * @var    integer
@@ -89,72 +65,123 @@ abstract class SHLdapHelper
 	 * Loads the correct Ldap configuration based on the record ID specified. Then uses
 	 * this configuration to instantiate an LdapExtended client.
 	 *
-	 * @param   integer    $id      Configuration record ID (use 1 if only one record is present).
-	 * @param   JRegistry  $config  Platform configuration.
-	 * @param   string     $source  Parameter source such as CONFIG_AUTO, CONFIG_SQL, CONFIG_FILE or CONFIG_PLUGIN.
+	 * @param   integer|string  $id        Configuration record ID. If blank, then returns all configs.
+	 * @param   JRegistry       $registry  Platform configuration.
+	 * @param   string          $source    Parameter source such as CONFIG_AUTO, CONFIG_SQL, CONFIG_FILE or CONFIG_PLUGIN.
 	 *
 	 * @return  false|JRegistry  Registry of parameters for Ldap or False on error.
 	 *
 	 * @since   2.0
 	 */
-	public static function getParams($id, JRegistry $config, $source = self::CONFIG_AUTO)
+	public static function getConfig($id = null, JRegistry $registry = null, $source = self::CONFIG_AUTO)
 	{
-		// Process the correct parameter source
+		// Get the platform registry config from the factory if required
+		$registry = is_null($registry) ? SHFactory::getConfig() : $registry;
+
+		// If automatic configuration is specified; get the pre-configured source form registry
 		if ($source === self::CONFIG_AUTO)
 		{
 			// Get the Ldap configuration source (e.g. sql | plugin | file)
-			$source = (int) $config->get('ldap.config', self::CONFIG_SQL);
+			$source = (int) $registry->get('ldap.config', self::CONFIG_SQL);
 		}
 
 		if ($source === self::CONFIG_SQL)
 		{
-			// Get the number of servers configured in the database
-			$servers = (int) $config->get('ldap.servers', 0);
-
-			// Get the database table using the sh_ldap_config as default
-			$table = $config->get('ldap.table', '#__sh_ldap_config');
-
-			if (!$servers > 0 || is_null($id))
-			{
-				// No Ldap servers are configured!
-				return false;
-			}
+			// Get the database table using sh_ldap_config as default
+			$table = $registry->get('ldap.table', '#__sh_ldap_config');
 
 			// Get the global JDatabase object
 			$db = JFactory::getDbo();
 
 			$query = $db->getQuery(true);
 
-			// Do the SQL query
-			$query->select($query->qn('name'))
-				->select($query->qn('params'))
-				->from($query->qn($table))
-				->where($query->qn('enabled') . '>= 1')
-				->where($query->qn('ldap_id') . '=' . $query->q($id));
-
-			$db->setQuery($query);
-
-			// Execute the query
-			$results = $db->loadAssoc();
-
-			if (is_null($results))
+			// Check if we should return an array of configs
+			if (empty($id))
 			{
-				// Unable to find specified Ldap configuration
-				return false;
+				// Get all the enabled Ldap configurations from SQL
+				$query->select('params')
+					->from($query->qn($table))
+					->where('enabled >= 1')
+					->order('ordering');
+
+				// Execute the query
+				if ($params = $db->setQuery($query)->loadAssocList(null, 'params'))
+				{
+					$configs = array();
+
+					// Push each found set of params into a registry
+					foreach ($params as $param)
+					{
+						$newConfig = new JRegistry;
+						$newConfig->loadString($param, 'JSON');
+
+						// Push the Ldap config onto the return array
+						$configs[] = $newConfig;
+					}
+
+					return $configs;
+				}
+				else
+				{
+					// No results found
+					SHLog::add(JText::_('LIB_SHLDAPHELPER_ERR_10604'), 10604, JLog::ERROR, 'ldap');
+				}
+			}
+			// Check if we need to get the config based on an ID
+			elseif (is_numeric($id))
+			{
+				// Get the enabled configuration of the specified ID
+				$query->select('params')
+					->from($query->qn($table))
+					->where('enabled >= 1')
+					->where($query->qn('ldap_id') . '=' . $query->q((int) $id));
+
+				// Execute the query
+				if ($param = $db->setQuery($query)->loadResult())
+				{
+					$config = new JRegistry;
+					$config->loadString($param, 'JSON');
+
+					// Return our configuration result
+					return $config;
+				}
+				else
+				{
+					// No result found
+					SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10605', $id), 10605, JLog::ERROR, 'ldap');
+				}
+
+			}
+			// Assume this is based on name (string)
+			else
+			{
+				// Get the enabled configuration of the specified name
+				$query->select('params')
+					->from($query->qn($table))
+					->where('enabled >= 1')
+					->where($query->qn('name') . '=' . $query->q((string) $id));
+
+				// Execute the query
+				if ($param = $db->setQuery($query)->loadResult())
+				{
+					$config = new JRegistry;
+					$config->loadString($param, 'JSON');
+
+					// Return our configuration result
+					return $config;
+				}
+				else
+				{
+					// No result found
+					SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10606', $id), 10606, JLog::ERROR, 'ldap');
+				}
 			}
 
-			if (isset($results['params']))
-			{
-				// Decode the JSON string direct from DB to an array
-				$params = new JRegistry;
-				$params->loadString($results['params']);
-				return $params;
-			}
 		}
 		elseif ($source === self::CONFIG_PLUGIN)
 		{
-			// Grab the plug-in name from the config
-			$name = $config->get('ldap.plugin', 'ldap');
+			// Grab the plug-in name from the registry
+			$name = empty($id) ? $registry->get('ldap.plugin', 'ldap') : $id;
 
 			if ($plugin = JPluginHelper::getPlugin('authentication', $name))
 			{
@@ -167,320 +194,69 @@ abstract class SHLdapHelper
 				 * accepted into the SHLdap library. This is normally if we are using the
 				 * JLDAP parameters.
 				 */
-				$converted = self::convert($params, 'SHLdap');
+				$converted = self::convertConfig($params, 'SHLdap');
 
 				// Reload the converted parameters into a registry before returning
-				$params = new JRegistry;
-				$params->loadArray($converted);
+				$config = new JRegistry;
+				$config->loadArray($converted);
 
-				return $params;
+				return $config;
+			}
+			else
+			{
+				// Invalid plugin
+				SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10603', $name), 10603, JLog::ERROR, 'ldap');
 			}
 		}
 		elseif ($source === self::CONFIG_FILE)
 		{
-			// TODO: implement
+			// Grab the plug-in name from the registry
+			$file = $registry->get('ldap.file', JPATH_CONFIGURATION . '/ldap.php');
 
+			// Check the file is valid and exists
+			if (!empty($file) && file_exists($file))
+			{
+
+				// Include the file
+				include_once $file;
+
+				// Generate the namesapce
+				$namespace = empty($id) ? '' : $id;
+
+				// Sanitize the namespace
+				$namespace = ucfirst((string) preg_replace('/[^A-Z_]/i', '', $namespace));
+
+				// Build the config name
+				$name = 'SHLdapConfig' . $namespace;
+
+				// Handle the PHP configuration type.
+				if (class_exists($name))
+				{
+					$config = new JRegistry;
+
+					// Create the JConfig object
+					$params = new $name;
+
+					// Load the configuration values into the registry
+					$config->loadObject($params);
+
+					return $config;
+				}
+			}
+			else
+			{
+				// Invalid file
+				SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10602', $file), 10602, JLog::ERROR, 'ldap');
+			}
 		}
 		else
 		{
 			// Invalid source
-			return false;
+			SHLog::add(JText::_('LIB_SHLDAPHELPER_ERR_10601'), 10601, JLog::ERROR, 'ldap');
 		}
 
+		// Failed to find a valid config
 		return false;
-	}
-
-	/**
-	 * Find the correct Ldap parameters based on the authorised and configuration
-	 * specified. If found then return the successful Ldap object.
-	 *
-	 * Note: you can use SHLdap->getLastUserDN() for the user DN instead of rechecking again.
-	 *
-	 * @param   Array      $authorised  Optional authorisation/authentication options (authenticate, username, password).
-	 * @param   JRegistry  $config      Optional override for platform configuration.
-	 *
-	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public static function getClient(array $authorised = array(), JRegistry $config = null)
-	{
-		// Get the optional authentication/authorisation options
-		$authenticate = JArrayHelper::getValue($authorised, 'authenticate', self::AUTH_NONE);
-		$username = JArrayHelper::getValue($authorised, 'username', null);
-		$password = JArrayHelper::getValue($authorised, 'password', null);
-
-		// Get the Ldap configuration from the factory if required
-		$config = is_null($config) ? SHFactory::getConfig() : $config;
-
-		// Get the source from the config
-		$source = (int) $config->get('ldap.config', self::CONFIG_SQL);
-
-		/*
-		 * SQL configuration may have multiple configurations, therefore
-		 * we must loop round each until we can find the username if one
-		 * has been specified otherwise, we just return the first known
-		 * configuration.
-		 */
-		if ($source === self::CONFIG_SQL)
-		{
-			// Get all the Ldap configuration from the database
-			$servers = self::getParamsIDs();
-
-			if (!is_array($servers))
-			{
-				// No Ldap configuration host results found
-				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12603'), 12603, JLog::ERROR, 'ldap');
-				return false;
-			}
-
-			// Loop around all the Ldap configurations found
-			foreach (array_keys($servers) as $id)
-			{
-				// Get the parameters for this Ldap configuration
-				if ($params = self::getParams($id, $config, $source))
-				{
-					if ($ldap = self::authenticateLdap($params, $authenticate, $username, $password))
-					{
-						// This is the correct configuration so return the new client
-						return $ldap;
-					}
-				}
-			}
-
-		}
-		else
-		{
-			// We just get the Ldap parameters assuming there is only one configuration
-			if ($params = self::getParams(1, $config, $source))
-			{
-				if ($ldap = self::authenticateLdap($params, $authenticate, $username, $password))
-				{
-					// This is the correct configuration so return the new client
-					return $ldap;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Attempts to Ldap authorise/authenticate with the parameters specified.
-	 *
-	 * @param   mixed    $ldap          Either a JRegistry of parameters OR a SHLdap object.
-	 * @param   integer  $authenticate  Authenticate the username and password supplied with the Ldap object.
-	 * @param   string   $username      Authorisation/authentication username.
-	 * @param   string   $password      Authentication password.
-	 *
-	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public static function authenticateLdap($ldap, $authenticate, $username, $password)
-	{
-		try
-		{
-			// Check if we have an already instantiated Ldap object
-			if (!$ldap instanceof SHLdap)
-			{
-				// Attempt to instantiate an Ldap client object with the configuration
-				if (!$ldap = new SHLdap($ldap))
-				{
-					return false;
-				}
-			}
-
-			// Start the LDAP connection procedure
-			if ($ldap->connect() !== true)
-			{
-				// Failed to connect - process an error log
-				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12605'), 12605, JLog::ERROR, 'ldap');
-
-				// Unset this Ldap client and try the next configuration
-				unset($ldap);
-				return false;
-			}
-
-			/*
-			 * Check if we only want a proxy user. If so then we can just return after
-			 * connecting to one.
-			 */
-			if ($authenticate === self::AUTH_PROXY)
-			{
-				if ($ldap->proxyBind())
-				{
-					return $ldap;
-				}
-
-				return false;
-			}
-
-			/*
-			 * Check if a username has been specified. If not then assume this is the correct
-			 * Ldap configuration and return it.
-			 */
-			if (($authenticate === self::AUTH_NONE) && is_null($username))
-			{
-				return $ldap;
-			}
-
-			/* We will now get the authenticated user's dn.
-			 * In this method we are also going to test the
-			 * dn against the password. Therefore, if any dn
-			 * is returned, it is a successfully authenticated
-			 * user.
-			 */
-			if (!$dn = $ldap->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false))
-			{
-				// Failed to get users Ldap distinguished name - process an error log
-				SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12606'), 12606, JLog::ERROR, 'ldap');
-
-				// Unset this Ldap client and try the next configuration
-				$ldap->close();
-				unset($ldap);
-				return false;
-			}
-
-			// Successfully authenticated and retrieved User DN.
-			return $ldap;
-		}
-		catch (Exception $e)
-		{
-			unset($ldap);
-			SHLog::add(JText::_('Something went very wrong with the Ldap client ' . $e->getMessage()), 0, JLog::ERROR, 'ldap');
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns the ID of the SQL record for the specified Ldap name.
-	 *
-	 * @param   string  $name  Ldap name (i.e. domain).
-	 *
-	 * @return  integer  Record ID.
-	 *
-	 * @since   2.0
-	 */
-	public static function getParamsIDFromName($name)
-	{
-		// Get the Ldap configuration from the factory
-		$config = SHFactory::getConfig();
-
-		// Get the database table using the sh_ldap_config as default
-		$table = $config->get('ldap.table', '#__sh_ldap_config');
-
-		// Get the global JDatabase object
-		$db = JFactory::getDbo();
-
-		$query = $db->getQuery(true);
-
-		// Do the SQL query
-		$query->select($query->qn('ldap_id'))
-			->from($query->qn($table))
-			->where($query->qn('enabled') . '>= 1')
-			->where($query->qn('name') . '=' . $query->q($name));
-
-		$db->setQuery($query);
-
-		// Execute the query
-		$result = $db->loadResult();
-
-		return $result;
-	}
-
-	/**
-	 * Returns all the Ldap configured IDs and names in an associative array
-	 * where [id] => [name].
-	 *
-	 * @return  Array  Array of configured IDs
-	 *
-	 * @since   2.0
-	 */
-	public static function getParamsIDs()
-	{
-		// Get the Ldap configuration from the factory
-		$config = SHFactory::getConfig();
-
-		// Get the database table using the sh_ldap_config as default
-		$table = $config->get('ldap.table', '#__sh_ldap_config');
-
-		// Get the global JDatabase object
-		$db = JFactory::getDbo();
-
-		$query = $db->getQuery(true);
-
-		// Do the SQL query
-		$query->select($query->qn('ldap_id'))
-			->select($query->qn('name'))
-			->from($query->qn($table))
-			->where($query->qn('enabled') . '>= 1');
-
-		$db->setQuery($query);
-
-		// Execute the query
-		$results = $db->loadAssocList('ldap_id', 'name');
-
-		return $results;
-	}
-
-	/**
-	 * Returns if the current or specified user was authenticated
-	 * via LDAP.
-	 *
-	 * @param   integer  $user  Optional user id (if null then uses current user).
-	 *
-	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
-	 *
-	 * @since   2.0
-	 */
-	public static function isUserLdap($user = null)
-	{
-		if (is_null($user) || is_numeric($user))
-		{
-			// The input variable indicates we must load the user object
-			if (JFactory::getUser($user)->getParam('authtype') == 'LDAP')
-			{
-				// This user has the LDAP auth type
-				return true;
-			}
-		}
-		elseif ($user instanceof JUser)
-		{
-			// Direct access of the object
-			if ($user->getParam('authtype') == 'LDAP')
-			{
-				// This user has the LDAP auth type
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Sets the flag for the specified user's parameters for
-	 * LDAP authentication.
-	 *
-	 * @param   JUser|Integer  &$user  Specified user to set parameter
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0
-	 */
-	public static function setUserLdap(&$user = null)
-	{
-		if (is_null($user) || is_int($user))
-		{
-			// The input variable indicates we must load the user object
-			JFactory::getUser($user)->setParam('authtype', 'LDAP');
-		}
-		elseif ($user instanceof JUser)
-		{
-			// Direct manipulation of the object
-			$user->setParam('authtype', 'LDAP');
-		}
 	}
 
 	/**
@@ -496,7 +272,7 @@ abstract class SHLdapHelper
 	 *
 	 * @since   2.0
 	 */
-	public static function convert($parameters, $convert = 'SHLdap')
+	public static function convertConfig($parameters, $convert = 'SHLdap')
 	{
 		$converted = array();
 
@@ -597,7 +373,175 @@ abstract class SHLdapHelper
 			return $converted;
 
 		}
+	}
 
+	/**
+	 * @deprecated  Use SHLdapHelper::getConfig
+	 */
+	public static function getParams($id, JRegistry $config = null, $source = self::CONFIG_AUTO)
+	{
+		return self::getConfig($id, $config, $source);
+	}
+
+	/**
+	 * @deprecated  Use SHLdap::getInstance
+	 */
+	public static function getClient(array $authorised = array(), JRegistry $config = null)
+	{
+		return SHLdap::getInstance(null, $authorised, $config);
+	}
+
+	/**
+	 * @deprecated  Use SHLdapHelper::getConfigIDFromName
+	 */
+	public static function getParamsIDFromName($name)
+	{
+		return self::getConfigIDFromName($name);
+	}
+
+	/**
+	 * Returns the ID of the SQL record for the specified Ldap name.
+	 *
+	 * @param   string  $name  Ldap name (i.e. domain).
+	 *
+	 * @return  integer  Record ID.
+	 *
+	 * @since   2.0
+	 */
+	public static function getConfigIDFromName($name)
+	{
+		// Get the Ldap configuration from the factory
+		$config = SHFactory::getConfig();
+
+		// Get the database table using the sh_ldap_config as default
+		$table = $config->get('ldap.table', '#__sh_ldap_config');
+
+		// Get the global JDatabase object
+		$db = JFactory::getDbo();
+
+		$query = $db->getQuery(true);
+
+		// Do the SQL query
+		$query->select($query->qn('ldap_id'))
+			->from($query->qn($table))
+			->where($query->qn('enabled') . '>= 1')
+			->where($query->qn('name') . '=' . $query->q($name));
+
+		$db->setQuery($query);
+
+		// Execute the query
+		$result = $db->loadResult();
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated  Use SHLdapHelper::getConfigIDs
+	 */
+	public static function getParamsIDs()
+	{
+		return self::getConfigIDs();
+	}
+
+	/**
+	 * Returns all the Ldap configured IDs and names in an associative array
+	 * where [id] => [name].
+	 *
+	 * @return  Array  Array of configured IDs
+	 *
+	 * @since   2.0
+	 */
+	public static function getConfigIDs()
+	{
+		// Get the Ldap configuration from the factory
+		$config = SHFactory::getConfig();
+
+		// Get the database table using the sh_ldap_config as default
+		$table = $config->get('ldap.table', '#__sh_ldap_config');
+
+		// Get the global JDatabase object
+		$db = JFactory::getDbo();
+
+		$query = $db->getQuery(true);
+
+		// Do the SQL query
+		$query->select($query->qn('ldap_id'))
+			->select($query->qn('name'))
+			->from($query->qn($table))
+			->where($query->qn('enabled') . '>= 1');
+
+		$db->setQuery($query);
+
+		// Execute the query
+		$results = $db->loadAssocList('ldap_id', 'name');
+
+		return $results;
+	}
+
+	/**
+	 * Returns if the current or specified user was authenticated
+	 * via LDAP.
+	 *
+	 * @param   integer  $user  Optional user id (if null then uses current user).
+	 *
+	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
+	 *
+	 * @since   2.0
+	 */
+	public static function isUserLdap($user = null)
+	{
+		if (is_null($user) || is_numeric($user))
+		{
+			// The input variable indicates we must load the user object
+			if (JFactory::getUser($user)->getParam('authtype') == 'LDAP')
+			{
+				// This user has the LDAP auth type
+				return true;
+			}
+		}
+		elseif ($user instanceof JUser)
+		{
+			// Direct access of the object
+			if ($user->getParam('authtype') == 'LDAP')
+			{
+				// This user has the LDAP auth type
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the flag for the specified user's parameters for
+	 * LDAP authentication.
+	 *
+	 * @param   JUser|Integer  &$user  Specified user to set parameter
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public static function setUserLdap(&$user = null)
+	{
+		if (is_null($user) || is_int($user))
+		{
+			// The input variable indicates we must load the user object
+			JFactory::getUser($user)->setParam('authtype', 'LDAP');
+		}
+		elseif ($user instanceof JUser)
+		{
+			// Direct manipulation of the object
+			$user->setParam('authtype', 'LDAP');
+		}
+	}
+
+	/**
+	 * @deprecated  Use SHLdapHelper::convertConfig
+	 */
+	public static function convert($parameterts, $convert = 'SHLdap')
+	{
+		return self::convertConfig($parameters, $convert);
 	}
 
 	/**

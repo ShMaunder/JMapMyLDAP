@@ -250,6 +250,18 @@ class SHLdapBase extends JObject
 	}
 
 	/**
+	 * Returns host and port information for this object.
+	 *
+	 * @return  string  Host and Port.
+	 *
+	 * @since   2.0
+	 */
+	public function getInfo()
+	{
+		return $this->host . ':' . $this->port;
+	}
+
+	/**
 	 * Attempt connection to an LDAP server and returns the result.
 	 *
 	 * @return  boolean  Returns True on success or False on failure.
