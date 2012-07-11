@@ -58,101 +58,145 @@ class LdapCron extends JApplicationCli
 		// Setup some stats
 		$failed 	= 0;
 		$success 	= 0;
-
-		// Get the user filter
-		$config = SHFactory::getConfig();
-		$userFilter = $config->get('ldap.userfilter', '(objectclass=user)');
+		$errors		= array();
 
 		// It appears we have to tell the system we are running with the site otherwise bad things happen
 		JFactory::getApplication('site');
 
-		// Bind with the proxy user. TODO allow multiple configs as well.
-		$ldap = SHLdapHelper::getClient(array('authenticate' => SHLdapHelper::AUTH_PROXY));
+		$this->out('Started LDAP Cron Script for Joomla!');
 
-		// Get all the Ldap users in the directory
-		if (!$result = $ldap->search(null, $userFilter, array('dn')))
+		// Get all the valid configurations
+		if (!$configs = SHLdapHelper::getConfig())
 		{
-			$this->out("Failed to connect to Ldap with error: {$ldap->getError()}");
+			// Failed to find any Ldap configs
+			$this->out('Failed to find any LDAP configurations');
 			$this->close(1);
 		}
 
-		// Loop around each Ldap user
-		for ($i = 0; $i < $result->countEntries(); ++$i)
+		$count = count($configs);
+		$this->out("Found $count LDAP configurations")->out();
+
+		// Check if only a single config was found
+		if ($configs instanceof JRegistry)
 		{
-			// Get the Ldap User DN
-			$dn = $result->getDN($i);
+			/*
+			 * To make things easier, we pretend we returned multiple Ldap configs
+			 * by casting the single entry into an array.
+			 */
+			$configs = array($configs);
+		}
 
-			// Get the Ldap user attributes
-			$source = $ldap->getUserDetails($dn);
+		// Loop around each LDAP configuration
+		foreach ($configs as $config)
+		{
+			// Get a new Ldap object
+			$ldap = new SHLdap($config);
 
-			// Get the core mandatory J! user fields
-			$username = (isset($source[$ldap->getUid()][0])) ? $source[$ldap->getUid()][0] : null;
-			$fullname = (isset($source[$ldap->getFullname()][0])) ? $source[$ldap->getFullname()][0] : null;
-			$email = (isset($source[$ldap->getEmail()][0])) ? $source[$ldap->getEmail()][0] : null;
-
-			$this->out()->out("Processing user {$username}");
-
-			if (empty($fullname))
+			// Bind with the proxy user
+			if (!$ldap->authenticate(SHLdap::AUTH_PROXY))
 			{
-				// Full name doesnt exist; use the username instead
-				$fullname = $username;
-			}
+				// Something is wrong with this LDAP configuration - cannot bind to proxy user
+				$errors[] = "Failed to bind with the proxy user for LDAP configuration: {$ldap->getInfo()}";
+				unset($ldap);
 
-			if (empty($email))
-			{
-				// Email doesnt exist; cannot proceed
-				$this->out("Empty email not allowed for user {$username}");
-				++$failed;
 				continue;
 			}
 
-			// Create the user array to enable creating a JUser object
-			$user = array(
-				'fullname' => $fullname,
-				'username' => $username,
-				'password_clear' => null,
-				'email' => $email
-			);
-
-			// Create a JUser object from the Ldap user
-			$options = array();
-			$instance = SHUserHelper::getUser($user, $options);
-
-			if ($instance === false)
+			// Get all the Ldap users in the directory
+			if (!$result = $ldap->search(null, $ldap->getAllUserFilter(), array('dn')))
 			{
-				// Failed to get the user either due to save error or autoregister
-				$this->out("Failed to create a JUser object for {$username}");
-				++$failed;
+				// Failed to search for all users in the directory
+				$errors[] = "Failed to search all users in the directory with error: {$ldap->getError()}";
+				unset($ldap);
+
 				continue;
 			}
 
-			// Set this user as an LDAP user
-			SHLdapHelper::setUserLdap($instance);
-
-			// Attach the attributes to the user
-			$user[SHLdapHelper::ATTRIBUTE_KEY] = $source;
-
-			// Fire the Ldap specific on Sync feature
-			$sync = SHLdapHelper::triggerEvent('onLdapSync', array(&$instance, $user, $options));
-
-			// Check if the synchronise was successfully and report
-			if ($sync)
+			// Loop around each Ldap user
+			for ($i = 0; $i < $result->countEntries(); ++$i)
 			{
-				$this->out("Successfully synchronised user {$username}");
-				++$success;
-				$instance->save();
+				// Get the Ldap User DN
+				$dn = $result->getDN($i);
+
+				// Get the Ldap user attributes
+				$source = $ldap->getUserDetails($dn);
+
+				// Get the core mandatory J! user fields
+				$username = (isset($source[$ldap->getUid()][0])) ? $source[$ldap->getUid()][0] : null;
+				$fullname = (isset($source[$ldap->getFullname()][0])) ? $source[$ldap->getFullname()][0] : null;
+				$email = (isset($source[$ldap->getEmail()][0])) ? $source[$ldap->getEmail()][0] : null;
+
+				if (empty($fullname))
+				{
+					// Full name doesnt exist; use the username instead
+					$fullname = $username;
+				}
+
+				if (empty($email))
+				{
+					// Email doesnt exist; cannot proceed
+					$errors[] = ("Empty email not allowed for user: {$username}");
+					++$failed;
+					continue;
+				}
+
+				// Create the user array to enable creating a JUser object
+				$user = array(
+					'fullname' => $fullname,
+					'username' => $username,
+					'password_clear' => null,
+					'email' => $email
+				);
+
+				// Create a JUser object from the Ldap user
+				$options = array();
+				$instance = SHUserHelper::getUser($user, $options);
+
+				if ($instance === false)
+				{
+					// Failed to get the user either due to save error or autoregister
+					$errors[] = ("Failed to create a JUser object for user: {$username}");
+					++$failed;
+					continue;
+				}
+
+				// Set this user as an LDAP user
+				SHLdapHelper::setUserLdap($instance);
+
+				// Attach the attributes to the user
+				$user[SHLdapHelper::ATTRIBUTE_KEY] = $source;
+
+				// Fire the Ldap specific on Sync feature
+				$sync = SHLdapHelper::triggerEvent('onLdapSync', array(&$instance, $user, $options));
+
+				// Check if the synchronise was successfully and report
+				if ($sync)
+				{
+					$this->out("Successfully synchronised user: {$username}");
+					++$success;
+					$instance->save();
+				}
+				else
+				{
+					$errors[] = ("Failed to synchronise user: {$username}");
+					++$failed;
+				}
 			}
-			else
-			{
-				$this->out("Failed to synchronise user {$username}");
-				++$failed;
-			}
+
 		}
 
 		// Print out some results and stats
-		$this->out()->out('=== LDAP Results ===');
-		$this->out("Success: {$success}");
-		$this->out("Failed:  {$failed}");
+		$this->out()->out()->out('======= LDAP Results =======')->out();
+
+		$this->out("Errors: ");
+		foreach ($errors as $error)
+		{
+			$this->out(' ' . (string) $error);
+		}
+
+		$this->out()->out("Users Success: {$success}");
+		$this->out("Users Failed:  {$failed}");
+		$this->out()->out('============================');
 
 	}
 }
