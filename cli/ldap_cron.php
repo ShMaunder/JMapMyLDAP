@@ -73,9 +73,6 @@ class LdapCron extends JApplicationCli
 			$this->close(1);
 		}
 
-		$count = count($configs);
-		$this->out("Found $count LDAP configurations")->out();
-
 		// Check if only a single config was found
 		if ($configs instanceof JRegistry)
 		{
@@ -85,6 +82,9 @@ class LdapCron extends JApplicationCli
 			 */
 			$configs = array($configs);
 		}
+
+		$count = count($configs);
+		$this->out("Found $count LDAP configurations")->out();
 
 		// Loop around each LDAP configuration
 		foreach ($configs as $config)
