@@ -219,6 +219,14 @@ abstract class SHLdapHelper
 				// Include the file
 				include_once $file;
 
+				// Check if we need to treat the ID as a position for later
+				$position = 0;
+				if (is_numeric($id))
+				{
+					$position = (int) $id;
+					$id = null;
+				}
+
 				// Generate the namesapce
 				$namespaces = is_null($id) ? $registry->get('ldap.namespaces', '') : $id;
 
@@ -237,6 +245,24 @@ abstract class SHLdapHelper
 					{
 						// Unable to load the file namespace specified
 						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10607', $namespaces[0], $file), 10607, JLog::ERROR, 'ldap');
+					}
+				}
+				// Check if we need a specific configuration ID (this would be from domain logins)
+				elseif ($position > 0)
+				{
+					// Check it exists at the point
+					if (isset($namespaces[$position]))
+					{
+						// Attempt to create it then return it
+						if ($config = self::createFileConfig($namespaces[$position]))
+						{
+							return $config;
+						}
+					}
+					else
+					{
+						// Unable to load the file namespace specified
+						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10609', $position, $file), 10609, JLog::ERROR, 'ldap');
 					}
 				}
 				else
@@ -474,6 +500,8 @@ abstract class SHLdapHelper
 	/**
 	 * Returns all the Ldap configured IDs and names in an associative array
 	 * where [id] => [name].
+	 *
+	 * @param   JRegistry  $registry  Platform configuration.
 	 *
 	 * @return  Array  Array of configured IDs
 	 *
