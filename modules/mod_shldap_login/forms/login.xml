@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="credentials">
+		<field name="username" type="text"
+			class="inputbox"
+			filter="username"
+			label="MOD_SHLDAP_LOGIN_VALUE_USERNAME"
+			size="20"
+			validate="username"
+			id="modlgn-username"
+		/>
+
+		<field name="password" type="password"
+			class="inputbox"
+			filter="raw"
+			label="JGLOBAL_PASSWORD"
+			size="20"
+			id="modlgn-password"
+		/>
+		
+		<field name="ldapdomain" type="sh.ldapdomain"
+			filter="int"
+			label="MOD_SHLDAP_LOGIN_VALUE_DOMAIN"
+			id="modlgn-domain"
+		/>
+		
+		<field name="remember" type="checkbox"
+			class="inputbox"
+			filter="boolean"
+			label="MOD_SHLDAP_LOGIN_REMEMBER_ME"
+			default="0"
+			value="yes"
+			id="modlgn-remember"
+		/>
+	</fieldset>
+</form>
