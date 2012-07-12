@@ -216,32 +216,56 @@ abstract class SHLdapHelper
 			// Check the file is valid and exists
 			if (!empty($file) && file_exists($file))
 			{
-
 				// Include the file
 				include_once $file;
 
 				// Generate the namesapce
-				$namespace = empty($id) ? '' : $id;
+				$namespaces = is_null($id) ? $registry->get('ldap.namespaces', '') : $id;
 
-				// Sanitize the namespace
-				$namespace = ucfirst((string) preg_replace('/[^A-Z_]/i', '', $namespace));
+				// Split multiple namespaces
+				$namespaces = explode(';', $namespaces);
 
-				// Build the config name
-				$name = 'SHLdapConfig' . $namespace;
-
-				// Handle the PHP configuration type.
-				if (class_exists($name))
+				// Check if we are dealing with more than one namespace
+				if (count($namespaces) === 1)
 				{
-					$config = new JRegistry;
-
-					// Create the JConfig object
-					$params = new $name;
-
-					// Load the configuration values into the registry
-					$config->loadObject($params);
-
-					return $config;
+					// Only one namespace; attempt to create it then return it
+					if ($config = self::createFileConfig($namespaces[0]))
+					{
+						return $config;
+					}
+					else
+					{
+						// Unable to load the file namespace specified
+						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10607', $namespaces[0], $file), 10607, JLog::ERROR, 'ldap');
+					}
 				}
+				else
+				{
+					$configs = array();
+
+					// Multiple namespaces so loop around each and attempt to create one
+					foreach ($namespaces as $namespace)
+					{
+						// Create the namespace and add it to the configs array if it exists
+						if ($config = self::createFileConfig($namespace))
+						{
+							$configs[] = $config;
+						}
+					}
+
+					// Check we have some configs
+					if (count($configs))
+					{
+						// Return the multiple configs
+						return $configs;
+					}
+					else
+					{
+						// No file configurations found
+						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10608', $file), 10608, JLog::ERROR, 'ldap');
+					}
+				}
+
 			}
 			else
 			{
@@ -256,6 +280,42 @@ abstract class SHLdapHelper
 		}
 
 		// Failed to find a valid config
+		return false;
+	}
+
+	/**
+	 * Creates and returns an object to the specified namespace class.
+	 * This is used for LDAP configuration files.
+	 *
+	 * @param   string  $namespace  Name of namespace.
+	 *
+	 * @return  object  Object to configuration.
+	 *
+	 * @since   2.0
+	 */
+	protected static function createFileConfig($namespace)
+	{
+		// Sanitize the namespace
+		$namespace = ucfirst((string) preg_replace('/[^A-Z_]/i', '', $namespace));
+
+		// Build the config name
+		$name = 'SHLdapConfig' . $namespace;
+
+		// Handle the PHP configuration type.
+		if (class_exists($name))
+		{
+			$config = new JRegistry;
+
+			// Create the JConfig object
+			$params = new $name;
+
+			// Load the configuration values into the registry
+			$config->loadObject($params);
+
+			return $config;
+		}
+
+		// Failed to create config file
 		return false;
 	}
 
@@ -376,30 +436,6 @@ abstract class SHLdapHelper
 	}
 
 	/**
-	 * @deprecated  Use SHLdapHelper::getConfig
-	 */
-	public static function getParams($id, JRegistry $config = null, $source = self::CONFIG_AUTO)
-	{
-		return self::getConfig($id, $config, $source);
-	}
-
-	/**
-	 * @deprecated  Use SHLdap::getInstance
-	 */
-	public static function getClient(array $authorised = array(), JRegistry $config = null)
-	{
-		return SHLdap::getInstance(null, $authorised, $config);
-	}
-
-	/**
-	 * @deprecated  Use SHLdapHelper::getConfigIDFromName
-	 */
-	public static function getParamsIDFromName($name)
-	{
-		return self::getConfigIDFromName($name);
-	}
-
-	/**
 	 * Returns the ID of the SQL record for the specified Ldap name.
 	 *
 	 * @param   string  $name  Ldap name (i.e. domain).
@@ -436,14 +472,6 @@ abstract class SHLdapHelper
 	}
 
 	/**
-	 * @deprecated  Use SHLdapHelper::getConfigIDs
-	 */
-	public static function getParamsIDs()
-	{
-		return self::getConfigIDs();
-	}
-
-	/**
 	 * Returns all the Ldap configured IDs and names in an associative array
 	 * where [id] => [name].
 	 *
@@ -451,31 +479,48 @@ abstract class SHLdapHelper
 	 *
 	 * @since   2.0
 	 */
-	public static function getConfigIDs()
+	public static function getConfigIDs($registry = null)
 	{
 		// Get the Ldap configuration from the factory
-		$config = SHFactory::getConfig();
+		$registry = (is_null($registry)) ? SHFactory::getConfig() : $registry;
 
-		// Get the database table using the sh_ldap_config as default
-		$table = $config->get('ldap.table', '#__sh_ldap_config');
+		// Get the Ldap configuration source (e.g. sql | plugin | file)
+		$source = (int) $registry->get('ldap.config', self::CONFIG_SQL);
 
-		// Get the global JDatabase object
-		$db = JFactory::getDbo();
+		if ($source === self::CONFIG_SQL)
+		{
+			// Get the database table using the sh_ldap_config as default
+			$table = $registry->get('ldap.table', '#__sh_ldap_config');
 
-		$query = $db->getQuery(true);
+			// Get the global JDatabase object
+			$db = JFactory::getDbo();
 
-		// Do the SQL query
-		$query->select($query->qn('ldap_id'))
-			->select($query->qn('name'))
-			->from($query->qn($table))
-			->where($query->qn('enabled') . '>= 1');
+			$query = $db->getQuery(true);
 
-		$db->setQuery($query);
+			// Do the SQL query
+			$query->select($query->qn('ldap_id'))
+				->select($query->qn('name'))
+				->from($query->qn($table))
+				->where($query->qn('enabled') . '>= 1');
 
-		// Execute the query
-		$results = $db->loadAssocList('ldap_id', 'name');
+			$db->setQuery($query);
 
-		return $results;
+			// Execute the query
+			$results = $db->loadAssocList('ldap_id', 'name');
+
+			return $results;
+		}
+		elseif ($source === self::CONFIG_FILE)
+		{
+			// Generate the namesapce
+			if ($namespaces = $registry->get('ldap.namespaces', false))
+			{
+				// Split multiple namespaces
+				$namespaces = explode(';', $namespaces);
+
+				return $namespaces;
+			}
+		}
 	}
 
 	/**
@@ -537,14 +582,6 @@ abstract class SHLdapHelper
 	}
 
 	/**
-	 * @deprecated  Use SHLdapHelper::convertConfig
-	 */
-	public static function convert($parameterts, $convert = 'SHLdap')
-	{
-		return self::convertConfig($parameters, $convert);
-	}
-
-	/**
 	 * Gets the user attributes from LDAP. This method will in fire the
 	 * individual LDAP plugin onLdapBeforeRead and onLdapAfterRead methods.
 	 *
@@ -559,7 +596,7 @@ abstract class SHLdapHelper
 	 */
 	public static function getUserDetails($username)
 	{
-		if ($ldap = self::getClient(array('username' => $username)))
+		if ($ldap = SHLdap::getInstance(null, array('username' => $username)))
 		{
 			$dn = $ldap->getLastUserDN();
 

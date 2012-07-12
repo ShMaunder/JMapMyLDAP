@@ -64,6 +64,8 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
 10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
 
+10600-10799 :: LDAP HELPER
+
 11901-11999 - LDAP plug-in calls
 
 

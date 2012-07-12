@@ -77,17 +77,25 @@ class PlgAuthenticationSHLdap extends JPlugin
 			return false;
 		}
 
+		// Check if a Domain is present which represents a configuration ID
+		if (($domain = JArrayHelper::getValue($options, 'domain', null, 'int')) <= 0)
+		{
+			// Not a valid configuration ID
+			$domain = null;
+		}
+
 		/*
 		 * Attempt to authenticate with Ldap. This method will automatically detect
 		 * the correct configuration (if multiple ones are specified) and return a
 		 * SHLdap object. If this method returns false, then the authentication was
 		 * unsuccessful.
 		 */
-		if ($ldap = SHLdapHelper::getClient(
+		if ($ldap = SHLdap::getInstance(
+			$domain,
 			array(
 				'username' => $credentials['username'],
 				'password' => $credentials['password'],
-				'authenticate' => SHLdapHelper::AUTH_USER
+				'authenticate' => SHLdap::AUTH_USER
 			)
 		))
 		{
@@ -168,8 +176,8 @@ class PlgAuthenticationSHLdap extends JPlugin
 			 * unsuccessful - basically the user was not found or configuration was
 			 * bad.
 			 */
-			if (!$ldap = SHLdapHelper::getClient(
-				array('username' => $response->username)
+			if (!$ldap = SHLdap::getInstance(
+				null, array('username' => $response->username)
 			))
 			{
 				// Failed to authoriser the user, probably not an Ldap user

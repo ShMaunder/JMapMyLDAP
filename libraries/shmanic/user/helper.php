@@ -32,7 +32,7 @@ abstract class SHUserHelper
 	 *
 	 * @since   1.0
 	 */
-	public static function &getUser(array $user, $options = array())
+	public static function getUser(array $user, $options = array())
 	{
 		$instance = JUser::getInstance();
 
@@ -75,14 +75,16 @@ abstract class SHUserHelper
 			if (!$instance->save())
 			{
 				// Failed to save the user to the database
-				SHLog::add(JText::sprintf('LIB_SHLDAP_ERR_10501', $instance->getError()), 10501, JLog::ERROR);
+				SHLog::add(
+					JText::sprintf('LIB_SHUSERHELPER_ERR_10501', $user['username'], $instance->getError()), 10501, JLog::ERROR
+				);
 				return false;
 			}
 		}
 		else
 		{
 			// We don't want to proceed if autoregister is not enabled
-			SHLog::add(JText::_('LIB_SHLDAP_ERR_10502'), 10502, JLog::ERROR);
+			SHLog::add(JText::sprintf('LIB_SHUSERHELPER_ERR_10502', $user['username']), 10502, JLog::ERROR);
 			return false;
 		}
 

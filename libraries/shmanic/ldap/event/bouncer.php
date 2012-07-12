@@ -294,12 +294,12 @@ class SHLdapEventBouncer extends JEvent
 		{
 
 			$authorised = array(
-				'authorise' => SHLdapHelper::AUTH_USER,
+				'authorise' => SHLdap::AUTH_USER,
 				'username' => $user['username'],
 				'password' => $user['password']
 			);
 
-			if (!$ldap = SHLdapHelper::getClient($authorised))
+			if (!$ldap = SHLdap::getInstance(null, $authorised))
 			{
 				// Failed to get an Ldap connection - this could be bad parameter conversion
 				return;

@@ -37,5 +37,8 @@ if (!class_exists('SHFactory'))
 	require_once SHPATH_PLATFORM . '/factory.php';
 }
 
+// Register the JForm class
+JForm::addFieldPath(SHPATH_PLATFORM . '/form/fields');
+
 // Register JComponentHelper in case it is required later
 JLoader::register('JComponentHelper', JPATH_PLATFORM . '/joomla/application/component/helper.php');

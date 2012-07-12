@@ -643,26 +643,26 @@ class SHLdapProfile extends JObject
 		if ($this->get('allow_ldap_proxy', 1))
 		{
 			// Use the proxy username and password for Ldap.
-			$auth = array('authenticate' => SHLdapHelper::AUTH_PROXY);
+			$auth = array('authenticate' => SHLdap::AUTH_PROXY);
 		}
 		else
 		{
 			// Use the supplied username and password for Ldap.
 			$auth = array(
-				'authenticate' => SHLdapHelper::AUTH_USER,
+				'authenticate' => SHLdap::AUTH_USER,
 				'username' => $username,
 				'password' => $password
 			);
 		}
 
-		if (!$ldap = SHLdapHelper::getClient($auth))
+		if (!$ldap = SHLdap::getInstance(null, $auth))
 		{
 			// Error: failed to connect to LDAP
 			SHLog::add(JText::_('LIB_LDAP_PROFILE_ERR_12231'), 12231, JLog::ERROR, 'ldap');
 			return false;
 		}
 
-		if ($auth['authenticate'] === SHLdapHelper::AUTH_PROXY)
+		if ($auth['authenticate'] === SHLdap::AUTH_PROXY)
 		{
 			// Due to using the proxy user, we must find the owner of the profile in Ldap.
 			if (!$dn = $ldap->getUserDN($username, null, false))

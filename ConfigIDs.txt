@@ -26,14 +26,14 @@ ldap.config
 ldap.table
  [When config is SQL, specify the SQL table to use for configuration]
 
-ldap.servers
- [Number of servers configured in the LDAP configuration]
-
 ldap.plugin
  [Authentication Plugin name of the LDAP configuration]
 
-ldap.userfilter
- [Used for cron job - filter for selected all users e.g. (objectclass=user)]
+ldap.file
+ [Used to store a location of Ldap configuration file]
+
+ldap.namespaces
+ [Used to store namespaces of Ldap files]
 
 
 

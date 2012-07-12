@@ -22,6 +22,28 @@ defined('JPATH_PLATFORM') or die;
 class SHLog
 {
 	/**
+	 * List of IDs to ignore (not report).
+	 *
+	 * @var    array[integer]
+	 * @since  2.0
+	 */
+	protected static $ignore = array();
+
+	/**
+	 * Add an Error ID to the ignore list.
+	 *
+	 * @param   integer  $id  Error ID.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public static function addIgnore($id)
+	{
+		self::$ignore[] = (int) $id;
+	}
+
+	/**
 	 * Imports the logging plugin group; these are imported with the
 	 * Joomla dispatcher.
 	 *
@@ -68,12 +90,16 @@ class SHLog
 			}
 		}
 
-		// Inform any logging plugins that an entry has been produced
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onLogEntry', array($entry));
+		// Check the Error ID is not listed as ignored
+		if (!in_array((int) $id, self::$ignore))
+		{
+			// Inform any logging plugins that an entry has been produced
+			$dispatcher = JDispatcher::getInstance();
+			$dispatcher->trigger('onLogEntry', array($entry));
 
-		// Add the entry to all avilable loggers
-		JLog::add($entry);
+			// Add the entry to all avilable loggers
+			JLog::add($entry);
+		}
 	}
 
 }
