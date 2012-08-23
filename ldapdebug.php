@@ -342,7 +342,7 @@ if ($reqResult = $input->get('result', 0, 'int'))
  		 */
 
 		// Ensure the Shmanic platform have been loaded
-		if (!defined('SH_PLATFORM'))
+		if (!defined('SHPATH_PLATFORM'))
 		{
 			require_once JPATH_PLATFORM . '/shmanic/import.php';
 		}

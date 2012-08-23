@@ -285,7 +285,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 	private function _checkPlatform()
 	{
 		// Check if the Shmanic platform has already been imported
-		if (!defined('SH_PLATFORM'))
+		if (!defined('SHPATH_PLATFORM'))
 		{
 			$platform = JPATH_PLATFORM . '/shmanic/import.php';
 
