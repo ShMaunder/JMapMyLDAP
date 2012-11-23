@@ -153,6 +153,46 @@ class SHLdapBase extends JObject
 	protected $resource = null;
 
 	/**
+	 * Method to get certain otherwise inaccessible properties from the base ldap object.
+	 *
+	 * @param   string  $name  The property name for which to the the value.
+	 *
+	 * @return  mixed  The property value or null.
+	 *
+	 * @since   2.0
+	 */
+	public function __get($name)
+	{
+		switch ($name)
+		{
+			case 'ldap_fullname':
+			case 'ldap_email':
+			case 'ldap_uid':
+				return $this->$name;
+				break;
+
+			case 'keyName':
+				return $this->ldap_fullname;
+				break;
+
+			case 'keyEmail':
+				return $this->ldap_email;
+				break;
+
+			case 'keyUid':
+				return $this->ldap_uid;
+				break;
+
+			case 'info':
+				return $this->host . ':' . $this->port;
+				break;
+
+		}
+
+		return null;
+	}
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  $configObj  An object of configuration variables
@@ -180,7 +220,7 @@ class SHLdapBase extends JObject
 		else
 		{
 			// Unknown format
-			throw new Exception(JText::_('LIB_SHLDAPBASE_ERR_990'), 990);
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_990'), 990);
 		}
 
 		// Passes the array back to the parent for class property assignment
@@ -190,7 +230,7 @@ class SHLdapBase extends JObject
 		if (!extension_loaded('ldap'))
 		{
 			// Ldap extension is not loaded
-			throw new Exception(JText::_('LIB_SHLDAPBASE_ERR_991'), 990);
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_991'), 990);
 		}
 
 		// Reset resource & debug
@@ -219,6 +259,7 @@ class SHLdapBase extends JObject
 	 * @return  string  Attribute key.
 	 *
 	 * @since   2.0
+	 * @deprecated  Use SHLdapBase::keyName
 	 */
 	public function getFullname()
 	{
@@ -231,6 +272,7 @@ class SHLdapBase extends JObject
 	 * @return  string  Email key.
 	 *
 	 * @since   2.0
+	 * @deprecated  Use SHLdapBase::keyEmail
 	 */
 	public function getEmail()
 	{
@@ -243,6 +285,7 @@ class SHLdapBase extends JObject
 	 * @return  string  Uid Key.
 	 *
 	 * @since   2.0
+	 * @deprecated  Use SHLdapBase::keyUid
 	 */
 	public function getUid()
 	{
@@ -255,96 +298,81 @@ class SHLdapBase extends JObject
 	 * @return  string  Host and Port.
 	 *
 	 * @since   2.0
+	 * @deprecated  Use SHLdapBase::info
 	 */
 	public function getInfo()
 	{
-		return $this->host . ':' . $this->port;
+		return $this->info;
 	}
 
 	/**
 	 * Attempt connection to an LDAP server and returns the result.
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on Success.
 	 *
 	 * @since   1.0
+	 * @throws  SHLdapException
 	 */
 	public function connect()
 	{
-
 		// A host parameter must be specified to connect
 		if (empty($this->host))
 		{
-			$this->setError(new SHLdapException(null, 10001, JText::_('LIB_SHLDAPBASE_ERR_10001')));
-			return false;
+			throw new SHLdapException(null, 10001, JText::_('LIB_SHLDAP_ERR_10001'));
 		}
 
-		// If there is a connection already, then close it before progressing
+		// If there is a connection already, then close it before proceeding
 		$this->close();
 
-		try
+		$this->addDebug("Attempting connection to LDAP with host {$this->host}");
+
+		/*
+		 * In most cases, even if we cannot connect, we won't
+		 * be able to find out until we have done our first
+		 * bind! This is because it will allocate a resource
+		 * whether it was able to connect to a server or not.
+		 */
+		$this->resource = ldap_connect($this->host, $this->port);
+
+		if (!$this->isConnected())
 		{
-
-			$this->addDebug("Attempting connection to LDAP with host {$this->host}");
-
-			/*
-			 * In most cases, even if we cannot connect, we won't
-			 * be able to find out until we have done our first
-			 * bind! This is because it will allocate a resource
-			 * whether it was able to connect to a server or not.
-			 */
-			$this->resource = ldap_connect($this->host, $this->port);
-
-			if (!$this->isConnected())
-			{
-				// Failed to connect
-				throw new SHLdapException(
-					$this->getErrorCode(), 10002, JText::sprintf('LIB_SHLDAPBASE_ERR_10002', $this->host . ':' . $this->port)
-				);
-			}
-
-			$this->addDebug(
-				"Successfully connected to {$this->host}. Setting the following parameters:" .
-				($this->use_v3 ? ' ldapV3' : null) . ($this->use_referrals ? ' Referrals' : null) .
-				($this->negotiate_tls ? ' TLS.' : null)
+			// Failed to connect
+			throw new SHLdapException(
+				$this->getErrorCode(), 10002, JText::sprintf('LIB_SHLDAP_ERR_10002', $this->info)
 			);
-
-			// Attempt to configure LDAP version 3
-			if ($this->use_v3)
-			{
-				if (!ldap_set_option($this->resource, LDAP_OPT_PROTOCOL_VERSION, 3))
-				{
-					// Failed to set LDAP version 3
-					throw new SHLdapException($this->getErrorCode(), 10003, JText::_('LIB_SHLDAPBASE_ERR_10003'));
-				}
-			}
-
-			// Attempt to set the referrals option
-			if (!ldap_set_option($this->resource, LDAP_OPT_REFERRALS, intval($this->use_referrals)))
-			{
-				// Failed to set referrals
-				throw new SHLdapException($this->getErrorCode(), 10004, JText::_('LIB_SHLDAPBASE_ERR_10004'));
-			}
-
-			// Attempt to configure Start TLS
-			if ($this->negotiate_tls)
-			{
-				if (!@ldap_start_tls($this->resource))
-				{
-					// Failed to start TLS
-					throw new SHLdapException($this->getErrorCode(), 10005, JText::_('LIB_SHLDAPBASE_ERR_10005'));
-				}
-			}
-
 		}
-		catch (SHLdapException $e)
+
+		$this->addDebug(
+			"Successfully connected to {$this->host}. Setting the following parameters:" .
+			($this->use_v3 ? ' ldapV3' : null) . ($this->use_referrals ? ' Referrals' : null) .
+			($this->negotiate_tls ? ' TLS.' : null)
+		);
+
+		// Attempt to configure LDAP version 3
+		if ($this->use_v3)
 		{
-			$this->setError($e);
-			return false;
+			if (!ldap_set_option($this->resource, LDAP_OPT_PROTOCOL_VERSION, 3))
+			{
+				// Failed to set LDAP version 3
+				throw new SHLdapException($this->getErrorCode(), 10003, JText::_('LIB_SHLDAP_ERR_10003'));
+			}
 		}
-		catch (Exception $e)
+
+		// Attempt to set the referrals option
+		if (!ldap_set_option($this->resource, LDAP_OPT_REFERRALS, intval($this->use_referrals)))
 		{
-			$this->setError(new SHLdapException(null, 10000, $e->getMessage()));
-			return false;
+			// Failed to set referrals
+			throw new SHLdapException($this->getErrorCode(), 10004, JText::_('LIB_SHLDAP_ERR_10004'));
+		}
+
+		// Attempt to configure Start TLS
+		if ($this->negotiate_tls)
+		{
+			if (!@ldap_start_tls($this->resource))
+			{
+				// Failed to start TLS
+				throw new SHLdapException($this->getErrorCode(), 10005, JText::_('LIB_SHLDAP_ERR_10005'));
+			}
 		}
 
 		// Connecting has been successful
@@ -356,7 +384,7 @@ class SHLdapBase extends JObject
 	* Checks whether a resource is defined in the LDAP resource variable.
 	* Note: this isn't reliable as an object is created when a connection is attempted.
 	*
-	* @return  boolean  Returns True on success or False on failure.
+	* @return  boolean  True if connected otherwise returns False.
 	*
 	* @since   2.0
 	*/
@@ -390,17 +418,17 @@ class SHLdapBase extends JObject
 	 * @param   string  $attribute  The attribute name/key
 	 * @param   string  $value      The compared value of the attribute (case insensitive)
 	 *
-	 * @return  mixed   Returns True if value matches other returns False. -1 on error.
+	 * @return  boolean   True if value matches otherwise returns False.
 	 *
 	 * @since   1.0
+	 * @throws  SHLdapException
 	 */
 	public function compare($dn, $attribute, $value)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return -1;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap compare operation
@@ -409,7 +437,7 @@ class SHLdapBase extends JObject
 		if ($result === -1)
 		{
 			// A error in the Ldap compare operation occurred
-			$this->setError(new SHLdapException($this->getErrorCode(), 10131, JText::_('LIB_SHLDAPBASE_ERR_10131')));
+			throw new SHLdapException($this->getErrorCode(), 10131, JText::_('LIB_SHLDAP_ERR_10131'));
 		}
 
 		return $result;
@@ -423,51 +451,37 @@ class SHLdapBase extends JObject
 	 * @param   string  $filter      Ldap filter to restrict results
 	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
 	 *
-	 * @return  array|false          Array of attributes and corresponding values or False on error
+	 * @return  array   Array of attributes and corresponding values.
 	 *
 	 * @since   1.0
+	 * @throws  SHLdapException
 	 */
 	public function search($dn, $filter, $attributes = array())
 	{
-		try
+		if (!$this->isConnected())
 		{
-
-			if (!$this->isConnected())
-			{
-				// There is no Ldap connection
-				throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006'));
-			}
-
-			// Execute the Ldap search operation
-			$result = @ldap_search($this->resource, $dn, $filter, $attributes, 0, self::SIZE_LIMIT, self::TIME_LIMIT);
-
-			if ($result === false)
-			{
-				// An Ldap error has occurred
-				throw new SHLdapException($this->getErrorCode(), 10102, JText::_('LIB_SHLDAPBASE_ERR_10102'));
-			}
-
-			if ($result)
-			{
-				// Some results were found, lets import the results
-				return $this->getEntries($result);
-			}
-			else
-			{
-				// No results found
-				return array();
-			}
-
+			// There is no Ldap connection
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
-		catch (SHLdapException $e)
+
+		// Execute the Ldap search operation
+		$result = @ldap_search($this->resource, $dn, $filter, $attributes, 0, self::SIZE_LIMIT, self::TIME_LIMIT);
+
+		if ($result === false)
 		{
-			$this->setError($e);
-			return false;
+			// An Ldap error has occurred
+			throw new SHLdapException($this->getErrorCode(), 10102, JText::_('LIB_SHLDAP_ERR_10102'));
 		}
-		catch (Exception $e)
+
+		if ($result)
 		{
-			$this->setError(new SHLdapException(null, 10100, $e->getMessage()));
-			return false;
+			// Some results were found, lets import the results
+			return $this->getEntries($result);
+		}
+		else
+		{
+			// No results found so return empty set
+			return array();
 		}
 	}
 
@@ -479,51 +493,37 @@ class SHLdapBase extends JObject
 	 * @param   string  $filter      Ldap filter to restrict results
 	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
 	 *
-	 * @return  array|false          Array of attributes and corresponding values or False on error
+	 * @return  array   Array of attributes and corresponding values.
 	 *
 	 * @since   1.0
+	 * @throws  SHLdapException
 	 */
 	public function read($dn, $filter, $attributes = array())
 	{
-		try
+		if (!$this->isConnected())
 		{
-
-			if (!$this->isConnected())
-			{
-				// There is no Ldap connection
-				throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006'));
-			}
-
-			// Execute the Ldap read operation
-			$result = @ldap_read($this->resource, $dn, $filter, $attributes, 0, self::SIZE_LIMIT, self::TIME_LIMIT);
-
-			if ($result === false)
-			{
-				// An Ldap error has occurred
-				throw new SHLdapException($this->getErrorCode(), 10112, JText::_('LIB_SHLDAPBASE_ERR_10112'));
-			}
-
-			if ($result)
-			{
-				// Some results were found, lets import the results
-				return $this->getEntries($result);
-			}
-			else
-			{
-				// No results found
-				return array();
-			}
-
+			// There is no Ldap connection
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
-		catch (SHLdapException $e)
+
+		// Execute the Ldap read operation
+		$result = @ldap_read($this->resource, $dn, $filter, $attributes, 0, self::SIZE_LIMIT, self::TIME_LIMIT);
+
+		if ($result === false)
 		{
-			$this->setError($e);
-			return false;
+			// An Ldap error has occurred
+			throw new SHLdapException($this->getErrorCode(), 10112, JText::_('LIB_SHLDAP_ERR_10112'));
 		}
-		catch (Exception $e)
+
+		if ($result)
 		{
-			$this->setError(new SHLdapException(null, 10110, $e->getMessage()));
-			return false;
+			// Some results were found, lets import the results
+			return $this->getEntries($result);
+		}
+		else
+		{
+			// No results found so return empty set
+			return array();
 		}
 	}
 
@@ -538,13 +538,14 @@ class SHLdapBase extends JObject
 	 * @return  array  An array of entries
 	 *
 	 * @since   1.0
+	 * @throws  Exception
 	 */
 	public function getEntries($result)
 	{
 		if (!is_resource($result))
 		{
 			// The result parameter must be a resource
-			throw new Exception(JText::_('LIB_SHLDAPBASE_ERR_10121'), 10121);
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_10121'), 10121);
 		}
 
 		// Store all entries inside the array
@@ -605,19 +606,19 @@ class SHLdapBase extends JObject
 	 * Binds using a connect username and password.
 	 * Note: Anonymous binds are always allowed here.
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success or False on failure.
 	 *
 	 * @since   2.0
 	 */
 	public function proxyBind()
 	{
-
 		// Use direct password
 		$password = $this->proxy_password;
 
 		if ($this->proxy_encryption)
 		{
 			// There is password encryption, lets decrypt first
+			// TODO: sort this mess out
 			jimport('joomla.utilities.simplecrypt');
 			$crypt = new JSimpleCrypt;
 			$password = $crypt->decrypt($password);
@@ -644,7 +645,7 @@ class SHLdapBase extends JObject
 	 * @param   string  $username  Bind username (anonymous bind if left blank)
 	 * @param   string  $password  Bind password (anonymous bind if left blank)
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success or False on failure.
 	 *
 	 * @since   1.0
 	 */
@@ -673,7 +674,6 @@ class SHLdapBase extends JObject
 		// Unsuccessful bind
 		$this->addDebug("Unsuccessful bind for {$username}");
 		return false;
-
 	}
 
 	/**
@@ -721,17 +721,17 @@ class SHLdapBase extends JObject
 	 * @param   string  $dn          The distinguished name of the entity
 	 * @param   array   $attributes  An array of attribute values to modify
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function modify($dn, $attributes)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap modify operation
@@ -740,7 +740,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap modify operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10141, JText::_('LIB_SHLDAPBASE_ERR_10141')));
+			throw new SHLdapException($this->getErrorCode(), 10141, JText::_('LIB_SHLDAP_ERR_10141'));
 		}
 
 		return $result;
@@ -752,17 +752,17 @@ class SHLdapBase extends JObject
 	 * @param   string  $dn          The dn which to add the attributes
 	 * @param   array   $attributes  An array of attributes to add
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function addAttributes($dn, $attributes)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap modify add operation
@@ -771,7 +771,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap modify add operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10171, JText::_('LIB_SHLDAPBASE_ERR_10171')));
+			throw new SHLdapException($this->getErrorCode(), 10171, JText::_('LIB_SHLDAP_ERR_10171'));
 		}
 
 		return $result;
@@ -783,17 +783,17 @@ class SHLdapBase extends JObject
 	 * @param   string  $dn          The dn which contains the attributes to remove
 	 * @param   array   $attributes  An array of attributes to remove
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function deleteAttributes($dn, $attributes)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap modify delete operation
@@ -802,7 +802,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap modify delete operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10161, JText::_('LIB_SHLDAPBASE_ERR_10161')));
+			throw new SHLdapException($this->getErrorCode(), 10161, JText::_('LIB_SHLDAP_ERR_10161'));
 		}
 
 		return $result;
@@ -814,17 +814,17 @@ class SHLdapBase extends JObject
 	 * @param   string  $dn          The distinguished name which contains the attributes to replace
 	 * @param   array   $attributes  An array of attribute values to replace
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function replaceAttributes($dn, $attributes)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap modify replace operation
@@ -833,7 +833,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap modify replace operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10151, JText::_('LIB_SHLDAPBASE_ERR_10151')));
+			throw new SHLdapException($this->getErrorCode(), 10151, JText::_('LIB_SHLDAP_ERR_10151'));
 		}
 
 		return $result;
@@ -845,17 +845,17 @@ class SHLdapBase extends JObject
 	 * @param   string  $dn          The distinguished name where to put the object
 	 * @param   array   $attributes  An array of arrays describing the object to add
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function add($dn, $attributes)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap add operation
@@ -864,7 +864,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap add operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10191, JText::_('LIB_SHLDAPBASE_ERR_10191')));
+			throw new SHLdapException($this->getErrorCode(), 10191, JText::_('LIB_SHLDAP_ERR_10191'));
 		}
 
 		return $result;
@@ -875,17 +875,17 @@ class SHLdapBase extends JObject
 	 *
 	 * @param   string  $dn  The distinguished name of the object to delete
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function delete($dn)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap delete operation
@@ -894,7 +894,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap delete operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10181, JText::_('LIB_SHLDAPBASE_ERR_10181')));
+			throw new SHLdapException($this->getErrorCode(), 10181, JText::_('LIB_SHLDAP_ERR_10181'));
 		}
 
 		return $result;
@@ -908,17 +908,17 @@ class SHLdapBase extends JObject
 	 * @param   string   $newParent     The full distinguished name of the parent (null by default)
 	 * @param   boolean  $deleteOldRdn  Delete the old values (true by default)
 	 *
-	 * @return  boolean  Returns True on success or False on failure.
+	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function rename($dn, $newRdn, $newParent = null, $deleteOldRdn = true)
 	{
 		if (!$this->isConnected())
 		{
 			// There is no Ldap connection
-			$this->setError(new SHLdapException(null, 10006, JText::_('LIB_SHLDAPBASE_ERR_10006')));
-			return false;
+			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
 		}
 
 		// Do the Ldap rename operation
@@ -927,7 +927,7 @@ class SHLdapBase extends JObject
 		if ($result === false)
 		{
 			// Ldap rename operation failed
-			$this->setError(new SHLdapException($this->getErrorCode(), 10201, JText::_('LIB_SHLDAPBASE_ERR_10201')));
+			throw new SHLdapException($this->getErrorCode(), 10201, JText::_('LIB_SHLDAP_ERR_10201'));
 		}
 
 		return $result;
