@@ -7,6 +7,7 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 
 10000-11999 - Internal LDAP Errors (2000 Possible Errors)
 
+
 10000 - Global Unknown Exception
 
 10001-10099 :: CONNECTION RELATED FOR CLIENT
@@ -41,14 +42,14 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 
 10201 - Rename operation failed [LIB_SHLDAP_ERR_10201]
 
+
 10300-10499 :: EXTENDED CLIENT
 
 10301 - No user query specified [LIB_SHLDAP_ERR_10301] [LIB_JLDAP2_ERROR_NO_DN_FILTER_PARAM]
-10302 - Cannot find ldap user. User typing incorrect username? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10302] [!LIB_JLDAP2_ERROR_USER_DN_FAIL]
+[CHANGED EXCEPTION!] 10302 - Cannot find ldap user. User typing incorrect username? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10302] [!LIB_JLDAP2_ERROR_USER_DN_FAIL]
 10303 - User found, but was unable to bind with the supplied password. User typing incorrect password? Hacking? [LIB_SHLDAP_ERR_10303]
 10304 - Unable to bind directly to the given distinguished name parameter. User error? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10304] [LIB_JLDAP2_ERROR_USER_DN_FAIL_PASS]
 10305 - Failed to find any of the distinguished name(s) in the Ldap directory. [LIB_SHLDAP_ERR_10305]
-
 
 10321 - No base DN specified [LIB_SHLDAP_ERR_10321] [LIB_JLDAP2_ERROR_NO_BASE_DN]
 10322 - Failed to bind with proxy user [LIB_SHLDAP_ERR_10322] [LIB_JLDAP2_ERROR_BIND_SEARCH_USER]
@@ -58,8 +59,14 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
 10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
 
+10401 - Failed to authenticate the user for this specific configuration
+
+10411 - No configurations found to match this specific authorisation/authentication.
+10412 - No enabled LDAP configurations.
+
 10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
 10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
+
 
 10600-10799 :: LDAP HELPER
 

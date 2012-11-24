@@ -111,6 +111,22 @@ class SHLdap extends SHLdapBase
 	protected $all_user_filter = '(objectclass=user)';
 
 	/**
+	 * Set to the current status/level of user bind such as none, proxy or user.
+	 *
+	 * @var     integer
+	 * @string  2.0
+	 */
+	protected $bind_status = self::AUTH_NONE;
+
+	/**
+	 * Uses a proxy bind when writing to Ldap.
+	 *
+	 * @var     boolean
+	 * @string  2.0
+	 */
+	protected $proxy_write = false;
+
+	/**
 	 * Find the correct Ldap parameters based on the authorised and configuration
 	 * specified. If found then return the successful Ldap object.
 	 *
@@ -123,6 +139,8 @@ class SHLdap extends SHLdapBase
 	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
 	 *
 	 * @since   2.0
+	 * @throws  Exception           Configuration problem
+	 * @throws  SHExceptionStacked  User or configuration issues (may not be important)
 	 */
 	public static function getInstance($id = null, array $authorised = array(), JRegistry $registry = null)
 	{
@@ -138,30 +156,23 @@ class SHLdap extends SHLdapBase
 		if (!$configs = SHLdapHelper::getConfig($id, $registry))
 		{
 			// No configs found - check the log in this case
-			return false;
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_10412'), 10412);
 		}
 
 		// Check if only one configuration result was found
 		if ($configs instanceof JRegistry)
 		{
-			// Get a new SHLdap object
-			$ldap = new SHLdap($configs);
-
-			// Check if the authenticate/authentication is successful
-			if ($ldap->authenticate($authenticate, $username, $password))
-			{
-				// This is the correct configuration so return the new client
-				return $ldap;
-			}
-
-			unset($ldap);
-
+			// Wrap this around an array so we can use the same code below
+			$configs = array($configs);
 		}
-		// Assume there are more than one configurations found
-		else
+
+		// Keep a record of any exceptions called and only log them after
+		$errors = array();
+
+		// Loop around each of the Ldap configs until one authenticates
+		foreach ($configs as $config)
 		{
-			// Loop around each of the Ldap configs until one authenticates
-			foreach ($configs as $config)
+			try
 			{
 				// Get a new SHLdap object
 				$ldap = new SHLdap($config);
@@ -173,11 +184,58 @@ class SHLdap extends SHLdapBase
 					return $ldap;
 				}
 
-				unset($ldap);
 			}
+			catch (Exception $e)
+			{
+				// Add the error to the stack
+				$errors[] = $e;
+			}
+
+			unset($ldap);
 		}
 
-		return false;
+		// Failed to find any configs to match
+		throw new SHExceptionStacked(JText::_('LIB_SHLDAP_ERR_10411'), 10411, $errors);
+	}
+
+	/**
+	 * Method to get certain otherwise inaccessible properties from the ldap object.
+	 *
+	 * @param   string  $name  The property name for which to the the value.
+	 *
+	 * @return  mixed  The property value or null.
+	 *
+	 * @since   2.0
+	 */
+	public function __get($name)
+	{
+		switch ($name)
+		{
+			case 'last_user_dn':
+			case 'all_user_filter':
+			case 'proxy_write':
+			case 'bind_status':
+				return $this->$name;
+				break;
+
+			case 'bindStatus':
+				return $this->bind_status;
+				break;
+
+			case 'proxyWrite':
+				return $this->proxy_write;
+				break;
+
+			case 'lastUserDn':
+				return $this->last_user_dn;
+				break;
+
+			case 'allUserFilter':
+				return $this->all_user_filter;
+				break;
+		}
+
+		return parent::__get($name);
 	}
 
 	/**
@@ -203,6 +261,7 @@ class SHLdap extends SHLdapBase
 	 * @since   2.0
 	 *
 	 * @see JObject::setError()
+	 * @deprecated  Delete this method, throw exceptions
 	 */
 	public function setError($error)
 	{
@@ -237,6 +296,7 @@ class SHLdap extends SHLdapBase
 	 * @return  string  User distinguished name.
 	 *
 	 * @since   2.0
+	 * @deprecated  Use shldap::lastUserDn
 	 */
 	public function getLastUserDN()
 	{
@@ -249,6 +309,7 @@ class SHLdap extends SHLdapBase
 	 * @return  string  User filter.
 	 *
 	 * @since   2.0
+	 * @deprecated  Use shldap::allUserFilter
 	 */
 	public function getAllUserFilter()
 	{
@@ -265,15 +326,14 @@ class SHLdap extends SHLdapBase
 	 * @return  boolean  True on success or False on failure.
 	 *
 	 * @since   2.0
+	 * @throws  Exception               Configuration error
+	 * @throws  SHLdapException         Ldap specific error
+	 * @throws  SHExceptionInvaliduser  User invalid error
 	 */
 	public function authenticate($authenticate = self::AUTH_NONE, $username = null, $password = null)
 	{
-		// Start the connection procedure
-		if ($this->connect() !== true)
-		{
-			// Failed to connect - review log for this error
-			return false;
-		}
+		// Start the connection procedure (throws an error if fails)
+		$this->connect();
 
 		/*
 		 * If no authentication is required, then check whether a username
@@ -304,9 +364,53 @@ class SHLdap extends SHLdapBase
 			}
 		}
 
-		// Close the connection and report a failure
-		$this->close();
-		return false;
+		// Failed to authenticate user
+		throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10401'), 10401, $username);
+	}
+
+	/**
+	 * Binds using a connect username and password.
+	 * Note: Anonymous binds are always allowed here.
+	 *
+	 * @return  boolean  Returns True on success or False on failure.
+	 *
+	 * @since   2.0
+	 */
+	public function proxyBind()
+	{
+		// Default the bind level to none
+		$this->bind_status = self::AUTH_NONE;
+
+		if (parent::proxyBind())
+		{
+			// Successfully binded so set the level
+			$this->bind_status = self::AUTH_PROXY;
+			return true;
+		}
+	}
+
+	/**
+	 * Binds to the LDAP directory and returns the operation result.
+	 * Note: Anonymous bind can be disabled by passing allowAnonymous(false).
+	 *
+	 * @param   string  $username  Bind username (anonymous bind if left blank)
+	 * @param   string  $password  Bind password (anonymous bind if left blank)
+	 *
+	 * @return  boolean  Returns True on success or False on failure.
+	 *
+	 * @since   1.0
+	 */
+	public function bind($username = null, $password = null)
+	{
+		// Default the bind level to none
+		$this->bind_status = self::AUTH_NONE;
+
+		if (parent::bind($username, $password))
+		{
+			// Successfully binded so set the level
+			$this->bind_status = self::AUTH_USER;
+			return true;
+		}
 	}
 
 	/**
@@ -317,9 +421,10 @@ class SHLdap extends SHLdapBase
 	 * @param   string  $filter      Ldap filter to restrict results
 	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
 	 *
-	 * @return  SHLdapResult|false  Ldap Results or False on error
+	 * @return  SHLdapResult  Ldap Results.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function search($dn = null, $filter = null, $attributes = array())
 	{
@@ -357,9 +462,10 @@ class SHLdap extends SHLdapBase
 	 * @param   string  $filter      Ldap filter to restrict results
 	 * @param   array   $attributes  Array of attributes to return (empty array returns all)
 	 *
-	 * @return  SHLdapResult|false  Ldap Results or False on error
+	 * @return  SHLdapResult  Ldap Results.
 	 *
 	 * @since   2.0
+	 * @throws  SHLdapException
 	 */
 	public function read($dn = null, $filter = null, $attributes = array())
 	{
@@ -397,19 +503,19 @@ class SHLdap extends SHLdapBase
 	 * @param   boolean  $authenticate  Attempt to authenticate the user (i.e.
 	 *						bind the user with the password supplied)
 	 *
-	 * @return  string|false  On success returns a string containing users DN, otherwise
-	 *							returns False to indicate error.
+	 * @return  string  User DN.
 	 *
 	 * @since   1.0
+	 * @throws  Exception               Configuration error
+	 * @throws  SHLdapException         Ldap specific error
+	 * @throws  SHExceptionInvaliduser  User invalid error
 	 */
 	public function getUserDN($username = null, $password = null, $authenticate = false)
 	{
-
 		if (empty($this->user_qry))
 		{
 			// No user query specified, cannot proceed
-			$this->setError(new SHLdapException(null, 10301, JText::_('LIB_SHLDAP_ERR_10301')));
-			return false;
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_10301'), 10301);
 		}
 
 		$replaced = str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
@@ -422,17 +528,15 @@ class SHLdap extends SHLdapBase
 		// Get a array of distinguished names from either the search or direct bind methods.
 		$DNs = $this->use_search ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
 
-		if ($DNs === false)
-		{
-			// An error occurred during distinguished name retrieval (error already set)
-			return false;
-		}
-
 		if (!is_array($DNs) || !count($DNs))
 		{
-			// Cannot find the specified username
-			$this->setError(new SHLdapException(null, 10302, JText::sprintf('LIB_SHLDAP_ERR_10302', $username)));
-			return false;
+			/*
+			 * Cannot find the specified username. We are going to throw
+			 * a special user not found error to try to split between
+			 * configuration errors and invalid errors. However, this might
+			 * still be a configuration error.
+			 */
+			throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10302'), 10302, $username);
 		}
 
 		// Check if we have to authenticate the distinguished name with a password
@@ -453,15 +557,14 @@ class SHLdap extends SHLdapBase
 			if ($this->use_search)
 			{
 				// User found, but was unable to bind with the supplied password
-				$this->setError(new SHLdapException(null, 10303, JText::sprintf('LIB_SHLDAP_ERR_10303', $username)));
+				throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10303'), 10303, $username);
 			}
 			else
 			{
 				// Unable to bind directly to the given distinguished name parameters
-				$this->setError(new SHLdapException(null, 10304, JText::sprintf('LIB_SHLDAP_ERR_10304', $username)));
+				throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10304'), 10304, $username);
 			}
 
-			return false;
 		}
 		else
 		{
@@ -505,7 +608,7 @@ class SHLdap extends SHLdapBase
 					if ($result === false)
 					{
 						// Failed to find any of the distinguished name(s) in the Ldap directory.
-						$this->setError(new SHLdapException(null, 10305, JText::sprintf('LIB_SHLDAP_ERR_10305', $username)));
+						throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10305'), 10305, $username);
 					}
 				}
 				else
@@ -528,10 +631,11 @@ class SHLdap extends SHLdapBase
 	 *
 	 * @param   string  $username  Authenticating username.
 	 *
-	 * @return  array|false  On success shall return an array containing DNs, otherwise
-	 * 					returns a JException to indicate an error.
+	 * @return  array  An array containing user DNs.
 	 *
 	 * @since   1.0
+	 * @throws  Exception        Configuration related error
+	 * @throws  SHLdapException  Ldap search error
 	 */
 	public function getUserDnBySearch($username)
 	{
@@ -548,26 +652,18 @@ class SHLdap extends SHLdapBase
 		if (empty($this->base_dn))
 		{
 			// No base distinguished name specified, cannot proceed.
-			$this->setError(new SHLdapException(null, 10321, JText::_('LIB_SHLDAP_ERR_10321')));
-			return false;
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_10321'), 10321);
 		}
 
 		// Bind using the proxy user so the user can be found in the Ldap directory.
 		if (!$this->proxyBind())
 		{
 			// Failed to bind with proxy user
-			$this->setError(new SHLdapException(null, 10322, JText::_('LIB_SHLDAP_ERR_10322')));
-			return false;
+			throw new SHLdapException(JText::_('LIB_SHLDAP_ERR_10322'), 10322);
 		}
 
 		// Search the directory for the user
 		$result = $this->search(null, $search, array($this->ldap_uid));
-
-		if ($result === false)
-		{
-			// An Ldap error occurred whilst trying to lookup the user
-			return false;
-		}
 
 		$return 	= array();
 		$count 		= $result->countEntries();
@@ -587,9 +683,10 @@ class SHLdap extends SHLdapBase
 	 *
 	 * @param   string  $username  Authenticating username.
 	 *
-	 * @return  array|false  On success an array containing distinguished names or False on error.
+	 * @return  array  An array containing distinguished names.
 	 *
 	 * @since   1.0
+	 * @throws  Exception
 	 */
 	public function getUserDnDirectly($username)
 	{
@@ -611,8 +708,7 @@ class SHLdap extends SHLdapBase
 		if (preg_match('/\((.)*\)/', $search))
 		{
 			// Cannot continue as brackets are present
-			$this->setError(new SHLdapException(null, 10331, JText::_('LIB_SHLDAP_ERR_10331')));
-			return false;
+			throw new Exception(JText::_('LIB_SHLDAP_ERR_10331'), 10331);
 		}
 
 		// We need to find the correct distinguished name from the set of elements
@@ -640,9 +736,12 @@ class SHLdap extends SHLdapBase
 	 * 					returns a JException to indicate an error.
 	 *
 	 * @since   1.0
+	 * @deprecated  User adapter should be used
 	 */
 	public function getUserDetails($dn, $attributes = array())
 	{
+
+		JLog::add('SHLdap::getUserDetails is deprecated.', JLog::WARNING, 'deprecated');
 
 		// Call for any LDAP plug-ins that require extra attributes.
 		$extras = SHFactory::getDispatcher('ldap')->trigger(
@@ -806,6 +905,7 @@ class SHLdap extends SHLdapBase
 	 * @return  boolean  True on success or False on error.
 	 *
 	 * @since   2.0
+	 * @deprecated  User adapter should be used
 	 */
 	public function makeChanges($dn, array $current, array $changes)
 	{
@@ -931,8 +1031,8 @@ class SHLdap extends SHLdapBase
 
 	/**
 	 * This method is used as a helper to the makeChanges() method. It checks
-	 * whether a field/attribute is up-to-date in the Ldap directory. The
-	 * method returns whether it is:
+	 * whether a field/attribute is up-to-date in the Ldap directory (not live).
+	 * The method returns whether it is:
 	 * 0: up-to-date, no action required;
 	 * 1: attribute exists, but value must be updated;
 	 * 2: attribute doesnt exist, needs creating;
@@ -946,6 +1046,7 @@ class SHLdap extends SHLdapBase
 	 * @return  integer  See method description.
 	 *
 	 * @since   2.0
+	 * @deprecated  User adapter should be used
 	 */
 	protected static function checkFieldHelper(array $current, $key, $interval, $value)
 	{
