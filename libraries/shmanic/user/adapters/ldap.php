@@ -2,6 +2,8 @@
 
 defined('JPATH_PLATFORM') or die;
 
+SHImport('ldap');
+
 class SHUserAdaptersLdap extends JObject implements SHUserAdapter
 {
 	/**
@@ -356,6 +358,57 @@ class SHUserAdaptersLdap extends JObject implements SHUserAdapter
 		// Returns only the specified inputs unless all attributes are wanted
 		return is_null($input) ? $return : array_replace($inputFilled, array_intersect_key($return, $inputFilled));
 
+	}
+
+	public function getUid($default = null)
+	{
+		// Find the Ldap attribute uid key
+		$key = $this->client->keyUid;
+
+		if ($value = $this->getAttributes($key))
+		{
+			if (isset($value[$key][0]))
+			{
+				// Uid (username) found so lets return it
+				return $value[$key][0];
+			}
+		}
+
+		return $default;
+	}
+
+	public function getFullname($default = null)
+	{
+		// Find the Ldap attribute name key
+		$key = $this->client->keyName;
+
+		if ($value = $this->getAttributes($key))
+		{
+			if (isset($value[$key][0]))
+			{
+				// Fullname found so lets return it
+				return $value[$key][0];
+			}
+		}
+
+		return $default;
+	}
+
+	public function getEmail($default = null)
+	{
+		// Find the Ldap attribute email key
+		$key = $this->client->keyEmail;
+
+		if ($value = $this->getAttributes($key))
+		{
+			if (isset($value[$key][0]))
+			{
+				// Email found so lets return it
+				return $value[$key][0];
+			}
+		}
+
+		return $default;
 	}
 
 	/**

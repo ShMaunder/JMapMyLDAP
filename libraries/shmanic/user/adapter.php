@@ -20,6 +20,12 @@ interface SHUserAdapter
 	 */
 	public function getAttributes($input = null, $null = false);
 
+	public function getUid($default = null);
+
+	public function getFullname($default = null);
+
+	public function getEmail($default = null);
+
 	public function setAttributes(array $attributes);
 
 }

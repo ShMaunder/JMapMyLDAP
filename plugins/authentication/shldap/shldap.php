@@ -13,7 +13,7 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * An LDAP authentication plugin specifically for SHPlatform and SHLdap.
+ * A generic user adapter authentication plugin specifically for SHAdapters.
  *
  * @package     Shmanic.Plugins
  * @subpackage  Authentication
@@ -30,6 +30,14 @@ class PlgAuthenticationSHLdap extends JPlugin
 	const CLEAR_PASSWORD = true;
 
 	/**
+	 * Authentication type for Joomla logging.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	const AUTH_TYPE = 'SHADAPTER';
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -44,7 +52,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 	}
 
 	/**
-	 * This method handles the Ldap authentication and reports
+	 * This method handles the user adapter authentication and reports
 	 * back to the subject.
 	 *
 	 * @param   array   $credentials  Array holding the user credentials
@@ -57,8 +65,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 	 */
 	public function onUserAuthenticate($credentials, $options, &$response)
 	{
-
-		$response->type = 'LDAP';
+		$response->type = self::AUTH_TYPE;
 
 		if (empty($credentials['password']))
 		{
@@ -78,53 +85,59 @@ class PlgAuthenticationSHLdap extends JPlugin
 		}
 
 		// Check if a Domain is present which represents a configuration ID
-		if (($domain = JArrayHelper::getValue($options, 'domain', null, 'int')) <= 0)
+		if (($domain = JArrayHelper::getValue($options, 'domain', null, 'int')) > 0)
 		{
 			// Not a valid configuration ID
-			$domain = null;
+			$credentials['domain'] = $domain;
 		}
 
 		/*
-		 * Attempt to authenticate with Ldap. This method will automatically detect
+		 * Attempt to authenticate with user adapter. This method will automatically detect
 		 * the correct configuration (if multiple ones are specified) and return a
-		 * SHLdap object. If this method returns false, then the authentication was
-		 * unsuccessful.
+		 * SHUserAdapter* object. If the getid returns empty or it throws an error then
+		 * authentication was unsuccessful.
 		 */
-		if ($ldap = SHLdap::getInstance(
-			$domain,
-			array(
-				'username' => $credentials['username'],
-				'password' => $credentials['password'],
-				'authenticate' => SHLdap::AUTH_USER
-			)
-		))
+		try
 		{
-			/*
-			 * Successful authentication.
-			 * Store the distinguished name of the user and the current
-			 * Ldap instance for authorisation (that happens next).
-			 */
-			$response->set('dn', $ldap->getLastUserDN());
-			$response->set('ldap', & $ldap);
+			// Setup new user adapter TODO: remove LDAP specific stuff here
+			$adapter = new SHUserAdaptersLdap($credentials);
 
-			// Report back and say Goodbye!
-			$response->status			= JAuthentication::STATUS_SUCCESS;
-			$response->error_message 	= '';
-			return true;
+			// Get the authenticating user dn
+			$id = $adapter->getId(true);
+
+			// Get the required attributes (this gets core attributes + plugin based)
+			if (!empty($id) && $attributes = $adapter->getAttributes())
+			{
+				/*
+				 * Successful authentication.
+				 * Store the distinguished name of the user and the current
+				 * Ldap instance for authorisation (that happens next).
+				 */
+				$response->set('id', $id);
+				$response->set('adapter', & $adapter);
+
+				// Report back with success
+				$response->status			= JAuthentication::STATUS_SUCCESS;
+				$response->error_message 	= '';
+				return true;
+			}
+
+			// Unable to find user or attributes missing (an error should be thrown before this)
+			throw new Exception(JText::_('JGLOBAL_AUTH_NO_USER'), 999);
+
 		}
-		else
+		catch (Exception $e)
 		{
-			// No configurations could authenticate user
+			// Configuration or authentication failure
 			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::sprintf('PLG_AUTHENTICATION_SHLDAP_ERR_12604', $credentials['username']);
+			$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
 			return;
 		}
-
 	}
 
 	/**
-	* This method handles the Ldap authorisation and reports
-	* back to the subject. Also this method is used for SSO.
+	* This method handles the user adapter authorisation and reports
+	* back to the subject. This method is also used for single sign on.
 	*
 	* There is no custom logging in the authentication.
 	*
@@ -141,15 +154,15 @@ class PlgAuthenticationSHLdap extends JPlugin
 		$retResponse = new JAuthenticationResponse;
 
 		// Check if some other authentication system is dealing with this request
-		if (!empty($response->type) && (strtoupper($response->type) !== 'LDAP'))
+		if (!empty($response->type) && (strtoupper($response->type) !== self::AUTH_TYPE))
 		{
 			return $retResponse;
 		}
 
-		$response->type = 'LDAP';
+		$response->type = self::AUTH_TYPE;
 
 		// Check if the DN are present from the onUserAuthenticate() method.
-		$dn = $response->get('dn');
+		$id = $response->get('id');
 
 		/* If we aren't connected to LDAP yet then we can assume
 		 * onUserAuthenticate() hasn't been executed beforehand.
@@ -157,9 +170,8 @@ class PlgAuthenticationSHLdap extends JPlugin
 		 * This might be the case when Sigle Sign On just needs to
 		 * authorise a user with the Ldap server.
 		 */
-		if (!$ldap = $response->get('ldap', false))
+		if (!$adapter = $response->get('adapter', false))
 		{
-
 			// Check the Shmanic platform has been imported
 			if (!$this->_checkPlatform())
 			{
@@ -176,31 +188,41 @@ class PlgAuthenticationSHLdap extends JPlugin
 			 * unsuccessful - basically the user was not found or configuration was
 			 * bad.
 			 */
-			if (!$ldap = SHLdap::getInstance(
-				null, array('username' => $response->username)
-			))
+			try
 			{
-				// Failed to authoriser the user, probably not an Ldap user
+				// Setup new user adapter TODO: remove LDAP specific stuff here
+				// TODO: allow domains from sso?
+				$adapter = new SHUserAdaptersLdap(array('username' => $response->username));
+
+				// Get the authorising user dn
+				$id = $adapter->getId(false);
+
+			}
+			catch (Exception $e)
+			{
+				// Configuration or authorisation failure
+				$response->status = JAuthentication::STATUS_FAILURE;
+				$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
 				return;
 			}
 
-			/*
-			 * Successful authorisation.
-			 * Update the users distinguished name for laters.
-			 */
-			$dn = $ldap->getLastUserDN();
-
 		}
 
-		/*
-		 * The Ldap client is no longer required and should be unset to free up
-		 * some memory.
-		 */
-		unset($response->ldap);
+		unset($response->adapter);
 
-		// Let's get the user attributes for this dn.
-		$details = $ldap->getUserDetails($dn);
-		if ($details === false)
+		try
+		{
+			// Let's get the user attributes
+			$attributes = $adapter->getAttributes();
+
+			if (!is_array($attributes) || !count($attributes))
+			{
+				// No attributes therefore error
+				throw new Exception('dasdassad');
+			}
+
+		}
+		catch (Exception $e)
 		{
 			// Error getting user attributes.
 			$response->status = JAuthentication::STATUS_FAILURE;
@@ -209,22 +231,6 @@ class PlgAuthenticationSHLdap extends JPlugin
 			// Process a error log
 			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
 
-			$ldap->close();
-			unset($ldap);
-			return false;
-		}
-
-		if (!is_array($details) || !count($details))
-		{
-			// No attributes therefore error
-			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611');
-
-			// Process a error log
-			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
-
-			$ldap->close();
-			unset($ldap);
 			return false;
 		}
 
@@ -232,20 +238,9 @@ class PlgAuthenticationSHLdap extends JPlugin
 		 * Set the required Joomla specific user fields with the returned Ldap
 		 * user attributes.
 		 */
-		if (isset($details[$ldap->getUid()][0]))
-		{
-			$response->username 	= $details[$ldap->getUid()][0];
-		}
-
-		if (isset($details[$ldap->getFullname()][0]))
-		{
-			$response->fullname 	= $details[$ldap->getFullname()][0];
-		}
-
-		if (isset($details[$ldap->getEmail()][0]))
-		{
-			$response->email 		= $details[$ldap->getEmail()][0];
-		}
+		$response->username 	= $adapter->getUid();
+		$response->fullname 	= $adapter->getFullname();
+		$response->email 		= $adapter->getEmail();
 
 		if (self::CLEAR_PASSWORD)
 		{
@@ -267,46 +262,37 @@ class PlgAuthenticationSHLdap extends JPlugin
 
 		$retResponse->status = JAuthentication::STATUS_SUCCESS;
 
-		// Close the Ldap connections and say goodbye.
-		$ldap->close();
-		unset($ldap);
+		unset($adapter);
 
 		return $retResponse;
 	}
 
 	/**
-	 * If the platform or ldap project has not been imported
-	 * then import them now.
+	 * Imports the SHPlatform if not already loaded.
 	 *
-	 * @return  boolean  True on successful load or False if failed.
+	 * @return  boolean  True on successful load.
 	 *
 	 * @since   2.0
 	 */
 	private function _checkPlatform()
 	{
-		// Check if the Shmanic platform has already been imported
+		// Check if the SHPlatform has already been imported
 		if (!defined('SHPATH_PLATFORM'))
 		{
 			$platform = JPATH_PLATFORM . '/shmanic/import.php';
 
 			if (!file_exists($platform))
 			{
-				// Failed to find the Shmanic platform import
+				// Failed to find the SHPlatform import
 				return false;
 			}
 
-			// Shmanic Platform import
+			// SHPlatform import
 			if (!include_once $platform)
 			{
-				// Failed to import the Shmanic platform
+				// Failed to import the SHPlatform
 				return false;
 			}
-		}
-
-		if (!SHImport('ldap'))
-		{
-			// Failed to import the Ldap project
-			return false;
 		}
 
 		// Everything imported successfully
