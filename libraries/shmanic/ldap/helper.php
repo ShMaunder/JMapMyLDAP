@@ -51,7 +51,7 @@ abstract class SHLdapHelper
 	 * @var    integer
 	 * @since  2.0
 	 */
-	const CONFIG_FILE = 4;
+	const CONFIG_FILE = 3;
 
 	/**
 	 * Plugin configuration.
@@ -59,11 +59,11 @@ abstract class SHLdapHelper
 	 * @var    integer
 	 * @since  2.0
 	 */
-	const CONFIG_PLUGIN = 8;
+	const CONFIG_PLUGIN = 4;
 
 	/**
 	 * Loads the correct Ldap configuration based on the record ID specified. Then uses
-	 * this configuration to instantiate an LdapExtended client.
+	 * this configuration to instantiate an SHLdap client.
 	 *
 	 * @param   integer|string  $id        Configuration record ID. If blank, then returns all configs.
 	 * @param   JRegistry       $registry  Platform configuration.
