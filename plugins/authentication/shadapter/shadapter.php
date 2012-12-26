@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  Authentication
  * @since       2.0
  */
-class PlgAuthenticationSHLdap extends JPlugin
+class PlgAuthenticationSHAdapter extends JPlugin
 {
 	/**
 	 * Temporary constant to clear password. This must be reviewed!
@@ -71,7 +71,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 		{
 			// Blank passwords not allowed to prevent anonymous binding
 			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12602');
+			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12602');
 			return;
 		}
 
@@ -80,7 +80,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 		{
 			// Failed to boot the platform
 			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12601');
+			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12601');
 			return false;
 		}
 
@@ -99,8 +99,8 @@ class PlgAuthenticationSHLdap extends JPlugin
 		 */
 		try
 		{
-			// Setup new user adapter TODO: remove LDAP specific stuff here
-			$adapter = new SHUserAdaptersLdap($credentials);
+			// Setup new user adapter
+			$adapter = SHFactory::getUserAdapter($credentials);
 
 			// Get the authenticating user dn
 			$id = $adapter->getId(true);
@@ -112,6 +112,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 				 * Successful authentication.
 				 * Store the distinguished name of the user and the current
 				 * Ldap instance for authorisation (that happens next).
+				 * TODO: change this as its no longer supported in 3.x
 				 */
 				$response->set('id', $id);
 				$response->set('adapter', & $adapter);
@@ -177,7 +178,7 @@ class PlgAuthenticationSHLdap extends JPlugin
 			{
 				// Failed to boot the platform
 				$response->status = JAuthentication::STATUS_FAILURE;
-				$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12601');
+				$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12601');
 				return false;
 			}
 
@@ -190,9 +191,9 @@ class PlgAuthenticationSHLdap extends JPlugin
 			 */
 			try
 			{
-				// Setup new user adapter TODO: remove LDAP specific stuff here
+				// Setup new user adapter
 				// TODO: allow domains from sso?
-				$adapter = new SHUserAdaptersLdap(array('username' => $response->username));
+				$adapter = SHFactory::getUserAdapter($response->username);
 
 				// Get the authorising user dn
 				$id = $adapter->getId(false);
@@ -226,10 +227,10 @@ class PlgAuthenticationSHLdap extends JPlugin
 		{
 			// Error getting user attributes.
 			$response->status = JAuthentication::STATUS_FAILURE;
-			$response->error_message = JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611');
+			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12611');
 
 			// Process a error log
-			SHLog::add(JText::_('PLG_AUTHENTICATION_SHLDAP_ERR_12611'), 12611, JLog::ERROR, 'ldap');
+			SHLog::add(JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12611'), 12611, JLog::ERROR, 'ldap');
 
 			return false;
 		}
@@ -245,20 +246,14 @@ class PlgAuthenticationSHLdap extends JPlugin
 		if (self::CLEAR_PASSWORD)
 		{
 			// Do not store password in Joomla database  TODO: review this for password plug-in
-			$response->set('password_clear', '');
+			$response->password_clear = '';
 		}
-
-		/*
-		 * Store the User Ldap attributes for use in other plug-ins. This saves
-		 * having to re-query with the Ldap server.
-		 */
-		$response->set(SHLdapHelper::ATTRIBUTE_KEY, $details);
 
 		/*
 		 * Everything appears to be a success and therefore we shall log the user login
 		 * information then report back to the subject.
 		 */
-		SHLog::add(JText::sprintf('PLG_AUTHENTICATION_SHLDAP_INFO_12612', $response->username), 12612, JLog::INFO, 'ldap');
+		SHLog::add(JText::sprintf('PLG_AUTHENTICATION_SHADAPTER_INFO_12612', $response->username), 12612, JLog::INFO, 'ldap');
 
 		$retResponse->status = JAuthentication::STATUS_SUCCESS;
 

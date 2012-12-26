@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="authentication" method="upgrade">
-	<name>plg_authentication_shldap</name>
+	<name>plg_authentication_shadapter</name>
 	<author>Shaun Maunder</author>
 	<creationDate>June 2011</creationDate>
 	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
@@ -9,13 +9,13 @@
 	<authorUrl>www.shmanic.com</authorUrl>
 	<version>2.0.0.70</version>
 	<buildDate>Wed Mar 21 18:09:53 GMT 2012</buildDate>
-	<description>PLG_AUTHENTICATION_SHLDAP_XML_DESCRIPTION</description>
+	<description>PLG_AUTHENTICATION_SHADAPTER_XML_DESCRIPTION</description>
 	<files>
-		<filename plugin="shldap">shldap.php</filename>
+		<filename plugin="shadapter">shadapter.php</filename>
 		<filename>index.html</filename>
 	</files>
 	<languages>
-		<language tag="en-GB">language/en-GB/en-GB.plg_authentication_shldap.ini</language>
-		<language tag="en-GB">language/en-GB/en-GB.plg_authentication_shldap.sys.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_authentication_shadapter.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_authentication_shadapter.sys.ini</language>
 	</languages>
 </extension>
