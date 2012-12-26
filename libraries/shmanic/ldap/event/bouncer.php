@@ -266,12 +266,41 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserLogin($user, $options = array())
 	{
+		$type = strtoupper(JArrayHelper::getValue($user, 'type'));
+
 		// We can only process LDAP authentications
-		if (JArrayHelper::getValue($user, 'type') != 'LDAP')
+		if ($type == 'SHADAPTER')
+		{
+			if (!$adapter = SHFactory::getUserAdapter($user))
+			{
+				return;
+			}
+		}
+		elseif ($type == 'LDAP')
+		{
+			// We can assume we need to create a user adapter
+			$credentials = array(
+				'username' => $user['username'],
+				'password' => $user['password']
+			);
+
+			if (!$adapter = SHFactory::getUserAdapter($credentials))
+			{
+				return;
+			}
+		}
+		else
 		{
 			return;
 		}
 
+		// Check the user adapter is Ldap compatible (i.e. uses ldap like attributes)
+		if (!$adapter->isLdapCompatible)
+		{
+			return;
+		}
+
+		// Deal with auto registration flags
 		$config = SHFactory::getConfig();
 		$autoRegister = (int) $config->get('user.autoregister', 1);
 
@@ -286,35 +315,7 @@ class SHLdapEventBouncer extends JEvent
 			$options['autoregister'] = ($autoRegister === 2) ? 1 : 0;
 		}
 
-		/* Before firing the onLdapLogin method, we must make sure
-		 * the user has the attributes element. If not then it can
-		 * be assumed that the JMapMyLDAP authentication wasn't used.
-		 */
-		if (!isset($user[SHLdapHelper::ATTRIBUTE_KEY]))
-		{
-
-			$authorised = array(
-				'authorise' => SHLdap::AUTH_USER,
-				'username' => $user['username'],
-				'password' => $user['password']
-			);
-
-			if (!$ldap = SHLdap::getInstance(null, $authorised))
-			{
-				// Failed to get an Ldap connection - this could be bad parameter conversion
-				return;
-			}
-
-			// Get the distinguished name of the authorised user
-			$dn = $ldap->getLastUserDN();
-
-			if (!$user[SHLdapHelper::ATTRIBUTE_KEY] = $ldap->getUserDetails($dn))
-			{
-				// Failed to get the user attribute details/values
-				return;
-			}
-		}
-
+		// Get a handle to the Joomla User object ready to be passed to the individual plugins
 		$instance = SHUserHelper::getUser($user, $options);
 
 		if ($instance === false)
@@ -324,10 +325,11 @@ class SHLdapEventBouncer extends JEvent
 		}
 
 		// Fire the ldap specific on login events
-		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $user, $options));
+		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $options));
 
 		if ($result)
 		{
+			// Save the user back to the Joomla database
 			$instance->save();
 		}
 
