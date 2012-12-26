@@ -89,100 +89,127 @@ class LdapCron extends JApplicationCli
 		// Loop around each LDAP configuration
 		foreach ($configs as $config)
 		{
-			// Get a new Ldap object
-			$ldap = new SHLdap($config);
-
-			// Bind with the proxy user
-			if (!$ldap->authenticate(SHLdap::AUTH_PROXY))
+			try
 			{
-				// Something is wrong with this LDAP configuration - cannot bind to proxy user
-				$errors[] = "Failed to bind with the proxy user for LDAP configuration: {$ldap->getInfo()}";
-				unset($ldap);
+				// Get a new Ldap object
+				$ldap = new SHLdap($config);
 
-				continue;
-			}
-
-			// Get all the Ldap users in the directory
-			if (!$result = $ldap->search(null, $ldap->getAllUserFilter(), array('dn')))
-			{
-				// Failed to search for all users in the directory
-				$errors[] = "Failed to search all users in the directory with error: {$ldap->getError()}";
-				unset($ldap);
-
-				continue;
-			}
-
-			// Loop around each Ldap user
-			for ($i = 0; $i < $result->countEntries(); ++$i)
-			{
-				// Get the Ldap User DN
-				$dn = $result->getDN($i);
-
-				// Get the Ldap user attributes
-				$source = $ldap->getUserDetails($dn);
-
-				// Get the core mandatory J! user fields
-				$username = (isset($source[$ldap->getUid()][0])) ? $source[$ldap->getUid()][0] : null;
-				$fullname = (isset($source[$ldap->getFullname()][0])) ? $source[$ldap->getFullname()][0] : null;
-				$email = (isset($source[$ldap->getEmail()][0])) ? $source[$ldap->getEmail()][0] : null;
-
-				if (empty($fullname))
+				// Bind with the proxy user
+				if (!$ldap->authenticate(SHLdap::AUTH_PROXY))
 				{
-					// Full name doesnt exist; use the username instead
-					$fullname = $username;
-				}
+					// Something is wrong with this LDAP configuration - cannot bind to proxy user
+					$errors[] = "Failed to bind with the proxy user for LDAP configuration: {$ldap->getInfo()}";
+					unset($ldap);
 
-				if (empty($email))
-				{
-					// Email doesnt exist; cannot proceed
-					$errors[] = ("Empty email not allowed for user: {$username}");
-					++$failed;
 					continue;
 				}
 
-				// Create the user array to enable creating a JUser object
-				$user = array(
-					'fullname' => $fullname,
-					'username' => $username,
-					'password_clear' => null,
-					'email' => $email
-				);
-
-				// Create a JUser object from the Ldap user
-				$options = array();
-				$instance = SHUserHelper::getUser($user, $options);
-
-				if ($instance === false)
+				// Get all the Ldap users in the directory
+				if (!$result = $ldap->search(null, $ldap->allUserFilter, array('dn', $ldap->keyUid)))
 				{
-					// Failed to get the user either due to save error or autoregister
-					$errors[] = ("Failed to create a JUser object for user: {$username}");
-					++$failed;
+					// Failed to search for all users in the directory
+					$errors[] = "Failed to search all users in the directory with error: {$ldap->getError()}";
+					unset($ldap);
+
 					continue;
 				}
 
-				// Set this user as an LDAP user
-				SHLdapHelper::setUserLdap($instance);
-
-				// Attach the attributes to the user
-				$user[SHLdapHelper::ATTRIBUTE_KEY] = $source;
-
-				// Fire the Ldap specific on Sync feature
-				$sync = SHLdapHelper::triggerEvent('onLdapSync', array(&$instance, $user, $options));
-
-				// Check if the synchronise was successfully and report
-				if ($sync)
+				// Loop around each Ldap user
+				for ($i = 0; $i < $result->countEntries(); ++$i)
 				{
-					$this->out("Successfully synchronised user: {$username}");
-					++$success;
-					$instance->save();
-				}
-				else
-				{
-					$errors[] = ("Failed to synchronise user: {$username}");
-					++$failed;
+					// Get the Ldap username
+					if (!$username = $result->getValue($i, $ldap->keyUid, 0))
+					{
+						continue;
+					}
+
+					try
+					{
+						// Create the new user adapter
+						$adapter = new SHUserAdaptersLdap(array('username' => $username));
+
+						// Get the Ldap DN
+						if (!$dn = $adapter->getId(false))
+						{
+							continue;
+						}
+
+						$this->out("Attempting to synchronise user: {$username}");
+
+						// Get the Ldap user attributes
+						$source = $adapter->getAttributes();
+
+						// Get the core mandatory J! user fields
+						$username = $adapter->getUid();
+						$fullname = $adapter->getFullname();
+						$email = $adapter->getEmail();
+
+						if (empty($fullname))
+						{
+							// Full name doesnt exist; use the username instead
+							$fullname = $username;
+						}
+
+						if (empty($email))
+						{
+							// Email doesnt exist; cannot proceed
+							$errors[] = ("Empty email not allowed for user: {$username}");
+							++$failed;
+							continue;
+						}
+
+						// Create the user array to enable creating a JUser object
+						$user = array(
+							'fullname' => $fullname,
+							'username' => $username,
+							'password_clear' => null,
+							'email' => $email
+						);
+
+						// Create a JUser object from the Ldap user
+						$options = array();
+						$instance = SHUserHelper::getUser($user, $options);
+
+						if ($instance === false)
+						{
+							// Failed to get the user either due to save error or autoregister
+							$errors[] = ("Failed to create a JUser object for user: {$username}");
+							++$failed;
+							continue;
+						}
+
+						// Set this user as an LDAP user
+						SHLdapHelper::setUserLdap($instance);
+
+						// Fire the Ldap specific on Sync feature
+						$sync = SHLdapHelper::triggerEvent('onLdapSync', array(&$instance, $options));
+
+						// Check if the synchronise was successfully and report
+						if ($sync)
+						{
+							$this->out("Successfully synchronised user: {$username}");
+							++$success;
+							$instance->save();
+						}
+						else
+						{
+							$errors[] = ("Failed to synchronise user: {$username}");
+							++$failed;
+						}
+
+						unset($adapter);
+					}
+					catch (Exception $e)
+					{
+						unset($adapter);
+						$errors[] = ("Fatal error ({$e->getMessage()}) for user: {$username}");
+					}
 				}
 			}
-
+			catch (Exception $e)
+			{
+				$errors[] = "Invalid LDAP configuration";
+			}
 		}
 
 		// Print out some results and stats
