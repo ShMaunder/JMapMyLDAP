@@ -197,7 +197,7 @@ class SHLdapMapping extends JObject
 	 * Get any extra data from LDAP that is not returned from the
 	 * authentication read.
 	 *
-	 * @param   SHLdap  &$ldap     An active SHLdap object connected to LDAP server.
+	 * @param   SHUserAdapter  $adapter     An active SHLdap object connected to LDAP server.
 	 * @param   array   &$details  An array of LDAP attributes that have already been returned.
 	 * @param   array   $options   An array of options. The dn element must be set.
 	 *
@@ -205,7 +205,7 @@ class SHLdapMapping extends JObject
 	 *
 	 * @since   2.0
 	 */
-	public function getData(SHLdap &$ldap, &$details = array(), $options = array())
+	public function getData($adapter, &$details = array(), $options = array())
 	{
 		$attributes = array();
 		$return		= array();
@@ -224,7 +224,7 @@ class SHLdapMapping extends JObject
 			if (!isset($details[$this->lookup_attribute]))
 			{
 				// We cannot get any more information if there is no source user DN
-				if (!isset($options['dn']) || is_null($options['dn']))
+				if (is_null($adapter->getId(false)))
 				{
 					return false;
 				}
@@ -255,7 +255,7 @@ class SHLdapMapping extends JObject
 			if (!isset($details[$this->lookup_member]) || is_null($this->lookup_member))
 			{
 				// We cannot get any more information if there is no source user DN
-				if (!isset($options['dn']) || is_null($options['dn']))
+				if (is_null($adapter->getId(false)))
 				{
 					return false;
 				}
@@ -271,7 +271,7 @@ class SHLdapMapping extends JObject
 		if (count($attributes))
 		{
 			// Get our ldap user attributes and check we have a valid result
-			$result	= $ldap->read($options['dn'], null, $attributes);
+			$result	= $adapter->client->read($adapter->getId(false), null, $attributes);
 			if ($result === false)
 			{
 				// No user attributes found on the read
@@ -286,7 +286,7 @@ class SHLdapMapping extends JObject
 			if ($this->lookup_type == 'forward')
 			{
 				// Forward lookup: all we need is the user group values
-				$groups = $result->getAttribute(0, $this->lookup_attribute, true);
+				$groups = $result->getAttribute(0, $this->lookup_attribute, array());
 			}
 			else
 			{
@@ -299,7 +299,7 @@ class SHLdapMapping extends JObject
 				$search = SHLDAPHelper::buildFilter(array($search));
 
 				// Find all the groups that have this user present as a member
-				if (($reverse = $ldap->search(null, $search, array('dn'))) !== false)
+				if (($reverse = $adapter->client->search(null, $search, array('dn'))) !== false)
 				{
 					for ($i = 0; $i < $reverse->countEntries(); ++$i)
 					{
@@ -318,13 +318,13 @@ class SHLdapMapping extends JObject
 				if ($this->lookup_type == 'reverse')
 				{
 					// We need to override the lookup attribute for reverse recursion
-					$ldap->getRecursiveGroups(
+					$adapter->client->getRecursiveGroups(
 						$groups, $this->recursion_depth, $outcome, 'dn', $this->lookup_attribute
 					);
 				}
 				else
 				{
-					$ldap->getRecursiveGroups(
+					$adapter->client->getRecursiveGroups(
 						$groups, $this->recursion_depth, $outcome, $this->lookup_attribute, $this->dn_attribute
 					);
 				}
@@ -338,7 +338,6 @@ class SHLdapMapping extends JObject
 		$details[$this->lookup_attribute] = $groups;
 
 		return true;
-
 	}
 
 	/**
@@ -366,18 +365,17 @@ class SHLdapMapping extends JObject
 	 * processing the group mapping list, adding joomla groups and removing
 	 * joomla groups.
 	 *
-	 * @param   JUser  &$user       A JUser object for the joomla user to be processed.
-	 * @param   array  $attributes  An array of attributes from the source ldap user.
+	 * @param   JUser          &$user    A JUser object for the joomla user to be processed.
+	 * @param   SHUserAdapter  $adapter  User adapter of LDAP user.
 	 *
 	 * @return  boolean  Returns true on success.
 	 *
 	 * @since   1.0
 	 */
-	public function doMap(JUser &$user, $attributes)
+	public function doMap(JUser &$user, $adapter)
 	{
-		// Convert the distinguished name if required
-		$attributes['dn'] = is_array($attributes['dn']) ?
-			JArrayHelper::getValue($attributes['dn'], 0) : $attributes['dn'];
+		// Get the distinguished name of the user
+		$dn = $adapter->getId(false);
 
 		// Get all the Joomla user groups
 		if (is_null($JUserGroups = SHLdapMappingHelper::getJUserGroups()))
@@ -402,9 +400,10 @@ class SHLdapMapping extends JObject
 		 * user into mapping entries, then evaulate which groups
 		 * are of interest when compared to the parameter list.
 		 */
-		if (isset($attributes[$this->lookup_attribute]))
+		$userGroups = JArrayHelper::getValue($adapter->getAttributes($this->lookup_attribute), $this->lookup_attribute);
+		if (is_array($userGroups) && count($userGroups))
 		{
-			$ldapUser = new SHLdapMappingEntry($attributes['dn'], $attributes[$this->lookup_attribute], $this->dn_validate);
+			$ldapUser = new SHLdapMappingEntry($dn, $userGroups, $this->dn_validate);
 		}
 		else
 		{
