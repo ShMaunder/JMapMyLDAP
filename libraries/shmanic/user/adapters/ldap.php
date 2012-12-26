@@ -4,7 +4,7 @@ defined('JPATH_PLATFORM') or die;
 
 SHImport('ldap');
 
-class SHUserAdaptersLdap extends JObject implements SHUserAdapter
+class SHUserAdaptersLdap implements SHUserAdapter
 {
 	/**
 	 * Ldap client library.
@@ -139,6 +139,14 @@ class SHUserAdaptersLdap extends JObject implements SHUserAdapter
 			case 'ldap':
 				return $this->client;
 				break;
+
+			case 'type':
+				return 'ldap';
+				break;
+
+			case 'isLdapCompatible':
+				return true;
+				break;
 		}
 
 		return null;
@@ -249,7 +257,7 @@ class SHUserAdaptersLdap extends JObject implements SHUserAdapter
 			 * using Ldap plugins to help with discovery of required Ldap attributes.
 			 */
 			$extras = SHFactory::getDispatcher('ldap')->trigger(
-				'onLdapBeforeRead', array(&$this->client, array('dn' => $this->_dn, 'source' => __METHOD__))
+				'onLdapBeforeRead', array(&$this, array('dn' => $this->_dn, 'source' => __METHOD__))
 			);
 
 			// For each of the LDAP plug-ins returned, merge their extra attributes.
@@ -308,7 +316,7 @@ class SHUserAdaptersLdap extends JObject implements SHUserAdapter
 			}
 
 			if (!SHLdapHelper::triggerEvent(
-				'onLdapAfterRead', array(&$this->client, $this->_attributes, array('dn' => $this->_dn,'source' => __METHOD__))
+				'onLdapAfterRead', array(&$this, &$this->_attributes, array('dn' => $this->_dn, 'source' => __METHOD__))
 			))
 			{
 				// Cancelled login due to plug-in - should this really be thrown though?
