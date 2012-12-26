@@ -38,6 +38,14 @@ abstract class SHFactory
 	public static $config = null;
 
 	/**
+	 * An array of user adapters.
+	 *
+	 * @var    Array[SHUserAdapter]
+	 * @since  2.0
+	 */
+	public static $adapters = array();
+
+	/**
 	 * Returns a specific dispatcher object. This dispatcher is independent
 	 * of other dispatchers or the global dispatcher and therefore, will only
 	 * call events that has been registered to it.
@@ -110,6 +118,56 @@ abstract class SHFactory
 		}
 
 		return self::$config;
+	}
+
+	/**
+	 * Gets the user adapter for the user specified. Creates a new user
+	 * adapter if one doesnt already exist for the user.
+	 *
+	 * @param   array|string  $user     Either a username string or array of credentials.
+	 * @param   string        $type     Type of adapter (e.g. ldap, xml, federated).
+	 * @param   array         $options  An array of optional options.
+	 *
+	 * @return  SHUserAdapter  Object to user adapter.
+	 *
+	 * @since   2.0
+	 * @throws  Exception
+	 */
+	public static function getUserAdapter($user, $type = null, $options = array())
+	{
+		if (is_array($user))
+		{
+			$username = strtolower(JArrayHelper::getValue($user, 'username', null, 'string'));
+			$credentials = $user;
+		}
+		else
+		{
+			$username = strtolower((string) $user);
+			$credentials = array('username' => $username);
+		}
+
+		if (empty($username))
+		{
+			throw new Exception('Invalid username to instanitate a user adapter.');
+		}
+
+		if (!isset(self::$adapters[$username]))
+		{
+			if (is_null($type))
+			{
+				// Get the default user adpater type from the database
+				$type = self::getConfig()->get('user.type');
+			}
+
+			// Camel case friendly for class name
+			$type = ucfirst(strtolower($type));
+			$class = "SHUserAdapters${type}";
+
+			// Create the adapter (note: remember to unset if using multiple adapters!)
+			self::$adapters[$username] = new $class($credentials, null, $options);
+		}
+
+		return self::$adapters[$username];
 	}
 
 	/**
