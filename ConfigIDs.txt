@@ -21,7 +21,12 @@ user.defaultgroup:
 
 
 ldap.config
- [SQL|Plugin - The source of the LDAP configuration]
+ [SQL|Plugin - The source of the LDAP configuration (possible to use multiple configs)]
+ 1 - AUTO
+ 2 - SQL
+ 3 - FILE
+ 4 - PLUGIN
+
 
 ldap.table
  [When config is SQL, specify the SQL table to use for configuration]
@@ -35,6 +40,8 @@ ldap.file
 ldap.namespaces
  [Used to store namespaces of Ldap files]
 
+ldap.version
+ [JMapMyLDAP Version]
 
 
 sso.bypasskey:
@@ -60,3 +67,7 @@ sso.autoregister
 
 sso.doauthorise
  [1|0 where 1 means to authorise the detected user with an authentication plugin and 0 means to log them in using Joomla database]
+ 
+
+user.type
+ [Used as default user adapter type e.g. ldap]
