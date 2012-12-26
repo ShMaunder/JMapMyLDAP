@@ -21,8 +21,8 @@ if (!defined('SHPATH_PLATFORM'))
 
 if (!defined('SHLDAP_VERSION'))
 {
-	// Define the JMapMyLDAP version [TODO: move to platform]
-	define('SHLDAP_VERSION', '2.0.0');
+	// Define the JMapMyLDAP version
+	define('SHLDAP_VERSION', SHFactory::getConfig()->get('ldap.version'));
 }
 
 // Load the global Ldap language file
