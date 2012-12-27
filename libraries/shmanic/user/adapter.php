@@ -26,6 +26,7 @@ interface SHUserAdapter
 
 	public function getEmail($default = null);
 
-	public function setAttributes(array $attributes);
+	public function updateCredential($password = null, $options = array());
 
+	public function setAttributes(array $attributes);
 }

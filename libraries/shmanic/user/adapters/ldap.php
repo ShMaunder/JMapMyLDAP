@@ -155,19 +155,26 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	// @throws  SHLdapException
 	public function getId($authenticate)
 	{
-		if ($this->_dn instanceof Exception)
-		{
-			// Do not retry. Ldap configuration or user has problems.
-			throw $this->_dn;
-		}
-		elseif (!is_null($this->_dn))
-		{
-			// Dn has already been discovered so lets return it
-			return $this->_dn;
-		}
-
 		try
 		{
+			if ($this->_dn instanceof Exception)
+			{
+				// Do not retry. Ldap configuration or user has problems.
+				throw $this->_dn;
+			}
+			elseif (!is_null($this->_dn))
+			{
+				// Check if this user should be authenticated
+				if ($authenticate && $this->client->bindStatus !== SHLdap::AUTH_USER)
+				{
+					// Bind with the user now
+					$this->client->getUserDN($this->username, $this->password, true);
+				}
+
+				// Dn has already been discovered so lets return it
+				return $this->_dn;
+			}
+
 			/*
 			 * If the Ldap parameter override has been set then directly instantiate
 			 * the Ldap library otherwise use pre-configured platform configurations
@@ -212,7 +219,11 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	// @throws  SHLdapException
 	public function getAttributes($input = null, $null = false)
 	{
-		if ($this->_dn instanceof Exception)
+		if (is_null($this->_dn))
+		{
+			$this->getId(false);
+		}
+		elseif ($this->_dn instanceof Exception)
 		{
 			// Do not retry. Ldap configuration or user has problems.
 			throw $this->_dn;
@@ -419,6 +430,14 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
+	public function updateCredential($password = null, $options = array())
+	{
+		if (!is_null($password))
+		{
+			$this->password = $password;
+		}
+	}
+
 	/**
 	 * Set changes to the attributes within an Ldap distinguished name object.
 	 * This method compares the current attribute values against a new changed
@@ -442,6 +461,12 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		{
 			// There is nothing to change
 			return false;
+		}
+
+		// If the proxy write is disabled then we should just try to authenticate now
+		if (!$this->client->proxyWrite)
+		{
+			$this->getId(true);
 		}
 
 		// Get the current attributes

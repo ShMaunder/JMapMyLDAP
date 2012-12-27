@@ -166,6 +166,14 @@ abstract class SHFactory
 			// Create the adapter (note: remember to unset if using multiple adapters!)
 			self::$adapters[$username] = new $class($credentials, null, $options);
 		}
+		else
+		{
+			// Update credentials if required
+			if ($password = JArrayHelper::getValue($user, 'password', false))
+			{
+				self::$adapters[$username]->updateCredential($password, $options);
+			}
+		}
 
 		return self::$adapters[$username];
 	}
