@@ -126,7 +126,7 @@ class LdapCron extends JApplicationCli
 					try
 					{
 						// Create the new user adapter
-						$adapter = new SHUserAdaptersLdap(array('username' => $username));
+						$adapter = new SHUserAdaptersLdap(array('username' => $username), $config);
 
 						// Get the Ldap DN
 						if (!$dn = $adapter->getId(false))
@@ -208,7 +208,7 @@ class LdapCron extends JApplicationCli
 			}
 			catch (Exception $e)
 			{
-				$errors[] = "Invalid LDAP configuration";
+				$errors[] = 'Invalid LDAP configuration';
 			}
 		}
 
