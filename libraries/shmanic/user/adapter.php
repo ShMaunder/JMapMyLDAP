@@ -20,11 +20,11 @@ interface SHUserAdapter
 	 */
 	public function getAttributes($input = null, $null = false);
 
-	public function getUid($default = null);
+	public function getUid($key = false, $default = null);
 
-	public function getFullname($default = null);
+	public function getFullname($key = false, $default = null);
 
-	public function getEmail($default = null);
+	public function getEmail($key = false, $default = null);
 
 	public function updateCredential($password = null, $options = array());
 

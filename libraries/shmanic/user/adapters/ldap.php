@@ -379,8 +379,14 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 	}
 
-	public function getUid($default = null)
+	public function getUid($key = false, $default = null)
 	{
+		if ($key)
+		{
+			// Only return the key id
+			return $this->client->keyUid;
+		}
+
 		// Find the Ldap attribute uid key
 		$key = $this->client->keyUid;
 
@@ -396,8 +402,14 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
-	public function getFullname($default = null)
+	public function getFullname($key = false, $default = null)
 	{
+		if ($key)
+		{
+			// Only return the key id
+			return $this->client->keyName;
+		}
+
 		// Find the Ldap attribute name key
 		$key = $this->client->keyName;
 
@@ -413,8 +425,14 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
-	public function getEmail($default = null)
+	public function getEmail($key = false, $default = null)
 	{
+		if ($key)
+		{
+			// Only return the key id
+			return $this->client->keyEmail;
+		}
+
 		// Find the Ldap attribute email key
 		$key = $this->client->keyEmail;
 
