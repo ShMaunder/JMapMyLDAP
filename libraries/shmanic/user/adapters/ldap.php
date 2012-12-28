@@ -532,7 +532,11 @@ class SHUserAdaptersLdap implements SHUserAdapter
 					if (count($new))
 					{
 						// Now lets re-add them
-						$addEntries[$key] = array_reverse($new);
+						$addEntries[$key] = $new;
+
+						// TODO: Investigate why I reversed this?? Makes no sense.
+						//$addEntries[$key] = array_reverse($new);
+
 					}
 				}
 			}
@@ -562,7 +566,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			}
 		}
 
-		// We can now commit the changes to the LDAP server for this DN.
+		// We can now commit the changes to the LDAP server for this DN (order MATTERS!).
 		$operations	= array('delete' => $deleteEntries, 'add' => $addEntries, 'replace' => $replaceEntries);
 		$results 	= array();
 
@@ -583,11 +587,21 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			{
 				$method = "{$operation}Attributes";
 
-				// Commit the Ldap attribute operating
-				$result = $this->client->$method($this->_dn, $commit);
+				try
+				{
+					// Commit the Ldap attribute operating
+					$this->client->$method($this->_dn, $commit);
 
-				// Determine whether the operating was a success then log it
-				$priority = ($result === false) ? JLog::ERROR : JLog::INFO;
+					$priority = JLog::INFO;
+
+					// Change the attribute field for this commit
+					$this->_attributes = array_merge($this->_attributes, $commit);
+				}
+				catch (Exception $e)
+				{
+					// An error happened trying to commit the change
+					$priority = JLog::ERROR;
+				}
 
 				// Log for audit
 				SHLog::add(
@@ -600,7 +614,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				);
 
 				// Add the result to the results array
-				$results[] = $result;
+				$results[] = ($priority === JLog::INFO ? true : false);
 			}
 		}
 
