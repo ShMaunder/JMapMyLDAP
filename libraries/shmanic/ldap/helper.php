@@ -22,14 +22,6 @@ defined('JPATH_PLATFORM') or die;
 abstract class SHLdapHelper
 {
 	/**
-	 * Key to store user attributes in the authentication Response
-	 *
-	 * @var    string
-	 * @since  2.0
-	 */
-	const ATTRIBUTE_KEY = 'attributes';
-
-	/**
 	 * Auto configuration.
 	 *
 	 * @var    integer
