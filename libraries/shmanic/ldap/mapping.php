@@ -197,9 +197,9 @@ class SHLdapMapping extends JObject
 	 * Get any extra data from LDAP that is not returned from the
 	 * authentication read.
 	 *
-	 * @param   SHUserAdapter  $adapter     An active SHLdap object connected to LDAP server.
-	 * @param   array   &$details  An array of LDAP attributes that have already been returned.
-	 * @param   array   $options   An array of options. The dn element must be set.
+	 * @param   SHUserAdapter  $adapter   User adapter of LDAP user.
+	 * @param   array          &$details  An array of LDAP attributes that have already been returned.
+	 * @param   array          $options   An array of options.
 	 *
 	 * @return  boolean  Returns true on success.
 	 *
