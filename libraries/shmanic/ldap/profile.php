@@ -66,36 +66,30 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	 * Initialise the synchronisation of the name and email
-	 * fields from LDAP.
+	 * Initialise the synchronisation of the name and email fields from LDAP.
 	 *
-	 * @param   JUser   &$instance  Reference to the active joomla user
-	 * @param   array   $user       Contains all the LDAP response data including attributes
-	 * @param   string  $nameKey    Contains the ldap attribute key string for name
-	 * @param   string  $emailKey   Contains the ldap attribute key string for email
+	 * @param   JUser          &$instance  Reference to the active joomla user.
+	 * @param   SHUserAdapter  $adapter    User adapter of LDAP user.
 	 *
 	 * @return  void
 	 *
 	 * @since   2.0
 	 */
-	public function updateMandatory(&$instance, $user, $nameKey, $emailKey)
+	public function updateMandatory(&$instance, $adapter)
 	{
-		if ($this->sync_name && !is_null($nameKey) && isset($user[SHLdapHelper::ATTRIBUTE_KEY][$nameKey][0]))
+		$fullname = $adapter->getFullname();
+		$email = $adapter->getEmail();
+
+		if ($this->sync_name && !empty($fullname))
 		{
-			if ($name = $user[SHLdapHelper::ATTRIBUTE_KEY][$nameKey][0])
-			{
-				// Update the name of the JUser to the Ldap value
-				$instance->set('name', $name);
-			}
+			// Update the name of the JUser to the Ldap value
+			$instance->name = $fullname;
 		}
 
-		if ($this->sync_email && !is_null($emailKey) && isset($user[SHLdapHelper::ATTRIBUTE_KEY][$emailKey][0]))
+		if ($this->sync_email && !empty($email))
 		{
-			if ($email = $user[SHLdapHelper::ATTRIBUTE_KEY][$emailKey][0])
-			{
-				// Update the email of the JUser to the Ldap value
-				$instance->set('email', $email);
-			}
+			// Update the email of the JUser to the Ldap value
+			$instance->email = $email;
 		}
 	}
 
@@ -326,8 +320,7 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Update profile records (attributes) for a user
-	* to the database.
+	* Update profile records (attributes) for a user to the database.
 	*
 	* @param   integer  $userId      The user ID of the JUser
 	* @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
@@ -369,8 +362,7 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Delete profile records (attributes) for a user
-	* from the database.
+	* Delete profile records (attributes) for a user from the database.
 	*
 	* @param   integer  $userId      The user ID of the JUser
 	* @param   array    $attributes  An array of attribute/profile keys
@@ -414,16 +406,16 @@ class SHLdapProfile extends JObject
 	/**
 	* Save the users profile to the database.
 	*
-	* @param   JXMLElement  $xml       XML profile fields
-	* @param   JUser        $instance  The Joomla user
-	* @param   array        $user      Contains all the LDAP response data including attributes
-	* @param   array        $options   An optional set of options
+	* @param   JXMLElement    $xml       XML profile fields.
+	* @param   JUser          $instance  The Joomla user.
+	* @param   SHUserAdapter  $adapter   User adapter of LDAP user.
+	* @param   array          $options   An optional set of options.
 	*
 	* @return  boolean  True on success
 	*
 	* @since   2.0
 	*/
-	public function saveProfile(JXMLElement $xml, JUser $instance, $user, $options = array())
+	public function saveProfile(JXMLElement $xml, JUser $instance, $adapter, $options = array())
 	{
 		if (!$userId = (int) $instance->get('id'))
 		{
@@ -469,12 +461,15 @@ class SHLdapProfile extends JObject
 				}
 
 				$value = '';
-				if (isset($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute])
-					&& is_array($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute]))
+
+				if ($v = $adapter->getAttributes($attribute))
 				{
-					foreach ($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute] as $values)
+					if (is_array($v[$attribute]))
 					{
-						$value .= $values . $delimiter;
+						foreach ($v[$attribute] as $values)
+						{
+							$value .= $values . $delimiter;
+						}
 					}
 				}
 
@@ -482,9 +477,12 @@ class SHLdapProfile extends JObject
 			else
 			{
 				// These are single values
-				if (isset($user[SHLdapHelper::ATTRIBUTE_KEY][$attribute][0]))
+				if ($v = $adapter->getAttributes($attribute))
 				{
-					$value = $user[SHLdapHelper::ATTRIBUTE_KEY][$attribute][0];
+					if (isset($v[$attribute][0]))
+					{
+						$value = $v[$attribute][0];
+					}
 				}
 			}
 
@@ -561,10 +559,9 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Check the database (sql parameter) for the
-	* current status of a key and its value. This
-	* method will return with either a 0-match, 1-modify,
-	* 2-addition or 3-deletion flag for this key.
+	* Check the database (sql parameter) for the current status of a key and its
+	* value. This method will return with either a 0-match, 1-modify, 2-addition
+	* or 3-deletion flag for this key.
 	*
 	* @param   array   $sql    Associated array of records (profile_key=>, profile_value=>)
 	* @param   string  $key    The profile key to check
@@ -623,9 +620,8 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Save the profile to LDAP and then call for a
-	* Joomla! database refresh so both data sources
-	* have the same information.
+	* Save the profile to LDAP and then call for a Joomla! database refresh
+	* so both data sources have the same information.
 	*
 	* @param   JXMLElement  $xml        XML profile fields.
 	* @param   string       $username   Username of profile owner to change.
@@ -639,122 +635,90 @@ class SHLdapProfile extends JObject
 	*/
 	public function saveToLDAP(JXMLElement $xml, $username, $password = null, $profile = array(), $mandatory = array())
 	{
-		// Check how we are going to authenticate with ldap (i.e. proxy user or profile owner)
-		if ($this->get('allow_ldap_proxy', 1))
-		{
-			// Use the proxy username and password for Ldap.
-			$auth = array('authenticate' => SHLdap::AUTH_PROXY);
-		}
-		else
-		{
-			// Use the supplied username and password for Ldap.
-			$auth = array(
-				'authenticate' => SHLdap::AUTH_USER,
-				'username' => $username,
-				'password' => $password
-			);
-		}
+		/*
+		 * Use the supplied username and password for Ldap (depending on
+		 * proxy_write indicates whether password is used to bind).
+		 */
+		$auth = array(
+			'authenticate' => SHLdap::AUTH_USER,
+			'username' => $username,
+			'password' => $password
+		);
 
-		if (!$ldap = SHLdap::getInstance(null, $auth))
+		try
 		{
-			// Error: failed to connect to LDAP
-			SHLog::add(JText::_('LIB_LDAP_PROFILE_ERR_12231'), 12231, JLog::ERROR, 'ldap');
-			return false;
-		}
+			// Setup the profile user in user adapter
+			$adapter = SHFactory::getUserAdapter($auth);
 
-		if ($auth['authenticate'] === SHLdap::AUTH_PROXY)
-		{
-			// Due to using the proxy user, we must find the owner of the profile in Ldap.
-			if (!$dn = $ldap->getUserDN($username, null, false))
+			// Retrieve user attributes
+			$adapter->getAttributes();
+
+			$processed = array();
+
+			// Loop around each profile field
+			foreach ($profile as $key => $value)
 			{
-				// Failed to find the Ldap user
-				SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12232', $username), 12232, JLog::ERROR, 'ldap');
-				return false;
-			}
-		}
-		else
-		{
-			// We can presume we used the owner of the profile to authenticate
-			$dn = $ldap->getLastUserDN();
-		}
+				$delimiter 	= null;
+				$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
 
-		if (!$current = $ldap->getUserDetails($dn))
-		{
-			// Retrieving user attributes failed
-			return false;
-		}
-
-		$processed = array();
-
-		// Loop around each profile field
-		foreach ($profile as $key => $value)
-		{
-			$delimiter 	= null;
-			$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
-
-			if ($delimiter = (string) $xmlField[0]['delimiter'])
-			{
-				/* Multiple values - we will use a delimiter to represent
-				 * the extra data in Joomla. We also use a newline override
-				 * as this is probably going to be the most popular delimter.
-				 */
-				if (strToUpper($delimiter) == 'NEWLINE')
+				if ($delimiter = (string) $xmlField[0]['delimiter'])
 				{
-					$delimiter = '\r\n|\r|\n';
+					/* Multiple values - we will use a delimiter to represent
+					 * the extra data in Joomla. We also use a newline override
+					 * as this is probably going to be the most popular delimter.
+					 */
+					if (strToUpper($delimiter) == 'NEWLINE')
+					{
+						$delimiter = '\r\n|\r|\n';
+					}
+
+					// Split up the delimited profile field
+					$newValues = preg_split("/$delimiter/", $value);
+
+					// Resave the split profile field into a new array set
+					for ($i = 0; $i < count($newValues); ++$i)
+					{
+						$processed[$key][$i] = $newValues[$i];
+					}
+
 				}
-
-				// Split up the delimited profile field
-				$newValues = preg_split("/$delimiter/", $value);
-
-				// Resave the split profile field into a new array set
-				for ($i = 0; $i < count($newValues); ++$i)
+				else
 				{
-					$processed[$key][$i] = $newValues[$i];
+					// Single Value
+					$processed[$key] = $value;
 				}
-
-			}
-			else
-			{
-				// Single Value
-				$processed[$key] = $value;
-			}
-		}
-
-		// Do the Mandatory Joomla field saving for name/fullname
-		if ($this->get('sync_name', 0) == 2)
-		{
-			if (($key = $ldap->getFullname()) && ($value = JArrayHelper::getValue($mandatory, 'name')))
-			{
-				$processed[$key] = $value;
-			}
-		}
-
-		// Do the Mandatory Joomla field saving for email
-		if ($this->get('sync_email', 0) == 2)
-		{
-			if (($key = $ldap->getEmail()) && ($value = JArrayHelper::getValue($mandatory, 'email')))
-			{
-				$processed[$key] = $value;
-			}
-		}
-
-		if (count($processed))
-		{
-			// Lets save the new (current) fields to the LDAP DN
-			if (!$ldap->makeChanges($dn, $current, $processed))
-			{
-				return false;
 			}
 
-			// Refresh profile for this user in J! database
-			if ($current = $ldap->getUserDetails($dn))
+			// Do the Mandatory Joomla field saving for name/fullname
+			if ((int) $this->get('sync_name', 0) === 2)
 			{
+				if (($key = $adapter->getFullname(true)) && ($value = JArrayHelper::getValue($mandatory, 'name')))
+				{
+					$processed[$key] = $value;
+				}
+			}
+
+			// Do the Mandatory Joomla field saving for email
+			if ((int) $this->get('sync_email', 0) === 2)
+			{
+				if (($key = $adapter->getEmail(true)) && ($value = JArrayHelper::getValue($mandatory, 'email')))
+				{
+					$processed[$key] = $value;
+				}
+			}
+
+			if (count($processed))
+			{
+				// Lets save the new (current) fields to the LDAP DN
+				$adapter->setAttributes($processed);
+
+				// Refresh profile for this user in J! database
 				if ($userId = JUserHelper::getUserId($username))
 				{
 					SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12235', $username), 12235, JLog::INFO, 'ldap');
 
 					$instance = new JUser($userId);
-					$this->saveProfile($xml, $instance, array('attributes' => $current), array());
+					$this->saveProfile($xml, $instance, $adapter);
 
 					// Everything went well - we have updated both LDAP and the J! database.
 					return true;
@@ -762,5 +726,13 @@ class SHLdapProfile extends JObject
 			}
 
 		}
+		catch (Exception $e)
+		{
+			// Error: failed to connect to LDAP
+			// TODO: put in exception message
+			SHLog::add(JText::_('LIB_LDAP_PROFILE_ERR_12231'), 12231, JLog::ERROR, 'ldap');
+			return false;
+		}
+
 	}
 }

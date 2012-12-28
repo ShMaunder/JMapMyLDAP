@@ -1,6 +1,5 @@
 <?php
 /**
- * @version     $Id:$
  * @author      Shaun Maunder <shaun@shmanic.com>
  * @package     Shmanic.Plugin
  * @subpackage  System.LdapProfile
@@ -29,12 +28,6 @@ class plgLdapProfile extends JPlugin
 	* @since  2.0
 	*/
 	protected $profile = null;
-
-	/* holds the name ldap key value */
-	protected $nameKey = null;
-
-	/* holds the email ldap key value */
-	protected $emailKey = null;
 
 	/* holds the reference to the xml file */
 	protected $xml = null;
@@ -79,24 +72,22 @@ class plgLdapProfile extends JPlugin
 	}
 
 	/**
-	 * Called during a ldap login. If this method returns false,
-	 * then the whole login is cancelled.
+	 * Called during an ldap login.
 	 *
-	 * Checks to ensure the onlogin parameter is true then calls
-	 * the on sync method.
+	 * Checks to ensure the onlogin parameter is true then calls the on sync method.
 	 *
-	 * @param  object  $instance  A JUser object for the authenticating user
-	 * @param  array   $user      The auth response including LDAP attributes
-	 * @param  array   $options   Array holding options
+	 * @param   JUser  &$instance  A JUser object for the authenticating user.
+	 * @param   array  $options    Array holding options.
 	 *
 	 * @return  boolean  False to cancel login
+	 *
 	 * @since   2.0
 	 */
-	public function onUserLogin(&$instance, $user, $options = array())
+	public function onUserLogin(&$instance, $options = array())
 	{
 		if ($this->params->get('onlogin'))
 		{
-			$this->onLdapSync($instance, $user, $options);
+			$this->onLdapSync($instance, $options);
 		}
 
 		// Even if it did fail, we don't want to cancel the logon
@@ -104,48 +95,29 @@ class plgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Called during an active LDAP connection after the
-	* initial user LDAP read for any extra object/attributes that
-	* were not returned from the initial LDAP read.
-	*
-	* @param   SHLdap  $ldap
-	* @param   array   $attribute values of ldap read
-	* @param   array   $options (user=>JUser)
-	*
-	* @return  void
-	*
-	* @since   2.0
-	*/
-	public function onLdapAfterRead(&$ldap, &$details, $options = array())
-	{
-		$this->nameKey 	= $ldap->getFullname();
-		$this->emailKey = $ldap->getEmail();
-	}
-
-	/**
 	 * Called during a ldap synchronisation.
 	 *
-	 * Checks to ensure that required variables are set before
-	 * calling the main do mapping library routine.
+	 * Checks to ensure that required variables are set before calling the update
+	 * field methods.
 	 *
-	 * @param   JUser  &$instance  A JUser object for the authenticating user
-	 * @param   array  $user       The auth response including LDAP attributes
-	 * @param   array  $options    Array holding options
+	 * @param   JUser  &$instance  A JUser object for the authenticating user.
+	 * @param   array  $options    Array holding options.
 	 *
 	 * @return  boolean  True on success
 	 *
 	 * @since   2.0
 	 */
-	public function onLdapSync(&$instance, $user, $options = array())
+	public function onLdapSync(&$instance, $options = array())
 	{
-		if (isset($user[SHLdapHelper::ATTRIBUTE_KEY]))
-		{
-			// Mandatory Joomla field processing and saving
-			$this->profile->updateMandatory($instance, $user, $this->nameKey, $this->emailKey);
+		// Gather the user adapter
+		$username = $instance->username;
+		$adapter = SHFactory::getUserAdapter($username);
 
-			// Save the profile as defined from the XML
-			return $this->profile->saveProfile($this->xml, $instance, $user, $options);
-		}
+		// Mandatory Joomla field processing and saving
+		$this->profile->updateMandatory($instance, $adapter);
+
+		// Save the profile as defined from the XML
+		return $this->profile->saveProfile($this->xml, $instance, $adapter, $options);
 	}
 
 	/**
@@ -303,22 +275,21 @@ class plgLdapProfile extends JPlugin
 	}
 
 	/**
-	 * Called just before a user LDAP read to gather
-	 * extra user ldap attributes required for this plugin.
+	 * Called before a user LDAP read to gather extra user ldap attribute keys
+	 * required for this plugin to function correctly.
 	 *
-	 * @param   SHLdap  &$ldap    An active instance of JLDAP2
-	 * @param   array   $options  Optional extra options
+	 * @param   SHUserAdapter  $adapter  The current user adapter.
+	 * @param   array          $options  Array holding options.
 	 *
-	 * @return  array  Array of attributes required for this plug-in
+	 * @return  array  Array of attributes
 	 *
 	 * @since   2.0
 	 */
-	public function onLdapBeforeRead(&$ldap, $options = array())
+	public function onLdapBeforeRead($adapter, $options = array())
 	{
 		if ($this->xml)
 		{
 			return $this->profile->getAttributes($this->xml);
 		}
 	}
-
 }
