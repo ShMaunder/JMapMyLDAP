@@ -108,15 +108,6 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			// Get the required attributes (this gets core attributes + plugin based)
 			if (!empty($id) && $attributes = $adapter->getAttributes())
 			{
-				/*
-				 * Successful authentication.
-				 * Store the distinguished name of the user and the current
-				 * Ldap instance for authorisation (that happens next).
-				 * TODO: change this as its no longer supported in 3.x
-				 */
-				$response->set('id', $id);
-				$response->set('adapter', & $adapter);
-
 				// Report back with success
 				$response->status			= JAuthentication::STATUS_SUCCESS;
 				$response->error_message 	= '';
@@ -160,56 +151,41 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			return $retResponse;
 		}
 
-		$response->type = self::AUTH_TYPE;
-
-		// Check if the DN are present from the onUserAuthenticate() method.
-		$id = $response->get('id');
-
-		/* If we aren't connected to LDAP yet then we can assume
-		 * onUserAuthenticate() hasn't been executed beforehand.
-		 *
-		 * This might be the case when Sigle Sign On just needs to
-		 * authorise a user with the Ldap server.
-		 */
-		if (!$adapter = $response->get('adapter', false))
+		// Check the Shmanic platform has been imported
+		if (!$this->_checkPlatform())
 		{
-			// Check the Shmanic platform has been imported
-			if (!$this->_checkPlatform())
-			{
-				// Failed to boot the platform
-				$response->status = JAuthentication::STATUS_FAILURE;
-				$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12601');
-				return false;
-			}
-
-			/*
-			 * Attempt to authorise with Ldap. This method will automatically detect
-			 * the correct configuration (if multiple ones are specified) and return a
-			 * SHLdap object. If this method returns false, then the authorise was
-			 * unsuccessful - basically the user was not found or configuration was
-			 * bad.
-			 */
-			try
-			{
-				// Setup new user adapter
-				// TODO: allow domains from sso?
-				$adapter = SHFactory::getUserAdapter($response->username);
-
-				// Get the authorising user dn
-				$id = $adapter->getId(false);
-
-			}
-			catch (Exception $e)
-			{
-				// Configuration or authorisation failure
-				$response->status = JAuthentication::STATUS_FAILURE;
-				$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
-				return;
-			}
-
+			// Failed to boot the platform
+			$response->status = JAuthentication::STATUS_FAILURE;
+			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12601');
+			return false;
 		}
 
-		unset($response->adapter);
+		$response->type = self::AUTH_TYPE;
+
+		/*
+		 * Attempt to authorise with Ldap. This method will automatically detect
+		 * the correct configuration (if multiple ones are specified) and return a
+		 * SHLdap object. If this method returns false, then the authorise was
+		 * unsuccessful - basically the user was not found or configuration was
+		 * bad.
+		 */
+		try
+		{
+			// Setup new user adapter
+			// TODO: allow domains from sso?
+			$adapter = SHFactory::getUserAdapter($response->username);
+
+			// Get the authorising user dn
+			$id = $adapter->getId(false);
+
+		}
+		catch (Exception $e)
+		{
+			// Configuration or authorisation failure
+			$response->status = JAuthentication::STATUS_FAILURE;
+			$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
+			return;
+		}
 
 		try
 		{
