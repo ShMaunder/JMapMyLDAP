@@ -1,0 +1,337 @@
+## shaun.maunder:password - fully working user
+dn: uid=shaun.maunder,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: shaun.maunder
+sn: Maunder
+givenName: Shaun
+cn: Shaun Maunder
+mail: shaun@shmanic.com
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/shaun.maunder
+telephoneNumber: 01124 123413
+description: Systems Admin Person
+
+## richard.stallman:password - fully working user
+dn: uid=richard.stallman,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: richard.stallman
+sn: Stallman
+givenName: Richard
+cn: Richard Stallman
+mail: rstallman@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/richard.stallman
+telephoneNumber: 01124 123413
+description: Systems Admin and Loves Free as in Beer
+
+## neo:password - fully working user
+dn: uid=neo,ou=Matrix,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: neo
+sn: Anderson
+givenName: Neo
+cn: Neo Anderson
+mail: neo@matrix.shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/neo
+telephoneNumber: 01124 123413
+description: The MATRIX
+
+## trinity:password - fully working user
+dn: uid=trinity,ou=Matrix,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: Trinity           
+sn: Matrix
+givenName: Trinity
+cn: Trinity Matrix  
+mail: trinity@matrix.shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/trinity             
+telephoneNumber: 01124 123413
+description: The MATRIX
+
+## morpheus:password - fully working user
+dn: uid=morpheus,ou=Matrix,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: Morpheus
+sn: Matrix
+givenName: Morpheus
+cn: Morpheus Matrix    
+mail: morpheus@matrix.shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/morpheus             
+telephoneNumber: 01124 123413
+description: The MATRIX
+
+## oracle:password - fully working user
+dn: uid=oracle,ou=Matrix,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: Oracle
+sn: Matrix
+givenName: Oracle
+cn: Oracle Matrix
+mail: oracle@matrix.shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/oracle
+telephoneNumber: 01124 123413
+description: The MATRIX
+
+## alan.sugar:password - fully working user
+dn: uid=alan.sugar,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: alan.sugar
+sn: Sugar
+givenName: Alan
+cn: Alan Sugar
+mail: asugar@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/alan.sugar
+telephoneNumber: 01124 123419
+description: Sales Person and Your Fired
+
+## mark.shuttleworth:password - fully working user
+dn: uid=mark.shuttleworth,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: mark.shuttleworth
+sn: Shuttleworth
+givenName: Mark
+cn: Mark Shuttleworth
+mail: mshuttleworth@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/mark.shuttleworth
+telephoneNumber: 01124 123419
+description: Sales Person and *buntu's loving
+
+## craig.david:password - fully working user
+dn: uid=craig.david,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: craig.david
+sn: David
+givenName: Craig
+cn: Craig David
+mail: cdavid@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/craig.david
+telephoneNumber: 01124 123414
+description: Marketing Person
+
+## rebecca.black:password - fully working user
+dn: uid=rebecca.black,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: rebecca.black
+sn: Black
+givenName: Rebecca
+cn: Rebecca Black
+mail: rblack@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/rebecca.black
+telephoneNumber: 01124 123415
+description: Awesome Artist, Autotuner and Loves Fridays
+
+## justin.bieber:password - fully working user
+dn: uid=justin.bieber,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: justin.bieber
+sn: Bieber
+givenName: Justin
+cn: Justin Bieber
+mail: jbieber@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/justin.bieber
+telephoneNumber: 01124 123415
+description: Artist
+
+## rimmer:password - fully working user
+dn: uid=rimmer,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: rimmer
+sn: Rimmer
+givenName: Arnold
+cn: Arnold Rimmer
+mail: rimmer@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/rimmer
+telephoneNumber: 01124 123415
+description: Second Officer Technician
+
+## lister:password - fully working user                 
+dn: uid=lister,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lister 
+sn: Lister
+givenName: Dave
+cn: Dave Lister
+mail: lister@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/lister       
+telephoneNumber: 01124 123415
+description: Watch out for his socks 
+
+## kryten:password - fully working user
+dn: uid=kryten,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: kryten
+sn: Kryten
+givenName: Android  
+cn: Android Kryten
+mail: kryten@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/kryten
+telephoneNumber: 01124 123415
+description: Has a head shaped like a potato
+
+## email.missing:password - has the email field missing
+dn: uid=email.missing,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: email.missing
+sn: Missing
+givenName: Email
+cn: Email Missing
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/email.missing
+telephoneNumber: 01124 123415
+
+## email.invalid:password - has a invalid email
+dn: uid=email.invalid,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: email.invalid
+sn: Invalid
+givenName: Email
+cn: Email Invalid
+mail: thisisainvliademail.com
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/email.invalid
+telephoneNumber: 01124 123415
+
+## email.clash1:password - has a invalid email
+dn: uid=email.clash1,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: email.clash1
+sn: Clash1
+givenName: Email
+cn: Email Clash1
+mail: emailclash@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/email.clash1
+telephoneNumber: 01124 123415
+
+## email.clash2:0password - has a invalid email
+dn: uid=email.clash2,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: email.clash2 
+sn: Clash2
+givenName: Email
+cn: Email Clash1
+mail: emailclash@shmanic.net
+uidNumber: 10000
+gidNumber: 1000
+userPassword: password
+loginShell: /bin/bash
+homeDirectory: /home/email.clash2
+telephoneNumber: 01124 123415
+

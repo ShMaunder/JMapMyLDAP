@@ -1,0 +1,6 @@
+V1.00 - 16 March
+> Initial Commit
+> TODO: add service users
+> TODO: add more users that might make the library crash such as random characters
+> TODO: start setting up the passwords with hashes
+

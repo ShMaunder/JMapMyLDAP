@@ -1,0 +1,26 @@
+dn: cn=module{0},cn=config
+changetype: modify
+add: olcModuleLoad
+olcModuleLoad: memberof.la
+
+dn: cn=module{0},cn=config
+changetype: modify
+add: olcModuleLoad
+olcModuleLoad: refint.la
+
+dn: olcOverlay={0}memberof,olcDatabase={1}hdb,cn=config
+changetype: add
+objectClass: olcConfig
+objectClass: olcMemberOf
+objectClass: olcOverlayConfig
+objectClass: top
+olcOverlay: memberof
+
+dn: olcOverlay={0}refint,olcDatabase={1}hdb,cn=config
+changetype: add
+objectClass: olcConfig
+objectClass: olcOverlayConfig
+objectClass: olcRefintConfig
+objectClass: top
+olcOverlay: {0}refint
+olcRefintAttribute: memberof member manager owner seeAlso roleOccupant

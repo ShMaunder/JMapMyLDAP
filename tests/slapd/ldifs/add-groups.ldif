@@ -1,0 +1,48 @@
+dn: cn=administrators,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: groupOfNames
+cn: administrators
+member: uid=shaun.maunder,ou=People,dc=shmanic,dc=net
+member: uid=richard.stallman,ou=People,dc=shmanic,dc=net
+member: uid=oracle,ou=Matrix,ou=People,dc=shmanic,dc=net
+member: uid=kryten,ou=People,dc=shmanic,dc=net
+
+dn: cn=matrix,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: groupOfNames
+cn: Matrix
+member: uid=neo,ou=Matrix,ou=People,dc=shmanic,dc=net
+member: uid=trinity,ou=Matrix,ou=People,dc=shmanic,dc=net
+member: uid=morpheus,ou=Matrix,ou=People,dc=shmanic,dc=net
+member: uid=oracle,ou=Matrix,ou=People,dc=shmanic,dc=net
+
+dn: cn=red-dwarf,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: groupOfNames
+cn: Red-Dwarf
+member: uid=lister,ou=People,dc=shmanic,dc=net
+member: uid=rimmer,ou=People,dc=shmanic,dc=net
+member: uid=kryten,ou=People,dc=shmanic,dc=net
+
+dn: cn=business,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: groupOfNames
+cn: Business
+member: uid=alan.sugar,ou=People,dc=shmanic,dc=net
+member: uid=mark.shuttleworth,ou=People,dc=shmanic,dc=net
+
+dn: cn=technician,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: groupOfNames
+cn: Technician
+member: uid=shaun.maunder,ou=People,dc=shmanic,dc=net
+member: uid=rimmer,ou=People,dc=shmanic,dc=net
+
+dn: cn=artists,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: groupOfNames
+cn: Artists
+member: uid=craig.david,ou=People,dc=shmanic,dc=net
+member: uid=rebecca.black,ou=People,dc=shmanic,dc=net
+member: uid=justin.bieber,ou=People,dc=shmanic,dc=net
+member: uid=lister,ou=People,dc=shmanic,dc=net

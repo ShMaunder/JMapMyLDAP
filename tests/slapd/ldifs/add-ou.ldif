@@ -1,0 +1,20 @@
+dn: ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: organizationalUnit
+ou: Groups
+
+dn: ou=Matrix,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: organizationalUnit
+ou: Matrix
+
+dn: ou=Services,dc=shmanic,dc=net
+changetype: add
+objectClass: organizationalUnit
+ou: Services
+

@@ -1,0 +1,6 @@
+dn: cn=users,ou=Groups,dc=shmanic,dc=net
+changetype: add
+objectClass: posixGroup
+objectClass: top
+cn: users
+gidNumber: 1000

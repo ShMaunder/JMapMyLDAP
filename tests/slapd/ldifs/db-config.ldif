@@ -1,0 +1,9 @@
+dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: dc=shmanic,dc=net
+-
+replace: olcRootPW
+olcRootPW::  e1NTSEF9YkZVVlJKNVI3akFYQWNPakJpeDJiT1Y1dVRJRC9kOHE=
+-
+
