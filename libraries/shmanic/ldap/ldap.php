@@ -97,6 +97,14 @@ class SHLdap extends JObject
 	protected $debug = array();
 
 	/**
+	 * Optional encryption options for passwords.
+	 *
+	 * @var    Array
+	 * @since  2.0
+	 */
+	protected $encryption_options = array();
+
+	/**
 	 * Use LDAP version 3
 	 *
 	 * @var    boolean
@@ -430,6 +438,19 @@ class SHLdap extends JObject
 		// Reset resource & debug
 		$this->resource = null;
 		$this->debug = array();
+
+		// Unencrypt the proxy user if required
+		if ($this->proxy_encryption && !empty($this->proxy_password))
+		{
+			if (!empty($this->encryption_options))
+			{
+				$this->encryption_options = (array) json_decode($this->encryption_options);
+			}
+
+			// There is password encryption lets decrypt (this is only basic)
+			$crypt = SHFactory::getCrypt($this->encryption_options);
+			$this->proxy_password = $crypt->decrypt($this->proxy_password);
+		}
 	}
 
 	/**
@@ -594,6 +615,9 @@ class SHLdap extends JObject
 			}
 		}
 
+		// Default the bind level to none
+		$this->bind_status = self::AUTH_NONE;
+
 		// Connecting has been successful
 		$this->addDebug('Successfully connected.');
 		return true;
@@ -628,6 +652,33 @@ class SHLdap extends JObject
 			$this->resource = null;
 			$this->addDebug('Closed connection.');
 		}
+
+		// Default the bind level to none
+		$this->bind_status = self::AUTH_NONE;
+	}
+
+	/**
+	 * Checks the LDAP connection and Bind status of this Ldap object. If either
+	 * are not correct, then Ldap operations wont be allowed and will throw an exception.
+	 *
+	 * @return  boolean  True on allowed.
+	 *
+	 * @since   2.0
+	 * @throws  RuntimeException
+	 */
+	protected function operationAllowed()
+	{
+		if (!$this->isConnected())
+		{
+			// There is no Ldap connection
+			throw new RuntimeException(JText::_('LIB_SHLDAP_ERR_10006'), 10006);
+		}
+
+		if ($this->bind_status === self::AUTH_NONE)
+		{
+			// There is no binded user
+			throw new RuntimeException(JText::_('LIB_SHLDAP_ERR_10007'), 10007);
+		}
 	}
 
 	/**
@@ -660,16 +711,6 @@ class SHLdap extends JObject
 		// Use direct password
 		$password = $this->proxy_password;
 
-		if ($this->proxy_encryption)
-		{
-			// There is password encryption, lets decrypt first
-			// TODO: sort this mess out
-			jimport('joomla.utilities.simplecrypt');
-			$crypt = new JSimpleCrypt;
-			$password = $crypt->decrypt($password);
-			unset($crypt);
-		}
-
 		if (@ldap_bind($this->resource, $this->proxy_username, $password))
 		{
 			// Successfully binded so set the level
@@ -697,7 +738,6 @@ class SHLdap extends JObject
 	 */
 	public function bind($username = null, $password = null)
 	{
-
 		// Default the bind level to none
 		$this->bind_status = self::AUTH_NONE;
 
@@ -770,15 +810,12 @@ class SHLdap extends JObject
 	 * @return  SHLdapResult  Ldap Results.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function search($dn = null, $filter = null, $attributes = array())
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		if (is_null($dn))
 		{
@@ -801,25 +838,8 @@ class SHLdap extends JObject
 			throw new SHLdapException($this->getErrorCode(), 10102, JText::_('LIB_SHLDAP_ERR_10102'));
 		}
 
-		if ($result)
-		{
-			// Some results were found, lets import the results
-			$result = $this->getEntries($result);
-		}
-		else
-		{
-			// No results found so return empty set
-			$result = array();
-		}
-
-		if (!self::USE_RESULT_OBJECT)
-		{
-			/*
-			 * Not using the special result object OR the operation failed,
-			 * therefore lets return now.
-			 */
-			return $result;
-		}
+		// Some results were found, lets import the results
+		$result = $this->getEntries($result);
 
 		return new SHLdapResult($result);
 	}
@@ -835,15 +855,12 @@ class SHLdap extends JObject
 	 * @return  SHLdapResult  Ldap Results.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function read($dn = null, $filter = null, $attributes = array())
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		if (is_null($dn))
 		{
@@ -866,25 +883,8 @@ class SHLdap extends JObject
 			throw new SHLdapException($this->getErrorCode(), 10112, JText::_('LIB_SHLDAP_ERR_10112'));
 		}
 
-		if ($result)
-		{
-			// Some results were found, lets import the results
-			$result = $this->getEntries($result);
-		}
-		else
-		{
-			// No results found so return empty set
-			$result = array();
-		}
-
-		if (!self::USE_RESULT_OBJECT)
-		{
-			/*
-			 * Not using the special result object OR the operation failed,
-			 * therefore lets return now.
-			 */
-			return $result;
-		}
+		// Some results were found, lets import the results
+		$result = $this->getEntries($result);
 
 		return new SHLdapResult($result);
 	}
