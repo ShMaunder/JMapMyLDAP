@@ -960,15 +960,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function modify($dn, $attributes)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap modify operation
 		$result = @ldap_modify($this->resource, $dn, $attributes);
@@ -991,15 +988,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function addAttributes($dn, $attributes)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap modify add operation
 		$result = @ldap_mod_add($this->resource, $dn, $attributes);
@@ -1022,15 +1016,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function deleteAttributes($dn, $attributes)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap modify delete operation
 		$result = @ldap_mod_del($this->resource, $dn, $attributes);
@@ -1053,15 +1044,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function replaceAttributes($dn, $attributes)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap modify replace operation
 		$result = @ldap_mod_replace($this->resource, $dn, $attributes);
@@ -1084,15 +1072,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function add($dn, $attributes)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap add operation
 		$result = @ldap_add($this->resource, $dn, $attributes);
@@ -1114,15 +1099,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function delete($dn)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap delete operation
 		$result = @ldap_delete($this->resource, $dn);
@@ -1147,15 +1129,12 @@ class SHLdap extends JObject
 	 * @return  boolean  True on success.
 	 *
 	 * @since   2.0
-	 * @throws  SHLdapException
+	 * @throws  SHLdapException   The Ldap operation failed.
+	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
 	public function rename($dn, $newRdn, $newParent = null, $deleteOldRdn = true)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap rename operation
 		$result = @ldap_rename($this->resource, $dn, $newRdn, $newParent, $deleteOldRdn);
