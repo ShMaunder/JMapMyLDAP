@@ -9,7 +9,7 @@
  * @subpackage  Ldap
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
- * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -781,11 +781,7 @@ class SHLdap extends JObject
 	 */
 	public function compare($dn, $attribute, $value)
 	{
-		if (!$this->isConnected())
-		{
-			// There is no Ldap connection
-			throw new SHLdapException(null, 10006, JText::_('LIB_SHLDAP_ERR_10006'));
-		}
+		$this->operationAllowed();
 
 		// Do the Ldap compare operation
 		$result = @ldap_compare($this->resource, $dn, $attribute, $value);
@@ -900,14 +896,14 @@ class SHLdap extends JObject
 	 * @return  array  An array of entries
 	 *
 	 * @since   1.0
-	 * @throws  Exception
+	 * @throws  InvalidArgumentException
 	 */
 	public function getEntries($result)
 	{
 		if (!is_resource($result))
 		{
 			// The result parameter must be a resource
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_10121'), 10121);
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10121'), 10121);
 		}
 
 		// Store all entries inside the array
