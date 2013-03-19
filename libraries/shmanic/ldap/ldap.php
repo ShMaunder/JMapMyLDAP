@@ -1155,16 +1155,16 @@ class SHLdap extends JObject
 	 * @return  string  User DN.
 	 *
 	 * @since   1.0
-	 * @throws  Exception               Configuration error
-	 * @throws  SHLdapException         Ldap specific error
-	 * @throws  SHExceptionInvaliduser  User invalid error
+	 * @throws  InvalidArgumentException  Invalid argument in config related error
+	 * @throws  SHLdapException           Ldap specific error.
+	 * @throws  SHExceptionInvaliduser    User invalid error.
 	 */
 	public function getUserDN($username = null, $password = null, $authenticate = false)
 	{
 		if (empty($this->user_qry))
 		{
 			// No user query specified, cannot proceed
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_10301'), 10301);
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10301'), 10301);
 		}
 
 		$replaced = str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
@@ -1177,7 +1177,7 @@ class SHLdap extends JObject
 		// Get a array of distinguished names from either the search or direct bind methods.
 		$DNs = $this->use_search ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
 
-		if (!is_array($DNs) || !count($DNs))
+		if (empty($DNs))
 		{
 			/*
 			 * Cannot find the specified username. We are going to throw
@@ -1283,8 +1283,8 @@ class SHLdap extends JObject
 	 * @return  array  An array containing user DNs.
 	 *
 	 * @since   1.0
-	 * @throws  Exception        Configuration related error
-	 * @throws  SHLdapException  Ldap search error
+	 * @throws  InvalidArgumentException  Invalid argument in config related error
+	 * @throws  SHLdapException           Ldap search error
 	 */
 	public function getUserDnBySearch($username)
 	{
@@ -1301,14 +1301,14 @@ class SHLdap extends JObject
 		if (empty($this->base_dn))
 		{
 			// No base distinguished name specified, cannot proceed.
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_10321'), 10321);
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10321'), 10321);
 		}
 
 		// Bind using the proxy user so the user can be found in the Ldap directory.
 		if (!$this->proxyBind())
 		{
 			// Failed to bind with proxy user
-			throw new SHLdapException(JText::_('LIB_SHLDAP_ERR_10322'), 10322);
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10322'), 10322);
 		}
 
 		// Search the directory for the user
@@ -1335,7 +1335,7 @@ class SHLdap extends JObject
 	 * @return  array  An array containing distinguished names.
 	 *
 	 * @since   1.0
-	 * @throws  Exception
+	 * @throws  InvalidArgumentException  Invalid argument in config related error
 	 */
 	public function getUserDnDirectly($username)
 	{
@@ -1357,7 +1357,7 @@ class SHLdap extends JObject
 		if (preg_match('/\((.)*\)/', $search))
 		{
 			// Cannot continue as brackets are present
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_10331'), 10331);
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10331'), 10331);
 		}
 
 		// We need to find the correct distinguished name from the set of elements

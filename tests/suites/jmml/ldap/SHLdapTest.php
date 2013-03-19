@@ -174,16 +174,20 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap = new SHLdap(static::getLdapConfig(214));
 		$ldap->connect();
 
-		$username = 'uid=shaun.maunder,ou=People,dc=shmanic,dc=net';
+		// Try 50 random users
+		for ($i = 0; $i < 5; $i++)
+		{
+			$user = static::getUserCreds();
 
-		// No password (classed as anonymous)
-		$this->assertFalse($ldap->bind($username));
+			// No password (classed as anonymous)
+			$this->assertFalse($ldap->bind($user['dn']));
 
-		// Successful
-		$this->assertTrue($ldap->bind($username, 'password'));
+			// Successful
+			$this->assertTrue($ldap->bind($user['dn'], $user['password']));
 
-		// Incorrect password
-		$this->assertFalse($ldap->bind($username, 'wrongpassword'));
+			// Incorrect password
+			$this->assertFalse($ldap->bind($user['dn'], ($user['password'] . 'asdhifoishg£$%^&*()%$££%^&*(')));
+		}
 	}
 
 	public function testSlapdSearchSingleValid()
@@ -192,12 +196,14 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->connect();
 		$ldap->proxyBind();
 
+		$user = static::getUserCreds('shaun.maunder');
+
 		// Restricted search to mail
 		$result = $ldap->search(null, '(uid=shaun.maunder)', array('mail'));
 
 		$this->assertInstanceOf('SHLdapResult', $result);
 		$this->assertEquals(1, $result->countEntries());
-		$this->assertEquals('uid=shaun.maunder,ou=People,dc=shmanic,dc=net', $result->getDN(0));
+		$this->assertEquals($user['dn'], $result->getDN(0));
 
 		$this->assertEquals('shaun@shmanic.com', $result->getValue(0, 'mail', 0));
 		$this->assertFalse($result->getValue(0, 'description', 0));
@@ -207,7 +213,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$this->assertInstanceOf('SHLdapResult', $result);
 		$this->assertEquals(1, $result->countEntries());
-		$this->assertEquals('uid=shaun.maunder,ou=People,dc=shmanic,dc=net', $result->getDN(0));
+		$this->assertEquals($user['dn'], $result->getDN(0));
 
 		$entry = $result->getEntry(0);
 
@@ -344,7 +350,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 * @covers  SHLdap::addAttributes
 	 * @covers  SHLdap::deleteAttributes
 	 */
-	public function testSlapdAddCompareDeleteAttributes()
+	public function testSlapdAddCompareDeleteAttributes1()
 	{
 		$ldap = new SHLdap(static::getLdapConfig(214));
 		$ldap->connect();
@@ -380,6 +386,219 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers  SHLdap::replaceAttributes
+	 */
+	public function testSlapdReplaceCompareAttributes()
+	{
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+		$ldap->proxyBind();
+
+		$user = static::getUserCreds('neo');
+		$key = 'description';
+		$original = 'The MATRIX';
+		$new = 'The One';
+
+		// Checks to make sure that attribute doesnt currently exist
+		$result = $ldap->read($user['dn'], null, array($key));
+		$this->assertEquals($user['dn'], $result->getDN(0));
+		$this->assertEquals($original, $result->getValue(0, $key, 0));
+
+		$this->assertTrue(
+			$ldap->replaceAttributes(
+				$user['dn'],
+				array($key => array ($new))
+			)
+		);
+
+		// Checks to make sure that attribute now exists
+		$result = $ldap->read($user['dn'], null, array($key));
+		$this->assertEquals($user['dn'], $result->getDN(0));
+		$this->assertEquals($new, $result->getValue(0, $key, 0));
+
+		// Put it back again
+		$ldap->replaceAttributes($user['dn'], array($key => array($original)));
+
+		// Checks to make sure that attribute doesnt exist again
+		$result = $ldap->read($user['dn'], null, array($key));
+		$this->assertEquals($user['dn'], $result->getDN(0));
+		$this->assertEquals($original, $result->getValue(0, $key, 0));
+	}
+
+	public function testSlapdAddAttributesException()
+	{
+		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10171', 10171);
+
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+		$ldap->proxyBind();
+
+		$user = static::getUserCreds('trinity');
+
+		// Try to add an attribute that doesnt exist
+		$this->assertTrue(
+			$ldap->addAttributes(
+				$user['dn'],
+				array('attributedoesntexist' => array('asdasdas'))
+			)
+		);
+	}
+
+	public function testSlapdReplaceAttributesException()
+	{
+		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10151', 10151);
+
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+		$ldap->proxyBind();
+
+		$user = static::getUserCreds('trinity');
+
+		// Try to replace an attribute that doesnt exist
+		$this->assertTrue(
+			$ldap->replaceAttributes(
+				$user['dn'],
+				array('attributedoesntexist' => array('asdasdas'))
+			)
+		);
+	}
+
+	public function testSlapdDeleteAttributesException()
+	{
+		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10161', 10161);
+
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+		$ldap->proxyBind();
+
+		$user = static::getUserCreds('trinity');
+
+		// Try to delete an attribute that doesnt exist
+		$this->assertTrue(
+			$ldap->deleteAttributes(
+				$user['dn'],
+				array('attributedoesntexist' => array())
+			)
+		);
+	}
+
+	public function testSlapdGetUserDNSearch()
+	{
+		// Config uses a bracket in the user query
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+
+		$user = static::getUserCreds('shaun.maunder');
+
+		// Test Non-random one first
+		$this->assertEquals(
+			$user['dn'],
+			$ldap->getUserDN($user['username'], $user['password'], true)
+		);
+
+		// Loop 50 times to test random users
+		for ($i = 0; $i < 50; $i++)
+		{
+			// Get random user
+			$user = static::getUserCreds();
+
+			$this->assertEquals(
+				$user['dn'],
+				$ldap->getUserDN($user['username'], $user['password'], true),
+				"Failed to get User DN for {$user['dn']}"
+			);
+		}
+
+		unset($ldap);
+
+		// Config doesnt use a bracket in the user query
+		$ldap = new SHLdap(static::getLdapConfig(215));
+		$ldap->connect();
+
+		// Loop 50 times to test random users
+		for ($i = 0; $i < 50; $i++)
+		{
+			// Get random user
+			$user = static::getUserCreds();
+
+			$this->assertEquals(
+				$user['dn'],
+				$ldap->getUserDN($user['username'], $user['password'], true),
+				"Failed to get User DN for {$user['dn']}"
+			);
+		}
+	}
+
+	public function testSlapdGetUserDNNoUsrQryFail()
+	{
+		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10301', 10301);
+
+		// Blank the user query
+		$config = static::getLdapConfig(214);
+		$config['user_qry'] = '';
+
+		$ldap = new SHLdap($config);
+		$ldap->connect();
+
+		$user = static::getUserCreds();
+		$dn = $ldap->getUserDN($user['username'], $user['password'], true);
+	}
+
+	public function testSlapdGetUserDNSearchFail1()
+	{
+		$this->setExpectedException('SHExceptionInvalidUser', 'LIB_SHLDAP_ERR_10303', 10303);
+
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+
+		// We use a incorrect password here
+		$user = static::getUserCreds();
+		$dn = $ldap->getUserDN($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
+	}
+
+	public function testSlapdGetUserDNSearchFail2()
+	{
+		$this->setExpectedException('SHExceptionInvalidUser', 'LIB_SHLDAP_ERR_10302', 10302);
+
+		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap->connect();
+
+		// We use a incorrect username
+		$user = static::getUserCreds();
+		$dn = $ldap->getUserDN($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
+	}
+
+	public function testSlapdGetUserDNSearchProxyFail()
+	{
+		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10322', 10322);
+
+		// Override the proxy user with something invalid
+		$config = static::getLdapConfig(214);
+		$config['proxy_username'] = 'cn=donotexist,dc=shmanic,dc=net';
+
+		$ldap = new SHLdap($config);
+		$ldap->connect();
+
+		$user = static::getUserCreds();
+		$dn = $ldap->getUserDN($user['username'], ($user['password']), true);
+	}
+
+	public function testSlapdGetUserDNSearchBaseDnFail()
+	{
+		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10321', 10321);
+
+		// Blank the base dn
+		$config = static::getLdapConfig(214);
+		$config['base_dn'] = '';
+
+		$ldap = new SHLdap($config);
+		$ldap->connect();
+
+		$user = static::getUserCreds();
+		$dn = $ldap->getUserDN($user['username'], ($user['password']), true);
+	}
+
+	/**
 	 * Read in the case XML file and parse it to an
 	 * array in the form array(category=>case).
 	 *
@@ -389,6 +608,64 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 * @since  1.0
 	 */
 	public static function getLdapConfig($id, $file = null)
+	{
+		$result = array();
+
+		$config = static::getConfigXml($id, $file);
+
+		foreach($config as $key=>$value)
+		{
+			if (!is_array($value))
+			{
+				$result[$key] = (string) $value[0];
+			}
+		}
+
+		return $result;
+	}
+
+	public static function getUserCreds($username = null, $file = null)
+	{
+		$config = static::getConfigXml(100);
+
+		$user = array();
+
+		if (is_null($username))
+		{
+			// Get a random username
+			$users = $config->standard;
+			$index = (rand(1, $users->count()) - 1);
+
+			$user = $users[$index];
+		}
+
+		if (strtolower($username) === 'admin' || strtolower($username) === 'administrator')
+		{
+			$user = $config->admin;
+		}
+		else if (!is_null($username))
+		{
+			//$user = $config->normal->$username;
+			$x = $config->xpath("standard[@username='$username']");
+
+			if (isset($x[0]))
+			{
+				$user = $x[0];
+			}
+		}
+
+		$result = array();
+
+		// Save all xml user config attributes to an array
+		foreach ($user->attributes() as $key => $value)
+		{
+			$result[(string) $key] = (string) $value;
+		}
+
+		return $result;
+	}
+
+	protected static function getConfigXml($id, $file = null)
 	{
 		if (is_null($file))
 		{
@@ -400,27 +677,18 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 			return false;
 		}
 
-		$result = array();
-
 		// Load the XML file
 		$xml = \simplexml_load_file($file, 'SimpleXMLElement');
 
 		// Get all the category tags ignoring anything else in the file
-		$configs = $xml->xpath("/configs/config[@id={$id}]");
+		$x = $xml->xpath("/configs/config[@id={$id}]");
 
-		foreach ($configs as $config)
+		if (isset($x[0]))
 		{
-			foreach($config as $key=>$value)
-			{
-
-				if (!is_array($value))
-				{
-					$result[$key] = (string) $value[0];
-				}
-
-			}
+			// Config exists successfully
+			return $x[0];
 		}
 
-		return $result;
+		return array();
 	}
 }
