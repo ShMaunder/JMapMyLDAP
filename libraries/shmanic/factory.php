@@ -179,6 +179,61 @@ abstract class SHFactory
 	}
 
 	/**
+	 * Setups the JCrypt object with default keys if not specified then returns it.
+	 *
+	 * @param   array  $options  Optional override options for keys.
+	 *
+	 * @return  JCrypt  The configured JCrypt object.
+	 *
+	 * @since   2.0
+	 */
+	public static function getCrypt($options = array())
+	{
+		$source = strtolower(JArrayHelper::getValue($options, 'source', 'jconfig', 'string'));
+
+		if ($source === 'jconfig')
+		{
+			/*
+			 * If JConfig has been included then lets check whether the keys
+			 * have been imported and if not then use the secret value for now.
+			 */
+			if (class_exists('JConfig'))
+			{
+				$config = new JConfig;
+
+				if (!isset($options['key']))
+				{
+					$options['key'] = $config->secret;
+				}
+			}
+		}
+		elseif ($source === 'file')
+		{
+			$file = JArrayHelper::getValue($options, 'file', '', 'string');
+			if (file_exists($file))
+			{
+				$options['key'] = file_get_contents($file);
+			}
+		}
+
+		$crypt = new JCrypt;
+
+		// Create some default options
+		$type = JArrayHelper::getValue($options, 'type', 'simple', 'string');
+		$key = JArrayHelper::getValue($options, 'key', 'DEFAULTKEY', 'string');
+
+		$crypt->setKey(
+			new JCryptKey(
+				$type,
+				$key,
+				$key
+			)
+		);
+
+		return $crypt;
+	}
+
+	/**
 	 * Returns a new configuration registry from a source configuration
 	 * SQL table. This method uses the JDatabase object.
 	 *
