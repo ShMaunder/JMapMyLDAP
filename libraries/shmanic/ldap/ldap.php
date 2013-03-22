@@ -551,6 +551,7 @@ class SHLdap extends JObject
 	 * @return  boolean  True on Success.
 	 *
 	 * @since   1.0
+	 * @throws  InvalidArgumentException  Invalid configuration or arguments specified.
 	 * @throws  SHLdapException
 	 */
 	public function connect()
@@ -558,7 +559,7 @@ class SHLdap extends JObject
 		// A host parameter must be specified to connect
 		if (empty($this->host))
 		{
-			throw new SHLdapException(null, 10001, JText::_('LIB_SHLDAP_ERR_10001'));
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10001'), 10001);
 		}
 
 		// If there is a connection already, then close it before proceeding
@@ -1245,8 +1246,19 @@ class SHLdap extends JObject
 				{
 					foreach ($DNs as $dn)
 					{
+						try
+						{
+							$read = $this->read($dn, null, array('dn'));
+						}
+						catch (Exception $e)
+						{
+							// We don't need to worry about the exception too much
+							$this->addDebug("Failed to read direct bind without auth DN {$dn}.");
+							continue;
+						}
+
 						// Check if the distinguished name entity exists
-						if (count($this->read($dn, null, array('dn'))))
+						if ($read->countEntries() > 0)
 						{
 							// It exists so we assume this is the correct distinguished name.
 							$result = $dn;
@@ -1354,7 +1366,7 @@ class SHLdap extends JObject
 		 * A basic check to ensure a filter isnt being used.
 		 * (i.e. distinguished names do not start and end with brackets).
 		 */
-		if (preg_match('/\((.)*\)/', $search))
+		if (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $search))
 		{
 			// Cannot continue as brackets are present
 			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10331'), 10331);
