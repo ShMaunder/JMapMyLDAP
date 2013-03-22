@@ -93,8 +93,19 @@ class SHLog
 		// Check the Error ID is not listed as ignored
 		if (!in_array((int) $id, self::$ignore))
 		{
+			// Something is up with the deprecation of JDispatcher
+			if (class_exists('JDispatcher'))
+			{
+				// J2.5
+				$dispatcher = JDispatcher::getInstance();
+			}
+			else
+			{
+				// J3.0+ and Platform
+				$dispatcher = JEventDispatcher::getInstance();
+			}
+
 			// Inform any logging plugins that an entry has been produced
-			$dispatcher = JDispatcher::getInstance();
 			$dispatcher->trigger('onLogEntry', array($entry));
 
 			// Add the entry to all avilable loggers
