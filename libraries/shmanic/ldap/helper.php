@@ -64,6 +64,8 @@ abstract class SHLdapHelper
 	 * @return  false|JRegistry  Registry of parameters for Ldap or False on error.
 	 *
 	 * @since   2.0
+	 * @throws  InvalidArgumentException
+	 * @throws  RuntimeException
 	 */
 	public static function getConfig($id = null, JRegistry $registry = null, $source = self::CONFIG_AUTO)
 	{
@@ -116,7 +118,7 @@ abstract class SHLdapHelper
 				else
 				{
 					// No results found
-					SHLog::add(JText::_('LIB_SHLDAPHELPER_ERR_10604'), 10604, JLog::ERROR, 'ldap');
+					throw new InvalidArgumentException(JText::_('LIB_SHLDAPHELPER_ERR_10604'), 10604);
 				}
 			}
 			// Check if we need to get the config based on an ID
@@ -140,7 +142,7 @@ abstract class SHLdapHelper
 				else
 				{
 					// No result found
-					SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10605', $id), 10605, JLog::ERROR, 'ldap');
+					throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10605', $id), 10605);
 				}
 
 			}
@@ -165,7 +167,7 @@ abstract class SHLdapHelper
 				else
 				{
 					// No result found
-					SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10606', $id), 10606, JLog::ERROR, 'ldap');
+					throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10606', $id), 10606);
 				}
 			}
 
@@ -197,104 +199,107 @@ abstract class SHLdapHelper
 			else
 			{
 				// Invalid plugin
-				SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10603', $name), 10603, JLog::ERROR, 'ldap');
+				throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10603', $name), 10603);
 			}
 		}
 		elseif ($source === self::CONFIG_FILE)
 		{
-			// Grab the plug-in name from the registry
+			// Define some default variables
+			$namespace = '';
+			$position = 0;
+
+			// Grab the file path/name from the registry
 			$file = $registry->get('ldap.file', JPATH_CONFIGURATION . '/ldap.php');
 
-			// Check the file is valid and exists
-			if (!empty($file) && file_exists($file))
+			// Get and split the namespaces
+			$namespaces = explode(';', $registry->get('ldap.namespaces', ''));
+
+			if (is_null($id))
 			{
-				// Include the file
-				include_once $file;
-
-				// Check if we need to treat the ID as a position for later
-				$position = 0;
-				if (is_numeric($id))
-				{
-					$position = (int) $id;
-					$id = null;
-				}
-
-				// Generate the namesapce
-				$namespaces = is_null($id) ? $registry->get('ldap.namespaces', '') : $id;
-
-				// Split multiple namespaces
-				$namespaces = explode(';', $namespaces);
-
-				// Check if we are dealing with more than one namespace
 				if (count($namespaces) === 1)
 				{
-					// Only one namespace; attempt to create it then return it
-					if ($config = self::createFileConfig($namespaces[0]))
-					{
-						return $config;
-					}
-					else
-					{
-						// Unable to load the file namespace specified
-						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10607', $namespaces[0], $file), 10607, JLog::ERROR, 'ldap');
-					}
+					// We will use a single namespace here
+					$namespace = $namespaces[0];
 				}
-				// Check if we need a specific configuration ID (this would be from domain logins)
-				elseif ($position > 0)
+				elseif (count($namespaces) > 1)
 				{
-					// Check it exists at the point
-					if (isset($namespaces[$position]))
-					{
-						// Attempt to create it then return it
-						if ($config = self::createFileConfig($namespaces[$position]))
-						{
-							return $config;
-						}
-					}
-					else
-					{
-						// Unable to load the file namespace specified
-						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10609', $position, $file), 10609, JLog::ERROR, 'ldap');
-					}
+					// We will return an array of configs
+					$namespace = $namespaces;
 				}
-				else
-				{
-					$configs = array();
-
-					// Multiple namespaces so loop around each and attempt to create one
-					foreach ($namespaces as $namespace)
-					{
-						// Create the namespace and add it to the configs array if it exists
-						if ($config = self::createFileConfig($namespace))
-						{
-							$configs[] = $config;
-						}
-					}
-
-					// Check we have some configs
-					if (count($configs))
-					{
-						// Return the multiple configs
-						return $configs;
-					}
-					else
-					{
-						// No file configurations found
-						SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10608', $file), 10608, JLog::ERROR, 'ldap');
-					}
-				}
-
 			}
 			else
 			{
-				// Invalid file
-				SHLog::add(JText::sprintf('LIB_SHLDAPHELPER_ERR_10602', $file), 10602, JLog::ERROR, 'ldap');
+				if (is_numeric($id))
+				{
+					// Need to treat the ID as a position - check if it exists
+					if (isset($namespaces[$id]))
+					{
+						$namespace = $namespaces[$id];
+					}
+					else
+					{
+						// Unable to load the file namespace specified
+						throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10609', $id), 10609);
+					}
+				}
+				elseif (is_string($id))
+				{
+					// Treat the ID as a namespace
+					$namespace = $id;
+				}
+				else
+				{
+					// Invalid id argument
+					throw new InvalidArgumentException(JText::_('LIB_SHLDAPHELPER_ERR_10610'), 10610);
+				}
+			}
+
+			// Check if we are dealing with one namespace
+			if (is_string($namespace))
+			{
+				// Only need to get and return one namespace
+				return self::createFileConfig($namespace, $file);
+			}
+			else
+			{
+				$configs = array();
+
+				// Multiple namespaces so loop around each and attempt to create one
+				foreach ($namespaces as $namespace)
+				{
+					try
+					{
+						// Add the namespace'd config to the array
+						$configs[] = self::createFileConfig($namespace, $file);
+					}
+					catch (Exception $e)
+					{
+						// We will have some debugging logging here
+						SHLog::add(
+							JText::sprintf(
+								'LIB_SHLDAPHELPER_DEBUG_10607', $namespace, $e->getCode(), $e->getMessage()
+							), 10607, JLog::DEBUG, 'ldap'
+						);
+					}
+				}
+
+				// Check we have some configs
+				if (count($configs))
+				{
+					// Return the multiple configs
+					return $configs;
+				}
+				else
+				{
+					// No file configurations found
+					throw new RuntimeException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10608', $file), 10608);
+				}
 			}
 		}
 		else
 		{
 			// Invalid source
-			SHLog::add(JText::_('LIB_SHLDAPHELPER_ERR_10601'), 10601, JLog::ERROR, 'ldap');
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAPHELPER_ERR_10601'), 10601);
 		}
 
 		// Failed to find a valid config
@@ -302,30 +307,46 @@ abstract class SHLdapHelper
 	}
 
 	/**
-	 * Creates and returns an object to the specified namespace class.
+	 * Creates and returns a registry to the specified namespace class.
 	 * This is used for LDAP configuration files.
 	 *
 	 * @param   string  $namespace  Name of namespace.
+	 * @param   string  $file       File path to configuration.
 	 *
-	 * @return  object  Object to configuration.
+	 * @return  JRegistry  Configuration registry.
 	 *
 	 * @since   2.0
+	 * @throws  InvalidArgumentException  Failed to include config
+	 * @throws  RuntimeException          Failed to instantiate config
 	 */
-	protected static function createFileConfig($namespace)
+	protected static function createFileConfig($namespace, $file = null)
 	{
 		// Sanitize the namespace
 		$namespace = ucfirst((string) preg_replace('/[^A-Z_]/i', '', $namespace));
 
-		// Build the config name
-		$name = 'SHLdapConfig' . $namespace;
+		// Build the class name
+		$class = 'SHLdapConfig' . $namespace;
+
+		// Try to include the file if the class doesnt currently exist
+		if (!class_exists($class))
+		{
+			if (is_null($file) || !file_exists($file))
+			{
+				// Failed to create config file
+				throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10622', $class, $file), 10622);
+			}
+
+			// Include the file
+			include_once $file;
+		}
 
 		// Handle the PHP configuration type.
-		if (class_exists($name))
+		if (class_exists($class))
 		{
 			$config = new JRegistry;
 
 			// Create the JConfig object
-			$params = new $name;
+			$params = new $class;
 
 			// Load the configuration values into the registry
 			$config->loadObject($params);
@@ -334,7 +355,7 @@ abstract class SHLdapHelper
 		}
 
 		// Failed to create config file
-		return false;
+		throw new RuntimeException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10621', $class), 10621);
 	}
 
 	/**
@@ -599,35 +620,6 @@ abstract class SHLdapHelper
 			// Direct manipulation of the object
 			$user->setParam('authtype', 'LDAP');
 		}
-	}
-
-	/**
-	 * Gets the user attributes from LDAP. This method will in fire the
-	 * individual LDAP plugin onLdapBeforeRead and onLdapAfterRead methods.
-	 *
-	 * Note: this only needs to be used when authentication/authorisation through
-	 * the SHLdap authentication plugin hasn't been fired.
-	 *
-	 * @param   string  $username  Specify username to return results on.
-	 *
-	 * @return  array|false  An array of attributes or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public static function getUserDetails($username)
-	{
-		if ($ldap = SHLdap::getInstance(null, array('username' => $username)))
-		{
-			$dn = $ldap->getLastUserDN();
-
-			$attributes = $ldap->getUserDetails($dn);
-
-			$ldap->close();
-
-			return $attributes;
-		}
-
-		return false;
 	}
 
 	/**
