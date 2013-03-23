@@ -287,15 +287,6 @@ abstract class SHFactory
 	 */
 	protected static function createFileConfig($file, $namespace)
 	{
-		if (file_exists($file))
-		{
-			/*
-			 * If the configuration is outside of the autoloader
-			 * (i.e. /libraries/shmanic) then lets include it.
-			 */
-			include_once $file;
-		}
-
 		// Create the registry with a default namespace of config
 		$registry = new JRegistry;
 
@@ -305,13 +296,25 @@ abstract class SHFactory
 		// Build the class with namespace support
 		$name = 'SHConfig' . $namespace;
 
+		if (!class_exists($name) || file_exists($file))
+		{
+			/*
+			 * If the configuration is outside of the autoloader
+			 * (i.e. /libraries/shmanic) then lets include it.
+			 */
+			include_once $file;
+		}
+
 		if (class_exists($name))
 		{
 			// Create the SHConfig object
 			$config = new $name;
 
 			// Load the configuration values into the registry
-			$registry->loadObject($config);
+			foreach ($config as $key => $value)
+			{
+				$registry->set(str_replace('__', '.', $key), $value);
+			}
 		}
 
 		return $registry;
