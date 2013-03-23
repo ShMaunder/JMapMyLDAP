@@ -74,6 +74,8 @@ require_once JPATH_PLATFORM . '/shmanic/import.php';
  */
 require_once __DIR__ . '/version.php';
 
+require_once __DIR__ . '/helper.php';
+
 /*
  * The PHP garbage collector can be too aggressive in closing circular references before they are no longer needed.  This can cause
  * segfaults during long, memory-intensive processes such as testing large test suites and collecting coverage data.  We explicitly

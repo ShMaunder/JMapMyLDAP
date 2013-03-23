@@ -5,16 +5,44 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	const ENCRYPTION_KEY_FILE = 'ldap_encrypt_key.txt';
 
+	const PLATFORM_CONFIG_FILE = 'platform_config.php';
+
+	const LDAP_CONFIG_FILE = 'ldap_config.php';
+
 	public function setUp()
 	{
-		$this->configs = static::getLdapConfig(80);
-
+		// Create some files
 		fwrite(fopen(static::ENCRYPTION_KEY_FILE, 'w'), 'ym0ZBkTbDbYrQzjMM7COYnLYuArlq31UIfDyBj11gpeeVLlXeGYPQ7Qf71TPDlN8dVWQfsFbf5SteVXoNzQeiH3EHMFjQtyvmtDNv6kAqUa0Bc7r8QdN5H7VQXtARk1uYCwBqi4sYm1rRaUOJqDCRL64bj4ykeqyouPw8CscmK0hnikpQWSL9MKtJjNyathdSx3rVWE4YiIrgij8ELGjELwl7JQrztCSLAbRfQJafAQ6xGXUDRslRK4T4w2vtBMb');
+
+		$this->setUpLdapConfigFiles();
 	}
 
 	public function tearDown()
 	{
+		// Clean up LDAP config files
 		unlink (static::ENCRYPTION_KEY_FILE);
+		unlink (static::LDAP_CONFIG_FILE);
+		unlink (static::PLATFORM_CONFIG_FILE);
+	}
+
+	protected function setUpLdapConfigFiles()
+	{
+		$platform = "<?php \nclass SHConfig \n{\n" .
+			"\t" . 'public $ldap__config = 3;' . "\n" .
+			"\t" . 'public $ldap__file = \'' . static::LDAP_CONFIG_FILE . '\';' . "\n" .
+			"}\n";
+
+		fwrite(fopen(static::PLATFORM_CONFIG_FILE, 'w'), $platform);
+
+		$ldapExport = null;
+		$ldapConfig = TestsHelper::getLdapConfig(214);
+
+		foreach ($ldapConfig as $k => $v)
+		{
+			$ldapExport .= "\t" . 'public $' . $k . ' = \'' . str_replace('\'', '\\\'', $v) . "'; \n";
+		}
+
+		fwrite(fopen(static::LDAP_CONFIG_FILE, 'w'), "<?php \nclass SHLdapConfig \n{\n" . $ldapExport . "}\n");
 	}
 
 	/**
@@ -22,7 +50,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdConnectSuccess()
 	{
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 
 		$ldap = new SHLdap($config);
 
@@ -37,7 +65,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('Exception', 'LIB_SHLDAP_ERR_10005', 10005);
 
 		// Turn on TLS
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 		$config['negotiate_tls'] = 1;
 
 		$ldap = new SHLdap($config);
@@ -53,7 +81,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('Exception', 'LIB_SHLDAP_ERR_10001', 10001);
 
 		// Blank the Host
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 		$config['host'] = '';
 
 		$ldap = new SHLdap($config);
@@ -66,7 +94,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdProxyBindUnencryptedSuccess()
 	{
-		$config = static::getLdapConfig(203);
+		$config = TestsHelper::getLdapConfig(203);
 
 		$ldap = new SHLdap($config);
 
@@ -81,7 +109,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdProxyBindDIEncyptedSuccess()
 	{
-		$config = static::getLdapConfig(204);
+		$config = TestsHelper::getLdapConfig(204);
 
 		$ldap = new SHLdap($config);
 
@@ -96,7 +124,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdProxyBindFileEncyptedSuccess()
 	{
-		$config = static::getLdapConfig(205);
+		$config = TestsHelper::getLdapConfig(205);
 
 		$ldap = new SHLdap($config);
 
@@ -111,7 +139,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	public function testSlapdProxyBindUnencyptedFailure()
 	{
 		// Mess up the proxy password
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 		$config['proxy_password'] = 'asdasdfsafgas';
 
 		$ldap = new SHLdap($config);
@@ -128,7 +156,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	public function testSlapdProxyBindDIEncyptedFailure()
 	{
 		// Mess up proxy password
-		$config = static::getLdapConfig(204);
+		$config = TestsHelper::getLdapConfig(204);
 		$config['proxy_password'] = 'agsagagagdga';
 
 		$ldap = new SHLdap($config);
@@ -143,7 +171,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('RuntimeException', 'LIB_SHLDAP_ERR_10006', 10006);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 
 		$ldap->search(null, '(uid=shaun.maunder)', array());
 	}
@@ -152,7 +180,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('RuntimeException', 'LIB_SHLDAP_ERR_10007', 10007);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
 		$ldap->search(null, '(uid=shaun.maunder)', array());
@@ -164,7 +192,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdAnonBind()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
 		$this->assertFalse($ldap->bind());
@@ -179,13 +207,13 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdBind()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
 		// Try 50 random users
 		for ($i = 0; $i < 5; $i++)
 		{
-			$user = static::getUserCreds();
+			$user = TestsHelper::getUserCreds();
 
 			// No password (classed as anonymous)
 			$this->assertFalse($ldap->bind($user['dn']));
@@ -200,11 +228,11 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdSearchSingleValid()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		// Restricted search to mail
 		$result = $ldap->search(null, '(uid=shaun.maunder)', array('mail'));
@@ -233,7 +261,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdSearchMultipleValid()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -271,7 +299,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdSearchInvalidFilter()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -282,7 +310,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdSearchInvalidNoResults()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -295,7 +323,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdReadValid()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -308,23 +336,20 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals('lister@shmanic.net', $result->getValue(0, 'mail', 0));
 		$this->assertEquals('Dave Lister', $result->getValue(0, 'cn', 0));
-
-		// Using Filter without Base DN - would this ever work?
-		//$result = $ldap->read(null, '(cn=admin)', array());
 	}
 
 	public function testSlapdEntriesException()
 	{
 		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10121', 10121);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 
 		$ldap->getEntries(array('this should be a resource'));
 	}
 
 	public function testSlapdSearchInvalidDn()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -335,7 +360,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdCompare()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -347,7 +372,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10131', 10131);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -360,7 +385,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdAddCompareDeleteAttributes1()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
@@ -398,11 +423,11 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdReplaceCompareAttributes()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
-		$user = static::getUserCreds('neo');
+		$user = TestsHelper::getUserCreds('neo');
 		$key = 'description';
 		$original = 'The MATRIX';
 		$new = 'The One';
@@ -437,11 +462,11 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10171', 10171);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
-		$user = static::getUserCreds('trinity');
+		$user = TestsHelper::getUserCreds('trinity');
 
 		// Try to add an attribute that doesnt exist
 		$this->assertTrue(
@@ -456,11 +481,11 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10151', 10151);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
-		$user = static::getUserCreds('trinity');
+		$user = TestsHelper::getUserCreds('trinity');
 
 		// Try to replace an attribute that doesnt exist
 		$this->assertTrue(
@@ -475,11 +500,11 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHLdapException', 'LIB_SHLDAP_ERR_10161', 10161);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 		$ldap->proxyBind();
 
-		$user = static::getUserCreds('trinity');
+		$user = TestsHelper::getUserCreds('trinity');
 
 		// Try to delete an attribute that doesnt exist
 		$this->assertTrue(
@@ -493,10 +518,10 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	public function testSlapdGetUserDNSearch()
 	{
 		// Config uses a bracket in the user query
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		// Test Non-random one first
 		$this->assertEquals(
@@ -508,7 +533,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		for ($i = 0; $i < 50; $i++)
 		{
 			// Get random user
-			$user = static::getUserCreds();
+			$user = TestsHelper::getUserCreds();
 
 			$this->assertEquals(
 				$user['dn'],
@@ -520,14 +545,14 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		unset($ldap);
 
 		// Config doesnt use a bracket in the user query
-		$ldap = new SHLdap(static::getLdapConfig(215));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(215));
 		$ldap->connect();
 
 		// Loop 50 times to test random users
 		for ($i = 0; $i < 50; $i++)
 		{
 			// Get random user
-			$user = static::getUserCreds();
+			$user = TestsHelper::getUserCreds();
 
 			$this->assertEquals(
 				$user['dn'],
@@ -542,13 +567,13 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10322', 10322);
 
 		// Override the proxy user with something invalid
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 		$config['proxy_username'] = 'cn=donotexist,dc=shmanic,dc=net';
 
 		$ldap = new SHLdap($config);
 		$ldap->connect();
 
-		$user = static::getUserCreds();
+		$user = TestsHelper::getUserCreds();
 		JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0);
 	}
 
@@ -557,29 +582,29 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10321', 10321);
 
 		// Blank the base dn
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 		$config['base_dn'] = '';
 
 		$ldap = new SHLdap($config);
 		$ldap->connect();
 
-		$user = static::getUserCreds();
+		$user = TestsHelper::getUserCreds();
 		JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0);
 	}
 
 	public function testSlapdGetUserDNDirectly()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(220));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(220));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$this->assertEquals(
 			$user['dn'],
 			JArrayHelper::getValue($ldap->getUserDnDirectly($user['username']), 0)
 		);
 
-		$user = static::getUserCreds('kryten');
+		$user = TestsHelper::getUserCreds('kryten');
 
 		$this->assertEquals(
 			$user['dn'],
@@ -592,13 +617,13 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10331', 10331);
 
 		// Use a filter instead of a DN
-		$config = static::getLdapConfig(220);
+		$config = TestsHelper::getLdapConfig(220);
 		$config['user_qry'] = '(uid=[username])';
 
 		$ldap = new SHLdap($config);
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		JArrayHelper::getValue($ldap->getUserDnDirectly($user['username']), 0);
 	}
@@ -609,13 +634,13 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10301', 10301);
 
 		// Blank the user query
-		$config = static::getLdapConfig(214);
+		$config = TestsHelper::getLdapConfig(214);
 		$config['user_qry'] = '';
 
 		$ldap = new SHLdap($config);
 		$ldap->connect();
 
-		$user = static::getUserCreds();
+		$user = TestsHelper::getUserCreds();
 		$dn = $ldap->getUserDN($user['username'], $user['password'], true);
 	}
 
@@ -623,11 +648,11 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHExceptionInvalidUser', 'LIB_SHLDAP_ERR_10303', 10303);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
 		// We use a incorrect password here
-		$user = static::getUserCreds();
+		$user = TestsHelper::getUserCreds();
 		$dn = $ldap->getUserDN($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
 	}
 
@@ -635,48 +660,60 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHExceptionInvalidUser', 'LIB_SHLDAP_ERR_10302', 10302);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
 		// We use a incorrect username
-		$user = static::getUserCreds();
+		$user = TestsHelper::getUserCreds();
 		$dn = $ldap->getUserDN($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
 	}
 
 	public function testSlapdGetUserDNSearchAuthSuccess()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		// Loop 50 times to test random users
+		for ($i = 0; $i < 50; $i++)
+		{
+			// Get random user
+			$user = TestsHelper::getUserCreds();
 
-		$this->assertEquals(
-			$user['dn'],
-			$ldap->getUserDN($user['username'], $user['password'], true)
-		);
+			$this->assertEquals(
+				$user['dn'],
+				$ldap->getUserDN($user['username'], $user['password'], true),
+				"Failed to get User DN for {$user['dn']}"
+			);
+		}
 	}
 
 	public function testSlapdGetUserDNSearchNoAuthSuccess()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		// Loop 50 times to test random users
+		for ($i = 0; $i < 50; $i++)
+		{
+			// Get random user
+			$user = TestsHelper::getUserCreds();
 
-		$this->assertEquals(
-			$user['dn'],
-			$ldap->getUserDN($user['username'], null, false)
-		);
+			$this->assertEquals(
+				$user['dn'],
+				$ldap->getUserDN($user['username'], null, false),
+				"Failed to get User DN for {$user['dn']}"
+			);
+		}
 	}
 
 	public function testSlapdGetUserDNSearchNoAuthFail()
 	{
 		$this->setExpectedException('SHExceptionInvalidUser', 'LIB_SHLDAP_ERR_10302', 10302);
 
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$ldap->getUserDN($user['username'] . 'asdas', null, false);
 	}
@@ -685,10 +722,10 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHExceptionInvaliduser', 'LIB_SHLDAP_ERR_10304', 10304);
 
-		$ldap = new SHLdap(static::getLdapConfig(220));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(220));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$ldap->getUserDN($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
 	}
@@ -697,20 +734,20 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHExceptionInvalidUser', 'LIB_SHLDAP_ERR_10304', 10304);
 
-		$ldap = new SHLdap(static::getLdapConfig(220));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(220));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$ldap->getUserDN($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
 	}
 
 	public function testSlapdGetUserDNDirectlyAuthSuccess()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(220));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(220));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$this->assertEquals(
 			$user['dn'],
@@ -720,10 +757,10 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function testSlapdGetUserDNDirectlyNoAuthSuccess()
 	{
-		$ldap = new SHLdap(static::getLdapConfig(220));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(220));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$this->assertEquals(
 			$user['dn'],
@@ -735,10 +772,10 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	{
 		$this->setExpectedException('SHExceptionInvaliduser', 'LIB_SHLDAP_ERR_10305', 10305);
 
-		$ldap = new SHLdap(static::getLdapConfig(220));
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(220));
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		$ldap->getUserDN($user['username'] . 'sadhrtresa', null, false);
 	}
@@ -746,13 +783,13 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	public function testSlapdGetUserDNDirectlyNoAuthNoProxy()
 	{
 		// Kill the proxy user
-		$config = static::getLdapConfig(220);
+		$config = TestsHelper::getLdapConfig(220);
 		$config['proxy_username'] = 'asdsadsadas';
 
 		$ldap = new SHLdap($config);
 		$ldap->connect();
 
-		$user = static::getUserCreds('shaun.maunder');
+		$user = TestsHelper::getUserCreds('shaun.maunder');
 
 		// It should come back with the DN
 		$this->assertEquals(
@@ -761,125 +798,39 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		);
 	}
 
-	/*public function testSlapdGetUserDNNoAuthSearch()
+	public function testSlapdErrorFunctions()
 	{
-		// Config uses a bracket in the user query
-		$ldap = new SHLdap(static::getLdapConfig(214));
+		$config = TestsHelper::getLdapConfig(214);
+
+		$ldap = new SHLdap($config);
 		$ldap->connect();
+		$ldap->proxyBind();
 
-		$user = static::getUserCreds('shaun.maunder');
-
-		// Test Non-random one first
-		$this->assertEquals(
-			$user['dn'],
-			$ldap->getUserDN($user['username'], $user['password'], false)
-		);
-
-		// Loop 50 times to test random users
-		for ($i = 0; $i < 50; $i++)
+		try
 		{
-			// Get random user
-			$user = static::getUserCreds();
-
-			$this->assertEquals(
-				$user['dn'],
-				$ldap->getUserDN($user['username'], $user['password'], false),
-				"Failed to get User DN for {$user['dn']}"
-			);
+			$ldap->read('cn=doesntexist,dc=shmanic,dc=net');
 		}
-	}*/
+		catch (Exception $e)
+		{
+			if ($code = $ldap->getErrorCode() === 32)
+			{
+				if (!$ldap->getErrorMsg() === SHLdap::errorToString($code))
+				{
+					$this->fail('Incorrect response message');
+				}
+			}
+		}
+	}
 
 	/**
-	 * Read in the case XML file and parse it to an
-	 * array in the form array(category=>case).
-	 *
-	 * @param string $file Path to the XML file
-	 *
-	 * @return array Array of cases
-	 * @since  1.0
+	 * @covers  SHLdap::getInstance
 	 */
-	public static function getLdapConfig($id, $file = null)
+	/*public function testSlapdGetInstance()
 	{
-		$result = array();
+		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE));
 
-		$config = static::getConfigXml($id, $file);
+		$ldap = SHLdap::getInstance(null, array(), $platform);
 
-		foreach($config as $key=>$value)
-		{
-			if (!is_array($value))
-			{
-				$result[$key] = (string) $value[0];
-			}
-		}
+	}*/
 
-		return $result;
-	}
-
-	public static function getUserCreds($username = null, $file = null)
-	{
-		$config = static::getConfigXml(100);
-
-		$user = array();
-
-		if (is_null($username))
-		{
-			// Get a random username
-			$users = $config->standard;
-			$index = (rand(1, $users->count()) - 1);
-
-			$user = $users[$index];
-		}
-
-		if (strtolower($username) === 'admin' || strtolower($username) === 'administrator')
-		{
-			$user = $config->admin;
-		}
-		else if (!is_null($username))
-		{
-			//$user = $config->normal->$username;
-			$x = $config->xpath("standard[@username='$username']");
-
-			if (isset($x[0]))
-			{
-				$user = $x[0];
-			}
-		}
-
-		$result = array();
-
-		// Save all xml user config attributes to an array
-		foreach ($user->attributes() as $key => $value)
-		{
-			$result[(string) $key] = (string) $value;
-		}
-
-		return $result;
-	}
-
-	protected static function getConfigXml($id, $file = null)
-	{
-		if (is_null($file))
-		{
-			$file = __DIR__ . '/configs.xml';
-		}
-
-		if (!is_file($file))
-		{
-			return false;
-		}
-
-		// Load the XML file
-		$xml = \simplexml_load_file($file, 'SimpleXMLElement');
-
-		// Get all the category tags ignoring anything else in the file
-		$x = $xml->xpath("/configs/config[@id={$id}]");
-
-		if (isset($x[0]))
-		{
-			// Config exists successfully
-			return $x[0];
-		}
-
-		return array();
-	}
 }
