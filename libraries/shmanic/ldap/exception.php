@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  Ldap
  * @since       2.0
  */
-class SHLdapException extends Exception
+class SHLdapException extends RuntimeException
 {
 	/**
 	 * URL to a help site with %1 being the Error ID and %2 being the version.
