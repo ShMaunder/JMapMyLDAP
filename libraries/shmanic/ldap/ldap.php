@@ -274,11 +274,11 @@ class SHLdap extends JObject
 	 * @param   Array           $authorised  Optional authorisation/authentication options (authenticate, username, password).
 	 * @param   JRegistry       $registry    Optional override for platform configuration registry.
 	 *
-	 * @return  false|SHLdap  An Ldap object on successful authorisation or False on error.
+	 * @return  SHLdap  An Ldap object on successful authorisation or False on error.
 	 *
 	 * @since   2.0
-	 * @throws  Exception           Configuration problem
-	 * @throws  SHExceptionStacked  User or configuration issues (may not be important)
+	 * @throws  InvalidArgumentException  Invalid configurations
+	 * @throws  SHExceptionStacked        User or configuration issues (may not be important)
 	 */
 	public static function getInstance($id = null, array $authorised = array(), JRegistry $registry = null)
 	{
@@ -293,8 +293,8 @@ class SHLdap extends JObject
 		// Get all the Ldap configs that are enabled and available
 		if (!$configs = SHLdapHelper::getConfig($id, $registry))
 		{
-			// No configs found - check the log in this case
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_10412'), 10412);
+			// No configs found - ever gets executed?
+			throw new RuntimeException(JText::_('LIB_SHLDAP_ERR_10412'), 10412);
 		}
 
 		// Check if only one configuration result was found
@@ -855,15 +855,9 @@ class SHLdap extends JObject
 	 * @throws  SHLdapException   The Ldap operation failed.
 	 * @throws  RuntimeException  Ldap either not binded or connected.
 	 */
-	public function read($dn = null, $filter = null, $attributes = array())
+	public function read($dn, $filter = null, $attributes = array())
 	{
 		$this->operationAllowed();
-
-		if (is_null($dn))
-		{
-			// Use the base distinguished name in place of null value
-			$dn = $this->base_dn;
-		}
 
 		if (is_null($filter))
 		{
@@ -1383,87 +1377,6 @@ class SHLdap extends JObject
 		}
 
 		return $return;
-	}
-
-	/**
-	 * Get an array of all the nested groups through the use of group recursion.
-	 * This is required usually only for Active Directory, however there could
-	 * be other LDAP platforms that cannot pick up nested groups.
-	 *
-	 * @param   array   $searchDNs       Initial user groups (or ones that have already been discovered).
-	 * @param   string  $depth           How far to search down until it should give up (0 means unlimited).
-	 * @param   array   &$result         Holds the result of every alliteration (by reference).
-	 * @param   string  $attribute       The LDAP attribute to store after each ldap search.
-	 * @param   string  $queryAttribute  The LDAP filter attribute to query.
-	 *
-	 * @return  array  All user groups including the initial user groups.
-	 *
-	 * @since   1.0
-	 */
-	public function getRecursiveGroups($searchDNs, $depth, &$result, $attribute, $queryAttribute = null)
-	{
-		$search		= null;
-		$next		= array();
-		$filters	= array();
-
-		// As this is recursive, we want to be able to specify a optional depth
-		--$depth;
-
-		if (!isset($searchDNs))
-		{
-			return $result;
-		}
-
-		foreach ($searchDNs as $dn)
-		{
-			// Build one or more partial filters from the DN user groups
-			$filters[] = $queryAttribute . '=' . $dn;
-		}
-
-		if (!count($filters))
-		{
-			// If there is no filter to process then we are finished
-			return $result;
-		}
-
-		// Build the full filter using the OR operator
-		$search = SHLdapHelper::buildFilter($filters, '|');
-
-		// Search for any groups that also contain the groups we have in the filter
-		$results = $this->search(null, $search, array($attribute));
-
-		// Lets process each group that was found
-		$entryCount = $results->countEntries();
-		for ($i = 0; $i < $entryCount; ++$i)
-		{
-			$dn = $results->getDN($i);
-
-			// We don't want to re-process a group that was processed previously
-			if (!in_array($dn, $result))
-			{
-				$result[] = $dn;
-
-				// Check if there are more groups we should process from the groups just discovered
-				$valueCount = $results->countValues($i, $attribute);
-				for ($j = 0; $j < $valueCount; ++$j)
-				{
-					// We want to process this object
-					$value = $results->getValue($i, $attribute, $j);
-					$next[] = $value;
-				}
-			}
-		}
-
-		/*
-		 * Only start the recursion when we have something to process next
-		 * otherwise, we would loop forever.
-		 */
-		if (count($next) && $depth != 0)
-		{
-			$this->getRecursiveGroups($next, $depth, $result, $attribute, $queryAttribute);
-		}
-
-		return $result;
 	}
 
 	/**
