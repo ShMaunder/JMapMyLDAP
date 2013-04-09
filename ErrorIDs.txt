@@ -5,6 +5,11 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 990 - Unknown LDAP config object [LIB_SHLDAP_ERR_990]
 991 - Ldap extension not loaded [LIB_SHLDAP_ERR_991]
 
+1000-9999 - SHPlatform Related Errors
+1121 - Invalid configuration file. Either the file or namespace doesn't exist. %1$s:%2$s [LIB_SHPLATFORM_INVALID_FILE_CONFIGURATION]
+
+
+
 10000-11999 - Internal LDAP Errors (2000 Possible Errors)
 
 
@@ -63,13 +68,29 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10401 - Failed to authenticate the user for this specific configuration
 
 10411 - No configurations found to match this specific authorisation/authentication.
-10412 - No enabled LDAP configurations.
+[REMOVED]10412 - No enabled LDAP configurations.
 
 10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
 10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
 
 
 10600-10799 :: LDAP HELPER
+
+10601 - The platform configuration contains a invalid ldap configuration source [LIB_SHLDAPHELPER_ERR_10601]
+[REMOVED]10602 - The platform configuration contains a invalid ldap configuration file path [LIB_SHLDAPHELPER_ERR_10602]
+
+10603 - The platform configuration contains a invalid plugin name for retrieving ldap configuration [LIB_SHLDAPHELPER_ERR_10603]
+10604 - Wat is dis
+10605 - Wat is dis
+10606 - Wat is dis
+10607 - (Debug Log Only) One of the LDAP configurations failed to load [LIB_SHLDAPHELPER_DEBUG_10607]
+10608 - Couldn't load any Ldap configurations from the namespace list or file specified [LIB_SHLDAPHELPER_ERR_10608]
+10609 - The ldap configuration namespace '%1$s' cannot be found [LIB_SHLDAPHELPER_ERR_10609]
+10610 - Invalid id specified for retrieving ldap configuration file [LIB_SHLDAPHELPER_ERR_10610]
+
+10621 - Cannot instantiate the ldap file configuration or namespace [LIB_SHLDAPHELPER_ERR_10621]
+10622 - Cannot load the file for the ldap configuration [LIB_SHLDAPHELPER_ERR_10622]
+
 
 11901-11999 - LDAP plug-in calls
 
