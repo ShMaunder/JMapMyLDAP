@@ -14,6 +14,8 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		// Create some files
 		fwrite(fopen(static::ENCRYPTION_KEY_FILE, 'w'), 'ym0ZBkTbDbYrQzjMM7COYnLYuArlq31UIfDyBj11gpeeVLlXeGYPQ7Qf71TPDlN8dVWQfsFbf5SteVXoNzQeiH3EHMFjQtyvmtDNv6kAqUa0Bc7r8QdN5H7VQXtARk1uYCwBqi4sYm1rRaUOJqDCRL64bj4ykeqyouPw8CscmK0hnikpQWSL9MKtJjNyathdSx3rVWE4YiIrgij8ELGjELwl7JQrztCSLAbRfQJafAQ6xGXUDRslRK4T4w2vtBMb');
 
+		SHFactory::$config = null;
+
 		$this->setUpLdapConfigFiles();
 	}
 
@@ -825,12 +827,83 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers  SHLdap::getInstance
 	 */
-	/*public function testSlapdGetInstance()
+	public function testSlapdGetInstanceNoAuth()
 	{
 		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE));
 
 		$ldap = SHLdap::getInstance(null, array(), $platform);
 
-	}*/
+		$ldap->connect();
+
+		// Loop 50 times to test random users
+		for ($i = 0; $i < 50; $i++)
+		{
+			// Get random user
+			$user = TestsHelper::getUserCreds();
+
+			$this->assertEquals(
+				$user['dn'],
+				$ldap->getUserDN($user['username'], null, false),
+				"Failed to get User DN for {$user['dn']}"
+			);
+		}
+	}
+
+	/**
+	 * @covers  SHLdap::getInstance
+	 */
+	public function testSlapdGetInstanceAuthSuccess()
+	{
+		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE));
+
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$auth = array('authenticate' => SHLdap::AUTH_USER, 'username' => $user['username'], 'password' => $user['password']);
+
+		$ldap = SHLdap::getInstance(null, $auth, $platform);
+
+		$ldap->connect();
+
+		// Loop 50 times to test random users
+		for ($i = 0; $i < 50; $i++)
+		{
+			// Get random user
+			$user = TestsHelper::getUserCreds();
+
+			$this->assertEquals(
+				$user['dn'],
+				$ldap->getUserDN($user['username'], null, false),
+				"Failed to get User DN for {$user['dn']}"
+			);
+		}
+	}
+
+	/**
+	 * @covers  SHLdap::getInstance
+	 */
+	public function testSlapdGetInstanceAuthFailure()
+	{
+		$this->setExpectedException('SHExceptionStacked', 'LIB_SHLDAP_ERR_10411', 10411);
+
+		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE));
+
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$auth = array('authenticate' => SHLdap::AUTH_USER, 'username' => $user['username'], 'password' => $user['password'] . 'asdas');
+
+		$ldap = SHLdap::getInstance(null, $auth, $platform);
+
+		$ldap->connect();
+	}
+
+	/**
+	 * TODO: move to a SHPlatform specific test in the future
+	 */
+	public function testSHPlatformFactoryBadConfig()
+	{
+		$this->setExpectedException('RuntimeException', 'LIB_SHPLATFORM_ERR_1121', 1121);
+
+		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE, 'namespace' => 'asdas'));
+	}
 
 }
