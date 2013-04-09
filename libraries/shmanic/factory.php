@@ -284,6 +284,7 @@ abstract class SHFactory
 	 * @return  JRegistry  Registry of configuration.
 	 *
 	 * @since   2.0
+	 * @throws  RuntimeException
 	 */
 	protected static function createFileConfig($file, $namespace)
 	{
@@ -315,8 +316,12 @@ abstract class SHFactory
 			{
 				$registry->set(str_replace('__', '.', $key), $value);
 			}
+
+			return $registry;
 		}
 
-		return $registry;
+		// Not a valid file or namespace
+		throw new RuntimeException(JText::sprintf('LIB_SHPLATFORM_ERR_1121', $file, $name), 1121);
+
 	}
 }
