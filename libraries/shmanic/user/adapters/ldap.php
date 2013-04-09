@@ -448,11 +448,13 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
-	public function updateCredential($password = null, $options = array())
+	public function updatePassword($new, $old = null, $authenticate = false)
 	{
-		if (!is_null($password))
+		// TODO: implement this method
+
+		if (!is_null($new))
 		{
-			$this->password = $password;
+			$this->password = $new;
 		}
 	}
 
