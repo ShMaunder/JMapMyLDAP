@@ -1,9 +1,27 @@
 <?php
+/**
+ * PHP Version 5.3
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  User.Adapters
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
 defined('JPATH_PLATFORM') or die;
 
+// TODO: this needs removing for dependency reasons with the platform - what is the impact ??
 SHImport('ldap');
 
+/**
+ * Implementation of an LDAP user adapter
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  User.Adapters
+ * @since       2.0
+ */
 class SHUserAdaptersLdap implements SHUserAdapter
 {
 	/**

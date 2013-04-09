@@ -13,7 +13,7 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * Interface class for an implmentation of a user adapter.
+ * Interface class for an implementation of a user adapter.
  *
  * @package     Shmanic.Libraries
  * @subpackage  User
