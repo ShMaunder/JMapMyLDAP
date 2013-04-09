@@ -897,6 +897,57 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers SHLdap::__get
+	 */
+	public function testMagicGetMethod()
+	{
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
+		$ldap->connect();
+
+		// Test Bind Status
+		$this->assertEquals(SHLdap::AUTH_NONE, $ldap->bindStatus);
+		$ldap->proxyBind();
+		$this->assertEquals(SHLdap::AUTH_PROXY, $ldap->bindStatus);
+		$ldap->bind('asdasdas', 'asdasdas');
+		$this->assertEquals(SHLdap::AUTH_NONE, $ldap->bindStatus);
+		$ldap->bind($user['dn'], $user['password']);
+		$this->assertEquals(SHLdap::AUTH_USER, $ldap->bindStatus);
+
+		// Rinse and Go
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(214));
+		$ldap->connect();
+
+		// Test Last User DN
+		$this->assertEquals(null, $ldap->lastUserDn);
+		$ldap->getUserDN($user['username'], $user['password']);
+		$this->assertEquals($user['dn'], $ldap->lastUserDn);
+
+		// Test Proxy Write
+		$this->assertEquals(false, $ldap->proxyWrite);
+
+		// Test All user Filter
+		$this->assertEquals('(objectclass=user)', $ldap->allUserFilter);
+
+		// Rinse and Go
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(216));
+		$ldap->connect();
+
+		// Test Key for Name Attribute
+		$this->assertEquals('cn', $ldap->keyName);
+		$this->assertEquals('mail', $ldap->keyEmail);
+		$this->assertEquals('uid', $ldap->keyUid);
+		$this->assertEquals('uid', $ldap->ldap_uid);
+
+		// Test Information
+		$this->assertEquals('ldap1.shmanic.net:389', $ldap->info);
+
+		// Test something that doesn't exist
+		$this->assertNull($ldap->doesntexist);
+	}
+
+	/**
 	 * TODO: move to a SHPlatform specific test in the future
 	 */
 	public function testSHPlatformFactoryBadConfig()
