@@ -291,11 +291,7 @@ class SHLdap extends JObject
 		$password = JArrayHelper::getValue($authorised, 'password', null);
 
 		// Get all the Ldap configs that are enabled and available
-		if (!$configs = SHLdapHelper::getConfig($id, $registry))
-		{
-			// No configs found - ever gets executed?
-			throw new RuntimeException(JText::_('LIB_SHLDAP_ERR_10412'), 10412);
-		}
+		$configs = SHLdapHelper::getConfig($id, $registry);
 
 		// Check if only one configuration result was found
 		if ($configs instanceof JRegistry)
