@@ -450,29 +450,6 @@ class SHLdap extends JObject
 	}
 
 	/**
-	 * Overrides JObjects setError to log errors directly to event log
-	 * only when an exception object has been passed to error.
-	 *
-	 * @param   mixed  $error  Exception or error message.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0
-	 *
-	 * @see JObject::setError()
-	 * @deprecated  Delete this method, throw exceptions
-	 */
-	public function setError($error)
-	{
-		if ($error instanceof Exception)
-		{
-			SHLog::add($error, 0, JLog::ERROR, 'ldap');
-		}
-
-		parent::setError($error);
-	}
-
-	/**
 	 * Inform any listening loggers of the debug message and add to debug stack.
 	 *
 	 * @param   string  $message  String to push to stack
