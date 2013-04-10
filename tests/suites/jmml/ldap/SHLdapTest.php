@@ -920,12 +920,12 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->connect();
 
 		// Test Last User DN
-		$this->assertEquals(null, $ldap->lastUserDn);
+		$this->assertNull($ldap->lastUserDn);
 		$ldap->getUserDN($user['username'], $user['password']);
 		$this->assertEquals($user['dn'], $ldap->lastUserDn);
 
 		// Test Proxy Write
-		$this->assertEquals(false, $ldap->proxyWrite);
+		$this->assertFalse($ldap->proxyWrite);
 
 		// Test All user Filter
 		$this->assertEquals('(objectclass=user)', $ldap->allUserFilter);
@@ -947,6 +947,51 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$this->assertNull($ldap->doesntexist);
 	}
 
+	public function testSlapdAuthenticateSuccess()
+	{
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(216));
+
+		$this->assertTrue($ldap->authenticate(SHLdap::AUTH_USER, $user['username'], $user['password']));
+		$this->assertTrue($ldap->authenticate(SHLdap::AUTH_PROXY));
+		$this->assertTrue($ldap->authenticate(SHLdap::AUTH_NONE));
+		$this->assertTrue($ldap->authenticate(SHLdap::AUTH_NONE, $user['username']));
+	}
+
+	public function testSlapdAuthenticateWrongUsername2Exception()
+	{
+		$this->setExpectedException('SHExceptionInvaliduser', 'LIB_SHLDAP_ERR_10302', 10302);
+
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(216));
+
+		$ldap->authenticate(SHLdap::AUTH_NONE, $user['username'] . ')(*&^%$£"!"£%^&*()');
+	}
+
+	public function testSlapdAuthenticateWrongUsernameException()
+	{
+		$this->setExpectedException('SHExceptionInvaliduser', 'LIB_SHLDAP_ERR_10302', 10302);
+
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(216));
+
+		$ldap->authenticate(SHLdap::AUTH_USER, $user['username'] . ')(*&^%$£"!"£%^&*()', $user['password']);
+	}
+
+	public function testSlapdAuthenticateWrongPasswordException()
+	{
+		$this->setExpectedException('SHExceptionInvaliduser', 'LIB_SHLDAP_ERR_10303', 10303);
+
+		$user = TestsHelper::getUserCreds('shaun.maunder');
+
+		$ldap = new SHLdap(TestsHelper::getLdapConfig(216));
+
+		$ldap->authenticate(SHLdap::AUTH_USER, $user['username'], $user['password'] . ')(*&^%$£"!"£%^&*()');
+	}
+
 	/**
 	 * TODO: move to a SHPlatform specific test in the future
 	 */
@@ -956,5 +1001,4 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE, 'namespace' => 'asdas'));
 	}
-
 }

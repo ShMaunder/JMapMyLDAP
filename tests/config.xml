@@ -73,6 +73,23 @@
 		<user_qry>uid=[username]</user_qry>
 	</config>
 	
+	<config id="216" comment="For successful search, read, modify operations in ldap (search and bind) [slapd]">
+		<host>ldap1.shmanic.net</host>
+		<port>389</port>
+		<use_v3>1</use_v3>
+		<negotiate_tls>0</negotiate_tls>
+		<use_referrals>0</use_referrals>
+		<proxy_username>cn=admin,dc=shmanic,dc=net</proxy_username>
+		<proxy_password>shmanic.com</proxy_password>
+		<proxy_encryption>0</proxy_encryption>
+		<base_dn>dc=shmanic,dc=net</base_dn>
+		<use_search>1</use_search>
+		<user_qry>(uid=[username])</user_qry>
+		<ldap_fullname>cn</ldap_fullname>
+		<ldap_email>mail</ldap_email>
+		<ldap_uid>uid</ldap_uid>
+	</config>
+	
 	<config id="220" comment="For successful search, read, modify operations in ldap (bind as user) [slapd]">
 		<host>ldap1.shmanic.net</host>
 		<port>389</port>

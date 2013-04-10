@@ -496,7 +496,7 @@ class SHLdap extends JObject
 	 * @param   string   $username      Authorisation/authentication username.
 	 * @param   string   $password      Authentication password.
 	 *
-	 * @return  boolean  True on success or False on failure.
+	 * @return  boolean  True on success or False on Proxy Failure.
 	 *
 	 * @since   2.0
 	 * @throws  Exception               Configuration error
@@ -505,8 +505,11 @@ class SHLdap extends JObject
 	 */
 	public function authenticate($authenticate = self::AUTH_NONE, $username = null, $password = null)
 	{
-		// Start the connection procedure (throws an error if fails)
-		$this->connect();
+		if (!$this->isConnected())
+		{
+			// Start the connection procedure (throws an error if fails)
+			$this->connect();
+		}
 
 		/*
 		 * If no authentication is required, then check whether a username
@@ -520,25 +523,17 @@ class SHLdap extends JObject
 		// Check if we only want a proxy user.
 		elseif ($authenticate === self::AUTH_PROXY)
 		{
-			if ($this->proxyBind())
-			{
-				// Proxy bind success
-				return true;
-			}
+			return $this->proxyBind();
 		}
 		// Assume we need to authenticate or authorise the specified user.
 		else
 		{
 			// If a DN is returned, then this user is successfully authenticated/authorised
-			if ($dn = $this->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false))
-			{
-				// Successfully authenticated and retrieved User DN.
-				return true;
-			}
+			$dn = $this->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false);
 		}
 
-		// Failed to authenticate user
-		throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10401'), 10401, $username);
+		// Successfully authenticated and retrieved User DN.
+		return true;
 	}
 
 	/**

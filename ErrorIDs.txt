@@ -6,7 +6,7 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 991 - Ldap extension not loaded [LIB_SHLDAP_ERR_991]
 
 1000-9999 - SHPlatform Related Errors
-1121 - Invalid configuration file. Either the file or namespace doesn't exist. %1$s:%2$s [LIB_SHPLATFORM_INVALID_FILE_CONFIGURATION]
+1121 - Invalid configuration file. Either the file or namespace doesn't exist. %1$s:%2$s [LIB_SHPLATFORM_ERR_1121]
 
 
 
@@ -65,7 +65,7 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
 10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
 
-10401 - Failed to authenticate the user for this specific configuration
+[DEPRECATED ??] 10401 - Failed to authenticate the user for this specific configuration
 
 10411 - No configurations found to match this specific authorisation/authentication.
 [REMOVED]10412 - No enabled LDAP configurations.
