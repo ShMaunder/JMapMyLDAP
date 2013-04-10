@@ -22,7 +22,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  Ldap
  * @since       2.0
  */
-class SHLdap extends JObject
+class SHLdap
 {
 	/**
 	 * Size limit for some supported LDAP operations
@@ -421,8 +421,14 @@ class SHLdap extends JObject
 			throw new Exception(JText::_('LIB_SHLDAP_ERR_990'), 990);
 		}
 
-		// Passes the array back to the parent for class property assignment
-		parent::__construct($configArr);
+		// Assign the configuration to their respected class properties only if they exist
+		foreach ($configArr as $k => $v)
+		{
+			if (property_exists($this, $k))
+			{
+				$this->$k = $v;
+			}
+		}
 
 		// Check the Ldap extension is loaded
 		if (!extension_loaded('ldap'))
