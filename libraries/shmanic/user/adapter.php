@@ -35,7 +35,7 @@ interface SHUserAdapter
 	/**
 	 * Get the drivers unique identifier of the user.
 	 *
-	 * @param   array  $authenticate  An array for storing user identifiable informatino such as username.
+	 * @param   boolean  $authenticate  True to authenticate user with the driver source using the password supplied.
 	 *
 	 * @return  mixed  Unique identifier.
 	 *
@@ -92,7 +92,7 @@ interface SHUserAdapter
 	public function getEmail($key = false, $default = null);
 
 	/**
-	 * Updates the password of the user.
+	 * Sets the users password.
 	 *
 	 * @param   string  $new           New password.
 	 * @param   string  $old           Current password.
@@ -102,7 +102,19 @@ interface SHUserAdapter
 	 *
 	 * @since   2.0
 	 */
-	public function updatePassword($new, $old = null, $authenticate = false);
+	public function setPassword($new, $old = null, $authenticate = false);
+
+	/**
+	 * Updates the adapters stored password (this doesnt change anything in the driver source).
+	 *
+	 * @param   string  $password  New password to update.
+	 * @param   array   $options   Optional array of options.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function updateCredential($password = null, $options = array());
 
 	/**
 	 * Sets new attributes for the user.
