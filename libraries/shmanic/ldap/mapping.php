@@ -313,24 +313,28 @@ class SHLdapMapping extends JObject
 		// Need to process the recursion using the initial groups as a basis
 		if ($this->recursion && count($groups))
 		{
+			// Check if the Adapter is LDAP based
+			if ($adapter->isLdapCompatible)
+			{
 				$outcome = array();
 
 				if ($this->lookup_type == 'reverse')
 				{
 					// We need to override the lookup attribute for reverse recursion
-					$adapter->client->getRecursiveGroups(
-						$groups, $this->recursion_depth, $outcome, 'dn', $this->lookup_attribute
+					SHLdapMappingHelper::getRecursiveGroups(
+						$adapter->client, $groups, $this->recursion_depth, $outcome, 'dn', $this->lookup_attribute
 					);
 				}
 				else
 				{
-					$adapter->client->getRecursiveGroups(
-						$groups, $this->recursion_depth, $outcome, $this->lookup_attribute, $this->dn_attribute
+					SHLdapMappingHelper::getRecursiveGroups(
+						$adapter->client, $groups, $this->recursion_depth, $outcome, $this->lookup_attribute, $this->dn_attribute
 					);
 				}
 
 				// We need to merge them back together without duplicates
 				$groups = array_unique(array_merge($groups, $outcome));
+			}
 		}
 
 		// Lets store the groups
@@ -573,89 +577,4 @@ class SHLdapMapping extends JObject
 			}
 		}
 	}
-
-	/**
-	 * TODO: fix the migration
-	 *
-	 * Get an array of all the nested groups through the use of group recursion.
-	 * This is required usually only for Active Directory, however there could
-	 * be other LDAP platforms that cannot pick up nested groups.
-	 *
-	 * @param   array   $searchDNs       Initial user groups (or ones that have already been discovered).
-	 * @param   string  $depth           How far to search down until it should give up (0 means unlimited).
-	 * @param   array   &$result         Holds the result of every alliteration (by reference).
-	 * @param   string  $attribute       The LDAP attribute to store after each ldap search.
-	 * @param   string  $queryAttribute  The LDAP filter attribute to query.
-	 *
-	 * @return  array  All user groups including the initial user groups.
-	 *
-	 * @since   1.0
-	 * @throws  SHLdapException
-	 */
-	public function getRecursiveGroups($searchDNs, $depth, &$result, $attribute, $queryAttribute = null)
-	{
-		$search		= null;
-		$next		= array();
-		$filters	= array();
-
-		// As this is recursive, we want to be able to specify a optional depth
-		--$depth;
-
-		if (!isset($searchDNs))
-		{
-			return $result;
-		}
-
-		foreach ($searchDNs as $dn)
-		{
-			// Build one or more partial filters from the DN user groups
-			$filters[] = $queryAttribute . '=' . $dn;
-		}
-
-		if (!count($filters))
-		{
-			// If there is no filter to process then we are finished
-			return $result;
-		}
-
-		// Build the full filter using the OR operator
-		$search = SHLdapHelper::buildFilter($filters, '|');
-
-		// Search for any groups that also contain the groups we have in the filter
-		$results = $this->search(null, $search, array($attribute));
-
-		// Lets process each group that was found
-		$entryCount = $results->countEntries();
-		for ($i = 0; $i < $entryCount; ++$i)
-		{
-			$dn = $results->getDN($i);
-
-			// We don't want to re-process a group that was processed previously
-			if (!in_array($dn, $result))
-			{
-				$result[] = $dn;
-
-				// Check if there are more groups we should process from the groups just discovered
-				$valueCount = $results->countValues($i, $attribute);
-				for ($j = 0; $j < $valueCount; ++$j)
-				{
-					// We want to process this object
-					$value = $results->getValue($i, $attribute, $j);
-					$next[] = $value;
-				}
-			}
-		}
-
-		/*
-		 * Only start the recursion when we have something to process next
-		 * otherwise, we would loop forever.
-		 */
-		if (count($next) && $depth != 0)
-		{
-			$this->getRecursiveGroups($next, $depth, $result, $attribute, $queryAttribute);
-		}
-
-		return $result;
-	}
-
 }
