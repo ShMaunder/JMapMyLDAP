@@ -60,7 +60,17 @@ abstract class SHFactory
 	{
 		if (!isset(self::$dispatcher[$name]))
 		{
-			self::$dispatcher[$name] = new JDispatcher;
+			// Something is up with the deprecation of JDispatcher in newer Joomla Versions
+			if (class_exists('JDispatcher'))
+			{
+				// J2.5
+				self::$dispatcher[$name] = new JDispatcher;
+			}
+			else
+			{
+				// J3.0+ and Platform
+				self::$dispatcher[$name] = new JEventDispatcher;
+			}
 		}
 
 		return self::$dispatcher[$name];
