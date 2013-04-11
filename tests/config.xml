@@ -6,8 +6,11 @@
 		<standard username="trinity" password="trinity.password" dn="uid=trinity,ou=Matrix,ou=People,dc=shmanic,dc=net" />
 		<standard username="neo" password="password" dn="uid=neo,ou=Matrix,ou=People,dc=shmanic,dc=net" />
 		<standard username="kryten" password="password" dn="uid=kryten,ou=People,dc=shmanic,dc=net" />
-		<standard username="shaun.maunder" password="shaun.password" dn="uid=shaun.maunder,ou=People,dc=shmanic,dc=net" />
-		<standard username="shaun.maunder" password="shaun.password" dn="uid=shaun.maunder,ou=People,dc=shmanic,dc=net" />
+		<standard username="lister" password="password" dn="uid=lister,ou=People,dc=shmanic,dc=net" />
+		<standard username="rimmer" password="password" dn="uid=rimmer,ou=People,dc=shmanic,dc=net" />
+		<standard username="justin.bieber" password="password" dn="uid=justin.bieber,ou=People,dc=shmanic,dc=net" />
+		<standard username="rebecca.black" password="password" dn="uid=rebecca.black,ou=People,dc=shmanic,dc=net" />
+		<standard username="craig.david" password="password" dn="uid=craig.david,ou=People,dc=shmanic,dc=net" />
 	</config>
 	
 	<config id="203" comment="For successful proxy bind without encryption [slapd]">
