@@ -13,7 +13,7 @@
 defined('JPATH_PLATFORM') or die;
 
 // TODO: this needs removing for dependency reasons with the platform - what is the impact ??
-SHImport('ldap');
+//SHImport('ldap');
 
 /**
  * Implementation of an LDAP user adapter
@@ -25,7 +25,7 @@ SHImport('ldap');
 class SHUserAdaptersLdap implements SHUserAdapter
 {
 	/**
-	 * Ldap client library.
+	 * Ldap client library (also known as driver).
 	 *
 	 * @var    SHLdap
 	 * @since  2.0
@@ -154,6 +154,8 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				return $this->$name;
 				break;
 
+			case 'usersource':
+			case 'driver':
 			case 'ldap':
 				return $this->client;
 				break;
@@ -312,14 +314,14 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			$needToFind = array_values(array_unique($needToFind));
 
 			// Swap the attribute names to array keys ready for the result
-			$inputFilled = array_fill_keys($needToFind, null);
+			$filled = array_fill_keys($needToFind, null);
 
 			/*
 			 * Combines the current cached attributes with the input attributes with null values.
 			 * This will stop the input values from being re-queried on another method call even
 			 * if they don't exist.
 			 */
-			$this->_attributes = (array_merge($inputFilled, $this->_attributes));
+			$this->_attributes = (array_merge($filled, $this->_attributes));
 
 			// Get Ldap user attributes
 			$result	= $this->client->read($this->_dn, null, $needToFind);
@@ -339,9 +341,15 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 			if ($fakeEmail)
 			{
-				// Insert the fake email by replacing the username placeholder with the username from ldap
+				// Inject the fake email by replacing the username placeholder with the username from ldap
 				$email = str_replace(SHLdap::USERNAME_REPLACE, $this->_attributes[$this->client->ldap_uid][0], $this->client->ldap_email);
 				$this->_attributes[$this->client->ldap_email] = array($email);
+
+				// As the last instruction from the fakeEmail condition added email to null, lets remove it
+				if (($index = array_search($this->client->ldap_email, $this->_nullAttributes)) !== false)
+				{
+					unset ($this->_nullAttributes[$index]);
+				}
 			}
 
 			if (!SHLdapHelper::triggerEvent(
@@ -472,7 +480,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 		if (!is_null($new))
 		{
-			$this->password = $new;
+			$this->updateCredential($new);
 		}
 	}
 
@@ -481,6 +489,12 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if (!is_null($password))
 		{
 			$this->password = $password;
+
+			if ($this->_dn instanceof Exception)
+			{
+				// Remove any exceptions in the DN so it can be retried on getId
+				$this->_dn = null;
+			}
 		}
 	}
 
