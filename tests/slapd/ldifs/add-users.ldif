@@ -1,4 +1,4 @@
-## shaun.maunder:password - fully working user
+# LDAP User :: shaun.maunder:shaun.password 
 dn: uid=shaun.maunder,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -9,15 +9,16 @@ sn: Maunder
 givenName: Shaun
 cn: Shaun Maunder
 mail: shaun@shmanic.com
-uidNumber: 10000
+uidNumber: 20001
 gidNumber: 1000
-userPassword: password
+userPassword: shaun.password
 loginShell: /bin/bash
 homeDirectory: /home/shaun.maunder
 telephoneNumber: 01124 123413
 description: Systems Admin Person
 
-## richard.stallman:password - fully working user
+
+# LDAP User :: richard.stallman:password 
 dn: uid=richard.stallman,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -28,7 +29,7 @@ sn: Stallman
 givenName: Richard
 cn: Richard Stallman
 mail: rstallman@shmanic.net
-uidNumber: 10000
+uidNumber: 20002
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -36,7 +37,8 @@ homeDirectory: /home/richard.stallman
 telephoneNumber: 01124 123413
 description: Systems Admin and Loves Free as in Beer
 
-## neo:password - fully working user
+
+# LDAP User :: neo:password 
 dn: uid=neo,ou=Matrix,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -47,7 +49,7 @@ sn: Anderson
 givenName: Neo
 cn: Neo Anderson
 mail: neo@matrix.shmanic.net
-uidNumber: 10000
+uidNumber: 20003
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -55,26 +57,28 @@ homeDirectory: /home/neo
 telephoneNumber: 01124 123413
 description: The MATRIX
 
-## trinity:password - fully working user
+
+# LDAP User :: Trinity:trinity.password 
 dn: uid=trinity,ou=Matrix,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-uid: Trinity           
+uid: Trinity
 sn: Matrix
 givenName: Trinity
 cn: Trinity Matrix  
 mail: trinity@matrix.shmanic.net
-uidNumber: 10000
+uidNumber: 20004
 gidNumber: 1000
-userPassword: password
+userPassword: trinity.password
 loginShell: /bin/bash
 homeDirectory: /home/trinity             
 telephoneNumber: 01124 123413
 description: The MATRIX
 
-## morpheus:password - fully working user
+
+# LDAP User :: Morpheus:password 
 dn: uid=morpheus,ou=Matrix,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -85,7 +89,7 @@ sn: Matrix
 givenName: Morpheus
 cn: Morpheus Matrix    
 mail: morpheus@matrix.shmanic.net
-uidNumber: 10000
+uidNumber: 20005
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -93,7 +97,8 @@ homeDirectory: /home/morpheus
 telephoneNumber: 01124 123413
 description: The MATRIX
 
-## oracle:password - fully working user
+
+# LDAP User :: Oracle:password 
 dn: uid=oracle,ou=Matrix,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -104,7 +109,7 @@ sn: Matrix
 givenName: Oracle
 cn: Oracle Matrix
 mail: oracle@matrix.shmanic.net
-uidNumber: 10000
+uidNumber: 20006
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -112,7 +117,8 @@ homeDirectory: /home/oracle
 telephoneNumber: 01124 123413
 description: The MATRIX
 
-## alan.sugar:password - fully working user
+
+# LDAP User :: alan.sugar:password 
 dn: uid=alan.sugar,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -123,7 +129,7 @@ sn: Sugar
 givenName: Alan
 cn: Alan Sugar
 mail: asugar@shmanic.net
-uidNumber: 10000
+uidNumber: 20007
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -131,7 +137,8 @@ homeDirectory: /home/alan.sugar
 telephoneNumber: 01124 123419
 description: Sales Person and Your Fired
 
-## mark.shuttleworth:password - fully working user
+
+# LDAP User :: mark.shuttleworth:password 
 dn: uid=mark.shuttleworth,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -142,7 +149,7 @@ sn: Shuttleworth
 givenName: Mark
 cn: Mark Shuttleworth
 mail: mshuttleworth@shmanic.net
-uidNumber: 10000
+uidNumber: 20008
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -150,7 +157,8 @@ homeDirectory: /home/mark.shuttleworth
 telephoneNumber: 01124 123419
 description: Sales Person and *buntu's loving
 
-## craig.david:password - fully working user
+
+# LDAP User :: craig.david:password 
 dn: uid=craig.david,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -161,7 +169,7 @@ sn: David
 givenName: Craig
 cn: Craig David
 mail: cdavid@shmanic.net
-uidNumber: 10000
+uidNumber: 20009
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -169,7 +177,8 @@ homeDirectory: /home/craig.david
 telephoneNumber: 01124 123414
 description: Marketing Person
 
-## rebecca.black:password - fully working user
+
+# LDAP User :: rebecca.black:password 
 dn: uid=rebecca.black,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -180,7 +189,7 @@ sn: Black
 givenName: Rebecca
 cn: Rebecca Black
 mail: rblack@shmanic.net
-uidNumber: 10000
+uidNumber: 20010
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -188,7 +197,8 @@ homeDirectory: /home/rebecca.black
 telephoneNumber: 01124 123415
 description: Awesome Artist, Autotuner and Loves Fridays
 
-## justin.bieber:password - fully working user
+
+# LDAP User :: justin.bieber:password 
 dn: uid=justin.bieber,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -199,7 +209,7 @@ sn: Bieber
 givenName: Justin
 cn: Justin Bieber
 mail: jbieber@shmanic.net
-uidNumber: 10000
+uidNumber: 20011
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -207,7 +217,8 @@ homeDirectory: /home/justin.bieber
 telephoneNumber: 01124 123415
 description: Artist
 
-## rimmer:password - fully working user
+
+# LDAP User :: rimmer:password 
 dn: uid=rimmer,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -218,7 +229,7 @@ sn: Rimmer
 givenName: Arnold
 cn: Arnold Rimmer
 mail: rimmer@shmanic.net
-uidNumber: 10000
+uidNumber: 20012
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -226,7 +237,8 @@ homeDirectory: /home/rimmer
 telephoneNumber: 01124 123415
 description: Second Officer Technician
 
-## lister:password - fully working user                 
+
+# LDAP User :: lister :password 
 dn: uid=lister,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -237,7 +249,7 @@ sn: Lister
 givenName: Dave
 cn: Dave Lister
 mail: lister@shmanic.net
-uidNumber: 10000
+uidNumber: 20013
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -245,7 +257,8 @@ homeDirectory: /home/lister
 telephoneNumber: 01124 123415
 description: Watch out for his socks 
 
-## kryten:password - fully working user
+
+# LDAP User :: kryten:password 
 dn: uid=kryten,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -256,7 +269,7 @@ sn: Kryten
 givenName: Android  
 cn: Android Kryten
 mail: kryten@shmanic.net
-uidNumber: 10000
+uidNumber: 20014
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
@@ -264,7 +277,8 @@ homeDirectory: /home/kryten
 telephoneNumber: 01124 123415
 description: Has a head shaped like a potato
 
-## email.missing:password - has the email field missing
+
+# LDAP User :: email.missing:password 
 dn: uid=email.missing,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -274,14 +288,17 @@ uid: email.missing
 sn: Missing
 givenName: Email
 cn: Email Missing
-uidNumber: 10000
+mail: 
+uidNumber: 20015
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
 homeDirectory: /home/email.missing
 telephoneNumber: 01124 123415
+description: User has missing email
 
-## email.invalid:password - has a invalid email
+
+# LDAP User :: email.invalid:password 
 dn: uid=email.invalid,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -292,14 +309,16 @@ sn: Invalid
 givenName: Email
 cn: Email Invalid
 mail: thisisainvliademail.com
-uidNumber: 10000
+uidNumber: 20016
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
 homeDirectory: /home/email.invalid
 telephoneNumber: 01124 123415
+description: User has a invalid email
 
-## email.clash1:password - has a invalid email
+
+# LDAP User :: email.clash1:password 
 dn: uid=email.clash1,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -310,14 +329,16 @@ sn: Clash1
 givenName: Email
 cn: Email Clash1
 mail: emailclash@shmanic.net
-uidNumber: 10000
+uidNumber: 20017
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
 homeDirectory: /home/email.clash1
 telephoneNumber: 01124 123415
+description: Email clash with another user
 
-## email.clash2:0password - has a invalid email
+
+# LDAP User :: email.clash2 :password 
 dn: uid=email.clash2,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
@@ -328,10 +349,3052 @@ sn: Clash2
 givenName: Email
 cn: Email Clash1
 mail: emailclash@shmanic.net
-uidNumber: 10000
+uidNumber: 20018
 gidNumber: 1000
 userPassword: password
 loginShell: /bin/bash
 homeDirectory: /home/email.clash2
 telephoneNumber: 01124 123415
+description: Email clash with another user
+
+
+# LDAP User :: azarel.bertolini:3F2KvJX6 
+dn: uid=azarel.bertolini,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: azarel.bertolini
+sn: Bertolini
+givenName: Azarel
+cn: Azarel Bertolini
+mail: azarel.bertolini@shmanic.net
+uidNumber: 10001
+gidNumber: 1000
+userPassword: 3F2KvJX6
+loginShell: /bin/bash
+homeDirectory: /home/azarel.bertolini
+telephoneNumber: 01944 185787
+description: Standard
+
+
+# LDAP User :: kameron.waterman:em9AWQ5w 
+dn: uid=kameron.waterman,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: kameron.waterman
+sn: Waterman
+givenName: Kameron
+cn: Kameron Waterman
+mail: kameron.waterman@shmanic.net
+uidNumber: 10002
+gidNumber: 1000
+userPassword: em9AWQ5w
+loginShell: /bin/bash
+homeDirectory: /home/kameron.waterman
+telephoneNumber: 01580 117193
+description: Standard
+
+
+# LDAP User :: greyson.ferro:4GpARP5m 
+dn: uid=greyson.ferro,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: greyson.ferro
+sn: Ferro
+givenName: Greyson
+cn: Greyson Ferro
+mail: greyson.ferro@shmanic.net
+uidNumber: 10003
+gidNumber: 1000
+userPassword: 4GpARP5m
+loginShell: /bin/bash
+homeDirectory: /home/greyson.ferro
+telephoneNumber: 01561 123263
+description: Standard
+
+
+# LDAP User :: ilda.mei:QCim8ls1 
+dn: uid=ilda.mei,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ilda.mei
+sn: Mei
+givenName: Ilda
+cn: Ilda Mei
+mail: ilda.mei@shmanic.net
+uidNumber: 10004
+gidNumber: 1000
+userPassword: QCim8ls1
+loginShell: /bin/bash
+homeDirectory: /home/ilda.mei
+telephoneNumber: 01957 175541
+description: Standard
+
+
+# LDAP User :: romona.entrekin:HEo1UdyO 
+dn: uid=romona.entrekin,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: romona.entrekin
+sn: Entrekin
+givenName: Romona
+cn: Romona Entrekin
+mail: romona.entrekin@shmanic.net
+uidNumber: 10005
+gidNumber: 1000
+userPassword: HEo1UdyO
+loginShell: /bin/bash
+homeDirectory: /home/romona.entrekin
+telephoneNumber: 01677 186357
+description: Standard
+
+
+# LDAP User :: hye.portales:XK525v'H 
+dn: uid=hye.portales,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: hye.portales
+sn: Portales
+givenName: Hye
+cn: Hye Portales
+mail: hye.portales@shmanic.net
+uidNumber: 10006
+gidNumber: 1000
+userPassword: XK525v'H
+loginShell: /bin/bash
+homeDirectory: /home/hye.portales
+telephoneNumber: 01268 136671
+description: Standard
+
+
+# LDAP User :: nancey.borjas:KEkuHb6m 
+dn: uid=nancey.borjas,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: nancey.borjas
+sn: Borjas
+givenName: Nancey
+cn: Nancey Borjas
+mail: nancey.borjas@shmanic.net
+uidNumber: 10007
+gidNumber: 1000
+userPassword: KEkuHb6m
+loginShell: /bin/bash
+homeDirectory: /home/nancey.borjas
+telephoneNumber: 01872 184740
+description: Standard
+
+
+# LDAP User :: mariko.beaudette:UsUQVVs3 
+dn: uid=mariko.beaudette,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: mariko.beaudette
+sn: Beaudette
+givenName: Mariko
+cn: Mariko Beaudette
+mail: mariko.beaudette@shmanic.net
+uidNumber: 10008
+gidNumber: 1000
+userPassword: UsUQVVs3
+loginShell: /bin/bash
+homeDirectory: /home/mariko.beaudette
+telephoneNumber: 01534 181553
+description: Standard
+
+
+# LDAP User :: lisandra.greve:zfpjA8vx 
+dn: uid=lisandra.greve,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lisandra.greve
+sn: Greve
+givenName: Lisandra
+cn: Lisandra Greve
+mail: lisandra.greve@shmanic.net
+uidNumber: 10009
+gidNumber: 1000
+userPassword: zfpjA8vx
+loginShell: /bin/bash
+homeDirectory: /home/lisandra.greve
+telephoneNumber: 01947 167805
+description: Standard
+
+
+# LDAP User :: kelley.gaytan:U1xjIr2X 
+dn: uid=kelley.gaytan,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: kelley.gaytan
+sn: Gaytan
+givenName: Kelley
+cn: Kelley Gaytan
+mail: kelley.gaytan@shmanic.net
+uidNumber: 10010
+gidNumber: 1000
+userPassword: U1xjIr2X
+loginShell: /bin/bash
+homeDirectory: /home/kelley.gaytan
+telephoneNumber: 01803 156407
+description: Standard
+
+
+# LDAP User :: maybelle.bouldin:op2h73yj 
+dn: uid=maybelle.bouldin,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: maybelle.bouldin
+sn: Bouldin
+givenName: Maybelle
+cn: Maybelle Bouldin
+mail: maybelle.bouldin@shmanic.net
+uidNumber: 10011
+gidNumber: 1000
+userPassword: op2h73yj
+loginShell: /bin/bash
+homeDirectory: /home/maybelle.bouldin
+telephoneNumber: 01350 106927
+description: Standard
+
+
+# LDAP User :: keith.heber:eGCT-2Yj 
+dn: uid=keith.heber,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: keith.heber
+sn: Heber
+givenName: Keith
+cn: Keith Heber
+mail: keith.heber@shmanic.net
+uidNumber: 10012
+gidNumber: 1000
+userPassword: eGCT-2Yj
+loginShell: /bin/bash
+homeDirectory: /home/keith.heber
+telephoneNumber: 01043 151321
+description: Standard
+
+
+# LDAP User :: lasandra.worthey:Tk-2u9Xy 
+dn: uid=lasandra.worthey,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lasandra.worthey
+sn: Worthey
+givenName: Lasandra
+cn: Lasandra Worthey
+mail: lasandra.worthey@shmanic.net
+uidNumber: 10013
+gidNumber: 1000
+userPassword: Tk-2u9Xy
+loginShell: /bin/bash
+homeDirectory: /home/lasandra.worthey
+telephoneNumber: 01040 139198
+description: Standard
+
+
+# LDAP User :: christeen.chae:7ayyASHK 
+dn: uid=christeen.chae,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: christeen.chae
+sn: Chae
+givenName: Christeen
+cn: Christeen Chae
+mail: christeen.chae@shmanic.net
+uidNumber: 10014
+gidNumber: 1000
+userPassword: 7ayyASHK
+loginShell: /bin/bash
+homeDirectory: /home/christeen.chae
+telephoneNumber: 01946 122081
+description: Standard
+
+
+# LDAP User :: eustolia.keltz:KpO-Z3rS 
+dn: uid=eustolia.keltz,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: eustolia.keltz
+sn: Keltz
+givenName: Eustolia
+cn: Eustolia Keltz
+mail: eustolia.keltz@shmanic.net
+uidNumber: 10015
+gidNumber: 1000
+userPassword: KpO-Z3rS
+loginShell: /bin/bash
+homeDirectory: /home/eustolia.keltz
+telephoneNumber: 01395 176664
+description: Standard
+
+
+# LDAP User :: hoa.caufield:QPN2k3S8 
+dn: uid=hoa.caufield,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: hoa.caufield
+sn: Caufield
+givenName: Hoa
+cn: Hoa Caufield
+mail: hoa.caufield@shmanic.net
+uidNumber: 10016
+gidNumber: 1000
+userPassword: QPN2k3S8
+loginShell: /bin/bash
+homeDirectory: /home/hoa.caufield
+telephoneNumber: 01479 108711
+description: Standard
+
+
+# LDAP User :: ceola.panton:Q0g2sUUE 
+dn: uid=ceola.panton,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ceola.panton
+sn: Panton
+givenName: Ceola
+cn: Ceola Panton
+mail: ceola.panton@shmanic.net
+uidNumber: 10017
+gidNumber: 1000
+userPassword: Q0g2sUUE
+loginShell: /bin/bash
+homeDirectory: /home/ceola.panton
+telephoneNumber: 01809 118251
+description: Standard
+
+
+# LDAP User :: clorinda.sae:d3K-vS0u 
+dn: uid=clorinda.sae,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: clorinda.sae
+sn: Sae
+givenName: Clorinda
+cn: Clorinda Sae
+mail: clorinda.sae@shmanic.net
+uidNumber: 10018
+gidNumber: 1000
+userPassword: d3K-vS0u
+loginShell: /bin/bash
+homeDirectory: /home/clorinda.sae
+telephoneNumber: 01888 196410
+description: Standard
+
+
+# LDAP User :: corazon.mcclain:iPUfGAqC 
+dn: uid=corazon.mcclain,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: corazon.mcclain
+sn: Mcclain
+givenName: Corazon
+cn: Corazon Mcclain
+mail: corazon.mcclain@shmanic.net
+uidNumber: 10019
+gidNumber: 1000
+userPassword: iPUfGAqC
+loginShell: /bin/bash
+homeDirectory: /home/corazon.mcclain
+telephoneNumber: 01218 122622
+description: Standard
+
+
+# LDAP User :: lawerence.yuhas:1SlTUtLo 
+dn: uid=lawerence.yuhas,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lawerence.yuhas
+sn: Yuhas
+givenName: Lawerence
+cn: Lawerence Yuhas
+mail: lawerence.yuhas@shmanic.net
+uidNumber: 10020
+gidNumber: 1000
+userPassword: 1SlTUtLo
+loginShell: /bin/bash
+homeDirectory: /home/lawerence.yuhas
+telephoneNumber: 01801 184539
+description: Standard
+
+
+# LDAP User :: samella.standridge:ytvaJD2N 
+dn: uid=samella.standridge,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: samella.standridge
+sn: Standridge
+givenName: Samella
+cn: Samella Standridge
+mail: samella.standridge@shmanic.net
+uidNumber: 10021
+gidNumber: 1000
+userPassword: ytvaJD2N
+loginShell: /bin/bash
+homeDirectory: /home/samella.standridge
+telephoneNumber: 01969 116027
+description: Standard
+
+
+# LDAP User :: sammie.hanna:0d'SRPrX 
+dn: uid=sammie.hanna,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: sammie.hanna
+sn: Hanna
+givenName: Sammie
+cn: Sammie Hanna
+mail: sammie.hanna@shmanic.net
+uidNumber: 10022
+gidNumber: 1000
+userPassword: 0d'SRPrX
+loginShell: /bin/bash
+homeDirectory: /home/sammie.hanna
+telephoneNumber: 01465 103698
+description: Standard
+
+
+# LDAP User :: francina.klausner:73mRZSvK 
+dn: uid=francina.klausner,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: francina.klausner
+sn: Klausner
+givenName: Francina
+cn: Francina Klausner
+mail: francina.klausner@shmanic.net
+uidNumber: 10023
+gidNumber: 1000
+userPassword: 73mRZSvK
+loginShell: /bin/bash
+homeDirectory: /home/francina.klausner
+telephoneNumber: 01371 122321
+description: Standard
+
+
+# LDAP User :: keila.wendland:m5eQEDpI 
+dn: uid=keila.wendland,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: keila.wendland
+sn: Wendland
+givenName: Keila
+cn: Keila Wendland
+mail: keila.wendland@shmanic.net
+uidNumber: 10024
+gidNumber: 1000
+userPassword: m5eQEDpI
+loginShell: /bin/bash
+homeDirectory: /home/keila.wendland
+telephoneNumber: 01424 134383
+description: Standard
+
+
+# LDAP User :: frederica.jean:DwAbM6zo 
+dn: uid=frederica.jean,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: frederica.jean
+sn: Jean
+givenName: Frederica
+cn: Frederica Jean
+mail: frederica.jean@shmanic.net
+uidNumber: 10025
+gidNumber: 1000
+userPassword: DwAbM6zo
+loginShell: /bin/bash
+homeDirectory: /home/frederica.jean
+telephoneNumber: 01616 135535
+description: Standard
+
+
+# LDAP User :: georgianne.manzano:pm9zxPRH 
+dn: uid=georgianne.manzano,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: georgianne.manzano
+sn: Manzano
+givenName: Georgianne
+cn: Georgianne Manzano
+mail: georgianne.manzano@shmanic.net
+uidNumber: 10026
+gidNumber: 1000
+userPassword: pm9zxPRH
+loginShell: /bin/bash
+homeDirectory: /home/georgianne.manzano
+telephoneNumber: 01465 100294
+description: Standard
+
+
+# LDAP User :: darci.muma:4KfR6KzN 
+dn: uid=darci.muma,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: darci.muma
+sn: Muma
+givenName: Darci
+cn: Darci Muma
+mail: darci.muma@shmanic.net
+uidNumber: 10027
+gidNumber: 1000
+userPassword: 4KfR6KzN
+loginShell: /bin/bash
+homeDirectory: /home/darci.muma
+telephoneNumber: 01191 176683
+description: Standard
+
+
+# LDAP User :: pat.voorhis:fMGVccIH 
+dn: uid=pat.voorhis,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: pat.voorhis
+sn: Voorhis
+givenName: Pat
+cn: Pat Voorhis
+mail: pat.voorhis@shmanic.net
+uidNumber: 10028
+gidNumber: 1000
+userPassword: fMGVccIH
+loginShell: /bin/bash
+homeDirectory: /home/pat.voorhis
+telephoneNumber: 01302 110278
+description: Standard
+
+
+# LDAP User :: candis.rembert:5YZadKl9 
+dn: uid=candis.rembert,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: candis.rembert
+sn: Rembert
+givenName: Candis
+cn: Candis Rembert
+mail: candis.rembert@shmanic.net
+uidNumber: 10029
+gidNumber: 1000
+userPassword: 5YZadKl9
+loginShell: /bin/bash
+homeDirectory: /home/candis.rembert
+telephoneNumber: 01717 124277
+description: Standard
+
+
+# LDAP User :: cristal.dutremble:frO'tMO4 
+dn: uid=cristal.dutremble,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: cristal.dutremble
+sn: Dutremble
+givenName: Cristal
+cn: Cristal Dutremble
+mail: cristal.dutremble@shmanic.net
+uidNumber: 10030
+gidNumber: 1000
+userPassword: frO'tMO4
+loginShell: /bin/bash
+homeDirectory: /home/cristal.dutremble
+telephoneNumber: 01739 113138
+description: Standard
+
+
+# LDAP User :: ila.merlino:Su1H1ciy 
+dn: uid=ila.merlino,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ila.merlino
+sn: Merlino
+givenName: Ila
+cn: Ila Merlino
+mail: ila.merlino@shmanic.net
+uidNumber: 10031
+gidNumber: 1000
+userPassword: Su1H1ciy
+loginShell: /bin/bash
+homeDirectory: /home/ila.merlino
+telephoneNumber: 01362 116005
+description: Standard
+
+
+# LDAP User :: gilberte.gateley:WSxMLlD1 
+dn: uid=gilberte.gateley,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: gilberte.gateley
+sn: Gateley
+givenName: Gilberte
+cn: Gilberte Gateley
+mail: gilberte.gateley@shmanic.net
+uidNumber: 10032
+gidNumber: 1000
+userPassword: WSxMLlD1
+loginShell: /bin/bash
+homeDirectory: /home/gilberte.gateley
+telephoneNumber: 01320 174631
+description: Standard
+
+
+# LDAP User :: aracely.sabine:zBcl-Cir 
+dn: uid=aracely.sabine,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: aracely.sabine
+sn: Sabine
+givenName: Aracely
+cn: Aracely Sabine
+mail: aracely.sabine@shmanic.net
+uidNumber: 10033
+gidNumber: 1000
+userPassword: zBcl-Cir
+loginShell: /bin/bash
+homeDirectory: /home/aracely.sabine
+telephoneNumber: 01601 141217
+description: Standard
+
+
+# LDAP User :: dori.fuselier:lT7AhlIQ 
+dn: uid=dori.fuselier,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: dori.fuselier
+sn: Fuselier
+givenName: Dori
+cn: Dori Fuselier
+mail: dori.fuselier@shmanic.net
+uidNumber: 10034
+gidNumber: 1000
+userPassword: lT7AhlIQ
+loginShell: /bin/bash
+homeDirectory: /home/dori.fuselier
+telephoneNumber: 01254 134657
+description: Standard
+
+
+# LDAP User :: jade.rotella:rIs9W3wu 
+dn: uid=jade.rotella,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jade.rotella
+sn: Rotella
+givenName: Jade
+cn: Jade Rotella
+mail: jade.rotella@shmanic.net
+uidNumber: 10035
+gidNumber: 1000
+userPassword: rIs9W3wu
+loginShell: /bin/bash
+homeDirectory: /home/jade.rotella
+telephoneNumber: 01532 179528
+description: Standard
+
+
+# LDAP User :: jeannie.plunkett:tr4H7SQE 
+dn: uid=jeannie.plunkett,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jeannie.plunkett
+sn: Plunkett
+givenName: Jeannie
+cn: Jeannie Plunkett
+mail: jeannie.plunkett@shmanic.net
+uidNumber: 10036
+gidNumber: 1000
+userPassword: tr4H7SQE
+loginShell: /bin/bash
+homeDirectory: /home/jeannie.plunkett
+telephoneNumber: 01602 111082
+description: Standard
+
+
+# LDAP User :: glen.spurrier:zdO5I8G7 
+dn: uid=glen.spurrier,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: glen.spurrier
+sn: Spurrier
+givenName: Glen
+cn: Glen Spurrier
+mail: glen.spurrier@shmanic.net
+uidNumber: 10037
+gidNumber: 1000
+userPassword: zdO5I8G7
+loginShell: /bin/bash
+homeDirectory: /home/glen.spurrier
+telephoneNumber: 01910 159667
+description: Standard
+
+
+# LDAP User :: magdalene.galli:QyzTrpjI 
+dn: uid=magdalene.galli,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: magdalene.galli
+sn: Galli
+givenName: Magdalene
+cn: Magdalene Galli
+mail: magdalene.galli@shmanic.net
+uidNumber: 10038
+gidNumber: 1000
+userPassword: QyzTrpjI
+loginShell: /bin/bash
+homeDirectory: /home/magdalene.galli
+telephoneNumber: 01913 174199
+description: Standard
+
+
+# LDAP User :: cheree.andrzejewski:bYBva4D- 
+dn: uid=cheree.andrzejewski,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: cheree.andrzejewski
+sn: Andrzejewski
+givenName: Cheree
+cn: Cheree Andrzejewski
+mail: cheree.andrzejewski@shmanic.net
+uidNumber: 10039
+gidNumber: 1000
+userPassword: bYBva4D-
+loginShell: /bin/bash
+homeDirectory: /home/cheree.andrzejewski
+telephoneNumber: 01204 179609
+description: Standard
+
+
+# LDAP User :: eleanora.deets:HXeCL'AT 
+dn: uid=eleanora.deets,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: eleanora.deets
+sn: Deets
+givenName: Eleanora
+cn: Eleanora Deets
+mail: eleanora.deets@shmanic.net
+uidNumber: 10040
+gidNumber: 1000
+userPassword: HXeCL'AT
+loginShell: /bin/bash
+homeDirectory: /home/eleanora.deets
+telephoneNumber: 01095 169231
+description: Standard
+
+
+# LDAP User :: lecia.algarin:wiUK9UET 
+dn: uid=lecia.algarin,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lecia.algarin
+sn: Algarin
+givenName: Lecia
+cn: Lecia Algarin
+mail: lecia.algarin@shmanic.net
+uidNumber: 10041
+gidNumber: 1000
+userPassword: wiUK9UET
+loginShell: /bin/bash
+homeDirectory: /home/lecia.algarin
+telephoneNumber: 01916 129245
+description: Standard
+
+
+# LDAP User :: jeanene.ploss:2R9C7u6N 
+dn: uid=jeanene.ploss,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jeanene.ploss
+sn: Ploss
+givenName: Jeanene
+cn: Jeanene Ploss
+mail: jeanene.ploss@shmanic.net
+uidNumber: 10042
+gidNumber: 1000
+userPassword: 2R9C7u6N
+loginShell: /bin/bash
+homeDirectory: /home/jeanene.ploss
+telephoneNumber: 01924 143554
+description: Standard
+
+
+# LDAP User :: eldora.thrower:13jMWl3u 
+dn: uid=eldora.thrower,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: eldora.thrower
+sn: Thrower
+givenName: Eldora
+cn: Eldora Thrower
+mail: eldora.thrower@shmanic.net
+uidNumber: 10043
+gidNumber: 1000
+userPassword: 13jMWl3u
+loginShell: /bin/bash
+homeDirectory: /home/eldora.thrower
+telephoneNumber: 01965 120951
+description: Standard
+
+
+# LDAP User :: portia.enright:vK4yIIlK 
+dn: uid=portia.enright,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: portia.enright
+sn: Enright
+givenName: Portia
+cn: Portia Enright
+mail: portia.enright@shmanic.net
+uidNumber: 10044
+gidNumber: 1000
+userPassword: vK4yIIlK
+loginShell: /bin/bash
+homeDirectory: /home/portia.enright
+telephoneNumber: 01205 177909
+description: Standard
+
+
+# LDAP User :: petra.hillery:sTy-cK61 
+dn: uid=petra.hillery,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: petra.hillery
+sn: Hillery
+givenName: Petra
+cn: Petra Hillery
+mail: petra.hillery@shmanic.net
+uidNumber: 10045
+gidNumber: 1000
+userPassword: sTy-cK61
+loginShell: /bin/bash
+homeDirectory: /home/petra.hillery
+telephoneNumber: 01513 162360
+description: Standard
+
+
+# LDAP User :: venessa.metivier:qpSVuTHk 
+dn: uid=venessa.metivier,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: venessa.metivier
+sn: Metivier
+givenName: Venessa
+cn: Venessa Metivier
+mail: venessa.metivier@shmanic.net
+uidNumber: 10046
+gidNumber: 1000
+userPassword: qpSVuTHk
+loginShell: /bin/bash
+homeDirectory: /home/venessa.metivier
+telephoneNumber: 01739 197217
+description: Standard
+
+
+# LDAP User :: ronald.grissom:jQeEYmLp 
+dn: uid=ronald.grissom,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ronald.grissom
+sn: Grissom
+givenName: Ronald
+cn: Ronald Grissom
+mail: ronald.grissom@shmanic.net
+uidNumber: 10047
+gidNumber: 1000
+userPassword: jQeEYmLp
+loginShell: /bin/bash
+homeDirectory: /home/ronald.grissom
+telephoneNumber: 01434 195471
+description: Standard
+
+
+# LDAP User :: sunshine.wellner:SemiVTFW 
+dn: uid=sunshine.wellner,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: sunshine.wellner
+sn: Wellner
+givenName: Sunshine
+cn: Sunshine Wellner
+mail: sunshine.wellner@shmanic.net
+uidNumber: 10048
+gidNumber: 1000
+userPassword: SemiVTFW
+loginShell: /bin/bash
+homeDirectory: /home/sunshine.wellner
+telephoneNumber: 01589 174994
+description: Standard
+
+
+# LDAP User :: hung.blackwelder:JdcS1YPs 
+dn: uid=hung.blackwelder,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: hung.blackwelder
+sn: Blackwelder
+givenName: Hung
+cn: Hung Blackwelder
+mail: hung.blackwelder@shmanic.net
+uidNumber: 10049
+gidNumber: 1000
+userPassword: JdcS1YPs
+loginShell: /bin/bash
+homeDirectory: /home/hung.blackwelder
+telephoneNumber: 01739 193572
+description: Standard
+
+
+# LDAP User :: shari.troyer:EMXcY6xd 
+dn: uid=shari.troyer,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: shari.troyer
+sn: Troyer
+givenName: Shari
+cn: Shari Troyer
+mail: shari.troyer@shmanic.net
+uidNumber: 10050
+gidNumber: 1000
+userPassword: EMXcY6xd
+loginShell: /bin/bash
+homeDirectory: /home/shari.troyer
+telephoneNumber: 01135 156728
+description: Standard
+
+
+# LDAP User :: alica.bruhn:'mFFzd0O 
+dn: uid=alica.bruhn,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: alica.bruhn
+sn: Bruhn
+givenName: Alica
+cn: Alica Bruhn
+mail: alica.bruhn@shmanic.net
+uidNumber: 10051
+gidNumber: 1000
+userPassword: 'mFFzd0O
+loginShell: /bin/bash
+homeDirectory: /home/alica.bruhn
+telephoneNumber: 01208 114121
+description: Standard
+
+
+# LDAP User :: loreta.turnbough:WwPAbsOZ 
+dn: uid=loreta.turnbough,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: loreta.turnbough
+sn: Turnbough
+givenName: Loreta
+cn: Loreta Turnbough
+mail: loreta.turnbough@shmanic.net
+uidNumber: 10052
+gidNumber: 1000
+userPassword: WwPAbsOZ
+loginShell: /bin/bash
+homeDirectory: /home/loreta.turnbough
+telephoneNumber: 01195 130851
+description: Standard
+
+
+# LDAP User :: ashanti.lakes:3wBwFgOY 
+dn: uid=ashanti.lakes,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ashanti.lakes
+sn: Lakes
+givenName: Ashanti
+cn: Ashanti Lakes
+mail: ashanti.lakes@shmanic.net
+uidNumber: 10053
+gidNumber: 1000
+userPassword: 3wBwFgOY
+loginShell: /bin/bash
+homeDirectory: /home/ashanti.lakes
+telephoneNumber: 01173 183717
+description: Standard
+
+
+# LDAP User :: hyacinth.robie:uPefhbj4 
+dn: uid=hyacinth.robie,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: hyacinth.robie
+sn: Robie
+givenName: Hyacinth
+cn: Hyacinth Robie
+mail: hyacinth.robie@shmanic.net
+uidNumber: 10054
+gidNumber: 1000
+userPassword: uPefhbj4
+loginShell: /bin/bash
+homeDirectory: /home/hyacinth.robie
+telephoneNumber: 01808 122747
+description: Standard
+
+
+# LDAP User :: velma.marconi:1s9oEWml 
+dn: uid=velma.marconi,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: velma.marconi
+sn: Marconi
+givenName: Velma
+cn: Velma Marconi
+mail: velma.marconi@shmanic.net
+uidNumber: 10055
+gidNumber: 1000
+userPassword: 1s9oEWml
+loginShell: /bin/bash
+homeDirectory: /home/velma.marconi
+telephoneNumber: 01491 168260
+description: Standard
+
+
+# LDAP User :: iona.artis:R8Wd6hiM 
+dn: uid=iona.artis,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: iona.artis
+sn: Artis
+givenName: Iona
+cn: Iona Artis
+mail: iona.artis@shmanic.net
+uidNumber: 10056
+gidNumber: 1000
+userPassword: R8Wd6hiM
+loginShell: /bin/bash
+homeDirectory: /home/iona.artis
+telephoneNumber: 01504 187031
+description: Standard
+
+
+# LDAP User :: johnetta.housman:uJUaRxzc 
+dn: uid=johnetta.housman,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: johnetta.housman
+sn: Housman
+givenName: Johnetta
+cn: Johnetta Housman
+mail: johnetta.housman@shmanic.net
+uidNumber: 10057
+gidNumber: 1000
+userPassword: uJUaRxzc
+loginShell: /bin/bash
+homeDirectory: /home/johnetta.housman
+telephoneNumber: 01106 104853
+description: Standard
+
+
+# LDAP User :: kip.kesselman:1qenFGtg 
+dn: uid=kip.kesselman,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: kip.kesselman
+sn: Kesselman
+givenName: Kip
+cn: Kip Kesselman
+mail: kip.kesselman@shmanic.net
+uidNumber: 10058
+gidNumber: 1000
+userPassword: 1qenFGtg
+loginShell: /bin/bash
+homeDirectory: /home/kip.kesselman
+telephoneNumber: 01926 118446
+description: Standard
+
+
+# LDAP User :: timika.hon:hInO99nk 
+dn: uid=timika.hon,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: timika.hon
+sn: Hon
+givenName: Timika
+cn: Timika Hon
+mail: timika.hon@shmanic.net
+uidNumber: 10059
+gidNumber: 1000
+userPassword: hInO99nk
+loginShell: /bin/bash
+homeDirectory: /home/timika.hon
+telephoneNumber: 01044 135245
+description: Standard
+
+
+# LDAP User :: ruthe.moak:IikbRn8z 
+dn: uid=ruthe.moak,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ruthe.moak
+sn: Moak
+givenName: Ruthe
+cn: Ruthe Moak
+mail: ruthe.moak@shmanic.net
+uidNumber: 10060
+gidNumber: 1000
+userPassword: IikbRn8z
+loginShell: /bin/bash
+homeDirectory: /home/ruthe.moak
+telephoneNumber: 01529 192196
+description: Standard
+
+
+# LDAP User :: cecille.goree:ZIvuCasy 
+dn: uid=cecille.goree,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: cecille.goree
+sn: Goree
+givenName: Cecille
+cn: Cecille Goree
+mail: cecille.goree@shmanic.net
+uidNumber: 10061
+gidNumber: 1000
+userPassword: ZIvuCasy
+loginShell: /bin/bash
+homeDirectory: /home/cecille.goree
+telephoneNumber: 01974 146855
+description: Standard
+
+
+# LDAP User :: allie.class:sKhhNmNS 
+dn: uid=allie.class,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: allie.class
+sn: Class
+givenName: Allie
+cn: Allie Class
+mail: allie.class@shmanic.net
+uidNumber: 10062
+gidNumber: 1000
+userPassword: sKhhNmNS
+loginShell: /bin/bash
+homeDirectory: /home/allie.class
+telephoneNumber: 01480 113395
+description: Standard
+
+
+# LDAP User :: hortencia.serrano:HVvaEzIt 
+dn: uid=hortencia.serrano,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: hortencia.serrano
+sn: Serrano
+givenName: Hortencia
+cn: Hortencia Serrano
+mail: hortencia.serrano@shmanic.net
+uidNumber: 10063
+gidNumber: 1000
+userPassword: HVvaEzIt
+loginShell: /bin/bash
+homeDirectory: /home/hortencia.serrano
+telephoneNumber: 01533 155397
+description: Standard
+
+
+# LDAP User :: bernita.lemaster:UZauTTDJ 
+dn: uid=bernita.lemaster,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: bernita.lemaster
+sn: Lemaster
+givenName: Bernita
+cn: Bernita Lemaster
+mail: bernita.lemaster@shmanic.net
+uidNumber: 10064
+gidNumber: 1000
+userPassword: UZauTTDJ
+loginShell: /bin/bash
+homeDirectory: /home/bernita.lemaster
+telephoneNumber: 01488 193021
+description: Standard
+
+
+# LDAP User :: sharla.huneke:FaI0bZ1g 
+dn: uid=sharla.huneke,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: sharla.huneke
+sn: Huneke
+givenName: Sharla
+cn: Sharla Huneke
+mail: sharla.huneke@shmanic.net
+uidNumber: 10065
+gidNumber: 1000
+userPassword: FaI0bZ1g
+loginShell: /bin/bash
+homeDirectory: /home/sharla.huneke
+telephoneNumber: 01162 131915
+description: Standard
+
+
+# LDAP User :: charley.kindel:XGLzAElp 
+dn: uid=charley.kindel,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: charley.kindel
+sn: Kindel
+givenName: Charley
+cn: Charley Kindel
+mail: charley.kindel@shmanic.net
+uidNumber: 10066
+gidNumber: 1000
+userPassword: XGLzAElp
+loginShell: /bin/bash
+homeDirectory: /home/charley.kindel
+telephoneNumber: 01928 148280
+description: Standard
+
+
+# LDAP User :: nancey.arguello:TkdKx2aQ 
+dn: uid=nancey.arguello,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: nancey.arguello
+sn: Arguello
+givenName: Nancey
+cn: Nancey Arguello
+mail: nancey.arguello@shmanic.net
+uidNumber: 10067
+gidNumber: 1000
+userPassword: TkdKx2aQ
+loginShell: /bin/bash
+homeDirectory: /home/nancey.arguello
+telephoneNumber: 01413 110839
+description: Standard
+
+
+# LDAP User :: magnolia.capehart:kd'nDMMd 
+dn: uid=magnolia.capehart,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: magnolia.capehart
+sn: Capehart
+givenName: Magnolia
+cn: Magnolia Capehart
+mail: magnolia.capehart@shmanic.net
+uidNumber: 10068
+gidNumber: 1000
+userPassword: kd'nDMMd
+loginShell: /bin/bash
+homeDirectory: /home/magnolia.capehart
+telephoneNumber: 01270 129433
+description: Standard
+
+
+# LDAP User :: rolland.feller:WlSupfaW 
+dn: uid=rolland.feller,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: rolland.feller
+sn: Feller
+givenName: Rolland
+cn: Rolland Feller
+mail: rolland.feller@shmanic.net
+uidNumber: 10069
+gidNumber: 1000
+userPassword: WlSupfaW
+loginShell: /bin/bash
+homeDirectory: /home/rolland.feller
+telephoneNumber: 01901 109217
+description: Standard
+
+
+# LDAP User :: shelba.mcneely:XCj9m6GA 
+dn: uid=shelba.mcneely,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: shelba.mcneely
+sn: Mcneely
+givenName: Shelba
+cn: Shelba Mcneely
+mail: shelba.mcneely@shmanic.net
+uidNumber: 10070
+gidNumber: 1000
+userPassword: XCj9m6GA
+loginShell: /bin/bash
+homeDirectory: /home/shelba.mcneely
+telephoneNumber: 01537 117631
+description: Standard
+
+
+# LDAP User :: jackeline.causby:KIsQl6wj 
+dn: uid=jackeline.causby,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jackeline.causby
+sn: Causby
+givenName: Jackeline
+cn: Jackeline Causby
+mail: jackeline.causby@shmanic.net
+uidNumber: 10071
+gidNumber: 1000
+userPassword: KIsQl6wj
+loginShell: /bin/bash
+homeDirectory: /home/jackeline.causby
+telephoneNumber: 01969 130425
+description: Standard
+
+
+# LDAP User :: athena.peek:tjoOp3CP 
+dn: uid=athena.peek,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: athena.peek
+sn: Peek
+givenName: Athena
+cn: Athena Peek
+mail: athena.peek@shmanic.net
+uidNumber: 10072
+gidNumber: 1000
+userPassword: tjoOp3CP
+loginShell: /bin/bash
+homeDirectory: /home/athena.peek
+telephoneNumber: 01748 190578
+description: Standard
+
+
+# LDAP User :: rosanne.bonelli:AG6Ab7Sf 
+dn: uid=rosanne.bonelli,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: rosanne.bonelli
+sn: Bonelli
+givenName: Rosanne
+cn: Rosanne Bonelli
+mail: rosanne.bonelli@shmanic.net
+uidNumber: 10073
+gidNumber: 1000
+userPassword: AG6Ab7Sf
+loginShell: /bin/bash
+homeDirectory: /home/rosanne.bonelli
+telephoneNumber: 01717 128729
+description: Standard
+
+
+# LDAP User :: veronique.reisman:20EdRdsI 
+dn: uid=veronique.reisman,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: veronique.reisman
+sn: Reisman
+givenName: Veronique
+cn: Veronique Reisman
+mail: veronique.reisman@shmanic.net
+uidNumber: 10074
+gidNumber: 1000
+userPassword: 20EdRdsI
+loginShell: /bin/bash
+homeDirectory: /home/veronique.reisman
+telephoneNumber: 01064 170161
+description: Standard
+
+
+# LDAP User :: delia.tomaselli:E'h2WDEf 
+dn: uid=delia.tomaselli,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: delia.tomaselli
+sn: Tomaselli
+givenName: Delia
+cn: Delia Tomaselli
+mail: delia.tomaselli@shmanic.net
+uidNumber: 10075
+gidNumber: 1000
+userPassword: E'h2WDEf
+loginShell: /bin/bash
+homeDirectory: /home/delia.tomaselli
+telephoneNumber: 01230 129571
+description: Standard
+
+
+# LDAP User :: vertie.cropp:UawYZEmQ 
+dn: uid=vertie.cropp,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: vertie.cropp
+sn: Cropp
+givenName: Vertie
+cn: Vertie Cropp
+mail: vertie.cropp@shmanic.net
+uidNumber: 10076
+gidNumber: 1000
+userPassword: UawYZEmQ
+loginShell: /bin/bash
+homeDirectory: /home/vertie.cropp
+telephoneNumber: 01726 110747
+description: Standard
+
+
+# LDAP User :: chin.sorber:tAkTN6G8 
+dn: uid=chin.sorber,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: chin.sorber
+sn: Sorber
+givenName: Chin
+cn: Chin Sorber
+mail: chin.sorber@shmanic.net
+uidNumber: 10077
+gidNumber: 1000
+userPassword: tAkTN6G8
+loginShell: /bin/bash
+homeDirectory: /home/chin.sorber
+telephoneNumber: 01526 160352
+description: Standard
+
+
+# LDAP User :: maya.reinhardt:Ts7cFeZi 
+dn: uid=maya.reinhardt,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: maya.reinhardt
+sn: Reinhardt
+givenName: Maya
+cn: Maya Reinhardt
+mail: maya.reinhardt@shmanic.net
+uidNumber: 10078
+gidNumber: 1000
+userPassword: Ts7cFeZi
+loginShell: /bin/bash
+homeDirectory: /home/maya.reinhardt
+telephoneNumber: 01915 154406
+description: Standard
+
+
+# LDAP User :: alane.nordstrom:YunOZg3E 
+dn: uid=alane.nordstrom,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: alane.nordstrom
+sn: Nordstrom
+givenName: Alane
+cn: Alane Nordstrom
+mail: alane.nordstrom@shmanic.net
+uidNumber: 10079
+gidNumber: 1000
+userPassword: YunOZg3E
+loginShell: /bin/bash
+homeDirectory: /home/alane.nordstrom
+telephoneNumber: 01065 168804
+description: Standard
+
+
+# LDAP User :: shonna.mayton:USg1pTPn 
+dn: uid=shonna.mayton,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: shonna.mayton
+sn: Mayton
+givenName: Shonna
+cn: Shonna Mayton
+mail: shonna.mayton@shmanic.net
+uidNumber: 10080
+gidNumber: 1000
+userPassword: USg1pTPn
+loginShell: /bin/bash
+homeDirectory: /home/shonna.mayton
+telephoneNumber: 01807 122786
+description: Standard
+
+
+# LDAP User :: lissette.tarrant:HucCnGCw 
+dn: uid=lissette.tarrant,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lissette.tarrant
+sn: Tarrant
+givenName: Lissette
+cn: Lissette Tarrant
+mail: lissette.tarrant@shmanic.net
+uidNumber: 10081
+gidNumber: 1000
+userPassword: HucCnGCw
+loginShell: /bin/bash
+homeDirectory: /home/lissette.tarrant
+telephoneNumber: 01269 132546
+description: Standard
+
+
+# LDAP User :: kaycee.marrow:-8PO3WCt 
+dn: uid=kaycee.marrow,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: kaycee.marrow
+sn: Marrow
+givenName: Kaycee
+cn: Kaycee Marrow
+mail: kaycee.marrow@shmanic.net
+uidNumber: 10082
+gidNumber: 1000
+userPassword: -8PO3WCt
+loginShell: /bin/bash
+homeDirectory: /home/kaycee.marrow
+telephoneNumber: 01687 171018
+description: Standard
+
+
+# LDAP User :: tamesha.aitken:irhJjRrG 
+dn: uid=tamesha.aitken,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tamesha.aitken
+sn: Aitken
+givenName: Tamesha
+cn: Tamesha Aitken
+mail: tamesha.aitken@shmanic.net
+uidNumber: 10083
+gidNumber: 1000
+userPassword: irhJjRrG
+loginShell: /bin/bash
+homeDirectory: /home/tamesha.aitken
+telephoneNumber: 01906 180621
+description: Standard
+
+
+# LDAP User :: terry.garriott:Xr8ggudk 
+dn: uid=terry.garriott,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: terry.garriott
+sn: Garriott
+givenName: Terry
+cn: Terry Garriott
+mail: terry.garriott@shmanic.net
+uidNumber: 10084
+gidNumber: 1000
+userPassword: Xr8ggudk
+loginShell: /bin/bash
+homeDirectory: /home/terry.garriott
+telephoneNumber: 01796 140610
+description: Standard
+
+
+# LDAP User :: cristi.abalos:iVnXjGMu 
+dn: uid=cristi.abalos,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: cristi.abalos
+sn: Abalos
+givenName: Cristi
+cn: Cristi Abalos
+mail: cristi.abalos@shmanic.net
+uidNumber: 10085
+gidNumber: 1000
+userPassword: iVnXjGMu
+loginShell: /bin/bash
+homeDirectory: /home/cristi.abalos
+telephoneNumber: 01721 113110
+description: Standard
+
+
+# LDAP User :: irena.grauer:EOvMR0cp 
+dn: uid=irena.grauer,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: irena.grauer
+sn: Grauer
+givenName: Irena
+cn: Irena Grauer
+mail: irena.grauer@shmanic.net
+uidNumber: 10086
+gidNumber: 1000
+userPassword: EOvMR0cp
+loginShell: /bin/bash
+homeDirectory: /home/irena.grauer
+telephoneNumber: 01059 192407
+description: Standard
+
+
+# LDAP User :: velda.you:eeycZsRz 
+dn: uid=velda.you,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: velda.you
+sn: You
+givenName: Velda
+cn: Velda You
+mail: velda.you@shmanic.net
+uidNumber: 10087
+gidNumber: 1000
+userPassword: eeycZsRz
+loginShell: /bin/bash
+homeDirectory: /home/velda.you
+telephoneNumber: 01193 170578
+description: Standard
+
+
+# LDAP User :: diego.diangelo:24t'Fmwh 
+dn: uid=diego.diangelo,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: diego.diangelo
+sn: Diangelo
+givenName: Diego
+cn: Diego Diangelo
+mail: diego.diangelo@shmanic.net
+uidNumber: 10088
+gidNumber: 1000
+userPassword: 24t'Fmwh
+loginShell: /bin/bash
+homeDirectory: /home/diego.diangelo
+telephoneNumber: 01288 111981
+description: Standard
+
+
+# LDAP User :: criselda.brabant:Xk9Z45kJ 
+dn: uid=criselda.brabant,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: criselda.brabant
+sn: Brabant
+givenName: Criselda
+cn: Criselda Brabant
+mail: criselda.brabant@shmanic.net
+uidNumber: 10089
+gidNumber: 1000
+userPassword: Xk9Z45kJ
+loginShell: /bin/bash
+homeDirectory: /home/criselda.brabant
+telephoneNumber: 01911 143950
+description: Standard
+
+
+# LDAP User :: shondra.lamphere:'p7lzUbT 
+dn: uid=shondra.lamphere,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: shondra.lamphere
+sn: Lamphere
+givenName: Shondra
+cn: Shondra Lamphere
+mail: shondra.lamphere@shmanic.net
+uidNumber: 10090
+gidNumber: 1000
+userPassword: 'p7lzUbT
+loginShell: /bin/bash
+homeDirectory: /home/shondra.lamphere
+telephoneNumber: 01356 175351
+description: Standard
+
+
+# LDAP User :: lucinda.hopp:lco'DfQs 
+dn: uid=lucinda.hopp,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lucinda.hopp
+sn: Hopp
+givenName: Lucinda
+cn: Lucinda Hopp
+mail: lucinda.hopp@shmanic.net
+uidNumber: 10091
+gidNumber: 1000
+userPassword: lco'DfQs
+loginShell: /bin/bash
+homeDirectory: /home/lucinda.hopp
+telephoneNumber: 01815 145511
+description: Standard
+
+
+# LDAP User :: augustine.heal:Eyu'tpwW 
+dn: uid=augustine.heal,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: augustine.heal
+sn: Heal
+givenName: Augustine
+cn: Augustine Heal
+mail: augustine.heal@shmanic.net
+uidNumber: 10092
+gidNumber: 1000
+userPassword: Eyu'tpwW
+loginShell: /bin/bash
+homeDirectory: /home/augustine.heal
+telephoneNumber: 01978 168032
+description: Standard
+
+
+# LDAP User :: vicky.glen:zqhJPgFg 
+dn: uid=vicky.glen,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: vicky.glen
+sn: Glen
+givenName: Vicky
+cn: Vicky Glen
+mail: vicky.glen@shmanic.net
+uidNumber: 10093
+gidNumber: 1000
+userPassword: zqhJPgFg
+loginShell: /bin/bash
+homeDirectory: /home/vicky.glen
+telephoneNumber: 01433 171450
+description: Standard
+
+
+# LDAP User :: caroyln.tiller:q4zzsZDW 
+dn: uid=caroyln.tiller,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: caroyln.tiller
+sn: Tiller
+givenName: Caroyln
+cn: Caroyln Tiller
+mail: caroyln.tiller@shmanic.net
+uidNumber: 10094
+gidNumber: 1000
+userPassword: q4zzsZDW
+loginShell: /bin/bash
+homeDirectory: /home/caroyln.tiller
+telephoneNumber: 01713 122771
+description: Standard
+
+
+# LDAP User :: racheal.peller:KiW2p3SV 
+dn: uid=racheal.peller,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: racheal.peller
+sn: Peller
+givenName: Racheal
+cn: Racheal Peller
+mail: racheal.peller@shmanic.net
+uidNumber: 10095
+gidNumber: 1000
+userPassword: KiW2p3SV
+loginShell: /bin/bash
+homeDirectory: /home/racheal.peller
+telephoneNumber: 01612 159363
+description: Standard
+
+
+# LDAP User :: mathew.mckinnie:YEg2nEhW 
+dn: uid=mathew.mckinnie,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: mathew.mckinnie
+sn: Mckinnie
+givenName: Mathew
+cn: Mathew Mckinnie
+mail: mathew.mckinnie@shmanic.net
+uidNumber: 10096
+gidNumber: 1000
+userPassword: YEg2nEhW
+loginShell: /bin/bash
+homeDirectory: /home/mathew.mckinnie
+telephoneNumber: 01853 196864
+description: Standard
+
+
+# LDAP User :: shakira.vickrey:Mj7OJ8jR 
+dn: uid=shakira.vickrey,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: shakira.vickrey
+sn: Vickrey
+givenName: Shakira
+cn: Shakira Vickrey
+mail: shakira.vickrey@shmanic.net
+uidNumber: 10097
+gidNumber: 1000
+userPassword: Mj7OJ8jR
+loginShell: /bin/bash
+homeDirectory: /home/shakira.vickrey
+telephoneNumber: 01787 184479
+description: Standard
+
+
+# LDAP User :: lorraine.herlihy:lrhmIOXP 
+dn: uid=lorraine.herlihy,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: lorraine.herlihy
+sn: Herlihy
+givenName: Lorraine
+cn: Lorraine Herlihy
+mail: lorraine.herlihy@shmanic.net
+uidNumber: 10098
+gidNumber: 1000
+userPassword: lrhmIOXP
+loginShell: /bin/bash
+homeDirectory: /home/lorraine.herlihy
+telephoneNumber: 01674 147048
+description: Standard
+
+
+# LDAP User :: jacki.wilgus:XrWJAwSL 
+dn: uid=jacki.wilgus,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jacki.wilgus
+sn: Wilgus
+givenName: Jacki
+cn: Jacki Wilgus
+mail: jacki.wilgus@shmanic.net
+uidNumber: 10099
+gidNumber: 1000
+userPassword: XrWJAwSL
+loginShell: /bin/bash
+homeDirectory: /home/jacki.wilgus
+telephoneNumber: 01145 195367
+description: Standard
+
+
+# LDAP User :: brady.krasner:'PBZDxof 
+dn: uid=brady.krasner,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: brady.krasner
+sn: Krasner
+givenName: Brady
+cn: Brady Krasner
+mail: brady.krasner@shmanic.net
+uidNumber: 10100
+gidNumber: 1000
+userPassword: 'PBZDxof
+loginShell: /bin/bash
+homeDirectory: /home/brady.krasner
+telephoneNumber: 01837 185048
+description: Standard
+
+
+# LDAP User :: alisia.judah:S9R7qL7e 
+dn: uid=alisia.judah,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: alisia.judah
+sn: Judah
+givenName: Alisia
+cn: Alisia Judah
+mail: alisia.judah@shmanic.net
+uidNumber: 10101
+gidNumber: 1000
+userPassword: S9R7qL7e
+loginShell: /bin/bash
+homeDirectory: /home/alisia.judah
+telephoneNumber: 01786 183076
+description: Standard
+
+
+# LDAP User :: myrle.earley:txuD6lbv 
+dn: uid=myrle.earley,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: myrle.earley
+sn: Earley
+givenName: Myrle
+cn: Myrle Earley
+mail: myrle.earley@shmanic.net
+uidNumber: 10102
+gidNumber: 1000
+userPassword: txuD6lbv
+loginShell: /bin/bash
+homeDirectory: /home/myrle.earley
+telephoneNumber: 01244 149092
+description: Standard
+
+
+# LDAP User :: ezequiel.yoshimura:Ko8JTIpT 
+dn: uid=ezequiel.yoshimura,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ezequiel.yoshimura
+sn: Yoshimura
+givenName: Ezequiel
+cn: Ezequiel Yoshimura
+mail: ezequiel.yoshimura@shmanic.net
+uidNumber: 10103
+gidNumber: 1000
+userPassword: Ko8JTIpT
+loginShell: /bin/bash
+homeDirectory: /home/ezequiel.yoshimura
+telephoneNumber: 01843 122114
+description: Standard
+
+
+# LDAP User :: karl.knebel:xK9KzAAi 
+dn: uid=karl.knebel,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: karl.knebel
+sn: Knebel
+givenName: Karl
+cn: Karl Knebel
+mail: karl.knebel@shmanic.net
+uidNumber: 10104
+gidNumber: 1000
+userPassword: xK9KzAAi
+loginShell: /bin/bash
+homeDirectory: /home/karl.knebel
+telephoneNumber: 01689 103014
+description: Standard
+
+
+# LDAP User :: rosamond.rhoten:Y2Jy-lDL 
+dn: uid=rosamond.rhoten,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: rosamond.rhoten
+sn: Rhoten
+givenName: Rosamond
+cn: Rosamond Rhoten
+mail: rosamond.rhoten@shmanic.net
+uidNumber: 10105
+gidNumber: 1000
+userPassword: Y2Jy-lDL
+loginShell: /bin/bash
+homeDirectory: /home/rosamond.rhoten
+telephoneNumber: 01986 152566
+description: Standard
+
+
+# LDAP User :: juliana.jimmerson:HV2giP'a 
+dn: uid=juliana.jimmerson,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: juliana.jimmerson
+sn: Jimmerson
+givenName: Juliana
+cn: Juliana Jimmerson
+mail: juliana.jimmerson@shmanic.net
+uidNumber: 10106
+gidNumber: 1000
+userPassword: HV2giP'a
+loginShell: /bin/bash
+homeDirectory: /home/juliana.jimmerson
+telephoneNumber: 01898 154788
+description: Standard
+
+
+# LDAP User :: wilhelmina.wenrich:0qPgpv2I 
+dn: uid=wilhelmina.wenrich,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: wilhelmina.wenrich
+sn: Wenrich
+givenName: Wilhelmina
+cn: Wilhelmina Wenrich
+mail: wilhelmina.wenrich@shmanic.net
+uidNumber: 10107
+gidNumber: 1000
+userPassword: 0qPgpv2I
+loginShell: /bin/bash
+homeDirectory: /home/wilhelmina.wenrich
+telephoneNumber: 01879 170560
+description: Standard
+
+
+# LDAP User :: jerrica.junior:S5rFBPZj 
+dn: uid=jerrica.junior,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jerrica.junior
+sn: Junior
+givenName: Jerrica
+cn: Jerrica Junior
+mail: jerrica.junior@shmanic.net
+uidNumber: 10108
+gidNumber: 1000
+userPassword: S5rFBPZj
+loginShell: /bin/bash
+homeDirectory: /home/jerrica.junior
+telephoneNumber: 01900 158026
+description: Standard
+
+
+# LDAP User :: tamala.towns:N9ARCqhH 
+dn: uid=tamala.towns,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tamala.towns
+sn: Towns
+givenName: Tamala
+cn: Tamala Towns
+mail: tamala.towns@shmanic.net
+uidNumber: 10109
+gidNumber: 1000
+userPassword: N9ARCqhH
+loginShell: /bin/bash
+homeDirectory: /home/tamala.towns
+telephoneNumber: 01070 110088
+description: Standard
+
+
+# LDAP User :: joya.jozwiak:9o9VKj4F 
+dn: uid=joya.jozwiak,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: joya.jozwiak
+sn: Jozwiak
+givenName: Joya
+cn: Joya Jozwiak
+mail: joya.jozwiak@shmanic.net
+uidNumber: 10110
+gidNumber: 1000
+userPassword: 9o9VKj4F
+loginShell: /bin/bash
+homeDirectory: /home/joya.jozwiak
+telephoneNumber: 01764 143549
+description: Standard
+
+
+# LDAP User :: tyron.tulloch:Bhp69ePf 
+dn: uid=tyron.tulloch,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tyron.tulloch
+sn: Tulloch
+givenName: Tyron
+cn: Tyron Tulloch
+mail: tyron.tulloch@shmanic.net
+uidNumber: 10111
+gidNumber: 1000
+userPassword: Bhp69ePf
+loginShell: /bin/bash
+homeDirectory: /home/tyron.tulloch
+telephoneNumber: 01995 179120
+description: Standard
+
+
+# LDAP User :: leonore.lenahan:RcFKG6q2 
+dn: uid=leonore.lenahan,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: leonore.lenahan
+sn: Lenahan
+givenName: Leonore
+cn: Leonore Lenahan
+mail: leonore.lenahan@shmanic.net
+uidNumber: 10112
+gidNumber: 1000
+userPassword: RcFKG6q2
+loginShell: /bin/bash
+homeDirectory: /home/leonore.lenahan
+telephoneNumber: 01137 101881
+description: Standard
+
+
+# LDAP User :: teodoro.tongue:HCPj7lsS 
+dn: uid=teodoro.tongue,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: teodoro.tongue
+sn: Tongue
+givenName: Teodoro
+cn: Teodoro Tongue
+mail: teodoro.tongue@shmanic.net
+uidNumber: 10113
+gidNumber: 1000
+userPassword: HCPj7lsS
+loginShell: /bin/bash
+homeDirectory: /home/teodoro.tongue
+telephoneNumber: 01067 123464
+description: Standard
+
+
+# LDAP User :: megan.mcclaine:GJbATorG 
+dn: uid=megan.mcclaine,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: megan.mcclaine
+sn: Mcclaine
+givenName: Megan
+cn: Megan Mcclaine
+mail: megan.mcclaine@shmanic.net
+uidNumber: 10114
+gidNumber: 1000
+userPassword: GJbATorG
+loginShell: /bin/bash
+homeDirectory: /home/megan.mcclaine
+telephoneNumber: 01247 162351
+description: Standard
+
+
+# LDAP User :: veta.virgin:KWndnLro 
+dn: uid=veta.virgin,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: veta.virgin
+sn: Virgin
+givenName: Veta
+cn: Veta Virgin
+mail: veta.virgin@shmanic.net
+uidNumber: 10115
+gidNumber: 1000
+userPassword: KWndnLro
+loginShell: /bin/bash
+homeDirectory: /home/veta.virgin
+telephoneNumber: 01887 144671
+description: Standard
+
+
+# LDAP User :: angelica.acosta:A5QDVwdC 
+dn: uid=angelica.acosta,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: angelica.acosta
+sn: Acosta
+givenName: Angelica
+cn: Angelica Acosta
+mail: angelica.acosta@shmanic.net
+uidNumber: 10116
+gidNumber: 1000
+userPassword: A5QDVwdC
+loginShell: /bin/bash
+homeDirectory: /home/angelica.acosta
+telephoneNumber: 01263 159376
+description: Standard
+
+
+# LDAP User :: albina.albarran:fqmh9Je0 
+dn: uid=albina.albarran,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: albina.albarran
+sn: Albarran
+givenName: Albina
+cn: Albina Albarran
+mail: albina.albarran@shmanic.net
+uidNumber: 10117
+gidNumber: 1000
+userPassword: fqmh9Je0
+loginShell: /bin/bash
+homeDirectory: /home/albina.albarran
+telephoneNumber: 01383 175865
+description: Standard
+
+
+# LDAP User :: ashly.ahmed:VN-6JDcG 
+dn: uid=ashly.ahmed,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ashly.ahmed
+sn: Ahmed
+givenName: Ashly
+cn: Ashly Ahmed
+mail: ashly.ahmed@shmanic.net
+uidNumber: 10118
+gidNumber: 1000
+userPassword: VN-6JDcG
+loginShell: /bin/bash
+homeDirectory: /home/ashly.ahmed
+telephoneNumber: 01671 142983
+description: Standard
+
+
+# LDAP User :: grant.grieves:cSbdSZ40 
+dn: uid=grant.grieves,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: grant.grieves
+sn: Grieves
+givenName: Grant
+cn: Grant Grieves
+mail: grant.grieves@shmanic.net
+uidNumber: 10119
+gidNumber: 1000
+userPassword: cSbdSZ40
+loginShell: /bin/bash
+homeDirectory: /home/grant.grieves
+telephoneNumber: 01660 198696
+description: Standard
+
+
+# LDAP User :: jung.jude:ReV-0WVL 
+dn: uid=jung.jude,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jung.jude
+sn: Jude
+givenName: Jung
+cn: Jung Jude
+mail: jung.jude@shmanic.net
+uidNumber: 10120
+gidNumber: 1000
+userPassword: ReV-0WVL
+loginShell: /bin/bash
+homeDirectory: /home/jung.jude
+telephoneNumber: 01386 138350
+description: Standard
+
+
+# LDAP User :: bethanie.bratcher:bFMd5WeD 
+dn: uid=bethanie.bratcher,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: bethanie.bratcher
+sn: Bratcher
+givenName: Bethanie
+cn: Bethanie Bratcher
+mail: bethanie.bratcher@shmanic.net
+uidNumber: 10121
+gidNumber: 1000
+userPassword: bFMd5WeD
+loginShell: /bin/bash
+homeDirectory: /home/bethanie.bratcher
+telephoneNumber: 01579 163881
+description: Standard
+
+
+# LDAP User :: janae.janson:FJQV'fQl 
+dn: uid=janae.janson,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: janae.janson
+sn: Janson
+givenName: Janae
+cn: Janae Janson
+mail: janae.janson@shmanic.net
+uidNumber: 10122
+gidNumber: 1000
+userPassword: FJQV'fQl
+loginShell: /bin/bash
+homeDirectory: /home/janae.janson
+telephoneNumber: 01106 130163
+description: Standard
+
+
+# LDAP User :: ayanna.abbot:ZBgp67HU 
+dn: uid=ayanna.abbot,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ayanna.abbot
+sn: Abbot
+givenName: Ayanna
+cn: Ayanna Abbot
+mail: ayanna.abbot@shmanic.net
+uidNumber: 10123
+gidNumber: 1000
+userPassword: ZBgp67HU
+loginShell: /bin/bash
+homeDirectory: /home/ayanna.abbot
+telephoneNumber: 01316 199749
+description: Standard
+
+
+# LDAP User :: betty.bushee:UZaGpC84 
+dn: uid=betty.bushee,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: betty.bushee
+sn: Bushee
+givenName: Betty
+cn: Betty Bushee
+mail: betty.bushee@shmanic.net
+uidNumber: 10124
+gidNumber: 1000
+userPassword: UZaGpC84
+loginShell: /bin/bash
+homeDirectory: /home/betty.bushee
+telephoneNumber: 01384 192223
+description: Standard
+
+
+# LDAP User :: layne.lenard:8efwHOgX 
+dn: uid=layne.lenard,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: layne.lenard
+sn: Lenard
+givenName: Layne
+cn: Layne Lenard
+mail: layne.lenard@shmanic.net
+uidNumber: 10125
+gidNumber: 1000
+userPassword: 8efwHOgX
+loginShell: /bin/bash
+homeDirectory: /home/layne.lenard
+telephoneNumber: 01980 171385
+description: Standard
+
+
+# LDAP User :: faye.folger:VC-OrF9c 
+dn: uid=faye.folger,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: faye.folger
+sn: Folger
+givenName: Faye
+cn: Faye Folger
+mail: faye.folger@shmanic.net
+uidNumber: 10126
+gidNumber: 1000
+userPassword: VC-OrF9c
+loginShell: /bin/bash
+homeDirectory: /home/faye.folger
+telephoneNumber: 01388 183742
+description: Standard
+
+
+# LDAP User :: xavier.xie:OzWACMgH 
+dn: uid=xavier.xie,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: xavier.xie
+sn: Xie
+givenName: Xavier
+cn: Xavier Xie
+mail: xavier.xie@shmanic.net
+uidNumber: 10127
+gidNumber: 1000
+userPassword: OzWACMgH
+loginShell: /bin/bash
+homeDirectory: /home/xavier.xie
+telephoneNumber: 01189 195988
+description: Standard
+
+
+# LDAP User :: mora.minger:HAYuwfml 
+dn: uid=mora.minger,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: mora.minger
+sn: Minger
+givenName: Mora
+cn: Mora Minger
+mail: mora.minger@shmanic.net
+uidNumber: 10128
+gidNumber: 1000
+userPassword: HAYuwfml
+loginShell: /bin/bash
+homeDirectory: /home/mora.minger
+telephoneNumber: 01329 131937
+description: Standard
+
+
+# LDAP User :: armando.auger:SsV80Gt' 
+dn: uid=armando.auger,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: armando.auger
+sn: Auger
+givenName: Armando
+cn: Armando Auger
+mail: armando.auger@shmanic.net
+uidNumber: 10129
+gidNumber: 1000
+userPassword: SsV80Gt'
+loginShell: /bin/bash
+homeDirectory: /home/armando.auger
+telephoneNumber: 01300 157025
+description: Standard
+
+
+# LDAP User :: bettina.breedlove:FZe5Aegn 
+dn: uid=bettina.breedlove,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: bettina.breedlove
+sn: Breedlove
+givenName: Bettina
+cn: Bettina Breedlove
+mail: bettina.breedlove@shmanic.net
+uidNumber: 10130
+gidNumber: 1000
+userPassword: FZe5Aegn
+loginShell: /bin/bash
+homeDirectory: /home/bettina.breedlove
+telephoneNumber: 01572 139409
+description: Standard
+
+
+# LDAP User :: luvenia.laskowski:rGYJqa7B 
+dn: uid=luvenia.laskowski,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: luvenia.laskowski
+sn: Laskowski
+givenName: Luvenia
+cn: Luvenia Laskowski
+mail: luvenia.laskowski@shmanic.net
+uidNumber: 10131
+gidNumber: 1000
+userPassword: rGYJqa7B
+loginShell: /bin/bash
+homeDirectory: /home/luvenia.laskowski
+telephoneNumber: 01786 164809
+description: Standard
+
+
+# LDAP User :: adrienne.archer:5kQNeQk1 
+dn: uid=adrienne.archer,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: adrienne.archer
+sn: Archer
+givenName: Adrienne
+cn: Adrienne Archer
+mail: adrienne.archer@shmanic.net
+uidNumber: 10132
+gidNumber: 1000
+userPassword: 5kQNeQk1
+loginShell: /bin/bash
+homeDirectory: /home/adrienne.archer
+telephoneNumber: 01850 125651
+description: Standard
+
+
+# LDAP User :: stephnie.suggs:y6coWTeD 
+dn: uid=stephnie.suggs,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: stephnie.suggs
+sn: Suggs
+givenName: Stephnie
+cn: Stephnie Suggs
+mail: stephnie.suggs@shmanic.net
+uidNumber: 10133
+gidNumber: 1000
+userPassword: y6coWTeD
+loginShell: /bin/bash
+homeDirectory: /home/stephnie.suggs
+telephoneNumber: 01589 129158
+description: Standard
+
+
+# LDAP User :: cindy.courson:3jp7Xz9' 
+dn: uid=cindy.courson,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: cindy.courson
+sn: Courson
+givenName: Cindy
+cn: Cindy Courson
+mail: cindy.courson@shmanic.net
+uidNumber: 10134
+gidNumber: 1000
+userPassword: 3jp7Xz9'
+loginShell: /bin/bash
+homeDirectory: /home/cindy.courson
+telephoneNumber: 01378 199138
+description: Standard
+
+
+# LDAP User :: felica.fairbairn:7NWdki1H 
+dn: uid=felica.fairbairn,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: felica.fairbairn
+sn: Fairbairn
+givenName: Felica
+cn: Felica Fairbairn
+mail: felica.fairbairn@shmanic.net
+uidNumber: 10135
+gidNumber: 1000
+userPassword: 7NWdki1H
+loginShell: /bin/bash
+homeDirectory: /home/felica.fairbairn
+telephoneNumber: 01480 180393
+description: Standard
+
+
+# LDAP User :: dong.delay:ZBqHY06n 
+dn: uid=dong.delay,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: dong.delay
+sn: Delay
+givenName: Dong
+cn: Dong Delay
+mail: dong.delay@shmanic.net
+uidNumber: 10136
+gidNumber: 1000
+userPassword: ZBqHY06n
+loginShell: /bin/bash
+homeDirectory: /home/dong.delay
+telephoneNumber: 01965 181698
+description: Standard
+
+
+# LDAP User :: daisey.dooley:EuN8Wikv 
+dn: uid=daisey.dooley,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: daisey.dooley
+sn: Dooley
+givenName: Daisey
+cn: Daisey Dooley
+mail: daisey.dooley@shmanic.net
+uidNumber: 10137
+gidNumber: 1000
+userPassword: EuN8Wikv
+loginShell: /bin/bash
+homeDirectory: /home/daisey.dooley
+telephoneNumber: 01030 158749
+description: Standard
+
+
+# LDAP User :: wendi.wasmund:gCmp''6U 
+dn: uid=wendi.wasmund,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: wendi.wasmund
+sn: Wasmund
+givenName: Wendi
+cn: Wendi Wasmund
+mail: wendi.wasmund@shmanic.net
+uidNumber: 10138
+gidNumber: 1000
+userPassword: gCmp''6U
+loginShell: /bin/bash
+homeDirectory: /home/wendi.wasmund
+telephoneNumber: 01027 175034
+description: Standard
+
+
+# LDAP User :: marian.merrick:OLZHNvrR 
+dn: uid=marian.merrick,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: marian.merrick
+sn: Merrick
+givenName: Marian
+cn: Marian Merrick
+mail: marian.merrick@shmanic.net
+uidNumber: 10139
+gidNumber: 1000
+userPassword: OLZHNvrR
+loginShell: /bin/bash
+homeDirectory: /home/marian.merrick
+telephoneNumber: 01107 194513
+description: Standard
+
+
+# LDAP User :: ellis.eckard:xb-dxNSB 
+dn: uid=ellis.eckard,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: ellis.eckard
+sn: Eckard
+givenName: Ellis
+cn: Ellis Eckard
+mail: ellis.eckard@shmanic.net
+uidNumber: 10140
+gidNumber: 1000
+userPassword: xb-dxNSB
+loginShell: /bin/bash
+homeDirectory: /home/ellis.eckard
+telephoneNumber: 01088 183054
+description: Standard
+
+
+# LDAP User :: abe.arwood:GfbrNzyh 
+dn: uid=abe.arwood,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: abe.arwood
+sn: Arwood
+givenName: Abe
+cn: Abe Arwood
+mail: abe.arwood@shmanic.net
+uidNumber: 10141
+gidNumber: 1000
+userPassword: GfbrNzyh
+loginShell: /bin/bash
+homeDirectory: /home/abe.arwood
+telephoneNumber: 01254 198016
+description: Standard
+
+
+# LDAP User :: luella.leopard:e6'HYS1J 
+dn: uid=luella.leopard,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: luella.leopard
+sn: Leopard
+givenName: Luella
+cn: Luella Leopard
+mail: luella.leopard@shmanic.net
+uidNumber: 10142
+gidNumber: 1000
+userPassword: e6'HYS1J
+loginShell: /bin/bash
+homeDirectory: /home/luella.leopard
+telephoneNumber: 01757 128333
+description: Standard
+
+
+# LDAP User :: hisako.heslop:6Mabo-zJ 
+dn: uid=hisako.heslop,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: hisako.heslop
+sn: Heslop
+givenName: Hisako
+cn: Hisako Heslop
+mail: hisako.heslop@shmanic.net
+uidNumber: 10143
+gidNumber: 1000
+userPassword: 6Mabo-zJ
+loginShell: /bin/bash
+homeDirectory: /home/hisako.heslop
+telephoneNumber: 01605 141002
+description: Standard
+
+
+# LDAP User :: jonell.jimenez:'ccAqf'B 
+dn: uid=jonell.jimenez,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jonell.jimenez
+sn: Jimenez
+givenName: Jonell
+cn: Jonell Jimenez
+mail: jonell.jimenez@shmanic.net
+uidNumber: 10144
+gidNumber: 1000
+userPassword: 'ccAqf'B
+loginShell: /bin/bash
+homeDirectory: /home/jonell.jimenez
+telephoneNumber: 01995 129942
+description: Standard
+
+
+# LDAP User :: jenny.just:8r-AZiAZ 
+dn: uid=jenny.just,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jenny.just
+sn: Just
+givenName: Jenny
+cn: Jenny Just
+mail: jenny.just@shmanic.net
+uidNumber: 10145
+gidNumber: 1000
+userPassword: 8r-AZiAZ
+loginShell: /bin/bash
+homeDirectory: /home/jenny.just
+telephoneNumber: 01168 130520
+description: Standard
+
+
+# LDAP User :: jesica.jessen:9PjkiuXS 
+dn: uid=jesica.jessen,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: jesica.jessen
+sn: Jessen
+givenName: Jesica
+cn: Jesica Jessen
+mail: jesica.jessen@shmanic.net
+uidNumber: 10146
+gidNumber: 1000
+userPassword: 9PjkiuXS
+loginShell: /bin/bash
+homeDirectory: /home/jesica.jessen
+telephoneNumber: 01674 128970
+description: Standard
+
+
+# LDAP User :: annetta.archey:GKVKCpoP 
+dn: uid=annetta.archey,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: annetta.archey
+sn: Archey
+givenName: Annetta
+cn: Annetta Archey
+mail: annetta.archey@shmanic.net
+uidNumber: 10147
+gidNumber: 1000
+userPassword: GKVKCpoP
+loginShell: /bin/bash
+homeDirectory: /home/annetta.archey
+telephoneNumber: 01462 190007
+description: Standard
+
+
+# LDAP User :: damian.derouin:YrF'51xn 
+dn: uid=damian.derouin,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: damian.derouin
+sn: Derouin
+givenName: Damian
+cn: Damian Derouin
+mail: damian.derouin@shmanic.net
+uidNumber: 10148
+gidNumber: 1000
+userPassword: YrF'51xn
+loginShell: /bin/bash
+homeDirectory: /home/damian.derouin
+telephoneNumber: 01291 151221
+description: Standard
+
+
+# LDAP User :: toccara.tao:RF3Dfv8c 
+dn: uid=toccara.tao,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: toccara.tao
+sn: Tao
+givenName: Toccara
+cn: Toccara Tao
+mail: toccara.tao@shmanic.net
+uidNumber: 10149
+gidNumber: 1000
+userPassword: RF3Dfv8c
+loginShell: /bin/bash
+homeDirectory: /home/toccara.tao
+telephoneNumber: 01474 176933
+description: Standard
+
+
+# LDAP User :: genny.gilstrap:yATYJ6Ai 
+dn: uid=genny.gilstrap,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: genny.gilstrap
+sn: Gilstrap
+givenName: Genny
+cn: Genny Gilstrap
+mail: genny.gilstrap@shmanic.net
+uidNumber: 10150
+gidNumber: 1000
+userPassword: yATYJ6Ai
+loginShell: /bin/bash
+homeDirectory: /home/genny.gilstrap
+telephoneNumber: 01067 110481
+description: Standard
+
+
+# LDAP User :: darci.dews:cUUnRc8H 
+dn: uid=darci.dews,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: darci.dews
+sn: Dews
+givenName: Darci
+cn: Darci Dews
+mail: darci.dews@shmanic.net
+uidNumber: 10151
+gidNumber: 1000
+userPassword: cUUnRc8H
+loginShell: /bin/bash
+homeDirectory: /home/darci.dews
+telephoneNumber: 01884 184555
+description: Standard
+
+
+# LDAP User :: kathy.kellen:FDUrtkjP 
+dn: uid=kathy.kellen,ou=People,dc=shmanic,dc=net
+changetype: add
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: kathy.kellen
+sn: Kellen
+givenName: Kathy
+cn: Kathy Kellen
+mail: kathy.kellen@shmanic.net
+uidNumber: 10152
+gidNumber: 1000
+userPassword: FDUrtkjP
+loginShell: /bin/bash
+homeDirectory: /home/kathy.kellen
+telephoneNumber: 01465 164812
+description: Standard
+
 
