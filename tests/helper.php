@@ -95,7 +95,18 @@ abstract class TestsHelper
 
 		$result = array();
 
-		// Save all xml user config attributes to an array
+		// Save all the user attributes
+		foreach ($user as $k => $v)
+		{
+			if (!isset($result[(string) $k]))
+			{
+				$result[(string) $k] = array();
+			}
+
+			$result[(string) $k][] = (string) $v;
+		}
+
+		// Save user dn, username and password to the array
 		foreach ($user->attributes() as $key => $value)
 		{
 			$result[(string) $key] = (string) $value;
