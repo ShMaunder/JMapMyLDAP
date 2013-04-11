@@ -2,7 +2,6 @@
 
 class SHLdapTest extends PHPUnit_Framework_TestCase
 {
-
 	const ENCRYPTION_KEY_FILE = 'ldap_encrypt_key.txt';
 
 	const PLATFORM_CONFIG_FILE = 'platform_config.php';
@@ -11,12 +10,13 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 	public function setUp()
 	{
-		// Create some files
-		fwrite(fopen(static::ENCRYPTION_KEY_FILE, 'w'), 'ym0ZBkTbDbYrQzjMM7COYnLYuArlq31UIfDyBj11gpeeVLlXeGYPQ7Qf71TPDlN8dVWQfsFbf5SteVXoNzQeiH3EHMFjQtyvmtDNv6kAqUa0Bc7r8QdN5H7VQXtARk1uYCwBqi4sYm1rRaUOJqDCRL64bj4ykeqyouPw8CscmK0hnikpQWSL9MKtJjNyathdSx3rVWE4YiIrgij8ELGjELwl7JQrztCSLAbRfQJafAQ6xGXUDRslRK4T4w2vtBMb');
-
+		// Clear the static config from factory
 		SHFactory::$config = null;
 
-		$this->setUpLdapConfigFiles();
+		// Create some files
+		fwrite(fopen(static::ENCRYPTION_KEY_FILE, 'w'), 'ym0ZBkTbDbYrQzjMM7COYnLYuArlq31UIfDyBj11gpeeVLlXeGYPQ7Qf71TPDlN8dVWQfsFbf5SteVXoNzQeiH3EHMFjQtyvmtDNv6kAqUa0Bc7r8QdN5H7VQXtARk1uYCwBqi4sYm1rRaUOJqDCRL64bj4ykeqyouPw8CscmK0hnikpQWSL9MKtJjNyathdSx3rVWE4YiIrgij8ELGjELwl7JQrztCSLAbRfQJafAQ6xGXUDRslRK4T4w2vtBMb');
+		TestsHelper::createPlatformConfigFile(1, static::PLATFORM_CONFIG_FILE);
+		TestsHelper::createLdapConfigFile(214, static::LDAP_CONFIG_FILE);
 	}
 
 	public function tearDown()
@@ -25,26 +25,6 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		unlink (static::ENCRYPTION_KEY_FILE);
 		unlink (static::LDAP_CONFIG_FILE);
 		unlink (static::PLATFORM_CONFIG_FILE);
-	}
-
-	protected function setUpLdapConfigFiles()
-	{
-		$platform = "<?php \nclass SHConfig \n{\n" .
-			"\t" . 'public $ldap__config = 3;' . "\n" .
-			"\t" . 'public $ldap__file = \'' . static::LDAP_CONFIG_FILE . '\';' . "\n" .
-			"}\n";
-
-		fwrite(fopen(static::PLATFORM_CONFIG_FILE, 'w'), $platform);
-
-		$ldapExport = null;
-		$ldapConfig = TestsHelper::getLdapConfig(214);
-
-		foreach ($ldapConfig as $k => $v)
-		{
-			$ldapExport .= "\t" . 'public $' . $k . ' = \'' . str_replace('\'', '\\\'', $v) . "'; \n";
-		}
-
-		fwrite(fopen(static::LDAP_CONFIG_FILE, 'w'), "<?php \nclass SHLdapConfig \n{\n" . $ldapExport . "}\n");
 	}
 
 	/**

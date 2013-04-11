@@ -2,6 +2,41 @@
 
 abstract class TestsHelper
 {
+	const PLATFORM_CONFIG_FILE = 'platform_config.php';
+
+	const LDAP_CONFIG_FILE = 'ldap_config.php';
+
+	public static function createLdapConfigFile($id, $file = null)
+	{
+		$ldapExport = null;
+		$ldapConfig = self::getLdapConfig($id);
+
+		foreach ($ldapConfig as $k => $v)
+		{
+			$ldapExport .= "\t" . 'public $' . $k . ' = \'' . str_replace('\'', '\\\'', $v) . "'; \n";
+		}
+
+		$file = is_null($file) ? self::LDAP_CONFIG_FILE : $file;
+		fwrite(fopen($file, 'w'), "<?php \nclass SHLdapConfig \n{\n" . $ldapExport . "}\n");
+	}
+
+	public static function createPlatformConfigFile($id, $file = null)
+	{
+		$platform = '';
+
+		switch ($id)
+		{
+			case 1:
+				$platform = "<?php \nclass SHConfig \n{\n" .
+					"\t" . 'public $ldap__config = 3;' . "\n" .
+					"\t" . 'public $ldap__file = \'' . static::LDAP_CONFIG_FILE . '\';' . "\n" .
+					"}\n";
+		}
+
+		$file = is_null($file) ? self::PLATFORM_CONFIG_FILE : $file;
+		fwrite(fopen($file, 'w'), $platform);
+	}
+
 	/**
 	 * Read in the case XML file and parse it to an
 	 * array in the form array(category=>case).
