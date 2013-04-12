@@ -76,6 +76,12 @@ require_once __DIR__ . '/version.php';
 
 require_once __DIR__ . '/helper.php';
 
+// There is no autoloading on adapted Database test class
+require_once __DIR__ . '/core/database.php';
+
+// Try to include a Legacy test config file due to lack of sqlite in 2.5.x :(
+@include_once JPATH_TESTS . '/config.php';
+
 /*
  * The PHP garbage collector can be too aggressive in closing circular references before they are no longer needed.  This can cause
  * segfaults during long, memory-intensive processes such as testing large test suites and collecting coverage data.  We explicitly
