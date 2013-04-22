@@ -904,9 +904,6 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->getUserDN($user['username'], $user['password']);
 		$this->assertEquals($user['dn'], $ldap->lastUserDn);
 
-		// Test Proxy Write
-		$this->assertFalse($ldap->proxyWrite);
-
 		// Test All user Filter
 		$this->assertEquals('(objectclass=user)', $ldap->allUserFilter);
 

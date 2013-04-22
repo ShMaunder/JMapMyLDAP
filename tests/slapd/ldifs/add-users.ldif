@@ -58,13 +58,13 @@ telephoneNumber: 01124 123413
 description: The MATRIX
 
 
-# LDAP User :: Trinity:trinity.password 
+# LDAP User :: trinity:trinity.password 
 dn: uid=trinity,ou=Matrix,ou=People,dc=shmanic,dc=net
 changetype: add
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-uid: Trinity
+uid: trinity
 sn: Matrix
 givenName: Trinity
 cn: Trinity Matrix  
@@ -84,7 +84,7 @@ changetype: add
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-uid: Morpheus
+uid: morpheus
 sn: Matrix
 givenName: Morpheus
 cn: Morpheus Matrix    
@@ -104,7 +104,7 @@ changetype: add
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
-uid: Oracle
+uid: oracle
 sn: Matrix
 givenName: Oracle
 cn: Oracle Matrix

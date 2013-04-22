@@ -63,9 +63,9 @@ abstract class TestsHelper
 		return $result;
 	}
 
-	public static function getUserCreds($username = null, $file = null)
+	public static function getUserCreds($username = null, $id = 100)
 	{
-		$config = static::getConfigXml(100);
+		$config = static::getConfigXml($id);
 
 		$user = array();
 

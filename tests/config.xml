@@ -61,7 +61,7 @@
 			<objectClass>inetOrgPerson</objectClass>
 			<objectClass>posixAccount</objectClass>
 			<objectClass>shadowAccount</objectClass>
-			<uid>Trinity</uid>
+			<uid>trinity</uid>
 			<sn>Matrix</sn>
 			<givenName>Trinity</givenName>
 			<cn>Trinity Matrix  </cn>
@@ -79,7 +79,7 @@
 			<objectClass>inetOrgPerson</objectClass>
 			<objectClass>posixAccount</objectClass>
 			<objectClass>shadowAccount</objectClass>
-			<uid>Morpheus</uid>
+			<uid>morpheus</uid>
 			<sn>Matrix</sn>
 			<givenName>Morpheus</givenName>
 			<cn>Morpheus Matrix    </cn>
@@ -97,7 +97,7 @@
 			<objectClass>inetOrgPerson</objectClass>
 			<objectClass>posixAccount</objectClass>
 			<objectClass>shadowAccount</objectClass>
-			<uid>Oracle</uid>
+			<uid>oracle</uid>
 			<sn>Matrix</sn>
 			<givenName>Oracle</givenName>
 			<cn>Oracle Matrix</cn>
@@ -3064,7 +3064,890 @@
 		</standard>
 	</config>
 	
-	
+	<config id="101" comment="Random users that can be created using the attributes listed here">
+		<standard username="dwayne.hunte" password="p6XbNuAs" dn="uid=dwayne.hunte,ou=People,dc=shmanic,dc=net">
+			<dn>uid=dwayne.hunte,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>dwayne.hunte</uid>
+			<sn>Hunte</sn>
+			<givenName>Dwayne</givenName>
+			<cn>Dwayne Hunte</cn>
+			<mail>dwayne.hunte@shmanic.net</mail>
+			<uidNumber>10001</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>p6XbNuAs</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/dwayne.hunte</homeDirectory>
+			<telephoneNumber>01397 113797</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="rex.ganz" password="'3trFqG0" dn="uid=rex.ganz,ou=People,dc=shmanic,dc=net">
+			<dn>uid=rex.ganz,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>rex.ganz</uid>
+			<sn>Ganz</sn>
+			<givenName>Rex</givenName>
+			<cn>Rex Ganz</cn>
+			<mail>rex.ganz@shmanic.net</mail>
+			<uidNumber>10002</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>'3trFqG0</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/rex.ganz</homeDirectory>
+			<telephoneNumber>01229 131842</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="karissa.satter" password="DyL7fyyM" dn="uid=karissa.satter,ou=People,dc=shmanic,dc=net">
+			<dn>uid=karissa.satter,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>karissa.satter</uid>
+			<sn>Satter</sn>
+			<givenName>Karissa</givenName>
+			<cn>Karissa Satter</cn>
+			<mail>karissa.satter@shmanic.net</mail>
+			<uidNumber>10003</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>DyL7fyyM</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/karissa.satter</homeDirectory>
+			<telephoneNumber>01549 184799</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="tamera.rawlinson" password="lKy-qG9L" dn="uid=tamera.rawlinson,ou=People,dc=shmanic,dc=net">
+			<dn>uid=tamera.rawlinson,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>tamera.rawlinson</uid>
+			<sn>Rawlinson</sn>
+			<givenName>Tamera</givenName>
+			<cn>Tamera Rawlinson</cn>
+			<mail>tamera.rawlinson@shmanic.net</mail>
+			<uidNumber>10004</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>lKy-qG9L</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/tamera.rawlinson</homeDirectory>
+			<telephoneNumber>01737 129720</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="jannet.grassi" password="zkGE2OZO" dn="uid=jannet.grassi,ou=People,dc=shmanic,dc=net">
+			<dn>uid=jannet.grassi,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>jannet.grassi</uid>
+			<sn>Grassi</sn>
+			<givenName>Jannet</givenName>
+			<cn>Jannet Grassi</cn>
+			<mail>jannet.grassi@shmanic.net</mail>
+			<uidNumber>10005</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>zkGE2OZO</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/jannet.grassi</homeDirectory>
+			<telephoneNumber>01339 169050</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="stephan.matias" password="3xwz84Y4" dn="uid=stephan.matias,ou=People,dc=shmanic,dc=net">
+			<dn>uid=stephan.matias,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>stephan.matias</uid>
+			<sn>Matias</sn>
+			<givenName>Stephan</givenName>
+			<cn>Stephan Matias</cn>
+			<mail>stephan.matias@shmanic.net</mail>
+			<uidNumber>10006</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>3xwz84Y4</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/stephan.matias</homeDirectory>
+			<telephoneNumber>01898 153115</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="argelia.cockrill" password="'a-2C5Js" dn="uid=argelia.cockrill,ou=People,dc=shmanic,dc=net">
+			<dn>uid=argelia.cockrill,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>argelia.cockrill</uid>
+			<sn>Cockrill</sn>
+			<givenName>Argelia</givenName>
+			<cn>Argelia Cockrill</cn>
+			<mail>argelia.cockrill@shmanic.net</mail>
+			<uidNumber>10007</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>'a-2C5Js</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/argelia.cockrill</homeDirectory>
+			<telephoneNumber>01855 123275</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="michelina.desimone" password="ymL2A6uL" dn="uid=michelina.desimone,ou=People,dc=shmanic,dc=net">
+			<dn>uid=michelina.desimone,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>michelina.desimone</uid>
+			<sn>Desimone</sn>
+			<givenName>Michelina</givenName>
+			<cn>Michelina Desimone</cn>
+			<mail>michelina.desimone@shmanic.net</mail>
+			<uidNumber>10008</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>ymL2A6uL</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/michelina.desimone</homeDirectory>
+			<telephoneNumber>01709 190402</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="delphia.viers" password="IOU5TDAH" dn="uid=delphia.viers,ou=People,dc=shmanic,dc=net">
+			<dn>uid=delphia.viers,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>delphia.viers</uid>
+			<sn>Viers</sn>
+			<givenName>Delphia</givenName>
+			<cn>Delphia Viers</cn>
+			<mail>delphia.viers@shmanic.net</mail>
+			<uidNumber>10009</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>IOU5TDAH</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/delphia.viers</homeDirectory>
+			<telephoneNumber>01605 160529</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="enid.weddell" password="VXW5amV7" dn="uid=enid.weddell,ou=People,dc=shmanic,dc=net">
+			<dn>uid=enid.weddell,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>enid.weddell</uid>
+			<sn>Weddell</sn>
+			<givenName>Enid</givenName>
+			<cn>Enid Weddell</cn>
+			<mail>enid.weddell@shmanic.net</mail>
+			<uidNumber>10010</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>VXW5amV7</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/enid.weddell</homeDirectory>
+			<telephoneNumber>01446 113936</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="maddie.maday" password="gr7LBJPT" dn="uid=maddie.maday,ou=People,dc=shmanic,dc=net">
+			<dn>uid=maddie.maday,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>maddie.maday</uid>
+			<sn>Maday</sn>
+			<givenName>Maddie</givenName>
+			<cn>Maddie Maday</cn>
+			<mail>maddie.maday@shmanic.net</mail>
+			<uidNumber>10011</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>gr7LBJPT</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/maddie.maday</homeDirectory>
+			<telephoneNumber>01553 183492</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="garret.geiger" password="TdJxfWMr" dn="uid=garret.geiger,ou=People,dc=shmanic,dc=net">
+			<dn>uid=garret.geiger,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>garret.geiger</uid>
+			<sn>Geiger</sn>
+			<givenName>Garret</givenName>
+			<cn>Garret Geiger</cn>
+			<mail>garret.geiger@shmanic.net</mail>
+			<uidNumber>10012</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>TdJxfWMr</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/garret.geiger</homeDirectory>
+			<telephoneNumber>01012 115000</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="athena.drees" password="YnISDio6" dn="uid=athena.drees,ou=People,dc=shmanic,dc=net">
+			<dn>uid=athena.drees,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>athena.drees</uid>
+			<sn>Drees</sn>
+			<givenName>Athena</givenName>
+			<cn>Athena Drees</cn>
+			<mail>athena.drees@shmanic.net</mail>
+			<uidNumber>10013</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>YnISDio6</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/athena.drees</homeDirectory>
+			<telephoneNumber>01625 107004</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="pablo.vantassel" password="Yn9lQ'x8" dn="uid=pablo.vantassel,ou=People,dc=shmanic,dc=net">
+			<dn>uid=pablo.vantassel,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>pablo.vantassel</uid>
+			<sn>Vantassel</sn>
+			<givenName>Pablo</givenName>
+			<cn>Pablo Vantassel</cn>
+			<mail>pablo.vantassel@shmanic.net</mail>
+			<uidNumber>10014</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>Yn9lQ'x8</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/pablo.vantassel</homeDirectory>
+			<telephoneNumber>01794 181567</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="leena.bizier" password="aK'WWXYC" dn="uid=leena.bizier,ou=People,dc=shmanic,dc=net">
+			<dn>uid=leena.bizier,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>leena.bizier</uid>
+			<sn>Bizier</sn>
+			<givenName>Leena</givenName>
+			<cn>Leena Bizier</cn>
+			<mail>leena.bizier@shmanic.net</mail>
+			<uidNumber>10015</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>aK'WWXYC</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/leena.bizier</homeDirectory>
+			<telephoneNumber>01201 192549</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="margy.vazguez" password="UcMh1a2d" dn="uid=margy.vazguez,ou=People,dc=shmanic,dc=net">
+			<dn>uid=margy.vazguez,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>margy.vazguez</uid>
+			<sn>Vazguez</sn>
+			<givenName>Margy</givenName>
+			<cn>Margy Vazguez</cn>
+			<mail>margy.vazguez@shmanic.net</mail>
+			<uidNumber>10016</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>UcMh1a2d</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/margy.vazguez</homeDirectory>
+			<telephoneNumber>01306 141135</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="rosendo.karst" password="WtB331sp" dn="uid=rosendo.karst,ou=People,dc=shmanic,dc=net">
+			<dn>uid=rosendo.karst,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>rosendo.karst</uid>
+			<sn>Karst</sn>
+			<givenName>Rosendo</givenName>
+			<cn>Rosendo Karst</cn>
+			<mail>rosendo.karst@shmanic.net</mail>
+			<uidNumber>10017</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>WtB331sp</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/rosendo.karst</homeDirectory>
+			<telephoneNumber>01178 150707</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="aron.farrand" password="4BIHjT2I" dn="uid=aron.farrand,ou=People,dc=shmanic,dc=net">
+			<dn>uid=aron.farrand,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>aron.farrand</uid>
+			<sn>Farrand</sn>
+			<givenName>Aron</givenName>
+			<cn>Aron Farrand</cn>
+			<mail>aron.farrand@shmanic.net</mail>
+			<uidNumber>10018</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>4BIHjT2I</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/aron.farrand</homeDirectory>
+			<telephoneNumber>01782 183061</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="abby.ryman" password="hy0b6XgK" dn="uid=abby.ryman,ou=People,dc=shmanic,dc=net">
+			<dn>uid=abby.ryman,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>abby.ryman</uid>
+			<sn>Ryman</sn>
+			<givenName>Abby</givenName>
+			<cn>Abby Ryman</cn>
+			<mail>abby.ryman@shmanic.net</mail>
+			<uidNumber>10019</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>hy0b6XgK</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/abby.ryman</homeDirectory>
+			<telephoneNumber>01790 188484</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="maxwell.smyre" password="FTEl6fQV" dn="uid=maxwell.smyre,ou=People,dc=shmanic,dc=net">
+			<dn>uid=maxwell.smyre,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>maxwell.smyre</uid>
+			<sn>Smyre</sn>
+			<givenName>Maxwell</givenName>
+			<cn>Maxwell Smyre</cn>
+			<mail>maxwell.smyre@shmanic.net</mail>
+			<uidNumber>10020</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>FTEl6fQV</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/maxwell.smyre</homeDirectory>
+			<telephoneNumber>01762 194807</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="kevin.schermerhorn" password="KXZajM2b" dn="uid=kevin.schermerhorn,ou=People,dc=shmanic,dc=net">
+			<dn>uid=kevin.schermerhorn,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>kevin.schermerhorn</uid>
+			<sn>Schermerhorn</sn>
+			<givenName>Kevin</givenName>
+			<cn>Kevin Schermerhorn</cn>
+			<mail>kevin.schermerhorn@shmanic.net</mail>
+			<uidNumber>10021</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>KXZajM2b</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/kevin.schermerhorn</homeDirectory>
+			<telephoneNumber>01545 194388</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="marshall.comeau" password="ANGWkE73" dn="uid=marshall.comeau,ou=People,dc=shmanic,dc=net">
+			<dn>uid=marshall.comeau,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>marshall.comeau</uid>
+			<sn>Comeau</sn>
+			<givenName>Marshall</givenName>
+			<cn>Marshall Comeau</cn>
+			<mail>marshall.comeau@shmanic.net</mail>
+			<uidNumber>10022</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>ANGWkE73</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/marshall.comeau</homeDirectory>
+			<telephoneNumber>01192 120895</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="keitha.tallent" password="Wi543OTG" dn="uid=keitha.tallent,ou=People,dc=shmanic,dc=net">
+			<dn>uid=keitha.tallent,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>keitha.tallent</uid>
+			<sn>Tallent</sn>
+			<givenName>Keitha</givenName>
+			<cn>Keitha Tallent</cn>
+			<mail>keitha.tallent@shmanic.net</mail>
+			<uidNumber>10023</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>Wi543OTG</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/keitha.tallent</homeDirectory>
+			<telephoneNumber>01514 167151</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="alfredo.symes" password="OmV-rArw" dn="uid=alfredo.symes,ou=People,dc=shmanic,dc=net">
+			<dn>uid=alfredo.symes,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>alfredo.symes</uid>
+			<sn>Symes</sn>
+			<givenName>Alfredo</givenName>
+			<cn>Alfredo Symes</cn>
+			<mail>alfredo.symes@shmanic.net</mail>
+			<uidNumber>10024</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>OmV-rArw</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/alfredo.symes</homeDirectory>
+			<telephoneNumber>01735 166787</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="lise.viands" password="oBT5bcZY" dn="uid=lise.viands,ou=People,dc=shmanic,dc=net">
+			<dn>uid=lise.viands,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>lise.viands</uid>
+			<sn>Viands</sn>
+			<givenName>Lise</givenName>
+			<cn>Lise Viands</cn>
+			<mail>lise.viands@shmanic.net</mail>
+			<uidNumber>10025</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>oBT5bcZY</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/lise.viands</homeDirectory>
+			<telephoneNumber>01660 127244</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="georgie.mcelligott" password="sT83VuAq" dn="uid=georgie.mcelligott,ou=People,dc=shmanic,dc=net">
+			<dn>uid=georgie.mcelligott,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>georgie.mcelligott</uid>
+			<sn>Mcelligott</sn>
+			<givenName>Georgie</givenName>
+			<cn>Georgie Mcelligott</cn>
+			<mail>georgie.mcelligott@shmanic.net</mail>
+			<uidNumber>10026</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>sT83VuAq</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/georgie.mcelligott</homeDirectory>
+			<telephoneNumber>01605 189534</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="florine.mcgonigle" password="W8g'MRzX" dn="uid=florine.mcgonigle,ou=People,dc=shmanic,dc=net">
+			<dn>uid=florine.mcgonigle,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>florine.mcgonigle</uid>
+			<sn>Mcgonigle</sn>
+			<givenName>Florine</givenName>
+			<cn>Florine Mcgonigle</cn>
+			<mail>florine.mcgonigle@shmanic.net</mail>
+			<uidNumber>10027</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>W8g'MRzX</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/florine.mcgonigle</homeDirectory>
+			<telephoneNumber>01205 171606</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="elinore.biondi" password="0Ia5urqM" dn="uid=elinore.biondi,ou=People,dc=shmanic,dc=net">
+			<dn>uid=elinore.biondi,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>elinore.biondi</uid>
+			<sn>Biondi</sn>
+			<givenName>Elinore</givenName>
+			<cn>Elinore Biondi</cn>
+			<mail>elinore.biondi@shmanic.net</mail>
+			<uidNumber>10028</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>0Ia5urqM</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/elinore.biondi</homeDirectory>
+			<telephoneNumber>01777 117916</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="vivan.delacerda" password="aJkaWoX6" dn="uid=vivan.delacerda,ou=People,dc=shmanic,dc=net">
+			<dn>uid=vivan.delacerda,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>vivan.delacerda</uid>
+			<sn>Delacerda</sn>
+			<givenName>Vivan</givenName>
+			<cn>Vivan Delacerda</cn>
+			<mail>vivan.delacerda@shmanic.net</mail>
+			<uidNumber>10029</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>aJkaWoX6</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/vivan.delacerda</homeDirectory>
+			<telephoneNumber>01957 179817</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="almeta.keesee" password="s1l7nTBK" dn="uid=almeta.keesee,ou=People,dc=shmanic,dc=net">
+			<dn>uid=almeta.keesee,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>almeta.keesee</uid>
+			<sn>Keesee</sn>
+			<givenName>Almeta</givenName>
+			<cn>Almeta Keesee</cn>
+			<mail>almeta.keesee@shmanic.net</mail>
+			<uidNumber>10030</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>s1l7nTBK</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/almeta.keesee</homeDirectory>
+			<telephoneNumber>01816 135059</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="pearline.deer" password="4MyKu01J" dn="uid=pearline.deer,ou=People,dc=shmanic,dc=net">
+			<dn>uid=pearline.deer,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>pearline.deer</uid>
+			<sn>Deer</sn>
+			<givenName>Pearline</givenName>
+			<cn>Pearline Deer</cn>
+			<mail>pearline.deer@shmanic.net</mail>
+			<uidNumber>10031</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>4MyKu01J</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/pearline.deer</homeDirectory>
+			<telephoneNumber>01640 187926</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="brigette.colvard" password="EQYB8BqZ" dn="uid=brigette.colvard,ou=People,dc=shmanic,dc=net">
+			<dn>uid=brigette.colvard,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>brigette.colvard</uid>
+			<sn>Colvard</sn>
+			<givenName>Brigette</givenName>
+			<cn>Brigette Colvard</cn>
+			<mail>brigette.colvard@shmanic.net</mail>
+			<uidNumber>10032</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>EQYB8BqZ</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/brigette.colvard</homeDirectory>
+			<telephoneNumber>01704 101604</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="byron.douville" password="Vgje9Gsz" dn="uid=byron.douville,ou=People,dc=shmanic,dc=net">
+			<dn>uid=byron.douville,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>byron.douville</uid>
+			<sn>Douville</sn>
+			<givenName>Byron</givenName>
+			<cn>Byron Douville</cn>
+			<mail>byron.douville@shmanic.net</mail>
+			<uidNumber>10033</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>Vgje9Gsz</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/byron.douville</homeDirectory>
+			<telephoneNumber>01979 168309</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="tobie.santa" password="K9WLNkit" dn="uid=tobie.santa,ou=People,dc=shmanic,dc=net">
+			<dn>uid=tobie.santa,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>tobie.santa</uid>
+			<sn>Santa</sn>
+			<givenName>Tobie</givenName>
+			<cn>Tobie Santa</cn>
+			<mail>tobie.santa@shmanic.net</mail>
+			<uidNumber>10034</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>K9WLNkit</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/tobie.santa</homeDirectory>
+			<telephoneNumber>01946 146164</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="ethelyn.kina" password="FP7sKBmt" dn="uid=ethelyn.kina,ou=People,dc=shmanic,dc=net">
+			<dn>uid=ethelyn.kina,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>ethelyn.kina</uid>
+			<sn>Kina</sn>
+			<givenName>Ethelyn</givenName>
+			<cn>Ethelyn Kina</cn>
+			<mail>ethelyn.kina@shmanic.net</mail>
+			<uidNumber>10035</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>FP7sKBmt</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/ethelyn.kina</homeDirectory>
+			<telephoneNumber>01647 189630</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="ling.jennison" password="NSLcRou7" dn="uid=ling.jennison,ou=People,dc=shmanic,dc=net">
+			<dn>uid=ling.jennison,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>ling.jennison</uid>
+			<sn>Jennison</sn>
+			<givenName>Ling</givenName>
+			<cn>Ling Jennison</cn>
+			<mail>ling.jennison@shmanic.net</mail>
+			<uidNumber>10036</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>NSLcRou7</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/ling.jennison</homeDirectory>
+			<telephoneNumber>01341 158292</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="joette.brownson" password="Sb82U'HT" dn="uid=joette.brownson,ou=People,dc=shmanic,dc=net">
+			<dn>uid=joette.brownson,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>joette.brownson</uid>
+			<sn>Brownson</sn>
+			<givenName>Joette</givenName>
+			<cn>Joette Brownson</cn>
+			<mail>joette.brownson@shmanic.net</mail>
+			<uidNumber>10037</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>Sb82U'HT</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/joette.brownson</homeDirectory>
+			<telephoneNumber>01202 149801</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="hermelinda.demille" password="feHWWFTd" dn="uid=hermelinda.demille,ou=People,dc=shmanic,dc=net">
+			<dn>uid=hermelinda.demille,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>hermelinda.demille</uid>
+			<sn>Demille</sn>
+			<givenName>Hermelinda</givenName>
+			<cn>Hermelinda Demille</cn>
+			<mail>hermelinda.demille@shmanic.net</mail>
+			<uidNumber>10038</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>feHWWFTd</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/hermelinda.demille</homeDirectory>
+			<telephoneNumber>01067 176683</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="mistie.locke" password="hH81MCUs" dn="uid=mistie.locke,ou=People,dc=shmanic,dc=net">
+			<dn>uid=mistie.locke,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>mistie.locke</uid>
+			<sn>Locke</sn>
+			<givenName>Mistie</givenName>
+			<cn>Mistie Locke</cn>
+			<mail>mistie.locke@shmanic.net</mail>
+			<uidNumber>10039</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>hH81MCUs</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/mistie.locke</homeDirectory>
+			<telephoneNumber>01240 141682</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="rudolph.fenster" password="q7WnWfQo" dn="uid=rudolph.fenster,ou=People,dc=shmanic,dc=net">
+			<dn>uid=rudolph.fenster,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>rudolph.fenster</uid>
+			<sn>Fenster</sn>
+			<givenName>Rudolph</givenName>
+			<cn>Rudolph Fenster</cn>
+			<mail>rudolph.fenster@shmanic.net</mail>
+			<uidNumber>10040</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>q7WnWfQo</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/rudolph.fenster</homeDirectory>
+			<telephoneNumber>01281 118776</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="kerstin.musante" password="YOJbDPr'" dn="uid=kerstin.musante,ou=People,dc=shmanic,dc=net">
+			<dn>uid=kerstin.musante,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>kerstin.musante</uid>
+			<sn>Musante</sn>
+			<givenName>Kerstin</givenName>
+			<cn>Kerstin Musante</cn>
+			<mail>kerstin.musante@shmanic.net</mail>
+			<uidNumber>10041</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>YOJbDPr'</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/kerstin.musante</homeDirectory>
+			<telephoneNumber>01959 111569</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="vaughn.mccotter" password="ieoYEeeA" dn="uid=vaughn.mccotter,ou=People,dc=shmanic,dc=net">
+			<dn>uid=vaughn.mccotter,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>vaughn.mccotter</uid>
+			<sn>Mccotter</sn>
+			<givenName>Vaughn</givenName>
+			<cn>Vaughn Mccotter</cn>
+			<mail>vaughn.mccotter@shmanic.net</mail>
+			<uidNumber>10042</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>ieoYEeeA</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/vaughn.mccotter</homeDirectory>
+			<telephoneNumber>01115 177201</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="trey.wiese" password="ibZVGyB5" dn="uid=trey.wiese,ou=People,dc=shmanic,dc=net">
+			<dn>uid=trey.wiese,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>trey.wiese</uid>
+			<sn>Wiese</sn>
+			<givenName>Trey</givenName>
+			<cn>Trey Wiese</cn>
+			<mail>trey.wiese@shmanic.net</mail>
+			<uidNumber>10043</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>ibZVGyB5</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/trey.wiese</homeDirectory>
+			<telephoneNumber>01841 134569</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="fausto.clemens" password="YAaU4CeO" dn="uid=fausto.clemens,ou=People,dc=shmanic,dc=net">
+			<dn>uid=fausto.clemens,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>fausto.clemens</uid>
+			<sn>Clemens</sn>
+			<givenName>Fausto</givenName>
+			<cn>Fausto Clemens</cn>
+			<mail>fausto.clemens@shmanic.net</mail>
+			<uidNumber>10044</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>YAaU4CeO</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/fausto.clemens</homeDirectory>
+			<telephoneNumber>01450 151057</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="verona.mcculloch" password="z6pgF3Re" dn="uid=verona.mcculloch,ou=People,dc=shmanic,dc=net">
+			<dn>uid=verona.mcculloch,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>verona.mcculloch</uid>
+			<sn>Mcculloch</sn>
+			<givenName>Verona</givenName>
+			<cn>Verona Mcculloch</cn>
+			<mail>verona.mcculloch@shmanic.net</mail>
+			<uidNumber>10045</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>z6pgF3Re</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/verona.mcculloch</homeDirectory>
+			<telephoneNumber>01811 159900</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="daisey.crank" password="iRAcg8RC" dn="uid=daisey.crank,ou=People,dc=shmanic,dc=net">
+			<dn>uid=daisey.crank,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>daisey.crank</uid>
+			<sn>Crank</sn>
+			<givenName>Daisey</givenName>
+			<cn>Daisey Crank</cn>
+			<mail>daisey.crank@shmanic.net</mail>
+			<uidNumber>10046</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>iRAcg8RC</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/daisey.crank</homeDirectory>
+			<telephoneNumber>01148 156414</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="harrison.bainbridge" password="epz'EquR" dn="uid=harrison.bainbridge,ou=People,dc=shmanic,dc=net">
+			<dn>uid=harrison.bainbridge,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>harrison.bainbridge</uid>
+			<sn>Bainbridge</sn>
+			<givenName>Harrison</givenName>
+			<cn>Harrison Bainbridge</cn>
+			<mail>harrison.bainbridge@shmanic.net</mail>
+			<uidNumber>10047</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>epz'EquR</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/harrison.bainbridge</homeDirectory>
+			<telephoneNumber>01969 169021</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="roseline.bramlett" password="-PSijrfB" dn="uid=roseline.bramlett,ou=People,dc=shmanic,dc=net">
+			<dn>uid=roseline.bramlett,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>roseline.bramlett</uid>
+			<sn>Bramlett</sn>
+			<givenName>Roseline</givenName>
+			<cn>Roseline Bramlett</cn>
+			<mail>roseline.bramlett@shmanic.net</mail>
+			<uidNumber>10048</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>-PSijrfB</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/roseline.bramlett</homeDirectory>
+			<telephoneNumber>01584 198767</telephoneNumber>
+			<description>Random</description>
+		</standard>
+		<standard username="melita.hanner" password="csHe'95o" dn="uid=melita.hanner,ou=People,dc=shmanic,dc=net">
+			<dn>uid=melita.hanner,ou=People,dc=shmanic,dc=net</dn>
+			<objectClass>inetOrgPerson</objectClass>
+			<objectClass>posixAccount</objectClass>
+			<objectClass>shadowAccount</objectClass>
+			<uid>melita.hanner</uid>
+			<sn>Hanner</sn>
+			<givenName>Melita</givenName>
+			<cn>Melita Hanner</cn>
+			<mail>melita.hanner@shmanic.net</mail>
+			<uidNumber>10049</uidNumber>
+			<gidNumber>1000</gidNumber>
+			<userPassword>csHe'95o</userPassword>
+			<loginShell>/bin/bash</loginShell>
+			<homeDirectory>/home/melita.hanner</homeDirectory>
+			<telephoneNumber>01179 156806</telephoneNumber>
+			<description>Random</description>
+		</standard>
+	</config>
 	
 	
 	<config id="203" comment="For successful proxy bind without encryption [slapd]">
@@ -3145,6 +4028,9 @@
 		<ldap_fullname>cn</ldap_fullname>
 		<ldap_email>mail</ldap_email>
 		<ldap_uid>uid</ldap_uid>
+		<ldap_password>userPassword</ldap_password>
+		<password_hash>sha</password_hash>
+		<password_prefix>1</password_prefix>
 	</config>
 	
 	<config id="220" comment="For successful search, read, modify operations in ldap (bind as user) [slapd]">
