@@ -229,6 +229,23 @@ class SHLdapEventBouncer extends JEvent
 				return SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new));
 			}
 		}
+
+		// Ask all plugins if there is a plugin willing to deal with user creation for ldap
+		if ($isNew && count($results = SHFactory::getDispatcher('ldap')->trigger('askUserCreation')))
+		{
+			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+			{
+				$result = SHLdapHelper::triggerEvent('onUserCreation', array($new));
+
+				// Allow Ldap events to be called
+				$this->isLdap = $result;
+
+				return $result;
+			}
+
+			// Something went wrong with the user creation
+			return false;
+		}
 	}
 
 	/**
@@ -251,6 +268,11 @@ class SHLdapEventBouncer extends JEvent
 			{
 				SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
 			}
+		}
+
+		if ($this->isLdap)
+		{
+			SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
 		}
 	}
 
