@@ -241,20 +241,44 @@ class SHLdap
 	protected $all_user_filter = '(objectclass=user)';
 
 	/**
+	 * Password attribute (e.g. userPassword).
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $ldap_password = null;
+
+	/**
+	 * Password hash type.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $password_hash = null;
+
+	/**
+	 * Password salt value (optional).
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $password_salt = null;
+
+	/**
+	 * Password hash prefix.
+	 *
+	 * @var    boolean
+	 * @since  2.0
+	 */
+	protected $password_prefix = false;
+
+	/**
 	 * Set to the current status/level of user bind such as none, proxy or user.
 	 *
 	 * @var     integer
 	 * @string  2.0
 	 */
 	protected $bind_status = self::AUTH_NONE;
-
-	/**
-	 * Uses a proxy bind when writing to Ldap.
-	 *
-	 * @var     boolean
-	 * @string  2.0
-	 */
-	protected $proxy_write = false;
 
 	/**
 	 * LDAP resource handler
@@ -350,17 +374,16 @@ class SHLdap
 			case 'ldap_uid':
 			case 'last_user_dn':
 			case 'all_user_filter':
-			case 'proxy_write':
 			case 'bind_status':
+			case 'ldap_password':
+			case 'password_hash':
+			case 'password_prefix':
+			case 'password_salt':
 				return $this->$name;
 				break;
 
 			case 'bindStatus':
 				return $this->bind_status;
-				break;
-
-			case 'proxyWrite':
-				return $this->proxy_write;
 				break;
 
 			case 'lastUserDn':
@@ -369,6 +392,18 @@ class SHLdap
 
 			case 'allUserFilter':
 				return $this->all_user_filter;
+				break;
+
+			case 'passwordHash':
+				return $this->password_hash;
+				break;
+
+			case 'passwordPrefix':
+				return $this->password_prefix;
+				break;
+
+			case 'passwordSalt':
+				return $this->password_salt;
 				break;
 
 			case 'keyName':
@@ -383,6 +418,10 @@ class SHLdap
 				return $this->ldap_uid;
 				break;
 
+			case 'keyPassword':
+				return $this->ldap_password;
+				break;
+
 			case 'info':
 				return $this->host . ':' . $this->port;
 				break;
@@ -394,7 +433,7 @@ class SHLdap
 	/**
 	 * Class Constructor.
 	 *
-	 * @param   object  $configObj  An object of configuration variables
+	 * @param   object  $configObj  An object of configuration variables.
 	 *
 	 * @since   2.0
 	 */
@@ -418,7 +457,7 @@ class SHLdap
 		else
 		{
 			// Unknown format
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_990'), 990);
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_990'), 990);
 		}
 
 		// Assign the configuration to their respected class properties only if they exist
@@ -434,7 +473,7 @@ class SHLdap
 		if (!extension_loaded('ldap'))
 		{
 			// Ldap extension is not loaded
-			throw new Exception(JText::_('LIB_SHLDAP_ERR_991'), 990);
+			throw new RunTimeException(JText::_('LIB_SHLDAP_ERR_991'), 990);
 		}
 
 		// Reset resource & debug
