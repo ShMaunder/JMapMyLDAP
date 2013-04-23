@@ -46,14 +46,15 @@ interface SHUserAdapter
 	/**
 	 * Return specified user attributes from the source.
 	 *
-	 * @param   string|array  $input  Optional string or array of attributes to return.
-	 * @param   boolean       $null   Include null or non existent values.
+	 * @param   string|array  $input    Optional string or array of attributes to return.
+	 * @param   boolean       $null     Include null or non existent values.
+	 * @param   boolean       $changes  Use the attribute changes (before change commit).
 	 *
 	 * @return  mixed  Ldap attribute results.
 	 *
 	 * @since   2.0
 	 */
-	public function getAttributes($input = null, $null = false);
+	public function getAttributes($input = null, $null = false, $changes = false);
 
 	/**
 	 * Return the users unique identifier for Joomla.
@@ -70,7 +71,7 @@ interface SHUserAdapter
 	/**
 	 * Return the users full name for Joomla.
 	 *
-	 * @param   boolean  $key      If true returns the key of the UID instead of value.
+	 * @param   boolean  $key      If true returns the key of the full name instead of value.
 	 * @param   mixed    $default  The default value.
 	 *
 	 * @return  mixed  Either the Key, Value or Default value.
@@ -82,7 +83,7 @@ interface SHUserAdapter
 	/**
 	 * Return the users email for Joomla.
 	 *
-	 * @param   boolean  $key      If true returns the key of the UID instead of value.
+	 * @param   boolean  $key      If true returns the key of the Email instead of value.
 	 * @param   mixed    $default  The default value.
 	 *
 	 * @return  mixed  Either the Key, Value or Default value.
@@ -90,6 +91,18 @@ interface SHUserAdapter
 	 * @since   2.0
 	 */
 	public function getEmail($key = false, $default = null);
+
+	/**
+	 * Return the users password for Joomla.
+	 *
+	 * @param   boolean  $key      If true returns the key of the password instead of value.
+	 * @param   mixed    $default  The default value.
+	 *
+	 * @return  mixed  Either the Key, Value or Default value.
+	 *
+	 * @since   2.0
+	 */
+	public function getPassword($key = false, $default = null);
 
 	/**
 	 * Sets the users password.
@@ -117,13 +130,46 @@ interface SHUserAdapter
 	public function updateCredential($password = null, $options = array());
 
 	/**
-	 * Sets new attributes for the user.
+	 * Sets new attributes for the user but doesnt commit to the driver.
 	 *
 	 * @param   array  $attributes  An array of the new/changed attributes for the object.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function setAttributes(array $attributes);
+
+	/**
+	 * Commits any changes to the user including attribute changes.
+	 *
+	 * @param   array  $options  Optional array of options.
 	 *
 	 * @return  boolean  True on success or False on error.
 	 *
 	 * @since   2.0
 	 */
-	public function setAttributes(array $attributes);
+	public function commitChanges($options = array());
+
+	/**
+	 * Creates the user in the driver.
+	 *
+	 * @param   array  $options  Optional array of options.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public function create($options = array());
+
+	/**
+	 * Deletes the user in the driver.
+	 *
+	 * @param   array  $options  Optional array of options.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
+	public function delete($options = array());
 }

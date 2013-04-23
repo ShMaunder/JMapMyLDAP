@@ -12,9 +12,6 @@
 
 defined('JPATH_PLATFORM') or die;
 
-// TODO: this needs removing for dependency reasons with the platform - what is the impact ??
-//SHImport('ldap');
-
 /**
  * Implementation of an LDAP user adapter
  *
@@ -65,12 +62,28 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	protected $domain = null;
 
 	/**
+	 * Holds wether the user is new.
+	 *
+	 * @var    Boolean
+	 * @since  2.0
+	 */
+	protected $isNew = false;
+
+	/**
 	 * Ldap attributes for this user (cached).
 	 *
 	 * @var    array
 	 * @since  2.0
 	 */
 	private $_attributes = array();
+
+	/**
+	 * Ldap attribute proposed changes.
+	 *
+	 * @var    array
+	 * @since  2.0
+	 */
+	private $_changes = array();
 
 	/**
 	 * Null user attributes (i.e. attributes which don't exist in Ldap but attempted).
@@ -97,19 +110,11 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	private $_config = null;
 
 	/**
-	 * Log errors.
-	 *
-	 * @var    Boolean
-	 * @since  2.0
-	 */
-	protected $logging = true;
-
-	/**
 	 * Class constructor.
 	 *
 	 * @param   array  $credentials  Ldap credentials to use for this object (this is not a proxy user).
 	 * @param   mixed  $config       Ldap configuration options such as host, proxy user and core attributes.
-	 * @param   array  $options      Extra options such as logging.
+	 * @param   array  $options      Extra options such as isNew.
 	 *
 	 * @since   2.0
 	 */
@@ -118,10 +123,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		$this->username = JArrayHelper::getValue($credentials, 'username');
 		$this->password = JArrayHelper::getValue($credentials, 'password');
 
-		// TODO: filter domain a bit
-		$this->domain = JArrayHelper::getValue($credentials, 'domain');
-
-		$this->logging = JArrayHelper::getValue($options, 'logging', true, 'boolean');
+		$this->domain = str_replace(array('(',')','\''), '', JArrayHelper::getValue($credentials, 'domain', null, 'string'));
 
 		if (is_array($config) && count($config))
 		{
@@ -134,6 +136,40 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 			// Override the Ldap parameters with this later on
 			$this->_config = $config;
+		}
+
+		// If the user is new then the user creation script needs to provide a dn for the new object
+		if ($this->isNew = JArrayHelper::getValue($options, 'isNew', false, 'boolean'))
+		{
+			$this->_dn = JArrayHelper::getValue($credentials, 'dn');
+
+			/*
+			 * If the Ldap parameter override has been set then directly instantiate
+			 * the Ldap library otherwise use pre-configured platform configurations
+			 * through the Ldap library.
+			 */
+			if (!is_null($this->_config))
+			{
+				$this->client = new SHLdap($this->_config);
+				$this->client->connect();
+				$this->client->proxyBind();
+			}
+			else
+			{
+				$this->client = SHLdap::getInstance(
+					$this->domain, array(
+						'authenticate' => SHLdap::AUTH_PROXY)
+				);
+			}
+
+			// Check whether the user already exists
+			if ($this->_checkUserExists())
+			{
+				throw new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10909'), 10909);
+			}
+
+			// Emulate dn as an attribute
+			$this->_attributes['dn'] = $this->_dn;
 		}
 	}
 
@@ -226,9 +262,6 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			// Save the exception for later if required and re-throw
 			$this->_dn = $e;
 
-			// If logging is enabled then do it
-			!$this->logging ? : SHLog::add($e, 0, JLog::ERROR, 'ldap');
-
 			throw $e;
 		}
 
@@ -237,7 +270,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	}
 
 	// @throws  SHLdapException
-	public function getAttributes($input = null, $null = false)
+	public function getAttributes($input = null, $null = false, $changes = false)
 	{
 		if (is_null($this->_dn))
 		{
@@ -474,13 +507,90 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
+	public function getPassword($key = false, $default = null)
+	{
+		if ($key)
+		{
+			// Only return the key id
+			return $this->client->keyPassword;
+		}
+
+		// Find the Ldap attribute password key
+		$key = $this->client->keyPassword;
+
+		if ($value = $this->getAttributes($key))
+		{
+			if (isset($value[$key][0]))
+			{
+				// Password found so lets return it
+				return $value[$key][0];
+			}
+		}
+
+		return $default;
+	}
+
 	public function setPassword($new, $old = null, $authenticate = false)
 	{
-		// TODO: implement this method
-
-		if (!is_null($new))
+		if (is_null($this->_dn))
 		{
+			$this->getId($authenticate);
+		}
+		elseif ($this->_dn instanceof Exception)
+		{
+			// Do not retry. Ldap configuration or user has problems.
+			throw $this->_dn;
+		}
+
+		$hash = strtolower($this->client->passwordHash);
+		$key = $this->getPassword(true);
+
+		// Check if we need to authenticate and if so then do it
+		if ($authenticate)
+		{
+			if (empty($old))
+			{
+				throw new Exception('no old password');
+			}
+
+			if (!$this->client->bind($this->_dn, $old))
+			{
+				// Incorrect old password
+				throw new Exception('wrong password');
+			}
+		}
+
+		$password = $this->_genPassword($new);
+
+		$this->setAttributes(array($key => $password));
+
+		if ($this->commitChanges())
+		{
+			// Update the password inside this adapter
 			$this->updateCredential($new);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private function _genPassword($password)
+	{
+		$hash = strtolower($this->client->passwordHash);
+		$key = $this->getPassword(true);
+
+		if ($hash === 'unicode')
+		{
+			// Active Directory Unicode
+			return preg_replace('/./', '$0\\\\000', "\"{$password}\"");
+		}
+		else
+		{
+			// Standard Joomla hash supported
+			return JUserHelper::getCryptedPassword(
+				$password, $this->client->passwordSalt, $hash, $this->client->passwordPrefix
+			);
 		}
 	}
 
@@ -498,18 +608,27 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 	}
 
+	public function setAttributes(array $attributes)
+	{
+		if (!empty($attributes))
+		{
+			$this->_changes = array_merge($this->_changes, $attributes);
+		}
+	}
+
 	/**
 	 * Set changes to the attributes within an Ldap distinguished name object.
 	 * This method compares the current attribute values against a new changed
 	 * set of attribute values and commits the differences.
 	 *
-	 * @param   array  $attributes  An array of the new/changed attributes for the object.
+	 * @param   array  $options  Optional array of options.
 	 *
-	 * @return  boolean  True on success or False on error.
+	 * @return  array  Array of commits, exceptions and status.
 	 *
 	 * @since   2.0
+	 * @throws  RuntimeException
 	 */
-	public function setAttributes(array $attributes)
+	public function commitChanges($options = array())
 	{
 		if ($this->_dn instanceof Exception)
 		{
@@ -517,27 +636,39 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			throw $this->_dn;
 		}
 
-		if (!count($attributes))
+		if ($this->isNew)
 		{
-			// There is nothing to change
-			return false;
+			// We only want to create the user
+			return $this->create($options);
 		}
 
-		// If the proxy write is disabled then we should just try to authenticate now
-		if (!$this->client->proxyWrite)
+		if (empty($this->_changes))
+		{
+			// There is nothing to commit
+			return array('status' => true, 'nochanges' => true);
+		}
+
+		// If the user write is enabled then we should just try to authenticate now
+		if ($userWrite = JArrayHelper::getValue($options, 'userWrite', false, 'boolean'))
 		{
 			$this->getId(true);
 		}
 
 		// Get the current attributes
-		$current = $this->getAttributes(array_keys($attributes), false);
+		$current = $this->getAttributes(array_keys($this->_changes), false);
 
 		$deleteEntries 		= array();
 		$addEntries 		= array();
 		$replaceEntries		= array();
 
-		foreach ($attributes as $key => $value)
+		// Loop around all changes
+		foreach ($this->_changes as $key => $value)
 		{
+			if ($key === 'dn')
+			{
+				continue;
+			}
+
 			$return = 0;
 
 			// Check this attribute for multiple values
@@ -575,10 +706,6 @@ class SHUserAdaptersLdap implements SHUserAdapter
 					{
 						// Now lets re-add them
 						$addEntries[$key] = $new;
-
-						// TODO: Investigate why I reversed this?? Makes no sense.
-						//$addEntries[$key] = array_reverse($new);
-
 					}
 				}
 			}
@@ -610,16 +737,23 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 		// We can now commit the changes to the LDAP server for this DN (order MATTERS!).
 		$operations	= array('delete' => $deleteEntries, 'add' => $addEntries, 'replace' => $replaceEntries);
-		$results 	= array();
 
 		// Check whether we need to be binded as proxy to write to ldap
-		if ($this->client->proxyWrite && $this->client->bindStatus !== SHLdap::AUTH_PROXY)
+		if (!$userWrite && $this->client->bindStatus !== SHLdap::AUTH_PROXY)
 		{
 			if (!$this->client->proxyBind())
 			{
 				// Failed to map as a proxy user
-				return false;
+				throw new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10901'), 10901);
 			}
+		}
+
+		$results = array('status' => true);
+		$commits = array();
+
+		if (isset($this->_changes['dn']) && ($this->_changes['dn'] != $this->_dn))
+		{
+			// TODO: Need to rename the DN using SHLdap::rename()
 		}
 
 		foreach ($operations as $operation => $commit)
@@ -634,7 +768,11 @@ class SHUserAdaptersLdap implements SHUserAdapter
 					// Commit the Ldap attribute operating
 					$this->client->$method($this->_dn, $commit);
 
-					$priority = JLog::INFO;
+					// Successful commit so say so
+					$commits[$operation] = array(
+						'status' => JLog::INFO,
+						'info' => preg_replace('/\s+/', ' ', var_export($commit, true))
+					);
 
 					// Change the attribute field for this commit
 					$this->_attributes = array_merge($this->_attributes, $commit);
@@ -642,30 +780,125 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				catch (Exception $e)
 				{
 					// An error happened trying to commit the change
-					$priority = JLog::ERROR;
+					$commits[$operation] = array(
+						'status' => JLog::ERROR,
+						'info' => preg_replace('/\s+/', ' ', var_export($commit, true)),
+						'exception' => $e
+					);
+
+					$results['status'] = false;
 				}
-
-				// Log for audit
-				SHLog::add(
-					JText::sprintf(
-						'LDAP %1$s Attribute (%2$s): %3$s',
-						$operation,
-						$this->_dn,
-						var_export($commit, true)
-					), 0, $priority, 'ldap'
-				);
-
-				// Add the result to the results array
-				$results[] = ($priority === JLog::INFO ? true : false);
 			}
 		}
 
-		// Check if any of the operations failed
-		if (!in_array(false, $results, true))
+		// Clear the changes even if they failed
+		$this->_changes = array();
+
+		// Save the commits for potential audit
+		$results['commits'] = $commits;
+
+		return $results;
+	}
+
+	public function create($options = array())
+	{
+		if ($this->_dn instanceof Exception)
 		{
-			return true;
+			// Do not retry. Ldap configuration or user has problems.
+			throw $this->_dn;
 		}
 
+		// Ensure proxy binded
+		if ($this->client->bindStatus !== SHLdap::AUTH_PROXY)
+		{
+			if (!$this->client->proxyBind())
+			{
+				// Failed to map as a proxy user
+				throw new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10901'), 10901);
+			}
+		}
+
+		// Remove the DN if exists in the attribute list
+		unset($this->_changes['dn']);
+
+		/*
+		 * Automatically add in the username and password if they do not exist.
+		 */
+		if (!isset($this->_changes[$this->getUid(true)]))
+		{
+			$this->_changes[$this->getUid(true)] = array($this->username);
+		}
+
+		if (!isset($this->_changes['password']))
+		{
+			// Do not array the password so it can be hashed later
+			$this->_changes['password'] = $this->password;
+		}
+
+		/*
+		 * Replace any attributes that have been given generic keywords
+		 * such as username, password and put them into the ldap attribute format.
+		 */
+		if (isset($this->_changes['username']) && !is_array($this->_changes['username']))
+		{
+			$username = $this->_changes['username'];
+			unset($this->_changes['username']);
+			$this->_changes[$this->getUid(true)] = array($username);
+		}
+
+		if (isset($this->_changes['email']) && !is_array($this->_changes['email']))
+		{
+			$email = $this->_changes['email'];
+			unset($this->_changes['email']);
+			$this->_changes[$this->getEmail(true)] = array($email);
+		}
+
+		if (isset($this->_changes['fullname']) && !is_array($this->_changes['fullname']))
+		{
+			$fullname = $this->_changes['fullname'];
+			unset($this->_changes['fullname']);
+			$this->_changes[$this->getFullname(true)] = array($fullname);
+		}
+
+		if (isset($this->_changes['password']) && !is_array($this->_changes['password']))
+		{
+			$password = $this->_changes['password'];
+			unset($this->_changes['password']);
+			$password = $this->_genPassword($password);
+			$this->_changes[$this->getPassword(true)] = array($password);
+		}
+
+		$this->client->add($this->_dn, $this->_changes);
+
+		$this->_changes = array();
+		$this->isNew = false;
+
+		return true;
+	}
+
+	public function delete($options = array())
+	{
+		if ($this->_dn instanceof Exception)
+		{
+			// Do not retry. Ldap configuration or user has problems.
+			throw $this->_dn;
+		}
+
+		// Ensure proxy binded
+		if ($this->client->bindStatus !== SHLdap::AUTH_PROXY)
+		{
+			if (!$this->client->proxyBind())
+			{
+				// Failed to map as a proxy user
+				throw new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10901'), 10901);
+			}
+		}
+
+		$this->client->delete($this->_dn);
+
+		$this->_dn = new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10906'), 10906);
+
+		return true;
 	}
 
 	/**
@@ -725,6 +958,19 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				// We don't want to include a blank or null value
 				return 0;
 			}
+		}
+	}
+
+	private function _checkUserExists()
+	{
+		try
+		{
+			$this->client->getUserDN($this->username, null, false);
+			return true;
+		}
+		catch (Exception $e)
+		{
+			return false;
 		}
 	}
 
