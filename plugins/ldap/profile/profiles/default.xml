@@ -11,7 +11,7 @@
 				label="PLG_LDAP_PROFILE_FIELD_TELEPHONE_LABEL"
 				size="30"
 				filter="tel"
-				required="false"
+				required="true"
 				disabled="false"
 			/>
 			<field
@@ -36,7 +36,7 @@
 				label="PLG_LDAP_PROFILE_FIELD_HOMEPAGE_LABEL"
 				size="30"
 				filter="string"
-				required="true"
+				required="false"
 				sync="true"
 				disabled="false"
 			/>
