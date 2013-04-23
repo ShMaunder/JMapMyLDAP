@@ -1,21 +1,39 @@
-JOOMLA BUGS::
-JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
+JOOMLA BUGS::JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726 (still the case, if so create pull request)
 
 
+--- Key ---
+
+[S|I|T|IT][ERROR_ID] - [EN_GB_TRANSLATION] [\[TRANSLATION_KEY\]] [\[OLD_TRANSLATION_KEY\]]
+
+Starting Letters:
+[S] - Skipping Language Translation (not required and/or won't print out anywhere)
+[I] - Language Translation Implemented
+[T] - Language Translation Tested
+
+
+
+
+- Legacy [100-999] -
 990 - Unknown LDAP config object [LIB_SHLDAP_ERR_990]
 991 - Ldap extension not loaded [LIB_SHLDAP_ERR_991]
 
-1000-9999 - SHPlatform Related Errors
+
+
+
+- SHPlatform Related Errors [1000-9999] -
 1121 - Invalid configuration file. Either the file or namespace doesn't exist. %1$s:%2$s [LIB_SHPLATFORM_ERR_1121]
 
 
 
-10000-11999 - Internal LDAP Errors (2000 Possible Errors)
 
+- Internal LDAP Errors [10000-11999] -
 
 10000 - Global Unknown Exception
 
-10001-10099 :: CONNECTION RELATED FOR CLIENT
+
+
+-- CONNECTION RELATED FOR CLIENT [10001-10099] --
+
 10001 - Missing Host Parameter [LIB_SHLDAP_ERR_10001] [LIB_JLDAP2_ERROR_NO_HOST_PARAM]
 10002 - Cannot connect [LIB_SHLDAP_ERR_10002] [LIB_JLDAP2_ERROR_FAILED_CONNECT]
 10003 - LDAP V3 Failed [LIB_SHLDAP_ERR_10003] [LIB_JLDAP2_ERROR_V3_FAIL]
@@ -24,7 +42,9 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10006 - Ldap not connected [LIB_SHLDAP_ERR_10006]
 10007 - Ldap has no bind user [LIB_SHLDAP_ERR_10007]
 
-10100-10299 :: OPERATION RELATED FOR CLIENT
+
+
+-- OPERATION RELATED FOR CLIENT [10100-10299] --
 
 10102 - A Ldap search operation error occurred [LIB_SHLDAP_ERR_10102]
 
@@ -49,7 +69,8 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10201 - Rename operation failed [LIB_SHLDAP_ERR_10201]
 
 
-10300-10499 :: EXTENDED CLIENT
+
+-- EXTENDED CLIENT [10300-10499] --
 
 10301 - No user query specified [LIB_SHLDAP_ERR_10301] [LIB_JLDAP2_ERROR_NO_DN_FILTER_PARAM]
 [CHANGED EXCEPTION!] 10302 - Cannot find ldap user. User typing incorrect username? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10302] [!LIB_JLDAP2_ERROR_USER_DN_FAIL]
@@ -65,19 +86,16 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
 10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
 
-[DEPRECATED ??] 10401 - Failed to authenticate the user for this specific configuration
-
 10411 - No configurations found to match this specific authorisation/authentication.
-[REMOVED]10412 - No enabled LDAP configurations.
 
 10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
 10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
 
 
-10600-10799 :: LDAP HELPER
+
+-- LDAP HELPER [10600-10799] --
 
 10601 - The platform configuration contains a invalid ldap configuration source [LIB_SHLDAPHELPER_ERR_10601]
-[REMOVED]10602 - The platform configuration contains a invalid ldap configuration file path [LIB_SHLDAPHELPER_ERR_10602]
 
 10603 - The platform configuration contains a invalid plugin name for retrieving ldap configuration [LIB_SHLDAPHELPER_ERR_10603]
 10604 - Wat is dis
@@ -92,36 +110,70 @@ JLIB_LOGIN_DENIED IS NOT DEFINED IN /lib/j/app/app:726
 10622 - Cannot load the file for the ldap configuration [LIB_SHLDAPHELPER_ERR_10622]
 
 
-11901-11999 - LDAP plug-in calls
+
+-- LDAP User Adapter [10800-10899] --
+10901 - Cannot complete LDAP operation due to failure of binding as proxy user [LIB_SHUSERADAPTERSLDAP_ERR_10901]
+10906 - User has been deleted [LIB_SHUSERADAPTERSLDAP_ERR_10906]
+10909 - Cannot create a new user when user already exists [LIB_SHUSERADAPTERSLDAP_ERR_10909]
 
 
-12000-14999 - LDAP Plug-in Errors (3000 Possible Errors)
 
-12000-12199 :: Ldap Group Mapping
-12200-12399 :: Ldap Profile
+-- LDAP plug-in calls for Monitor (DEBUG ONLY - TBR) [11901-11999] --
+
+
+
+
+- LDAP Plug-in Errors [12000-14999] -
+
+-- Ldap Group Mapping [12000-12199] --
+
+
+
+-- Ldap Profile [12200-12399] --
 
 12201 - The XML profile at '%1$s' does not exist. [LIB_LDAP_PROFILE_ERR_12201]
 12202 - The XML profile is loaded and appears to be valid. [LIB_LDAP_PROFILE_DEBUG_12202]
 12203 - Failed to load in the profile XML '%1$s'. [LIB_LDAP_PROFILE_ERR_12203]
 
+12211 - Unknown LDAP Profile config object. [LIB_LDAP_PROFILE_ERR_12211]
+12214 - Profile name parameter is missing. [LIB_LDAP_PROFILE_ERR_12214]
+
 12211 - Deleted LDAP profile for User ID %1$d. [LIB_LDAP_PROFILE_INFO_12211]
 
 12221 - Attempting to Sync profile for user '%1$s'. [LIB_LDAP_PROFILE_DEBUG_12221]
 
-12400-12599 :: Ldap Password
 
-12600-12799 :: SHLdap Authentication
+
+-- Ldap Password [12400-12599] --
+
+
+
+-- SHLdap Authentication [12600-12799] --
 
 12601 - Failed to boot the SHLdap / SHPlatform [PLG_AUTHENTICATION_SHLDAP_ERR_12601]
 12602 - Blank passwords not allowed [PLG_AUTHENTICATION_SHLDAP_ERR_12602]
-[DEPRECATED] 12603 - No ldap configuration hosts found [PLG_AUTHENTICATION_SHLDAP_ERR_12603]
 12604 - No configurations could authenticate user [PLG_AUTHENTICATION_SHLDAP_ERR_12604]
-[DEPRECATED] 12605 - Failed to connect [PLG_AUTHENTICATION_SHLDAP_ERR_12605]
-[DEPRECATED] 12606 - Failed to get user dn [PLG_AUTHENTICATION_SHLDAP_ERR_12606]
 12611 - Failed to get user attributes [PLG_AUTHENTICATION_SHLDAP_ERR_12611] [PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_ATTRIBUTES_FAIL]
 12612 - Successfully logged in [PLG_AUTHENTICATION_SHLDAP_INFO_12612]
 
-15000-16999 - SSO Errors (2000 Possible Errors)
+
+
+--- Ldap Creation [12800-12899] ---
+
+[S]12801 - General Error ID for raising a exception log in onUserBeforeSave
+[S]12802 - General Error ID for raising a exception log in onUserCreation
+[S]12803 - General Error ID for raising a exception log in onUserAfterSave
+
+[IT]12811 - The XML user creation template '%1$s' does not exist. [PLG_LDAP_CREATION_ERR_12811]
+[IT]12812 - The XML user creation template '%1$s' is invalid. [PLG_LDAP_CREATION_ERR_12812]
+
+[IT]12821 - The user '%1$s' has been successfully created. [PLG_LDAP_CREATION_INFO_12821]
+[I]12826 - The user '%1$s' has been deleted due to user creation failure. [PLG_LDAP_CREATION_INFO_12826]
+
+
+
+
+- SSO Errors [15000-16999] -
 
 15001 - Missing SSO libraries [LIB_SHSSOMONITOR_ERR_15001]
 15051 - Cannot import the plug-in group %1 [LIB_SHSSO_ERR_15051] [LIB_SSOAUTHENTICATION_ERROR_IMPORT_PLUGINS]
