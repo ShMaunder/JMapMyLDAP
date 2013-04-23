@@ -724,4 +724,23 @@ abstract class SHLdapHelper
 		return(!in_array(false, $result, true));
 	}
 
+	/**
+	 * Calls any listening events for onUserFormAuthentication. This is used to
+	 * authenticate a form (i.e. the user's current user password).
+	 *
+	 * @param   array  $form  An array of fields and values with the password inside it.
+	 *
+	 * @return  boolean  True on successful authentication.
+	 *
+	 * @since   2.0
+	 */
+	public static function checkFormAuthentication($form)
+	{
+		$dispatcher = SHFactory::getDispatcher('ldap');
+		if ($result = $dispatcher->trigger('onUserFormAuthentication', array($form)))
+		{
+			return(!in_array(false, $result, true));
+		}
+	}
+
 }
