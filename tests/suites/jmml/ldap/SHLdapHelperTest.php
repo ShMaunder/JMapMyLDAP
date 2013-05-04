@@ -1,6 +1,6 @@
 <?php
 
-class SHLdapHelperTest extends TestCaseDatabase
+class SHLdapHelperTest extends PHPUnit_Framework_TestCase
 {
 	const PLATFORM_CONFIG_FILE = 'platform_config_multi_ns.php';
 
@@ -13,7 +13,7 @@ class SHLdapHelperTest extends TestCaseDatabase
 		parent::setUp();
 		parent::setUpBeforeClass();
 
-		$this->saveFactoryState();
+		//$this->saveFactoryState();
 
 		$this->setUpLdapConfigFiles();
 
@@ -26,7 +26,7 @@ class SHLdapHelperTest extends TestCaseDatabase
 		unlink (static::LDAP_CONFIG_FILE);
 		unlink (static::PLATFORM_CONFIG_FILE);
 		unlink (static::LDAP_BAD_CONFIG_FILE);
-		$this->restoreFactoryState();
+		//$this->restoreFactoryState();
 	}
 
 	protected function setUpLdapConfigFiles()
@@ -144,11 +144,5 @@ class SHLdapHelperTest extends TestCaseDatabase
 		$platform->set('ldap.config', 84);
 
 		SHLdapHelper::getConfig(null, $platform);
-	}
-
-	public function testConfigSql()
-	{
-		// TODO: incomplete - just for testing database connection etc.
-		SHLdapHelper::getConfig();
 	}
 }
