@@ -17,6 +17,4 @@ CREATE TABLE IF NOT EXISTS `jos_sh_config` (
   `value` text NOT NULL,
   PRIMARY KEY (`config_id`),
   UNIQUE KEY `type` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
-
-
+);

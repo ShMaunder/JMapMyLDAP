@@ -18,5 +18,4 @@ CREATE TABLE IF NOT EXISTS `jos_sh_ldap_config` (
   `ordering` int(11) DEFAULT '0',
   `params` text NOT NULL,
   PRIMARY KEY (`ldap_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
+);
