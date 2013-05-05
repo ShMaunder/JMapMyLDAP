@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="shlog" method="upgrade">
+	<name>plg_shlog_ldap</name>
+	<author>Shaun Maunder</author>
+	<creationDate>August 2011</creationDate>
+	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.50</version>
+	<buildDate>Mon Mar 19 18:00:17 GMT 2012</buildDate>
+	<description>PLG_SHLOG_LDAP_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="ldap">ldap.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="enable_error" type="radio" default="1" description="PLG_SHLOG_LDAP_FIELD_ENABLE_ERROR_DESC" label="PLG_SHLOG_LDAP_FIELD_ENABLE_ERROR_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="error_to_screen" type="radio" default="1" description="PLG_SHLOG_LDAP_FIELD_ERROR_TO_SCREEN_DESC" label="PLG_SHLOG_LDAP_FIELD_ERROR_TO_SCREEN_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="log_name_error" type="text" default="ldap.error.php" description="PLG_SHLOG_LDAP_FIELD_LOG_NAME_ERROR_DESC" label="PLG_SHLOG_LDAP_FIELD_LOG_NAME_ERROR_LABEL"/>
+				
+				<field name="spacer1" type="spacer" hr="true"/>
+				<field name="enable_info" type="radio" default="0" description="PLG_SHLOG_LDAP_FIELD_ENABLE_INFO_DESC" label="PLG_SHLOG_LDAP_FIELD_ENABLE_INFO_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="log_name_info" type="text" default="ldap.info.php" description="PLG_SHLOG_LDAP_FIELD_LOG_NAME_INFO_DESC" label="PLG_SHLOG_LDAP_FIELD_LOG_NAME_INFO_LABEL"/>
+				
+				<field name="spacer2" type="spacer" hr="true"/>
+				<field name="enable_debug" type="radio" default="0" description="PLG_SHLOG_LDAP_FIELD_ENABLE_DEBUG_DESC" label="PLG_SHLOG_LDAP_FIELD_ENABLE_DEBUG_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="log_name_debug" type="text" default="ldap.debug.php" description="PLG_SHLOG_LDAP_FIELD_LOG_NAME_DEBUG_DESC" label="PLG_SHLOG_LDAP_FIELD_LOG_NAME_DEBUG_LABEL"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
