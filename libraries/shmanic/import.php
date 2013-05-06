@@ -37,10 +37,16 @@ if (!class_exists('SHFactory'))
 	require_once SHPATH_PLATFORM . '/factory.php';
 }
 
-// Register the JForm class
+// Register the JForm field classes
 if (file_exists(SHPATH_PLATFORM . '/form/fields'))
 {
 	JForm::addFieldPath(SHPATH_PLATFORM . '/form/fields');
+}
+
+// Register the JForm rule classes
+if (file_exists(SHPATH_PLATFORM . '/form/rules'))
+{
+	JForm::addRulePath(SHPATH_PLATFORM . '/form/rules');
 }
 
 // Register JComponentHelper in case it is required later
