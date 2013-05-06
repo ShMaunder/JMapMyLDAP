@@ -87,8 +87,18 @@ class PlgAuthenticationSHAdapter extends JPlugin
 		// Check if a Domain is present which represents a configuration ID
 		if (($domain = JArrayHelper::getValue($options, 'domain', null, 'int')) > 0)
 		{
-			// Not a valid configuration ID
+			// Valid configuration ID (normally for SSO)
 			$credentials['domain'] = $domain;
+		}
+		else
+		{
+			// See if we can get the domain directly from the input
+			$domain = JFactory::getApplication()->input->get('login_domain', 0, 'int');
+
+			if ($domain > 0)
+			{
+				$credentials['domain'] = $domain;
+			}
 		}
 
 		/*
