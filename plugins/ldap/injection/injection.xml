@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="ldap" method="upgrade">
+	<name>plg_ldap_injection</name>
+	<author>Shaun Maunder</author>
+	<creationDate>April 2013</creationDate>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.70</version>
+	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
+	<description>PLG_LDAP_INJECTION_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="injection">injection.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_ldap_injection.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_ldap_injection.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="use_ldap_password" type="radio" default="0" description="PLG_LDAP_INJECTION_FIELD_USE_LDAP_PASSWORD_DESC" label="PLG_LDAP_INJECTION_FIELD_USE_LDAP_PASSWORD_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="ldap_password_layout_edit" type="radio" default="1" description="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_LAYOUT_EDIT_DESC" label="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_LAYOUT_EDIT_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="ldap_password_forms" type="text" default="com_users.profile" description="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_FORMS_DESC" label="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_FORMS_LABEL"/>
+				
+				<field name="spacer1" type="spacer" hr="true"/>
+				
+				<field name="use_ldap_domain" type="radio" default="0" description="PLG_LDAP_INJECTION_FIELD_USE_LDAP_DOMAIN_DESC" label="PLG_LDAP_INJECTION_FIELD_USE_LDAP_DOMAIN_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="ldap_domain_forms" type="text" default="com_users.login" description="PLG_LDAP_INJECTION_FIELD_LDAP_DOMAIN_FORMS_DESC" label="PLG_LDAP_INJECTION_FIELD_LDAP_DOMAIN_FORMS_LABEL"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

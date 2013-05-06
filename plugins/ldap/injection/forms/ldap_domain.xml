@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="credentials">
+		<field name="login_domain" type="sh.ldapdomain"
+			class="validate-ldapdomain"
+			filter="int"
+			label="PLG_LDAP_INJECTION_LOGIN_DOMAIN_LABEL"
+			description="PLG_LDAP_INJECTION_LOGIN_DOMAIN_DESC"
+		/>
+	</fieldset>
+</form>
