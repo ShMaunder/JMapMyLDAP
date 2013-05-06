@@ -1,14 +1,16 @@
 <?php
 /**
- * @author      Shaun Maunder <shaun@shmanic.com>
- * @package     Shmanic.Plugin
- * @subpackage  System.LdapProfile
+ * PHP Version 5.3
  *
- * @copyright	Copyright (C) 2011 Shaun Maunder. All rights reserved.
- * @license		GNU General Public License version 2 or later; see LICENSE.txt
+ * @package     Shmanic.Plugin
+ * @subpackage  Ldap.Profile
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 jimport('joomla.plugin.plugin');
 
@@ -19,7 +21,7 @@ jimport('joomla.plugin.plugin');
  * @subpackage  Ldap.Profile
  * @since       2.0
  */
-class plgLdapProfile extends JPlugin
+class PlgLdapProfile extends JPlugin
 {
 	/**
 	* An object to a instance of LdapProfile
@@ -52,9 +54,6 @@ class plgLdapProfile extends JPlugin
 		// Split and trim the permitted forms
 		$this->permittedForms = explode(';', $this->params->get('permitted_forms'));
 		array_walk($this->permittedForms, 'self::_trimValue');
-
-		// Process the profile XML (this only needs to be done once)
-		$this->xml = $this->profile->getXMLFields();
 	}
 
 	/**
@@ -109,6 +108,12 @@ class plgLdapProfile extends JPlugin
 	 */
 	public function onLdapSync(&$instance, $options = array())
 	{
+		// Process the profile XML (this only needs to be done once)
+		if (is_null($this->xml))
+		{
+			$this->xml = $this->profile->getXMLFields();
+		}
+
 		// Gather the user adapter
 		$username = $instance->username;
 		$adapter = SHFactory::getUserAdapter($username);
@@ -121,8 +126,7 @@ class plgLdapProfile extends JPlugin
 	}
 
 	/**
-	 * Get the profile data then merge it with the
-	 * form so it can be displayed.
+	 * Get the profile data then merge it with the form so it can be displayed.
 	 *
 	 * @param   string  $context  The context for the data (i.e. the form name)
 	 * @param   object  $data     Associated data for the form (this should be JUser in this context)
@@ -143,6 +147,12 @@ class plgLdapProfile extends JPlugin
 		if (!in_array($context, $this->permittedForms))
 		{
 			return true;
+		}
+
+		// Process the profile XML (this only needs to be done once)
+		if (is_null($this->xml))
+		{
+			$this->xml = $this->profile->getXMLFields();
 		}
 
 		// Check if this user should have a profile
@@ -166,8 +176,7 @@ class plgLdapProfile extends JPlugin
 	}
 
 	/**
-	 * Loads the profile XML and passes it to the form to
-	 * load the fields (excluding data).
+	 * Loads the profile XML and passes it to the form to load the fields (excluding data).
 	 *
 	 * @param   JForm  $form  The form to be altered.
 	 * @param   array  $data  The associated data for the form.
@@ -196,20 +205,32 @@ class plgLdapProfile extends JPlugin
 			return true;
 		}
 
+		// Process the profile XML (this only needs to be done once)
+		if (is_null($this->xml))
+		{
+			$this->xml = $this->profile->getXMLFields();
+		}
+
+		$showForm = true;
+
 		// Check if this user should have a profile
 		if ($userId = isset($data->id) ? $data->id : 0)
 		{
-			if (SHLdapHelper::isUserLdap($userId))
+			if (!SHLdapHelper::isUserLdap($userId))
 			{
-				// Load in the profile XML file to the form
-				if (($xml = JFactory::getXML($this->profile->getXMLPath(), true)) && ($form->load($xml, false, false)))
-				{
-					// Successfully loaded in the XML
-					return true;
-				}
+				$showForm = false;
 			}
 		}
 
+		if ($showForm)
+		{
+			// Load in the profile XML file to the form
+			if (($xml = JFactory::getXML($this->profile->xmlFilePath, true)) && ($form->load($xml, false, false)))
+			{
+				// Successfully loaded in the XML
+				return true;
+			}
+		}
 	}
 
 	// Delete the profile
@@ -222,9 +243,14 @@ class plgLdapProfile extends JPlugin
 
 		if ($userId = JArrayHelper::getValue($user, 'id', 0, 'int'))
 		{
+			// Process the profile XML (this only needs to be done once)
+			if (is_null($this->xml))
+			{
+				$this->xml = $this->profile->getXMLFields();
+			}
+
 			$this->profile->deleteProfile($userId);
 		}
-
 	}
 
 	/**
@@ -248,6 +274,12 @@ class plgLdapProfile extends JPlugin
 			return;
 		}
 
+		// Process the profile XML (this only needs to be done once)
+		if (is_null($this->xml))
+		{
+			$this->xml = $this->profile->getXMLFields();
+		}
+
 		// Default the return result to true
 		$result = true;
 
@@ -268,10 +300,33 @@ class plgLdapProfile extends JPlugin
 			$profileData = $this->profile->cleanInput($this->xml, $new['ldap_profile']);
 
 			// Save the profile back to LDAP
-			$result = $this->profile->saveToLDAP($this->xml, $username, $password, $profileData, $mandatoryData);
+			$result = $this->profile->saveToLDAP($this->xml, $username, $profileData, $mandatoryData);
 		}
 
 		return $result;
+	}
+
+	public function onUserAfterSave($user, $isNew, $success, $msg)
+	{
+		// Refresh profile for this user in J! database
+		if ($userId = JUserHelper::getUserId($user['username']))
+		{
+			// Process the profile XML (this only needs to be done once)
+			if (is_null($this->xml))
+			{
+				$this->xml = $this->profile->getXMLFields();
+			}
+
+			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12235', $user['username']), 12235, JLog::INFO, 'ldap');
+
+			$adapter = SHFactory::getUserAdapter($user['username']);
+
+			$instance = new JUser($userId);
+			$this->profile->saveProfile($this->xml, $instance, $adapter);
+
+			// Everything went well - we have updated both LDAP and the J! database.
+			return true;
+		}
 	}
 
 	/**
@@ -287,6 +342,12 @@ class plgLdapProfile extends JPlugin
 	 */
 	public function onLdapBeforeRead($adapter, $options = array())
 	{
+		// Process the profile XML (this only needs to be done once)
+		if (is_null($this->xml))
+		{
+			$this->xml = $this->profile->getXMLFields();
+		}
+
 		if ($this->xml)
 		{
 			return $this->profile->getAttributes($this->xml);

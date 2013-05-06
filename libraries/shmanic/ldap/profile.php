@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  Ldap
  * @since       2.0
  */
-class SHLdapProfile extends JObject
+class SHLdapProfile
 {
 	/**
 	* Synchronise fullname with joomla database
@@ -40,7 +40,7 @@ class SHLdapProfile extends JObject
 	protected $sync_email = null;
 
 	/**
-	* Profile XML name to use
+	* Profile XML name to use.
 	*
 	* @var    string
 	* @since  2.0
@@ -48,18 +48,78 @@ class SHLdapProfile extends JObject
 	protected $profile_name = null;
 
 	/**
-	 * Class constructor.
+	* Profile XML base to use.
+	*
+	* @var    string
+	* @since  2.0
+	*/
+	protected $profile_base = null;
+
+	/**
+	 * Method to get certain otherwise inaccessible properties from the profile object.
 	 *
-	 * @param   array  $parameters  The LDAP Profile parameters
+	 * @param   string  $name  The property name for which to the the value.
+	 *
+	 * @return  mixed  The property value or null.
 	 *
 	 * @since   2.0
 	 */
-	public function __construct($parameters)
+	public function __get($name)
 	{
-		$parameters = ($parameters instanceof JRegistry) ?
-			$parameters->toArray() : $parameters;
+		switch ($name)
+		{
+			case 'xmlFilePath':
+				return $this->profile_base . '/' . $this->profile_name . '.xml';
+				break;
+		}
 
-		parent::__construct($parameters);
+		return null;
+	}
+
+	/**
+	 * Class constructor.
+	 *
+	 * @param   object  $configObj  An object of configuration variables.
+	 *
+	 * @since   2.0
+	 */
+	public function __construct($configObj)
+	{
+		if (is_null($configObj))
+		{
+			// Parameters will need setting later
+			$configArr = array();
+		}
+		elseif ($configObj instanceof JRegistry)
+		{
+			// JRegistry object needs to be converted to an array
+			$configArr = $configObj->toArray();
+		}
+		elseif (is_array($configObj))
+		{
+			// The parameter was an array already
+			$configArr = $configObj;
+		}
+		else
+		{
+			// Unknown format
+			throw new InvalidArgumentException(JText::_('LIB_LDAP_PROFILE_ERR_12211'), 12211);
+		}
+
+		// Assign the configuration to their respected class properties only if they exist
+		foreach ($configArr as $k => $v)
+		{
+			if (property_exists($this, $k))
+			{
+				$this->$k = $v;
+			}
+		}
+
+		if (empty($this->profile_base))
+		{
+			// Use default base path
+			$this->profile_base = JPATH_PLUGINS . '/ldap/profile/profiles';
+		}
 
 		// Load languages for errors
 		JFactory::getLanguage()->load('lib_ldap_profile', JPATH_BASE);
@@ -94,42 +154,6 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Builds and returns the full path to the profile XML.
-	*
-	* @param   string  $base  Optional base path to find the profile XML (default is ./profiles)
-	*
-	* @return  string  Full path to the profile XML
-	*
-	* @since   2.0
-	*/
-	public function getXMLPath($base = null)
-	{
-
-		if (is_null($this->profile_name))
-		{
-			return false;
-		}
-
-		if (is_null($base))
-		{
-			$base = JPATH_PLUGINS . '/ldap/profile/profiles';
-		}
-
-		$file = $base . '/' . $this->profile_name . '.xml';
-
-		if (is_file($file))
-		{
-			return $file;
-		}
-		else
-		{
-			// XML file doesn't exist
-			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12201', $file), 12201, JLog::ERROR, 'ldap');
-		}
-
-	}
-
-	/**
 	* Include the optional profile language and return the XML profile fields.
 	*
 	* @param   string  $xmlPath   Optional full path to the profile XML
@@ -139,12 +163,27 @@ class SHLdapProfile extends JObject
 	* @return  JXMLElement  Required XML profile fields
 	*
 	* @since   2.0
+	* @throws  RuntimeException
 	*/
 	public function getXMLFields($xmlPath = null, $langPath = null, $fields = null)
 	{
-		$xmlPath = is_null($xmlPath) ? $this->getXMLPath() : $xmlPath;
+		if (is_null($xmlPath))
+		{
+			if (is_null($this->profile_name))
+			{
+				throw new RuntimeException(JText::_('LIB_LDAP_PROFILE_ERR_12214'), 12214);
+			}
 
-		$langPath = is_null($langPath) ? JPATH_PLUGINS . '/ldap/profile/profiles' : $langPath;
+			$xmlPath = $this->xmlFilePath;
+		}
+
+		if (!file_exists($xmlPath))
+		{
+			// XML file doesn't exist
+			throw new RuntimeException(JText::sprintf('LIB_LDAP_PROFILE_ERR_12201', $file), 12201);
+		}
+
+		$langPath = is_null($langPath) ? $this->profile_base : $langPath;
 
 		$fields = is_null($fields) ? 'ldap_profile' : $fields;
 
@@ -161,17 +200,10 @@ class SHLdapProfile extends JObject
 				$lang->load($this->profile_name, $langPath);
 				return $xml[0];
 			}
-			else
-			{
-				// Invalid profile XML
-				SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12203', $xmlPath), 12203, JLog::ERROR, 'ldap');
-			}
 		}
-		else
-		{
-			// Cannot load the XML file
-			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_ERR_12203', $xmlPath), 12203, JLog::ERROR, 'ldap');
-		}
+
+		// Cannot load the XML file
+		throw new RuntimeException(JText::sprintf('LIB_LDAP_PROFILE_ERR_12203', $xmlPath), 12203);
 	}
 
 	/**
@@ -206,31 +238,22 @@ class SHLdapProfile extends JObject
 	* @return  boolean  True on success
 	*
 	* @since   2.0
+	* @throws  JDatabaseException
 	*/
 	public function deleteProfile($userId)
 	{
-		if (!$userId = (int) $userId)
-		{
-			return false;
-		}
-
 		SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12211', $userId), 12211, JLog::INFO, 'ldap');
 
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 
-		$query->delete($query->qn('#__user_profiles'))
-			->where($query->qn('user_id') . ' = ' . $query->q($userId))
-			->where($query->qn('profile_key') . ' LIKE \'ldap.%\'');
+		$query->delete($query->quoteName('#__user_profiles'))
+			->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId))
+			->where($query->quoteName('profile_key') . ' LIKE \'ldap.%\'');
 
 		$db->setQuery($query);
 
-		if (!$db->query())
-		{
-			return false;
-		}
-
-		return true;
+		return $db->query();
 	}
 
 	/**
@@ -245,36 +268,29 @@ class SHLdapProfile extends JObject
 	*/
 	public function queryProfile($userId, $clean = false)
 	{
-		if (!$userId = (int) $userId)
-		{
-			return false;
-		}
-
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 
 		if ($clean)
 		{
-			$query->select('REPLACE(' . $query->qn('profile_key') .
-				', \'ldap.\', \'\')' . $query->qn('profile_key')
+			$query->select('REPLACE(' . $query->quoteName('profile_key') .
+				', \'ldap.\', \'\')' . $query->quoteName('profile_key')
 			);
-
 		}
 		else
 		{
-			$query->select($query->qn('profile_key'));
+			$query->select($query->quoteName('profile_key'));
 		}
 
-		$query->select($query->qn('profile_value'))
-			->from($query->qn('#__user_profiles'))
-			->where($query->qn('user_id') . ' = ' . $query->q($userId))
-			->where($query->qn('profile_key') . ' LIKE \'ldap.%\'')
-			->order($query->qn('ordering'));
+		$query->select($query->quoteName('profile_value'))
+			->from($query->quoteName('#__user_profiles'))
+			->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId))
+			->where($query->quoteName('profile_key') . ' LIKE \'ldap.%\'')
+			->order($query->quoteName('ordering'));
 
 		$db->setQuery($query);
 
 		return $db->loadAssocList();
-
 	}
 
 	/**
@@ -290,33 +306,36 @@ class SHLdapProfile extends JObject
 	*/
 	public function addRecords($userId, $attributes, $order)
 	{
-		if (!$userId = (int) $userId)
-		{
-			return false;
-		}
-
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 
-		$query->insert($query->qn('#__user_profiles'))
-			->columns(array($query->qn('user_id'), $query->qn('profile_key'), $query->qn('profile_value'), $query->qn('ordering')));
+		$query->insert($query->quoteName('#__user_profiles'))
+			->columns(
+				array(
+					$query->quoteName('user_id'),
+					$query->quoteName('profile_key'),
+					$query->quoteName('profile_value'),
+					$query->quoteName('ordering')
+				)
+			);
 
 		foreach ($attributes as $key => $value)
 		{
 			$key = 'ldap.' . $key;
 
-			$query->values($query->q($userId) . ', ' . $query->q($key) . ', ' . $db->quote($value) . ', ' . $query->q($order));
+			$query->values(
+				$query->quote((int) $userId) . ', ' .
+				$query->quote($key) . ', ' .
+				$db->quote($value) . ', ' .
+				$query->quote($order)
+			);
+
 			++$order;
 		}
 
 		$db->setQuery($query);
 
-		if (!$db->query())
-		{
-			return false;
-		}
-
-		return true;
+		return $db->query();
 	}
 
 	/**
@@ -331,10 +350,7 @@ class SHLdapProfile extends JObject
 	*/
 	public function updateRecords($userId, $attributes)
 	{
-		if (!$userId = (int) $userId)
-		{
-			return false;
-		}
+		$result = true;
 
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
@@ -342,23 +358,22 @@ class SHLdapProfile extends JObject
 		foreach ($attributes as $key => $value)
 		{
 			$key = 'ldap.' . $key;
-			$query->update($query->qn('#__user_profiles'))
-				->set($query->qn('profile_value') . ' = ' . $db->quote($value))
-				->where($query->qn('profile_key') . ' = ' . $query->q($key))
-				->where($query->qn('user_id') . ' = ' . $query->q($userId));
+			$query->update($query->quoteName('#__user_profiles'))
+				->set($query->quoteName('profile_value') . ' = ' . $db->quote($value))
+				->where($query->quoteName('profile_key') . ' = ' . $query->quote($key))
+				->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId));
 
 			$db->setQuery($query);
 
 			if (!$db->query())
 			{
-				return false;
+				$result = false;
 			}
 
 			$query->clear();
-
 		}
 
-		return true;
+		return $result;
 	}
 
 	/**
@@ -373,11 +388,7 @@ class SHLdapProfile extends JObject
 	*/
 	public function deleteRecords($userId, $attributes)
 	{
-
-		if (!$userId = (int) $userId)
-		{
-			return false;
-		}
+		$result = true;
 
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
@@ -385,22 +396,21 @@ class SHLdapProfile extends JObject
 		foreach ($attributes as $key)
 		{
 			$key = 'ldap.' . $key;
-			$query->delete($query->qn('#__user_profiles'))
-				->where($query->qn('user_id') . ' = ' . $query->q($userId))
-				->where($query->qn('profile_key') . ' = ' . $query->q($key));
+			$query->delete($query->quoteName('#__user_profiles'))
+				->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId))
+				->where($query->quoteName('profile_key') . ' = ' . $query->quote($key));
 
 			$db->setQuery($query);
 
 			if (!$db->query())
 			{
-				return false;
+				$result = false;
 			}
 
 			$query->clear();
-
 		}
 
-		return true;
+		return $result;
 	}
 
 	/**
@@ -620,119 +630,83 @@ class SHLdapProfile extends JObject
 	}
 
 	/**
-	* Save the profile to LDAP and then call for a Joomla! database refresh
-	* so both data sources have the same information.
+	* Stage the profile to LDAP ready for committing.
 	*
 	* @param   JXMLElement  $xml        XML profile fields.
 	* @param   string       $username   Username of profile owner to change.
-	* @param   string       $password   Optional profile password to use for LDAP bind.
 	* @param   array        $profile    Array of profile fields to save (key=>value).
 	* @param   array        $mandatory  Array of mandatory joomla fields to save like name and email.
 	*
 	* @return  boolean  True on success
 	*
 	* @since   2.0
+	* @throws  Exception
 	*/
-	public function saveToLDAP(JXMLElement $xml, $username, $password = null, $profile = array(), $mandatory = array())
+	public function saveToLDAP(JXMLElement $xml, $username, $profile = array(), $mandatory = array())
 	{
-		/*
-		 * Use the supplied username and password for Ldap (depending on
-		 * proxy_write indicates whether password is used to bind).
-		 */
-		$auth = array(
-			'authenticate' => SHLdap::AUTH_USER,
-			'username' => $username,
-			'password' => $password
-		);
+		// Setup the profile user in user adapter
+		$adapter = SHFactory::getUserAdapter($username);
 
-		try
+		$processed = array();
+
+		// Loop around each profile field
+		foreach ($profile as $key => $value)
 		{
-			// Setup the profile user in user adapter
-			$adapter = SHFactory::getUserAdapter($auth);
+			$delimiter 	= null;
+			$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
 
-			// Retrieve user attributes
-			$adapter->getAttributes();
-
-			$processed = array();
-
-			// Loop around each profile field
-			foreach ($profile as $key => $value)
+			if ($delimiter = (string) $xmlField[0]['delimiter'])
 			{
-				$delimiter 	= null;
-				$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
-
-				if ($delimiter = (string) $xmlField[0]['delimiter'])
+				/* Multiple values - we will use a delimiter to represent
+				 * the extra data in Joomla. We also use a newline override
+				 * as this is probably going to be the most popular delimter.
+				 */
+				if (strToUpper($delimiter) == 'NEWLINE')
 				{
-					/* Multiple values - we will use a delimiter to represent
-					 * the extra data in Joomla. We also use a newline override
-					 * as this is probably going to be the most popular delimter.
-					 */
-					if (strToUpper($delimiter) == 'NEWLINE')
-					{
-						$delimiter = '\r\n|\r|\n';
-					}
-
-					// Split up the delimited profile field
-					$newValues = preg_split("/$delimiter/", $value);
-
-					// Resave the split profile field into a new array set
-					for ($i = 0; $i < count($newValues); ++$i)
-					{
-						$processed[$key][$i] = $newValues[$i];
-					}
-
+					$delimiter = '\r\n|\r|\n';
 				}
-				else
+
+				// Split up the delimited profile field
+				$newValues = preg_split("/$delimiter/", $value);
+
+				// Resave the split profile field into a new array set
+				for ($i = 0; $i < count($newValues); ++$i)
 				{
-					// Single Value
-					$processed[$key] = $value;
+					$processed[$key][$i] = $newValues[$i];
 				}
+
 			}
-
-			// Do the Mandatory Joomla field saving for name/fullname
-			if ((int) $this->get('sync_name', 0) === 2)
+			else
 			{
-				if (($key = $adapter->getFullname(true)) && ($value = JArrayHelper::getValue($mandatory, 'name')))
-				{
-					$processed[$key] = $value;
-				}
+				// Single Value
+				$processed[$key] = $value;
 			}
-
-			// Do the Mandatory Joomla field saving for email
-			if ((int) $this->get('sync_email', 0) === 2)
-			{
-				if (($key = $adapter->getEmail(true)) && ($value = JArrayHelper::getValue($mandatory, 'email')))
-				{
-					$processed[$key] = $value;
-				}
-			}
-
-			if (count($processed))
-			{
-				// Lets save the new (current) fields to the LDAP DN
-				$adapter->setAttributes($processed);
-
-				// Refresh profile for this user in J! database
-				if ($userId = JUserHelper::getUserId($username))
-				{
-					SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12235', $username), 12235, JLog::INFO, 'ldap');
-
-					$instance = new JUser($userId);
-					$this->saveProfile($xml, $instance, $adapter);
-
-					// Everything went well - we have updated both LDAP and the J! database.
-					return true;
-				}
-			}
-
-		}
-		catch (Exception $e)
-		{
-			// Error: failed to connect to LDAP
-			// TODO: put in exception message
-			SHLog::add(JText::_('LIB_LDAP_PROFILE_ERR_12231'), 12231, JLog::ERROR, 'ldap');
-			return false;
 		}
 
+		// Do the Mandatory Joomla field saving for name/fullname
+		if ((int) $this->sync_name === 2)
+		{
+			if (($key = $adapter->getFullname(true)) && ($value = JArrayHelper::getValue($mandatory, 'name')))
+			{
+				$processed[$key] = $value;
+			}
+		}
+
+		// Do the Mandatory Joomla field saving for email
+		if ((int) $this->sync_email === 2)
+		{
+			if (($key = $adapter->getEmail(true)) && ($value = JArrayHelper::getValue($mandatory, 'email')))
+			{
+				$processed[$key] = $value;
+			}
+		}
+
+		if (count($processed))
+		{
+			// Lets save the new (current) fields to the LDAP DN
+			$adapter->setAttributes($processed);
+		}
+
+		return true;
 	}
 }
