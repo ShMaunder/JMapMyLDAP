@@ -111,11 +111,14 @@ Starting Letters:
 
 
 
--- LDAP User Adapter [10800-10899] --
+-- LDAP User Adapter [10800-10979] --
 10901 - Cannot complete LDAP operation due to failure of binding as proxy user [LIB_SHUSERADAPTERSLDAP_ERR_10901]
 10906 - User has been deleted [LIB_SHUSERADAPTERSLDAP_ERR_10906]
 10909 - Cannot create a new user when user already exists [LIB_SHUSERADAPTERSLDAP_ERR_10909]
 
+
+-- LDAP Event Bouncer [10980-10999] --
+10981 - Failed to commit the user changes to Ldap.
 
 
 -- LDAP plug-in calls for Monitor (DEBUG ONLY - TBR) [11901-11999] --
@@ -146,6 +149,7 @@ Starting Letters:
 
 -- Ldap Password [12400-12599] --
 
+12401 - General Error ID for raising a exception log in onUserAfterSave
 
 
 -- SHLdap Authentication [12600-12799] --
