@@ -720,11 +720,11 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				switch ($return)
 				{
 					case 1:
-						$replaceEntries[$key] = $value;
+						$replaceEntries[$key] = array($value);
 						break;
 
 					case 2:
-						$addEntries[$key] = $value;
+						$addEntries[$key] = array($value);
 						break;
 
 					case 3:
