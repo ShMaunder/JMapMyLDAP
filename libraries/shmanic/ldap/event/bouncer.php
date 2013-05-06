@@ -226,7 +226,24 @@ class SHLdapEventBouncer extends JEvent
 		{
 			if (self::_checkParameter($params))
 			{
-				return SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new));
+				if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+				{
+					try
+					{
+						// Commit the changes to the Adapter if present
+						$adapter = SHFactory::getUserAdapter(JArrayHelper::getValue($user, 'username'));
+						$adapter->commitChanges();
+					}
+					catch (Excpetion $e)
+					{
+						SHLog::add($e, 10981, JLog::ERROR, 'ldap');
+					}
+
+					// For now lets NOT block the user from logging in even with a error
+					return true;
+				}
+
+				return false;
 			}
 		}
 
