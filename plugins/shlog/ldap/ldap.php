@@ -25,7 +25,9 @@ class PlgShlogLdap extends JPlugin
 {
 	const LOGGER_FILE = 'formattedtext';
 
-	const FILE_FORMAT = '{DATETIME}	{ID}	{MESSAGE}	{FULL}';
+	const LOGGER_SCREEN = 'messagequeue';
+
+	const LDAP_CATEGORY = 'ldap';
 
 	/**
 	 * Fired on log initialiser.
@@ -36,32 +38,8 @@ class PlgShlogLdap extends JPlugin
 	 */
 	public function onLogInitialise()
 	{
-		/*
-		 * Deals with the Error level logs.
-		 */
-		if ($this->params->get('enable_error', true))
-		{
-			// Setup a error file logger
-			JLog::addLogger(
-				array(
-					'logger' => self::LOGGER_FILE,
-					'text_file' => $this->params->get('log_name_error', 'ldap.error.php'),
-					'text_entry_format' => self::FILE_FORMAT
-				),
-				JLog::ERROR,
-				array('ldap')
-			);
-
-			if ($this->params->get('error_to_screen', true))
-			{
-				// Setup a error on-screen logger
-				JLog::addLogger(
-					array('logger' => 'messagequeue'),
-					JLog::ERROR,
-					array('ldap')
-				);
-			}
-		}
+		// This is the columns that the log files will use
+		$fileFormat = $this->params->get('FILE_FORMAT', '{DATETIME}	{ID}	{MESSAGE}');
 
 		/*
 		 * Deals with the Information level logs.
@@ -73,15 +51,15 @@ class PlgShlogLdap extends JPlugin
 				array(
 					'logger' => self::LOGGER_FILE,
 					'text_file' => $this->params->get('log_name_info', 'ldap.info.php'),
-					'text_entry_format' => self::FILE_FORMAT
+					'text_entry_format' => $fileFormat
 				),
 				JLog::INFO,
-				array('ldap')
+				array(self::LDAP_CATEGORY)
 			);
 		}
 
 		/*
-		 * Deals with the Debugging level logs.
+		 * Deals with the Debugging level logs (which includes all levels internally).
 		 */
 		if ($this->params->get('enable_debug', true))
 		{
@@ -90,11 +68,38 @@ class PlgShlogLdap extends JPlugin
 				array(
 					'logger' => self::LOGGER_FILE,
 					'text_file' => $this->params->get('log_name_debug', 'ldap.debug.php'),
-					'text_entry_format' => self::FILE_FORMAT
+					'text_entry_format' => $fileFormat
 				),
-				JLog::DEBUG,
-				array('ldap')
+				JLog::ALL,
+				array(self::LDAP_CATEGORY)
 			);
+		}
+
+		/*
+		 * Deals with the Error level logs.
+		 */
+		if ($this->params->get('enable_error', true))
+		{
+			// Setup a error file logger
+			JLog::addLogger(
+				array(
+					'logger' => self::LOGGER_FILE,
+					'text_file' => $this->params->get('log_name_error', 'ldap.error.php'),
+					'text_entry_format' => $fileFormat
+				),
+				JLog::ERROR,
+				array(self::LDAP_CATEGORY)
+			);
+
+			if ($this->params->get('error_to_screen', true))
+			{
+				// Setup a error on-screen logger
+				JLog::addLogger(
+					array('logger' => self::LOGGER_SCREEN),
+					JLog::ERROR,
+					array(self::LDAP_CATEGORY)
+				);
+			}
 		}
 	}
 }
