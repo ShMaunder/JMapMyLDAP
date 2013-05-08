@@ -133,6 +133,10 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			// Configuration or authentication failure
 			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
+
+			// Process a error log even if it could be a simple incorrect user
+			SHLog::add($e, 12621, JLog::ERROR, 'ldap');
+
 			return;
 		}
 	}
@@ -216,7 +220,7 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12611');
 
 			// Process a error log
-			SHLog::add(JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12611'), 12611, JLog::ERROR, 'ldap');
+			SHLog::add($e, 12622, JLog::ERROR, 'ldap');
 
 			return false;
 		}
