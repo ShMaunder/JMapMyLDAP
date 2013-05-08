@@ -90,7 +90,7 @@ class SHLogEntriesException extends SHLogEntriesId
 		$message = $exception->getMessage();
 
 		// Trace
-		$this->backTrace = $exception->getTraceAsString();
+		$this->trace = $exception->getTraceAsString();
 
 		// File occurred
 		$this->file = $exception->getFile();
