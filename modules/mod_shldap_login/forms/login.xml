@@ -18,7 +18,7 @@
 			id="modlgn-password"
 		/>
 		
-		<field name="ldapdomain" type="sh.ldapdomain"
+		<field name="login_domain" type="sh.ldapdomain"
 			filter="int"
 			label="MOD_SHLDAP_LOGIN_VALUE_DOMAIN"
 			id="modlgn-domain"

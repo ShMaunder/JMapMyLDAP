@@ -1,6 +1,6 @@
 <?php
 /**
- * Orginally forked from the Joomla! 2.5 mod_login module.
+ * Orginally forked from the Joomla! 2.5 MOD_SHLDAP_LOGIN module.
  *
  * PHP Version 5.3
  *
@@ -42,7 +42,7 @@ JHtml::_('behavior.keepalive');
 </form>
 <?php else : ?>
 <form action="<?php echo JRoute::_('index.php', true, $params->get('usesecure')); ?>" method="post" id="login-form" >
-	<?php if ($params->get('pretext')) : ?>
+	<?php if ($params->get('pretext')): ?>
 		<div class="pretext">
 		<p><?php echo $params->get('pretext'); ?></p>
 		</div>
@@ -73,27 +73,34 @@ JHtml::_('behavior.keepalive');
 			<?php echo $field->input; ?></p>
 		<?php endif; ?>
 	<?php endforeach; ?>
-
 	<input type="submit" name="Submit" class="button" value="<?php echo JText::_('JLOGIN') ?>" />
-	<input type="hidden" name="option" value="com_shldap" />
+	<input type="hidden" name="option" value="com_users" />
 	<input type="hidden" name="task" value="user.login" />
 	<input type="hidden" name="return" value="<?php echo $return; ?>" />
 	<?php echo JHtml::_('form.token'); ?>
 	</fieldset>
 	<ul>
+		<li>
+			<a href="<?php echo JRoute::_('index.php?option=com_users&view=reset'); ?>">
+			<?php echo JText::_('MOD_SHLDAP_LOGIN_FORGOT_YOUR_PASSWORD'); ?></a>
+		</li>
+		<li>
+			<a href="<?php echo JRoute::_('index.php?option=com_users&view=remind'); ?>">
+			<?php echo JText::_('MOD_SHLDAP_LOGIN_FORGOT_YOUR_USERNAME'); ?></a>
+		</li>
 		<?php
 		$usersConfig = JComponentHelper::getParams('com_users');
 		if ($usersConfig->get('allowUserRegistration')) : ?>
 		<li>
-			<a href="<?php echo JRoute::_('index.php?option=com_shldap&view=registration'); ?>">
+			<a href="<?php echo JRoute::_('index.php?option=com_users&view=registration'); ?>">
 				<?php echo JText::_('MOD_SHLDAP_LOGIN_REGISTER'); ?></a>
 		</li>
 		<?php endif; ?>
 	</ul>
-	<?php if ($params->get('posttext')) : ?>
+	<?php if ($params->get('posttext')): ?>
 		<div class="posttext">
 		<p><?php echo $params->get('posttext'); ?></p>
 		</div>
 	<?php endif; ?>
 </form>
-<?php endif;
+<?php endif; ?>

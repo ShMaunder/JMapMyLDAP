@@ -22,7 +22,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  mod_shldap_login
  * @since       2.0
  */
-abstract class modShldapLoginHelper
+abstract class ModShldapLoginHelper
 {
 	public static function getReturnURL($params, $type)
 	{
