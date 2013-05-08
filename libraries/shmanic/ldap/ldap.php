@@ -353,7 +353,16 @@ class SHLdap
 		}
 
 		// Failed to find any configs to match
-		throw new SHExceptionStacked(JText::_('LIB_SHLDAP_ERR_10411'), 10411, $errors);
+		if (count($errors) > 1)
+		{
+			// More than one config caused issues, use the stacked exception
+			throw new SHExceptionStacked(JText::_('LIB_SHLDAP_ERR_10411'), 10411, $errors);
+		}
+		else
+		{
+			// Just rethrow the one exception
+			throw $errors[0];
+		}
 	}
 
 	/**
@@ -473,7 +482,7 @@ class SHLdap
 		if (!extension_loaded('ldap'))
 		{
 			// Ldap extension is not loaded
-			throw new RunTimeException(JText::_('LIB_SHLDAP_ERR_991'), 990);
+			throw new RunTimeException(JText::_('LIB_SHLDAP_ERR_991'), 991);
 		}
 
 		// Reset resource & debug
@@ -592,7 +601,7 @@ class SHLdap
 		{
 			// Failed to connect
 			throw new SHLdapException(
-				$this->getErrorCode(), 10002, JText::sprintf('LIB_SHLDAP_ERR_10002', $this->info)
+				$this->getErrorCode(), 10002, JText::_('LIB_SHLDAP_ERR_10002')
 			);
 		}
 
