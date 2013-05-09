@@ -16,7 +16,7 @@ defined('JPATH_PLATFORM') or die;
  * Exception that also stores a username when a invalid user error occurs.
  *
  * @package     Shmanic.Libraries
- * @subpackage  Ldap
+ * @subpackage  Exception
  * @since       2.0
  */
 class SHExceptionInvaliduser extends Exception
@@ -41,6 +41,9 @@ class SHExceptionInvaliduser extends Exception
 	public function __construct($message = null, $code = 0, $username = null)
 	{
 		$this->username = $username;
+
+		// Convert the username now
+		$message = str_replace('[username]', $this->username, $message);
 
 		parent::__construct($message, $code, null);
 	}

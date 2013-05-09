@@ -80,11 +80,7 @@ class SHLog
 		if (!($entry instanceof JLogEntry))
 		{
 			// Check if the entry object is an exception
-			if ($entry instanceof SHExceptionInvaliduser)
-			{
-				$entry = new SHLogEntriesInvaliduser($entry, $id, $priority, $category, $date);
-			}
-			elseif ($entry instanceof Exception)
+			if ($entry instanceof Exception)
 			{
 				$entry = new SHLogEntriesException($entry, $id, $priority, $category, $date);
 			}

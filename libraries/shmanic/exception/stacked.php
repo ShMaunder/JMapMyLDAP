@@ -16,7 +16,7 @@ defined('JPATH_PLATFORM') or die;
  * Exception that stacks other exceptions in the same exception.
  *
  * @package     Shmanic.Libraries
- * @subpackage  Ldap
+ * @subpackage  Exception
  * @since       2.0
  */
 class SHExceptionStacked extends Exception
@@ -41,6 +41,21 @@ class SHExceptionStacked extends Exception
 	public function __construct($message = null, $code = 0, $stacked = array())
 	{
 		$this->stacked = $stacked;
+
+		// Get the stacked exceptions and loop around each to parse them
+		$stackedMsg = null;
+		foreach ($this->stacked as $item)
+		{
+			if (!is_null($stackedMsg))
+			{
+				$stackedMsg .= '; ';
+			}
+
+			$stackedMsg .= $item->getCode() . ': ' . $item->getMessage();
+		}
+
+		// Combine the message in the form "MSG :: [STACKED ERRORS]"
+		$message = "{$message} :: [{$stackedMsg}]";
 
 		parent::__construct($message, $code, null);
 	}
