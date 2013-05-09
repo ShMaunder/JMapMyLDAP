@@ -108,7 +108,9 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 
 -- LDAP Event Bouncer [10980-10999] --
-10981 - Failed to commit the user changes to Ldap.
+[S]10981 - Failed to commit the user changes to Ldap.
+[IT]10984 - Saving changes to Joomla user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_DEBUG_10984]
+
 
 
 -- LDAP plug-in calls for Monitor (DEBUG ONLY) [11901-11999] --
@@ -133,17 +135,23 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 -- Ldap Profile [12200-12399] --
 
-12201 - The XML profile at '%1$s' does not exist. [LIB_LDAP_PROFILE_ERR_12201]
-12202 - The XML profile is loaded and appears to be valid. [LIB_LDAP_PROFILE_DEBUG_12202]
-12203 - Failed to load in the profile XML '%1$s'. [LIB_LDAP_PROFILE_ERR_12203]
+[I]12201 - Failed to find XML profile '%1$s'. [PLG_LDAP_PROFILE_ERR_12201]
+[I]12202 - The XML profile is loaded and appears to be valid. [PLG_LDAP_PROFILE_DEBUG_12202]
+[I]12203 - Failed to load XML profile '%1$s'. [PLG_LDAP_PROFILE_ERR_12203]
+[I]12204 - Profile name parameter is empty. [PLG_LDAP_PROFILE_ERR_12204]
 
-12211 - Unknown LDAP Profile config object. [LIB_LDAP_PROFILE_ERR_12211]
-12214 - Profile name parameter is missing. [LIB_LDAP_PROFILE_ERR_12214]
+[I]12211 - Deleting LDAP user profile for '%1$s'. [PLG_LDAP_PROFILE_INFO_12211]
 
-12211 - Deleted LDAP profile for User ID %1$d. [LIB_LDAP_PROFILE_INFO_12211]
+[I]12221 - Attempting to sync LDAP user profile for '%1$s'. [PLG_LDAP_PROFILE_DEBUG_12221]
 
-12221 - Attempting to Sync profile for user '%1$s'. [LIB_LDAP_PROFILE_DEBUG_12221]
+[I]12224 - Updated LDAP user profile for '%1$s'. [PLG_LDAP_PROFILE_INFO_12224]
+[I]12225 - Updated one or more LDAP user profile fields in the Joomla database for '%1$s' with result %2$s. [PLG_LDAP_PROFILE_DEBUG_12225]
+[I]12226 - LDAP user profile for '%1$s' is already up to date. [PLG_LDAP_PROFILE_DEBUG_12226]
 
+[S]12231 - General Error ID for raising a exception log in onLdapSync
+[S]12232 - General Error ID for raising a exception log in onUserBeforeSave
+[S]12233 - General Error ID for raising a exception log in onUserAfterSave
+[S]12234 - General Error ID for raising a exception log in onUserAfterDelete
 
 
 -- Ldap Password [12400-12599] --

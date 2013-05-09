@@ -24,17 +24,70 @@ jimport('joomla.plugin.plugin');
 class PlgLdapProfile extends JPlugin
 {
 	/**
-	* An object to a instance of LdapProfile
-	*
-	* @var    SHLdapProfile
-	* @since  2.0
-	*/
-	protected $profile = null;
+	 * The form field name to use for displaying the profile.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	const FORM_FIELDS_NAME = 'ldap_profile';
 
-	/* holds the reference to the xml file */
+	/**
+	 * Holds the reference to the xml file.
+	 *
+	 *  @var    JXMLElement
+	 *  @since  2.0
+	 */
 	protected $xml = null;
 
+	/**
+	 * Holds the permitted forms the profile will render on.
+	 *
+	 * @var    array
+	 * @since  2.0
+	 */
 	protected $permittedForms = array();
+
+	/**
+	* Synchronise fullname with joomla database
+	* 0-No Sync | 1-Sync From LDAP | 2- Sync To and From LDAP
+	*
+	* @var    integer
+	* @since  2.0
+	*/
+	protected $sync_name = null;
+
+	/**
+	 * Synchronise email with joomla database
+	 * 0-No Sync | 1-Sync From LDAP | 2- Sync To and From LDAP
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	protected $sync_email = null;
+
+	/**
+	* Profile XML name to use.
+	*
+	* @var    string
+	* @since  2.0
+	*/
+	protected $profile_name = null;
+
+	/**
+	* Profile XML base to use.
+	*
+	* @var    string
+	* @since  2.0
+	*/
+	protected $profile_base = null;
+
+	/**
+	* Language base to use.
+	*
+	* @var    string
+	* @since  2.0
+	*/
+	protected $lang_base = null;
 
 	/**
 	 * Constructor
@@ -49,7 +102,28 @@ class PlgLdapProfile extends JPlugin
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
 
-		$this->profile = new SHLdapProfile($this->params->toArray());
+		/*
+		 * Setup some parameters and set defaults.
+		 */
+		$this->sync_name = (int) $this->params->get('sync_name', 1);
+		$this->sync_email = (int) $this->params->get('sync_email', 1);
+
+		$this->profile_name = $this->params->get('profile_name', 'default');
+		$this->profile_base = $this->params->get('profile_base');
+
+		if (empty($this->profile_base))
+		{
+			// Use default base path
+			$this->profile_base = JPATH_PLUGINS . '/ldap/profile/profiles';
+		}
+
+		$this->lang_base = $this->params->get('lang_base');
+
+		if (empty($this->lang_base))
+		{
+			// Use the profile base as the language base if one doesnt exist
+			$this->lang_base = $this->profile_base;
+		}
 
 		// Split and trim the permitted forms
 		$this->permittedForms = explode(';', $this->params->get('permitted_forms'));
@@ -71,6 +145,27 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
+	 * Method to get certain otherwise inaccessible properties from the profile object.
+	 *
+	 * @param   string  $name  The property name for which to the the value.
+	 *
+	 * @return  mixed  The property value or null.
+	 *
+	 * @since   2.0
+	 */
+	public function __get($name)
+	{
+		switch ($name)
+		{
+			case 'xmlFilePath':
+				return $this->profile_base . '/' . $this->profile_name . '.xml';
+				break;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Called during an ldap login.
 	 *
 	 * Checks to ensure the onlogin parameter is true then calls the on sync method.
@@ -86,11 +181,8 @@ class PlgLdapProfile extends JPlugin
 	{
 		if ($this->params->get('onlogin'))
 		{
-			$this->onLdapSync($instance, $options);
+			return $this->onLdapSync($instance, $options);
 		}
-
-		// Even if it did fail, we don't want to cancel the logon
-		return true;
 	}
 
 	/**
@@ -108,21 +200,25 @@ class PlgLdapProfile extends JPlugin
 	 */
 	public function onLdapSync(&$instance, $options = array())
 	{
-		// Process the profile XML (this only needs to be done once)
-		if (is_null($this->xml))
+		try
 		{
-			$this->xml = $this->profile->getXMLFields();
+			// Gather the user adapter
+			$username = $instance->username;
+			$adapter = SHFactory::getUserAdapter($username);
+
+			// Mandatory Joomla field processing and saving
+			$this->updateMandatory($instance, $adapter);
+
+			// Save the profile as defined from the XML
+			$result = $this->saveProfile($instance->id, $username, $adapter, $options);
+
+			return $result;
 		}
-
-		// Gather the user adapter
-		$username = $instance->username;
-		$adapter = SHFactory::getUserAdapter($username);
-
-		// Mandatory Joomla field processing and saving
-		$this->profile->updateMandatory($instance, $adapter);
-
-		// Save the profile as defined from the XML
-		return $this->profile->saveProfile($this->xml, $instance, $adapter, $options);
+		catch (Exception $e)
+		{
+			SHLog::add($e, 12231, JLog::ERROR, 'ldap');
+			return false;
+		}
 	}
 
 	/**
@@ -149,25 +245,20 @@ class PlgLdapProfile extends JPlugin
 			return true;
 		}
 
-		// Process the profile XML (this only needs to be done once)
-		if (is_null($this->xml))
-		{
-			$this->xml = $this->profile->getXMLFields();
-		}
-
 		// Check if this user should have a profile
 		if ($userId = isset($data->id) ? $data->id : 0)
 		{
 			if (SHLdapHelper::isUserLdap($userId))
 			{
 				// Load the profile data from the database.
-				$records = $this->profile->queryProfile($userId, true);
+				$records = $this->queryProfile($userId, true);
 
 				// Merge the profile data
-				$data->ldap_profile = array();
+				$data->{self::FORM_FIELDS_NAME} = array();
+
 				foreach ($records as $record)
 				{
-					$data->ldap_profile[$record['profile_key']] = $record['profile_value'];
+					$data->{self::FORM_FIELDS_NAME}[$record['profile_key']] = $record['profile_value'];
 				}
 			}
 		}
@@ -205,12 +296,6 @@ class PlgLdapProfile extends JPlugin
 			return true;
 		}
 
-		// Process the profile XML (this only needs to be done once)
-		if (is_null($this->xml))
-		{
-			$this->xml = $this->profile->getXMLFields();
-		}
-
 		$showForm = true;
 
 		// Check if this user should have a profile
@@ -225,7 +310,7 @@ class PlgLdapProfile extends JPlugin
 		if ($showForm)
 		{
 			// Load in the profile XML file to the form
-			if (($xml = JFactory::getXML($this->profile->xmlFilePath, true)) && ($form->load($xml, false, false)))
+			if (($xml = JFactory::getXML($this->xmlFilePath, true)) && ($form->load($xml, false, false)))
 			{
 				// Successfully loaded in the XML
 				return true;
@@ -233,23 +318,32 @@ class PlgLdapProfile extends JPlugin
 		}
 	}
 
-	// Delete the profile
+	/**
+	 *  Method is called after user data is deleted from the database.
+	 *
+	 *  Deletes the profile when a user is deleted.
+	 *
+	 * @param   array    $user     Holds the user data.
+	 * @param   boolean  $success  True if user was successfully deleted from the database.
+	 * @param   string   $msg      An error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
-		if (!$success)
+		if ($success)
 		{
-			return false;
-		}
-
-		if ($userId = JArrayHelper::getValue($user, 'id', 0, 'int'))
-		{
-			// Process the profile XML (this only needs to be done once)
-			if (is_null($this->xml))
+			try
 			{
-				$this->xml = $this->profile->getXMLFields();
+				$this->deleteProfile($user['id']);
+				SHLog::add(JText::sprintf('PLG_LDAP_PROFILE_INFO_12211', $user['username']), 12211, JLog::INFO, 'ldap');
 			}
-
-			$this->profile->deleteProfile($userId);
+			catch (Exception $e)
+			{
+				JLog::add($e, 12234, JLog::ERROR, 'ldap');
+			}
 		}
 	}
 
@@ -274,58 +368,72 @@ class PlgLdapProfile extends JPlugin
 			return;
 		}
 
-		// Process the profile XML (this only needs to be done once)
-		if (is_null($this->xml))
-		{
-			$this->xml = $this->profile->getXMLFields();
-		}
-
 		// Default the return result to true
 		$result = true;
 
 		// Check there is a profile to save (i.e. this event may not have been called from the profile form)
-		if (isset($new['ldap_profile']) && (count($new['ldap_profile'])))
+		if (isset($new[self::FORM_FIELDS_NAME]) && (count($new[self::FORM_FIELDS_NAME])))
 		{
-			// Get username and password to use for authenticating with Ldap
-			$username 	= JArrayHelper::getValue($new, 'username', false, 'string');
-			$password 	= JArrayHelper::getValue($new, 'password_clear', false, 'string');
+			try
+			{
+				// Get username for adapter
+				$username = JArrayHelper::getValue($user, 'username', false, 'string');
 
-			// Include the mandatory Joomla fields (fullname and email)
-			$mandatoryData = array(
-				'name' => JArrayHelper::getValue($new, 'name'),
-				'email' => JArrayHelper::getValue($new, 'email')
-			);
+				if (empty($username))
+				{
+					// The old username isn't present so use new username
+					$username = JArrayHelper::getValue($new, 'username', false, 'string');
+				}
 
-			// Only get profile data and enabled elements from the input
-			$profileData = $this->profile->cleanInput($this->xml, $new['ldap_profile']);
+				// Include the mandatory Joomla fields (fullname and email)
+				$mandatoryData = array(
+					'name' => JArrayHelper::getValue($new, 'name'),
+					'email' => JArrayHelper::getValue($new, 'email')
+				);
 
-			// Save the profile back to LDAP
-			$result = $this->profile->saveToLDAP($this->xml, $username, $profileData, $mandatoryData);
+				// Only get profile data and enabled elements from the input
+				$profileData = $this->cleanInput($new[self::FORM_FIELDS_NAME]);
+
+				// Save the profile back to LDAP
+				$result = $this->saveToLDAP($username, $profileData, $mandatoryData);
+			}
+			catch (Exception $e)
+			{
+				SHLog::add($e, 12232, JLog::ERROR, 'ldap');
+				return false;
+			}
 		}
 
 		return $result;
 	}
 
+	/**
+	 * Method is called after user data is stored in the database.
+	 *
+	 * Saves the profile to the J! database.
+	 *
+	 * @param   array    $user     Holds the new user data.
+	 * @param   boolean  $isNew    True if a new user has been stored.
+	 * @param   boolean  $success  True if user was successfully stored in the database.
+	 * @param   string   $msg      An error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		// Refresh profile for this user in J! database
-		if ($userId = JUserHelper::getUserId($user['username']))
+		if ($success)
 		{
-			// Process the profile XML (this only needs to be done once)
-			if (is_null($this->xml))
+			try
 			{
-				$this->xml = $this->profile->getXMLFields();
+				$adapter = SHFactory::getUserAdapter($user['username']);
+				$this->saveProfile($user['id'], $user['username'], $adapter);
 			}
-
-			SHLog::add(JText::sprintf('LIB_LDAP_PROFILE_INFO_12235', $user['username']), 12235, JLog::INFO, 'ldap');
-
-			$adapter = SHFactory::getUserAdapter($user['username']);
-
-			$instance = new JUser($userId);
-			$this->profile->saveProfile($this->xml, $instance, $adapter);
-
-			// Everything went well - we have updated both LDAP and the J! database.
-			return true;
+			catch (Exception $e)
+			{
+				SHLog::add($e, 12233, JLog::ERROR, 'ldap');
+			}
 		}
 	}
 
@@ -343,14 +451,600 @@ class PlgLdapProfile extends JPlugin
 	public function onLdapBeforeRead($adapter, $options = array())
 	{
 		// Process the profile XML (this only needs to be done once)
-		if (is_null($this->xml))
+		return $this->getAttributes();
+	}
+
+	/**
+	* Include the optional profile language and return the XML profile fields.
+	*
+	* @return  JXMLElement  Required XML profile fields
+	*
+	* @since   2.0
+	* @throws  RuntimeException
+	*/
+	protected function getXMLFields()
+	{
+		if (!is_null($this->xml))
 		{
-			$this->xml = $this->profile->getXMLFields();
+			// Xml has already been loaded
+			return $this->xml;
 		}
 
-		if ($this->xml)
+		if (empty($this->profile_name))
 		{
-			return $this->profile->getAttributes($this->xml);
+			throw new RuntimeException(JText::_('PLG_LDAP_PROFILE_ERR_12204'), 12204);
 		}
+
+		// Get the full XML file path
+		$xmlPath = $this->xmlFilePath;
+
+		if (!file_exists($xmlPath))
+		{
+			// XML file doesn't exist
+			throw new RuntimeException(JText::sprintf('PLG_LDAP_PROFILE_ERR_12201', $file), 12201);
+		}
+
+		$fields = self::FORM_FIELDS_NAME;
+
+		// Attempt to load the XML file.
+		if ($xml = JFactory::getXML($xmlPath, true))
+		{
+			// Get only the required header - i.e. ldap_profile
+			if ($xml = $xml->xpath("/form/fields[@name='{$fields}']"))
+			{
+				SHLog::add(JText::_('PLG_LDAP_PROFILE_DEBUG_12202'), 12202, JLog::DEBUG, 'ldap');
+
+				// Attempt to load profile language
+				$lang = JFactory::getLanguage();
+				$lang->load($this->profile_name, $this->lang_base);
+
+				$this->xml = $xml[0];
+				return $this->xml;
+			}
+		}
+
+		// Cannot load the XML file
+		throw new RuntimeException(JText::sprintf('PLG_LDAP_PROFILE_ERR_12203', $xmlPath), 12203);
+	}
+
+	/**
+	 * Initialise the synchronisation of the name and email fields from LDAP.
+	 *
+	 * @param   JUser          &$instance  Reference to the active joomla user.
+	 * @param   SHUserAdapter  $adapter    User adapter of LDAP user.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	protected function updateMandatory(&$instance, $adapter)
+	{
+		$fullname = $adapter->getFullname();
+		$email = $adapter->getEmail();
+
+		if ($this->sync_name && !empty($fullname))
+		{
+			// Update the name of the JUser to the Ldap value
+			$instance->name = $fullname;
+		}
+
+		if ($this->sync_email && !empty($email))
+		{
+			// Update the email of the JUser to the Ldap value
+			$instance->email = $email;
+		}
+	}
+
+	/**
+	* Return the attributes required from the users LDAP account.
+	*
+	* @return  array  An array of attributes
+	*
+	* @since   2.0
+	*/
+	protected function getAttributes()
+	{
+		$xml = $this->getXMLFields();
+
+		$attributes = array();
+
+		foreach ($xml->fieldset as $fieldset)
+		{
+			foreach ($fieldset->field as $field)
+			{
+				$name = (string) $field['name'];
+				$attributes[] = $name;
+			}
+		}
+		return $attributes;
+	}
+
+	/**
+	* Save the users profile to the database.
+	*
+	* @param   integer        $userId    Joomla user ID to save.
+	* @param   string         $username  Joomla username to save.
+	* @param   SHUserAdapter  $adapter   User adapter of LDAP user.
+	* @param   array          $options   An optional set of options.
+	*
+	* @return  boolean  True on success
+	*
+	* @since   2.0
+	*/
+	protected function saveProfile($userId, $username, $adapter, $options = array())
+	{
+		$xml = $this->getXMLFields();
+
+		SHLog::add(JText::sprintf('PLG_LDAP_PROFILE_DEBUG_12221', $username), 12221, JLog::DEBUG, 'ldap');
+
+		$addRecords		= array();
+		$updateRecords 	= array();
+		$deleteRecords	= array();
+
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		// Lets get a list of current SQL entries
+		if (is_null($current = $this->queryProfile($userId, true)))
+		{
+			return false;
+		}
+
+		/* We want to process each attribute in the XML
+		* then find out if it exists in the LDAP directory.
+		* If it does, then we compare that to the value
+		* currently in the SQL database.
+		*/
+		$attributes = $this->getAttributes($xml);
+		foreach ($attributes as $attribute)
+		{
+			// Lets check for a delimiter (this is the indicator that multiple values are supported)
+			$delimiter 	= null;
+			$xmlField = $xml->xpath("fieldset/field[@name='$attribute']");
+			$value = null;
+
+			if ($delimiter = (string) $xmlField[0]['delimiter'])
+			{
+
+				// These are potentially multiple values
+
+				if (strToUpper($delimiter) == 'NEWLINE')
+				{
+					$delimiter = "\n";
+				}
+
+				$value = '';
+
+				if ($v = $adapter->getAttributes($attribute))
+				{
+					if (is_array($v[$attribute]))
+					{
+						foreach ($v[$attribute] as $values)
+						{
+							$value .= $values . $delimiter;
+						}
+					}
+				}
+
+			}
+			else
+			{
+				// These are single values
+				if ($v = $adapter->getAttributes($attribute))
+				{
+					if (isset($v[$attribute][0]))
+					{
+						$value = $v[$attribute][0];
+					}
+				}
+			}
+
+			if (!is_null($value))
+			{
+				$status = $this->checkSqlField($current, $attribute, $value);
+			}
+			else
+			{
+				// This record should be deleted
+				$status = 3;
+			}
+
+			switch ($status)
+			{
+				case 1:
+					$updateRecords[$attribute] = $value;
+					break;
+
+				case 2:
+					$addRecords[$attribute] = $value;
+					break;
+
+				case 3:
+					$deleteRecords[] = $attribute;
+					break;
+			}
+
+		}
+
+		/* Lets commit these differences to the database
+		 * in steps (delete, add, update) and return the
+		 * result.
+		 */
+		$results 	= array();
+
+		if (count($deleteRecords))
+		{
+			$results[] = $this->deleteRecords($userId, $deleteRecords);
+		}
+
+		if (count($addRecords))
+		{
+			$results[] = $this->addRecords($userId, $addRecords, count($current) + 1);
+		}
+
+		if (count($updateRecords))
+		{
+			$results[] = $this->updateRecords($userId, $updateRecords);
+		}
+
+		$return = (!in_array(false, $results, true));
+
+		if (count($results))
+		{
+			// Changes occurred so lets log it
+			SHLog::add(
+				JText::sprintf(
+					'PLG_LDAP_PROFILE_DEBUG_12225',
+					$username,
+					$return == 1 ? JText::_('PLG_LDAP_PROFILE_SUCCESS') : JText::_('PLG_LDAP_PROFILE_FAIL')
+				), 12225, JLog::DEBUG, 'ldap'
+			);
+
+			if (!$return)
+			{
+				// There was an error
+				return false;
+			}
+
+			// Everything went well - we have updated both LDAP and the J! database.
+			SHLog::add(JText::sprintf('PLG_LDAP_PROFILE_INFO_12224', $username), 12224, JLog::INFO, 'ldap');
+
+			// Return this was successful and something was updated
+			return true;
+		}
+		else
+		{
+			// No changes occurred so log that the profile was up to date
+			SHLog::add(
+				JText::sprintf('PLG_LDAP_PROFILE_DEBUG_12226', $username), 12226, JLog::DEBUG, 'ldap'
+			);
+
+			return;
+		}
+	}
+
+	/**
+	* Delete the entire profile of the user.
+	*
+	* @param   integer  $userId  The user ID of the JUser
+	*
+	* @return  boolean  True on success
+	*
+	* @since   2.0
+	* @throws  JDatabaseException
+	*/
+	protected function deleteProfile($userId)
+	{
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		$query->delete($query->quoteName('#__user_profiles'))
+			->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId))
+			->where($query->quoteName('profile_key') . ' LIKE \'ldap.%\'');
+
+		$db->setQuery($query);
+
+		return $db->query();
+	}
+
+	/**
+	* Return the records of a users profile.
+	*
+	* @param   integer  $userId  The user ID of the JUser
+	* @param   boolean  $clean   If true remove the profile prefix from the keys
+	*
+	* @return  array  Associated array of records (profile_key=>, profile_value=>)
+	*
+	* @since   2.0
+	*/
+	protected function queryProfile($userId, $clean = false)
+	{
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		if ($clean)
+		{
+			$query->select('REPLACE(' . $query->quoteName('profile_key') .
+				', \'ldap.\', \'\')' . $query->quoteName('profile_key')
+			);
+		}
+		else
+		{
+			$query->select($query->quoteName('profile_key'));
+		}
+
+		$query->select($query->quoteName('profile_value'))
+			->from($query->quoteName('#__user_profiles'))
+			->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId))
+			->where($query->quoteName('profile_key') . ' LIKE \'ldap.%\'')
+			->order($query->quoteName('ordering'));
+
+		$db->setQuery($query);
+
+		return $db->loadAssocList();
+	}
+
+	/**
+	* Add profile records (attributes) for a user to the database.
+	*
+	* @param   integer  $userId      The user ID of the JUser
+	* @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
+	* @param   integer  $order       The ordering number to use as a base
+	*
+	* @return  boolean  True on success
+	*
+	* @since   2.0
+	*/
+	protected function addRecords($userId, $attributes, $order)
+	{
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		$query->insert($query->quoteName('#__user_profiles'))
+			->columns(
+				array(
+					$query->quoteName('user_id'),
+					$query->quoteName('profile_key'),
+					$query->quoteName('profile_value'),
+					$query->quoteName('ordering')
+				)
+			);
+
+		foreach ($attributes as $key => $value)
+		{
+			$key = 'ldap.' . $key;
+
+			$query->values(
+				$query->quote((int) $userId) . ', ' .
+				$query->quote($key) . ', ' .
+				$db->quote($value) . ', ' .
+				$query->quote($order)
+			);
+
+			++$order;
+		}
+
+		$db->setQuery($query);
+
+		return $db->query();
+	}
+
+	/**
+	* Update profile records (attributes) for a user to the database.
+	*
+	* @param   integer  $userId      The user ID of the JUser
+	* @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
+	*
+	* @return  boolean  True on success
+	*
+	* @since   2.0
+	*/
+	protected function updateRecords($userId, $attributes)
+	{
+		$result = true;
+
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		foreach ($attributes as $key => $value)
+		{
+			$key = 'ldap.' . $key;
+			$query->update($query->quoteName('#__user_profiles'))
+				->set($query->quoteName('profile_value') . ' = ' . $db->quote($value))
+				->where($query->quoteName('profile_key') . ' = ' . $query->quote($key))
+				->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId));
+
+			$db->setQuery($query);
+
+			if (!$db->query())
+			{
+				$result = false;
+			}
+
+			$query->clear();
+		}
+
+		return $result;
+	}
+
+	/**
+	* Delete profile records (attributes) for a user from the database.
+	*
+	* @param   integer  $userId      The user ID of the JUser
+	* @param   array    $attributes  An array of attribute/profile keys
+	*
+	* @return  boolean  True on success
+	*
+	* @since   2.0
+	*/
+	protected function deleteRecords($userId, $attributes)
+	{
+		$result = true;
+
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+
+		foreach ($attributes as $key)
+		{
+			$key = 'ldap.' . $key;
+			$query->delete($query->quoteName('#__user_profiles'))
+				->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $userId))
+				->where($query->quoteName('profile_key') . ' = ' . $query->quote($key));
+
+			$db->setQuery($query);
+
+			if (!$db->query())
+			{
+				$result = false;
+			}
+
+			$query->clear();
+		}
+
+		return $result;
+	}
+
+	/**
+	* Check the database (sql parameter) for the current status of a key and its
+	* value. This method will return with either a 0-match, 1-modify, 2-addition
+	* or 3-deletion flag for this key.
+	*
+	* @param   array   $sql    Associated array of records (profile_key=>, profile_value=>)
+	* @param   string  $key    The profile key to check
+	* @param   string  $value  The profile value to check against the key
+	*
+	* @return  integer  0-match | 1-modify | 2-addition | 3-delete
+	*
+	* @since   2.0
+	*/
+	protected function checkSqlField($sql, $key, $value)
+	{
+		$status = 2;
+
+		foreach ($sql as $record)
+		{
+			if ($record['profile_key'] == $key)
+			{
+				$status = 1;
+				if ($record['profile_value'] == $value)
+				{
+					$status = 0;
+				}
+			}
+		}
+
+		return $status;
+	}
+
+	/**
+	* Cleans the form fields to return only XML enabled form fields.
+	*
+	* @param   array  $fields  An array of fields to be processed.
+	*
+	* @return  array  An array of fields that are enabled.
+	*
+	* @since   2.0
+	*/
+	protected function cleanInput($fields = array())
+	{
+		$xml = $this->getXMLFields();
+
+		$clean = array();
+
+		foreach ($fields as $key => $value)
+		{
+			if ($xmlField = $xml->xpath("fieldset/field[@name='$key']"))
+			{
+				$disabled = (string) $xmlField[0]['disabled'];
+				if ($disabled != 'true' && $disabled != 1)
+				{
+					$clean[$key] = $value;
+				}
+			}
+		}
+
+		return $clean;
+	}
+
+	/**
+	* Stage the profile to LDAP ready for committing.
+	*
+	* @param   string  $username   Username of profile owner to change.
+	* @param   array   $profile    Array of profile fields to save (key=>value).
+	* @param   array   $mandatory  Array of mandatory joomla fields to save like name and email.
+	*
+	* @return  boolean  True on success
+	*
+	* @since   2.0
+	* @throws  Exception
+	*/
+	protected function saveToLDAP($username, $profile = array(), $mandatory = array())
+	{
+		$xml = $this->getXMLFields();
+
+		// Setup the profile user in user adapter
+		$adapter = SHFactory::getUserAdapter($username);
+
+		$processed = array();
+
+		// Loop around each profile field
+		foreach ($profile as $key => $value)
+		{
+			$delimiter 	= null;
+			$xmlField 	= $xml->xpath("fieldset/field[@name='$key']");
+
+			if ($delimiter = (string) $xmlField[0]['delimiter'])
+			{
+				/* Multiple values - we will use a delimiter to represent
+				 * the extra data in Joomla. We also use a newline override
+				 * as this is probably going to be the most popular delimter.
+				 */
+				if (strToUpper($delimiter) == 'NEWLINE')
+				{
+					$delimiter = '\r\n|\r|\n';
+				}
+
+				// Split up the delimited profile field
+				$newValues = preg_split("/$delimiter/", $value);
+
+				// Resave the split profile field into a new array set
+				for ($i = 0; $i < count($newValues); ++$i)
+				{
+					$processed[$key][$i] = $newValues[$i];
+				}
+
+			}
+			else
+			{
+				// Single Value
+				$processed[$key] = $value;
+			}
+		}
+
+		// Do the Mandatory Joomla field saving for name/fullname
+		if ((int) $this->sync_name === 2)
+		{
+			if (($key = $adapter->getFullname(true)) && ($value = JArrayHelper::getValue($mandatory, 'name')))
+			{
+				$processed[$key] = $value;
+			}
+		}
+
+		// Do the Mandatory Joomla field saving for email
+		if ((int) $this->sync_email === 2)
+		{
+			if (($key = $adapter->getEmail(true)) && ($value = JArrayHelper::getValue($mandatory, 'email')))
+			{
+				$processed[$key] = $value;
+			}
+		}
+
+		if (count($processed))
+		{
+			// Lets save the new (current) fields to the LDAP DN
+			$adapter->setAttributes($processed);
+		}
+
+		return true;
 	}
 }
