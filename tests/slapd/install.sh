@@ -11,6 +11,8 @@ ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/default-gr
 ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/add-users.ldif
 ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/add-groups.ldif
 
+ldapmodify -Y EXTERNAL -H ldapi:/// -f ./ldifs/add-index.ldif
+
 /etc/init.d/slapd restart
 echo "- Setup Completed - "
 echo
