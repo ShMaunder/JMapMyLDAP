@@ -80,7 +80,11 @@ class SHLog
 		if (!($entry instanceof JLogEntry))
 		{
 			// Check if the entry object is an exception
-			if ($entry instanceof Exception)
+			if ($entry instanceof SHExceptionInvaliduser)
+			{
+				$entry = new SHLogEntriesInvaliduser($entry, $id, $priority, $category, $date);
+			}
+			elseif ($entry instanceof Exception)
 			{
 				$entry = new SHLogEntriesException($entry, $id, $priority, $category, $date);
 			}
@@ -93,7 +97,7 @@ class SHLog
 		// Check the Error ID is not listed as ignored
 		if (!in_array((int) $id, self::$ignore))
 		{
-			// Something is up with the deprecation of JDispatcher
+			// Something is up with the deprecation of JDispatcher in newer Joomla Versions
 			if (class_exists('JDispatcher'))
 			{
 				// J2.5
