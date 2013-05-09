@@ -385,9 +385,9 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				}
 			}
 
-			if (!SHLdapHelper::triggerEvent(
+			if (SHLdapHelper::triggerEvent(
 				'onLdapAfterRead', array(&$this, &$this->_attributes, array('dn' => $this->_dn, 'source' => __METHOD__))
-			))
+			) === false)
 			{
 				// Cancelled login due to plug-in - should this really be thrown though?
 				throw new SHLdapException(null, 10342, JText::_('LIB_SHLDAP_ERR_10342'));

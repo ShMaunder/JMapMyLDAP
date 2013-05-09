@@ -178,12 +178,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserBeforeDelete($user)
 	{
-		if ($params = JArrayHelper::getValue($user, 'params', false, 'string'))
+		if (SHLdapHelper::isUserLdap($user))
 		{
-			if (self::_checkParameter($params))
-			{
-				SHLdapHelper::triggerEvent('onUserBeforeDelete', array($user));
-			}
+			SHLdapHelper::triggerEvent('onUserBeforeDelete', array($user));
 		}
 	}
 
@@ -200,12 +197,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
-		if ($params = JArrayHelper::getValue($user, 'params', false, 'string'))
+		if (SHLdapHelper::isUserLdap($user))
 		{
-			if (self::_checkParameter($params))
-			{
-				SHLdapHelper::triggerEvent('onUserAfterDelete', array($user, $success, $msg));
-			}
+			SHLdapHelper::triggerEvent('onUserAfterDelete', array($user, $success, $msg));
 		}
 	}
 
@@ -222,29 +216,26 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		if ($params = JArrayHelper::getValue($new, 'params', false, 'string'))
+		if (SHLdapHelper::isUserLdap($user))
 		{
-			if (self::_checkParameter($params))
+			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
 			{
-				if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+				try
 				{
-					try
-					{
-						// Commit the changes to the Adapter if present
-						$adapter = SHFactory::getUserAdapter(JArrayHelper::getValue($user, 'username'));
-						$adapter->commitChanges();
-					}
-					catch (Excpetion $e)
-					{
-						SHLog::add($e, 10981, JLog::ERROR, 'ldap');
-					}
-
-					// For now lets NOT block the user from logging in even with a error
-					return true;
+					// Commit the changes to the Adapter if present
+					$adapter = SHFactory::getUserAdapter(JArrayHelper::getValue($user, 'username'));
+					$adapter->commitChanges();
+				}
+				catch (Excpetion $e)
+				{
+					SHLog::add($e, 10981, JLog::ERROR, 'ldap');
 				}
 
-				return false;
+				// For now lets NOT block the user from logging in even with a error
+				return true;
 			}
+
+			return false;
 		}
 
 		// Ask all plugins if there is a plugin willing to deal with user creation for ldap
@@ -279,15 +270,13 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		if ($params = JArrayHelper::getValue($user, 'params', false, 'string'))
+		if ($isNew && $success && $this->isLdap)
 		{
-			if (self::_checkParameter($params))
-			{
-				SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
-			}
+			// Ensure Joomla knows this is a new Ldap user
+			SHLdapHelper::setUserLdap($user['id']);
 		}
 
-		if ($this->isLdap)
+		if ($this->isLdap || SHLdapHelper::isUserLdap($user))
 		{
 			SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
 		}
@@ -363,10 +352,22 @@ class SHLdapEventBouncer extends JEvent
 			return false;
 		}
 
+		// The needs a save variable stores whether the plugins did something that require a save
+		$needsSave = false;
+
+		/*
+		 * Set a user parameter to distinguish the authentication type even
+		 * when the user is not logged in.
+		 */
+		if (SHLdapHelper::setUserLdap($instance) === true)
+		{
+			$needsSave = true;
+		}
+
 		// Fire the ldap specific on login events
 		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $options));
 
-		if ($result)
+		if ($needsSave || $result === true)
 		{
 			// Save the user back to the Joomla database
 			$instance->save();
@@ -375,7 +376,12 @@ class SHLdapEventBouncer extends JEvent
 		// Allow Ldap events to be called
 		$this->isLdap = true;
 
-		return $result;
+		if ($result === false)
+		{
+			return $result;
+		}
+
+		return true;
 	}
 
 	/**
@@ -413,41 +419,11 @@ class SHLdapEventBouncer extends JEvent
 			// Check if the user exists in the J! database
 			if ($id = JUserHelper::getUserId($username))
 			{
-				$user = JUser::getInstance($id);
-
-				if (SHLdapHelper::isUserLdap($user))
+				if (SHLdapHelper::isUserLdap($id))
 				{
 					SHLdapHelper::triggerEvent('onUserLoginFailure', array($response));
 				}
 			}
 		}
-	}
-
-	/**
-	 * Checks whether the specified user parameters contain the LDAP
-	 * authtype parameter.
-	 *
-	 * @param   string  $parameters  User parameters.
-	 *
-	 * @return  boolean  True if user is LDAP.
-	 *
-	 * @since   2.0
-	 */
-	private static function _checkParameter($parameters)
-	{
-		// Load the user parameters into a registry object for inspection
-		$reg = new JRegistry;
-		$reg->loadString($parameters);
-
-		/**
-		 * Check whether this saved user was an LDAP user, and if so then
-		 * fire the LDAP event for it.
-		 */
-		if ($reg->get('authtype') == 'LDAP')
-		{
-			return true;
-		}
-
-		return false;
 	}
 }

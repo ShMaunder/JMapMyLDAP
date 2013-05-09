@@ -568,7 +568,7 @@ abstract class SHLdapHelper
 	 * Returns if the current or specified user was authenticated
 	 * via LDAP.
 	 *
-	 * @param   integer  $user  Optional user id (if null then uses current user).
+	 * @param   JUser|integer|array  $user  Optional user id (if null then uses current user).
 	 *
 	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
 	 *
@@ -594,31 +594,108 @@ abstract class SHLdapHelper
 				return true;
 			}
 		}
+		elseif (is_array($user))
+		{
+			if (isset($user['params']))
+			{
+				// Load the user parameters into a registry object for inspection
+				$reg = new JRegistry;
+				$reg->loadString($user['params']);
+
+				/**
+				 * Check whether this saved user was an LDAP user, and if so then
+				 * fire the LDAP event for it.
+				 */
+				if ($reg->get('authtype') == 'LDAP')
+				{
+					return true;
+				}
+			}
+		}
 
 		return false;
 	}
 
 	/**
-	 * Sets the flag for the specified user's parameters for
-	 * LDAP authentication.
+	 * Sets the LDAP flag for the user in the Joomla database parameters.
 	 *
-	 * @param   JUser|Integer  &$user  Specified user to set parameter
+	 * @param   JUser|Integer  &$user   Specified user to set parameter
+	 * @param   string         $domain  Optional domain to store in the database.
 	 *
-	 * @return  void
+	 * @return  boolean  If true then user has been changed, if false then failure to update.
 	 *
 	 * @since   2.0
 	 */
-	public static function setUserLdap(&$user = null)
+	public static function setUserLdap(&$user, $domain = null)
 	{
-		if (is_null($user) || is_int($user))
+		if (is_int($user))
 		{
-			// The input variable indicates we must load the user object
-			JFactory::getUser($user)->setParam('authtype', 'LDAP');
+			// Directly modify the table to include the parameter
+			$uTable = JUser::getTable();
+			$uTable->load($user);
+
+			$params = json_decode($uTable->params);
+
+			$updated = false;
+
+			if ($params->authtype !== 'LDAP')
+			{
+				$params->authtype = 'LDAP';
+				$updated = true;
+			}
+
+			if (!is_null($domain))
+			{
+				if (!$params->authdomain === $domain)
+				{
+					$params->authdomain = $domain;
+					$updated = true;
+				}
+			}
+
+			if ($updated)
+			{
+				$uTable->params = json_encode($params);
+
+				if (!$uTable->store())
+				{
+					// Update failed
+					return false;
+				}
+
+				// An update has happened
+				return true;
+			}
+
+			// Not updated so say so
+			return;
+
 		}
 		elseif ($user instanceof JUser)
 		{
-			// Direct manipulation of the object
-			$user->setParam('authtype', 'LDAP');
+			$updated = false;
+
+			if ($user->getParam('authtype') !== 'LDAP')
+			{
+				// Direct manipulation of the object
+				$user->setParam('authtype', 'LDAP');
+				$updated = true;
+			}
+
+			if (!is_null($domain))
+			{
+				if ($user->getParam('authdomain') !== $domain)
+				{
+					// Direct manipulation of the object
+					$user->setParam('authdomain', $domain);
+					$updated = true;
+				}
+			}
+
+			if ($updated)
+			{
+				return true;
+			}
 		}
 	}
 
@@ -720,27 +797,20 @@ abstract class SHLdapHelper
 	 */
 	public static function triggerEvent($event, $args = null)
 	{
-		$result = SHFactory::getDispatcher('ldap')->trigger($event, $args);
-		return(!in_array(false, $result, true));
-	}
+		$results = SHFactory::getDispatcher('ldap')->trigger($event, $args);
 
-	/**
-	 * Calls any listening events for onUserFormAuthentication. This is used to
-	 * authenticate a form (i.e. the user's current user password).
-	 *
-	 * @param   array  $form  An array of fields and values with the password inside it.
-	 *
-	 * @return  boolean  True on successful authentication.
-	 *
-	 * @since   2.0
-	 */
-	public static function checkFormAuthentication($form)
-	{
-		$dispatcher = SHFactory::getDispatcher('ldap');
-		if ($result = $dispatcher->trigger('onUserFormAuthentication', array($form)))
+		// We want to return the actual result (false, true or blank)
+		if (in_array(false, $results, true))
 		{
-			return(!in_array(false, $result, true));
+			return false;
+		}
+		elseif (in_array(true, $results, true))
+		{
+			return true;
+		}
+		else
+		{
+			return;
 		}
 	}
-
 }
