@@ -47,7 +47,7 @@ require_once JPATH_LIBRARIES . '/cms.php';
  * @package  Shmanic.CLI
  * @since    2.0
  */
-class ClearPassword extends JApplicationCli
+class ClearDBPasswords extends JApplicationCli
 {
 	/**
 	 * Entry point for the script.
@@ -85,4 +85,4 @@ class ClearPassword extends JApplicationCli
 	}
 }
 
-JApplicationCli::getInstance('ClearPassword')->execute();
+JApplicationCli::getInstance('ClearDBPasswords')->execute();
