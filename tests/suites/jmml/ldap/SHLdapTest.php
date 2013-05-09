@@ -863,7 +863,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSlapdGetInstanceAuthFailure()
 	{
-		$this->setExpectedException('SHExceptionStacked', 'LIB_SHLDAP_ERR_10411', 10411);
+		$this->setExpectedException('SHExceptionInvaliduser', 'LIB_SHLDAP_ERR_10303', 10303);
 
 		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE));
 
