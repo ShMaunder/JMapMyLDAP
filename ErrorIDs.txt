@@ -12,10 +12,16 @@ Starting Letters:
 
 
 
+- UNKNOWN/MOVED -
 
-- Legacy [100-999] -
-990 - Unknown LDAP config object [LIB_SHLDAP_ERR_990]
-991 - Ldap extension not loaded [LIB_SHLDAP_ERR_991]
+10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
+LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2$s)."
+
+10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
+LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
+
+10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
+10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
 
 
 
@@ -25,71 +31,55 @@ Starting Letters:
 
 
 
+- Legacy [100-999] -
+[S]101 - Debugging - No lang required
+[I]990 - Unknown LDAP config object. [LIB_SHLDAP_ERR_990]
+[I]991 - Failed to load the PHP LDAP library. [LIB_SHLDAP_ERR_991]
+
+
 
 - Internal LDAP Errors [10000-11999] -
-
-10000 - Global Unknown Exception
-
 
 
 -- CONNECTION RELATED FOR CLIENT [10001-10099] --
 
-10001 - Missing Host Parameter [LIB_SHLDAP_ERR_10001] [LIB_JLDAP2_ERROR_NO_HOST_PARAM]
-10002 - Cannot connect [LIB_SHLDAP_ERR_10002] [LIB_JLDAP2_ERROR_FAILED_CONNECT]
-10003 - LDAP V3 Failed [LIB_SHLDAP_ERR_10003] [LIB_JLDAP2_ERROR_V3_FAIL]
-10004 - Referrals failed [LIB_SHLDAP_ERR_10004] [LIB_JLDAP2_ERROR_REFERRALS_FAIL]
-10005 - Negotiate TLS failed [LIB_SHLDAP_ERR_10005] [LIB_JLDAP2_ERROR_TLS_START_FAIL]
-10006 - Ldap not connected [LIB_SHLDAP_ERR_10006]
-10007 - Ldap has no bind user [LIB_SHLDAP_ERR_10007]
-
+[I]10001 - The LDAP host parameter is empty. [LIB_SHLDAP_ERR_10001]
+[I]10002 - Failed to connect to LDAP server. [LIB_SHLDAP_ERR_10002]
+[I]10003 - Failed to set LDAP version 3 flag. [LIB_SHLDAP_ERR_10003]
+[I]10004 - Failed to set referrals flag. [LIB_SHLDAP_ERR_10004]
+[I]10005 - Failed to start TLS. [LIB_SHLDAP_ERR_10005]
+[I]10006 - Operation cannot continue, no LDAP connection. [LIB_SHLDAP_ERR_10006]
+[I]10007 - Operation cannot continue, no binded LDAP user. [LIB_SHLDAP_ERR_10007]
 
 
 -- OPERATION RELATED FOR CLIENT [10100-10299] --
 
-10102 - A Ldap search operation error occurred [LIB_SHLDAP_ERR_10102]
+[I]10102 - An LDAP search operation failed. [LIB_SHLDAP_ERR_10102]
+[I]10112 - An LDAP read operation failed. [LIB_SHLDAP_ERR_10112]
+[I]10121 - The result parameter for entries is not a resource. [LIB_SHLDAP_ERR_10121]
+[I]10131 - An LDAP compare operation failed. [LIB_SHLDAP_ERR_10131]
+[I]10141 - An LDAP modify operation failed. [LIB_SHLDAP_ERR_10141]
+[I]10151 - An LDAP modify replace operation failed. [LIB_SHLDAP_ERR_10151]
+[I]10161 - An LDAP modify delete operation failed. [LIB_SHLDAP_ERR_10161]
+[I]10171 - An LDAP modify add operation failed. [LIB_SHLDAP_ERR_10171]
+[I]10181 - An LDAP delete operation failed. [LIB_SHLDAP_ERR_10181]
+[I]10191 - An LDAP add operation failed. [LIB_SHLDAP_ERR_10191]
+[I]10201 - An LDAP rename operation failed. [LIB_SHLDAP_ERR_10201]
 
-10112 - A Ldap read operation error occurred [LIB_SHLDAP_ERR_10112]
+[I]10301 - The LDAP User Query parameter is empty. [LIB_SHLDAP_ERR_10301]
+[I]10302 - Failed to find LDAP user '[username]'. [LIB_SHLDAP_ERR_10302]
+[I]10303 - Found the LDAP user '[username]', but unable to bind with supplied password. [LIB_SHLDAP_ERR_10303]
+[I]10304 - Failed to bind LDAP user '[username]'. [LIB_SHLDAP_ERR_10304]
+[I]10305 - Failed to find any of the distinguished name(s) in the Ldap directory for '[username]'. [LIB_SHLDAP_ERR_10305]
 
-10121 - Result parameter for entries is not a resource [LIB_SHLDAP_ERR_10121]
+[I]10321 - The LDAP base DN parameter is empty. [LIB_SHLDAP_ERR_10321]
+[I]10322 - Failed to bind with proxy user. [LIB_SHLDAP_ERR_10322]
 
-10131 - Compare operation failed [LIB_SHLDAP_ERR_10131]
-
-10141 - Modify operation failed [LIB_SHLDAP_ERR_10141]
-
-10151 - Modify Replace operation failed [LIB_SHLDAP_ERR_10151]
-
-10161 - Modify Delete operation failed [LIB_SHLDAP_ERR_10161]
-
-10171 - Modify Add operation failed [LIB_SHLDAP_ERR_10171]
-
-10181 - Delete operation failed [LIB_SHLDAP_ERR_10181]
-
-10191 - Add operation failed [LIB_SHLDAP_ERR_10191]
-
-10201 - Rename operation failed [LIB_SHLDAP_ERR_10201]
-
-
-
--- EXTENDED CLIENT [10300-10499] --
-
-10301 - No user query specified [LIB_SHLDAP_ERR_10301] [LIB_JLDAP2_ERROR_NO_DN_FILTER_PARAM]
-[CHANGED EXCEPTION!] 10302 - Cannot find ldap user. User typing incorrect username? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10302] [!LIB_JLDAP2_ERROR_USER_DN_FAIL]
-10303 - User found, but was unable to bind with the supplied password. User typing incorrect password? Hacking? [LIB_SHLDAP_ERR_10303]
-10304 - Unable to bind directly to the given distinguished name parameter. User error? Hacking? Wrong parameters? [LIB_SHLDAP_ERR_10304] [LIB_JLDAP2_ERROR_USER_DN_FAIL_PASS]
-10305 - Failed to find any of the distinguished name(s) in the Ldap directory. [LIB_SHLDAP_ERR_10305]
-
-10321 - No base DN specified [LIB_SHLDAP_ERR_10321] [LIB_JLDAP2_ERROR_NO_BASE_DN]
-10322 - Failed to bind with proxy user [LIB_SHLDAP_ERR_10322] [LIB_JLDAP2_ERROR_BIND_SEARCH_USER]
-
-10331 - Filter used instead of distinguished name (i.e. brackets present) [LIB_SHLDAP_ERR_10331]
-
-10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
-10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
+[I]10331 - Brackets not allowed in LDAP User Query parameter. [LIB_SHLDAP_ERR_10331]
 
 10411 - No configurations found to match this specific authorisation/authentication.
 
-10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
-10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
+
 
 
 
@@ -160,6 +150,8 @@ Starting Letters:
 12611 - Failed to get user attributes [PLG_AUTHENTICATION_SHLDAP_ERR_12611] [PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_ATTRIBUTES_FAIL]
 12612 - Successfully logged in [PLG_AUTHENTICATION_SHLDAP_INFO_12612]
 
+[ST]12621 - General Error ID for raising a exception log in onUserAuthenticate
+[S]12622 - General Error ID for raising a exception log in onUserAuthorisation
 
 
 --- Ldap Creation [12800-12899] ---
