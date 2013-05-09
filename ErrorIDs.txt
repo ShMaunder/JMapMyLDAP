@@ -77,7 +77,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 [I]10331 - Brackets not allowed in LDAP User Query parameter. [LIB_SHLDAP_ERR_10331]
 
-10411 - No configurations found to match this specific authorisation/authentication.
+[I]10411 - No LDAP configurations found to match this specific user. [LIB_SHLDAP_ERR_10411] (stacked)
 
 
 
@@ -111,8 +111,17 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 10981 - Failed to commit the user changes to Ldap.
 
 
--- LDAP plug-in calls for Monitor (DEBUG ONLY - TBR) [11901-11999] --
-
+-- LDAP plug-in calls for Monitor (DEBUG ONLY) [11901-11999] --
+[S]11901 - onAfterInitialise called.
+[S]11902 - onUserBeforeDelete called.
+[S]11903 - onUserAfterDelete called.
+[S]11904 - onUserBeforeSave called.
+[S]11905 - onUserAfterSave called.
+[S]11906 - onUserLogin called.
+[S]11907 - onUserLogout called.
+[S]11908 - onUserLoginFailure called.
+[S]11909 - onContentPrepareData called.
+[S]11910 - onContentPrepareForm called.
 
 
 

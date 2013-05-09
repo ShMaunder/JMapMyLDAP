@@ -31,10 +31,10 @@ JFactory::getLanguage()->load('shmanic_ldap', JPATH_ROOT);
 // Setup and get the Ldap dispatcher
 $dispatcher = SHFactory::getDispatcher('ldap');
 
-// Start the LDAP event monitor for core event triggers
-if (class_exists('SHLdapEventMonitor'))
+// Start the LDAP event debugger only if global jdebug is switched on
+if (defined('JDEBUG') && JDEBUG && class_exists('SHLdapEventDebug'))
 {
-	new SHLdapEventMonitor($dispatcher);
+	new SHLdapEventDebug($dispatcher);
 }
 
 // Import the Ldap group and use the ldap dispatcher
