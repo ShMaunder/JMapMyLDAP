@@ -137,7 +137,7 @@ class SHLdapEventBouncer extends JEvent
 
 	/**
 	 * Method prepares the data on a form.
-	 * Note: there is no Ldap session validation!
+	 * Note: Ldap user validation, if required, has to be done in plugin.
 	 *
 	 * @param   string  $context  Context / namespace of the form (i.e. form name).
 	 * @param   object  $data     The associated data for the form.
@@ -153,7 +153,7 @@ class SHLdapEventBouncer extends JEvent
 
 	/**
 	 * Method prepares a form in the way of fields.
-	 * Note: there is no Ldap session validation!
+	 * Note: Ldap user validation, if required, has to be done in plugin.
 	 *
 	 * @param   JForm   $form  The form to be alterted.
 	 * @param   object  $data  The associated data for the form.
@@ -369,6 +369,8 @@ class SHLdapEventBouncer extends JEvent
 
 		if ($needsSave || $result === true)
 		{
+			SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10984', $user['username']), 10984, JLog::DEBUG, 'ldap');
+
 			// Save the user back to the Joomla database
 			$instance->save();
 		}
