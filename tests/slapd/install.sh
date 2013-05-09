@@ -13,7 +13,13 @@ ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/add-groups
 
 ldapmodify -Y EXTERNAL -H ldapi:/// -f ./ldifs/add-index.ldif
 
-/etc/init.d/slapd restart
+/etc/init.d/slapd stop
+
+slapindex -F /etc/ldap/slapd.d/
+chown -R openldap:openldap /var/lib/ldap
+
+/etc/init.d/slapd start
+
 echo "- Setup Completed - "
 echo
 echo "Admin DN is 'cn=admin,dc=shmanic,dc=net'"
