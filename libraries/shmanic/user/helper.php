@@ -91,4 +91,89 @@ abstract class SHUserHelper
 		return $instance;
 	}
 
+	/**
+	 * Get all Joomla user groups from the database.
+	 *
+	 * @return  array  Joomla user groups
+	 *
+	 * @since   1.0
+	 */
+	public static function getJUserGroups()
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		// Build SQL to return both group IDs and Names/Titles
+		$query->select('id')
+			->from('#__usergroups')
+			->order('id');
+
+		$db->setQuery($query);
+
+		return $db->loadColumn();
+	}
+
+	/**
+	 * Add a group to a Joomla user.
+	 *
+	 * @param   JUser    &$user    User for group addition.
+	 * @param   integer  $groupId  Joomla group ID.
+	 *
+	 * @return  mixed  Exception on errror
+	 *
+	 * @since   1.0
+	 */
+	public static function addUserToGroup(JUser &$user, $groupId)
+	{
+		$groupId = (int) $groupId;
+
+		// Add the user to the group if necessary.
+		if (!in_array($groupId, $user->groups))
+		{
+			// Get the title of the group.
+			$db	= JFactory::getDbo();
+			$query = $db->getQuery(true);
+
+			$query->select('title')
+				->from('#__usergroups')
+				->where($query->quoteName('id') . '=' . $query->quote($groupId));
+
+			$db->setQuery($query);
+
+			$title = $db->loadResult();
+
+			// If the group does not exist, throw an exception.
+			if (!$title)
+			{
+				throw new Exception(JText::_('JLIB_USER_EXCEPTION_ACCESS_USERGROUP_INVALID'));
+			}
+
+			// Add the group data to the user object.
+			$user->groups[$title] = $groupId;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Remove a group from a Joomla user.
+	 *
+	 * @param   JUser    &$user    The JUser for the group removal
+	 * @param   integer  $groupId  The Joomla group ID to remove
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public static function removeUserFromGroup(JUser &$user, $groupId)
+	{
+		// Remove the user from the group if necessary.
+		$key = array_search((int) $groupId, $user->groups);
+
+		if ($key !== false)
+		{
+			// Remove the user from the group.
+			unset($user->groups[$key]);
+		}
+	}
 }

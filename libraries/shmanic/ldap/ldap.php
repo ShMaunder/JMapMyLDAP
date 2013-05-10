@@ -1440,6 +1440,21 @@ class SHLdap
 	}
 
 	/**
+	 * Splits DN into its component parts.
+	 *
+	 * @param   string   $dn      Distinguished name of an LDAP entity.
+	 * @param   integer  $attrib  Use 0 to return only values, use 1 to get attributes as well.
+	 *
+	 * @return  array
+	 *
+	 * @since   2.0
+	 */
+	public static function explodeDn($dn, $attrib = 0)
+	{
+		return ldap_explode_dn($dn, $attrib);
+	}
+
+	/**
 	 * Class Destructor.
 	 *
 	 * @since   2.0
