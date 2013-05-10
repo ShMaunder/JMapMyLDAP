@@ -90,6 +90,14 @@ class PlgLdapProfile extends JPlugin
 	protected $lang_base = null;
 
 	/**
+	 * Use the XML profile.
+	 *
+	 * @var    boolean
+	 * @since  2.0
+	 */
+	protected $use_profile = false;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   object  &$subject  The object to observe
@@ -108,6 +116,7 @@ class PlgLdapProfile extends JPlugin
 		$this->sync_name = (int) $this->params->get('sync_name', 1);
 		$this->sync_email = (int) $this->params->get('sync_email', 1);
 
+		$this->use_profile = (bool) $this->params->get('use_profile', false);
 		$this->profile_name = $this->params->get('profile_name', 'default');
 		$this->profile_base = $this->params->get('profile_base');
 
@@ -207,12 +216,27 @@ class PlgLdapProfile extends JPlugin
 			$adapter = SHFactory::getUserAdapter($username);
 
 			// Mandatory Joomla field processing and saving
-			$this->updateMandatory($instance, $adapter);
+			$change = $this->updateMandatory($instance, $adapter);
 
-			// Save the profile as defined from the XML
-			$result = $this->saveProfile($instance->id, $username, $adapter, $options);
+			if ($this->use_profile)
+			{
+				// Save the profile as defined from the XML
+				$result = $this->saveProfile($instance->id, $username, $adapter, $options);
 
-			return $result;
+				if ($result === false)
+				{
+					// There was an error
+					return false;
+				}
+				elseif ($results === true)
+				{
+					// There was a change made
+					return true;
+				}
+			}
+
+			// No change at saveProfile but might be change at updateMandatory
+			return $change;
 		}
 		catch (Exception $e)
 		{
@@ -234,7 +258,7 @@ class PlgLdapProfile extends JPlugin
 	public function onContentPrepareData($context, $data)
 	{
 		// Check if the profile parameter is enabled
-		if (!$this->params->get('use_profile', 0))
+		if (!$this->use_profile)
 		{
 			return true;
 		}
@@ -279,7 +303,7 @@ class PlgLdapProfile extends JPlugin
 	public function onContentPrepareForm($form, $data)
 	{
 		// Check if the profile parameter is enabled
-		if (!$this->params->get('use_profile', 0))
+		if (!$this->use_profile)
 		{
 			return true;
 		}
@@ -333,6 +357,11 @@ class PlgLdapProfile extends JPlugin
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
+		if (!$this->use_profile)
+		{
+			return;
+		}
+
 		if ($success)
 		{
 			try
@@ -371,37 +400,35 @@ class PlgLdapProfile extends JPlugin
 		// Default the return result to true
 		$result = true;
 
-		// Check there is a profile to save (i.e. this event may not have been called from the profile form)
-		if (isset($new[self::FORM_FIELDS_NAME]) && (count($new[self::FORM_FIELDS_NAME])))
+		try
 		{
-			try
+			// Get username for adapter
+			$username = JArrayHelper::getValue($user, 'username', false, 'string');
+
+			if (empty($username))
 			{
-				// Get username for adapter
-				$username = JArrayHelper::getValue($user, 'username', false, 'string');
+				// The old username isn't present so use new username
+				$username = JArrayHelper::getValue($new, 'username', false, 'string');
+			}
 
-				if (empty($username))
-				{
-					// The old username isn't present so use new username
-					$username = JArrayHelper::getValue($new, 'username', false, 'string');
-				}
+			// Include the mandatory Joomla fields (fullname and email)
+			$this->saveMandatoryToLdap($username, $new['name'], $new['email']);
 
-				// Include the mandatory Joomla fields (fullname and email)
-				$mandatoryData = array(
-					'name' => JArrayHelper::getValue($new, 'name'),
-					'email' => JArrayHelper::getValue($new, 'email')
-				);
-
+			// Check there is a profile to save (i.e. this event may not have been called from the profile form)
+			if ($this->use_profile && (isset($new[self::FORM_FIELDS_NAME]) && (count($new[self::FORM_FIELDS_NAME]))))
+			{
 				// Only get profile data and enabled elements from the input
 				$profileData = $this->cleanInput($new[self::FORM_FIELDS_NAME]);
 
 				// Save the profile back to LDAP
-				$result = $this->saveToLDAP($username, $profileData, $mandatoryData);
+				$result = $this->saveProfileToLdap($username, $profileData);
 			}
-			catch (Exception $e)
-			{
-				SHLog::add($e, 12232, JLog::ERROR, 'ldap');
-				return false;
-			}
+
+		}
+		catch (Exception $e)
+		{
+			SHLog::add($e, 12232, JLog::ERROR, 'ldap');
+			return false;
 		}
 
 		return $result;
@@ -423,6 +450,11 @@ class PlgLdapProfile extends JPlugin
 	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
+		if (!$this->use_profile)
+		{
+			return;
+		}
+
 		if ($success)
 		{
 			try
@@ -450,8 +482,11 @@ class PlgLdapProfile extends JPlugin
 	 */
 	public function onLdapBeforeRead($adapter, $options = array())
 	{
-		// Process the profile XML (this only needs to be done once)
-		return $this->getAttributes();
+		if ($this->use_profile)
+		{
+			// Process the profile XML (this only needs to be done once)
+			return $this->getAttributes();
+		}
 	}
 
 	/**
@@ -513,26 +548,75 @@ class PlgLdapProfile extends JPlugin
 	 * @param   JUser          &$instance  Reference to the active joomla user.
 	 * @param   SHUserAdapter  $adapter    User adapter of LDAP user.
 	 *
-	 * @return  void
+	 * @return  boolean  True if a change occurred.
 	 *
 	 * @since   2.0
 	 */
 	protected function updateMandatory(&$instance, $adapter)
 	{
-		$fullname = $adapter->getFullname();
-		$email = $adapter->getEmail();
+		$change		= null;
+		$fullname	= $adapter->getFullname();
+		$email		= $adapter->getEmail();
 
-		if ($this->sync_name && !empty($fullname))
+		if ($this->sync_name && !empty($fullname) && $instance->name !== $fullname)
 		{
 			// Update the name of the JUser to the Ldap value
 			$instance->name = $fullname;
+			$change = true;
 		}
 
-		if ($this->sync_email && !empty($email))
+		if ($this->sync_email && !empty($email) && $instance->email !== $email)
 		{
 			// Update the email of the JUser to the Ldap value
 			$instance->email = $email;
+			$change = true;
 		}
+
+		if ($change)
+		{
+			return true;
+		}
+
+		return;
+	}
+
+	/**
+	* Stage the mandatory data to LDAP ready for committing.
+	*
+	* @param   string  $username  Username of profile owner to change.
+	* @param   string  $name      Value of the new name.
+	* @param   string  $email     Value of the new email.
+	*
+	* @return  void
+	*
+	* @since   2.0
+	* @throws  Exception
+	*/
+	protected function saveMandatoryToLdap($username, $name, $email)
+	{
+		$adapter = SHFactory::getUserAdapter($username);
+
+		$attributes = array();
+
+		// Do the Mandatory Joomla field saving for name/fullname
+		if ((int) $this->sync_name === 2)
+		{
+			if (($key = $adapter->getFullname(true)) && $name)
+			{
+				$attributes[$key] = $name;
+			}
+		}
+
+		// Do the Mandatory Joomla field saving for email
+		if ((int) $this->sync_email === 2)
+		{
+			if (($key = $adapter->getEmail(true)) && $email)
+			{
+				$attributes[$key] = $email;
+			}
+		}
+
+		$adapter->setAttributes($attributes);
 	}
 
 	/**
@@ -969,16 +1053,15 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Stage the profile to LDAP ready for committing.
 	*
-	* @param   string  $username   Username of profile owner to change.
-	* @param   array   $profile    Array of profile fields to save (key=>value).
-	* @param   array   $mandatory  Array of mandatory joomla fields to save like name and email.
+	* @param   string  $username  Username of profile owner to change.
+	* @param   array   $profile   Array of profile fields to save (key=>value).
 	*
 	* @return  boolean  True on success
 	*
 	* @since   2.0
 	* @throws  Exception
 	*/
-	protected function saveToLDAP($username, $profile = array(), $mandatory = array())
+	protected function saveProfileToLdap($username, $profile = array())
 	{
 		$xml = $this->getXMLFields();
 
@@ -1017,24 +1100,6 @@ class PlgLdapProfile extends JPlugin
 			else
 			{
 				// Single Value
-				$processed[$key] = $value;
-			}
-		}
-
-		// Do the Mandatory Joomla field saving for name/fullname
-		if ((int) $this->sync_name === 2)
-		{
-			if (($key = $adapter->getFullname(true)) && ($value = JArrayHelper::getValue($mandatory, 'name')))
-			{
-				$processed[$key] = $value;
-			}
-		}
-
-		// Do the Mandatory Joomla field saving for email
-		if ((int) $this->sync_email === 2)
-		{
-			if (($key = $adapter->getEmail(true)) && ($value = JArrayHelper::getValue($mandatory, 'email')))
-			{
 				$processed[$key] = $value;
 			}
 		}
