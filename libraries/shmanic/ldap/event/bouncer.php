@@ -223,8 +223,9 @@ class SHLdapEventBouncer extends JEvent
 				try
 				{
 					// Commit the changes to the Adapter if present
-					$adapter = SHFactory::getUserAdapter(JArrayHelper::getValue($user, 'username'));
+					$adapter = SHFactory::getUserAdapter($user['username']);
 					$adapter->commitChanges();
+					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10986', $user['username']), 10986, JLog::DEBUG, 'ldap');
 				}
 				catch (Excpetion $e)
 				{

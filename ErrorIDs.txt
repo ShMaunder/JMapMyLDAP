@@ -110,6 +110,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 -- LDAP Event Bouncer [10980-10999] --
 [S]10981 - Failed to commit the user changes to Ldap.
 [IT]10984 - Saving changes to Joomla user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_DEBUG_10984]
+[IT]10986 - Committed changes to Ldap user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_DEBUG_10986]
 
 
 
