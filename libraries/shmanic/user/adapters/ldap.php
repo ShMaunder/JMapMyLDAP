@@ -443,6 +443,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if ($key)
 		{
 			// Only return the key id
+			$this->getId(false);
 			return $this->client->keyUid;
 		}
 
@@ -466,6 +467,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if ($key)
 		{
 			// Only return the key id
+			$this->getId(false);
 			return $this->client->keyName;
 		}
 
@@ -489,6 +491,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if ($key)
 		{
 			// Only return the key id
+			$this->getId(false);
 			return $this->client->keyEmail;
 		}
 
@@ -512,6 +515,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if ($key)
 		{
 			// Only return the key id
+			$this->getId(false);
 			return $this->client->keyPassword;
 		}
 
