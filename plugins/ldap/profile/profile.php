@@ -228,7 +228,7 @@ class PlgLdapProfile extends JPlugin
 					// There was an error
 					return false;
 				}
-				elseif ($results === true)
+				elseif ($result === true)
 				{
 					// There was a change made
 					return true;
