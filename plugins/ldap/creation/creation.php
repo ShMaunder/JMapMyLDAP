@@ -276,6 +276,10 @@ class PlgLdapCreation extends JPlugin
 	 */
 	private function _execEval($eval, $user)
 	{
+		// Create some common safe DN values if required in the eval
+		$username = SHLdapHelper::escape(JArrayHelper::getValue($user, 'username'));
+		$email = SHLdapHelper::escape(JArrayHelper::getValue($user, 'email'));
+
 		return eval($eval);
 	}
 
