@@ -15,6 +15,8 @@
 		<filename>index.html</filename>
 	</files>
 	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_shlog_ldap.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_shlog_ldap.sys.ini</language>
 	</languages>
 	<config>
 		<fields name="params">
@@ -23,7 +25,7 @@
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="error_to_screen" type="radio" default="1" description="PLG_SHLOG_LDAP_FIELD_ERROR_TO_SCREEN_DESC" label="PLG_SHLOG_LDAP_FIELD_ERROR_TO_SCREEN_LABEL">
+				<field name="error_to_screen" type="radio" default="0" description="PLG_SHLOG_LDAP_FIELD_ERROR_TO_SCREEN_DESC" label="PLG_SHLOG_LDAP_FIELD_ERROR_TO_SCREEN_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
