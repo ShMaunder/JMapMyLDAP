@@ -130,11 +130,18 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 - LDAP Plug-in Errors [12000-14999] -
 
--- Ldap Group Mapping [12000-12199] --
+-- Ldap Group Mapping [12000-12099] --
+
+12006 - No valid Ldap group mapping parameters. [PLG_LDAP_MAPPING_DEBUG_12006]
+12008 - No matching Ldap groups for the user '%1$s'. [PLG_LDAP_MAPPING_DEBUG_12008]
+
+12011 - Adding Joomla group %1$d to user '%2$s'. [PLG_LDAP_MAPPING_DEBUG_12011]
+12013 - Removing Joomlagroup %1$d from user '%2$s'. [PLG_LDAP_MAPPING_DEBUG_12013]
+
+12021 - General Error ID for raising a exception log in onLdapSync 
 
 
-
--- Ldap Profile [12200-12399] --
+-- Ldap Profile [12200-12299] --
 
 [I]12201 - Failed to find XML profile '%1$s'. [PLG_LDAP_PROFILE_ERR_12201]
 [I]12202 - The XML profile is loaded and appears to be valid. [PLG_LDAP_PROFILE_DEBUG_12202]
@@ -155,7 +162,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 [S]12234 - General Error ID for raising a exception log in onUserAfterDelete
 
 
--- Ldap Password [12400-12599] --
+-- Ldap Password [12400-12499] --
 
 12401 - General Error ID for raising a exception log in onUserAfterSave
 
@@ -172,7 +179,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 [S]12622 - General Error ID for raising a exception log in onUserAuthorisation
 
 
---- Ldap Creation [12800-12899] ---
+-- Ldap Creation [12800-12899] --
 
 [S]12801 - General Error ID for raising a exception log in onUserBeforeSave
 [S]12802 - General Error ID for raising a exception log in onUserCreation
@@ -185,6 +192,13 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 [I]12826 - The user '%1$s' has been deleted due to user creation failure. [PLG_LDAP_CREATION_INFO_12826]
 
 
+-- Ldap Deletion [12900-12919] --
+
+12901 - General Error ID for raising a exception log in onUserBeforeDelete
+
+12905 - Deleting the user '%1$s' from LDAP. [PLG_LDAP_DELETION_DEBUG_12905]
+
+12908 - The user '%1$s' has been deleted. [PLG_LDAP_DELETION_INFO_12908]
 
 
 - SSO Errors [15000-16999] -
