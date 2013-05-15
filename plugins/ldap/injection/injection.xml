@@ -11,6 +11,7 @@
 	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
 	<description>PLG_LDAP_INJECTION_XML_DESCRIPTION</description>
 	<files>
+		<folder>forms</folder>
 		<filename plugin="injection">injection.php</filename>
 		<filename>index.html</filename>
 	</files>
