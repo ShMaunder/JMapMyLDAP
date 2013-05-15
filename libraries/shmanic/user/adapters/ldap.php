@@ -208,7 +208,19 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return null;
 	}
 
-	// @throws  SHLdapException
+	/**
+	 * Gets the Ldap user's distinguished name and optionally authenticate with the password supplied
+	 * depending on the parameters specified.
+	 *
+	 * @param   boolean  $authenticate  True to authenticate with password.
+	 *
+	 * @return  string  Distinguished name of user.
+	 *
+	 * @since   2.0
+	 * @throws  Exception
+	 * @throws  SHLdapException
+	 * @throws  SHExceptionInvaliduser
+	 */
 	public function getId($authenticate)
 	{
 		try
@@ -266,10 +278,10 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 
 		return $this->_dn;
-
 	}
 
 	// @throws  SHLdapException
+	// TODO: implement changes parameter to include staged changes
 	public function getAttributes($input = null, $null = false, $changes = false)
 	{
 		if (is_null($this->_dn))
@@ -438,6 +450,16 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 	}
 
+	/**
+	 * Return the users unique identifier from Ldap.
+	 *
+	 * @param   boolean  $key      If true returns the key of the UID instead of value.
+	 * @param   mixed    $default  The default value.
+	 *
+	 * @return  mixed  Either the Key, Value or Default value.
+	 *
+	 * @since   2.0
+	 */
 	public function getUid($key = false, $default = null)
 	{
 		if ($key)
@@ -462,6 +484,16 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
+	/**
+	 * Return the users full name from Ldap.
+	 *
+	 * @param   boolean  $key      If true returns the key of the full name instead of value.
+	 * @param   mixed    $default  The default value.
+	 *
+	 * @return  mixed  Either the Key, Value or Default value.
+	 *
+	 * @since   2.0
+	 */
 	public function getFullname($key = false, $default = null)
 	{
 		if ($key)
@@ -486,6 +518,16 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
+	/**
+	 * Return the users email from Ldap.
+	 *
+	 * @param   boolean  $key      If true returns the key of the Email instead of value.
+	 * @param   mixed    $default  The default value.
+	 *
+	 * @return  mixed  Either the Key, Value or Default value.
+	 *
+	 * @since   2.0
+	 */
 	public function getEmail($key = false, $default = null)
 	{
 		if ($key)
@@ -510,6 +552,16 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
+	/**
+	 * Return the users password from Ldap.
+	 *
+	 * @param   boolean  $key      If true returns the key of the password instead of value.
+	 * @param   mixed    $default  The default value.
+	 *
+	 * @return  mixed  Either the Key, Value or Default value.
+	 *
+	 * @since   2.0
+	 */
 	public function getPassword($key = false, $default = null)
 	{
 		if ($key)
@@ -598,6 +650,16 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 	}
 
+	/**
+	 * Updates the adapters stored password (changes only the adapter's internal password variable).
+	 *
+	 * @param   string  $password  New password to update.
+	 * @param   array   $options   Optional array of options.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function updateCredential($password = null, $options = array())
 	{
 		if (!is_null($password))
@@ -882,11 +944,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 	public function delete($options = array())
 	{
-		if ($this->_dn instanceof Exception)
-		{
-			// Do not retry. Ldap configuration or user has problems.
-			throw $this->_dn;
-		}
+		$this->getId(false);
 
 		// Ensure proxy binded
 		if ($this->client->bindStatus !== SHLdap::AUTH_PROXY)
