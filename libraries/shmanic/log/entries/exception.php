@@ -56,7 +56,7 @@ class SHLogEntriesException extends SHLogEntriesId
 	/**
 	 * Exception generated toString.
 	 *
-	 * @va r   string
+	 * @var   string
 	 * @since  2.0
 	 */
 	public $full = null;
