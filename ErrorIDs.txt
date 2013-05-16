@@ -20,18 +20,16 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
 LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
-10501 - Failed to save user to database [LIB_SHLDAP_ERR_10501]
-10502 - Unable to proceed as auto registration is disabled [LIB_SHLDAP_ERR_10502] [JGLOBAL_AUTH_NO_USER]
-
-
 
 
 - SHPlatform Related Errors [1000-9999] -
+
 1121 - Invalid configuration file. Either the file or namespace doesn't exist. %1$s:%2$s [LIB_SHPLATFORM_ERR_1121]
 
 
 
 - Legacy [100-999] -
+
 [S]101 - Debugging - No lang required
 [I]990 - Unknown LDAP config object. [LIB_SHLDAP_ERR_990]
 [I]991 - Failed to load the PHP LDAP library. [LIB_SHLDAP_ERR_991]
@@ -39,6 +37,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 
 - Internal LDAP Errors [10000-11999] -
+
 
 
 -- CONNECTION RELATED FOR CLIENT [10001-10099] --
@@ -50,6 +49,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 [I]10005 - Failed to start TLS. [LIB_SHLDAP_ERR_10005]
 [I]10006 - Operation cannot continue, no LDAP connection. [LIB_SHLDAP_ERR_10006]
 [I]10007 - Operation cannot continue, no binded LDAP user. [LIB_SHLDAP_ERR_10007]
+
 
 
 -- OPERATION RELATED FOR CLIENT [10100-10299] --
@@ -81,6 +81,14 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 
 
+- SHPlatform User Helper [10500-10599] -
+
+10501 - Failed to save user '%1$s' due to database error '%2$s'. [LIB_SHUSERHELPER_ERR_10501]
+10502 - Failed to register user '%1$s' due to disabled auto registration. [LIB_SHUSERHELPER_ERR_10502]
+
+10511 - Failed to save user '%1$s' due to table check error '%2$s'. [LIB_SHUSERHELPER_ERR_10511]
+10512 - Failed to save user '%1$s' due to table store error '%2$s'. [LIB_SHUSERHELPER_ERR_10512]
+
 
 
 -- LDAP HELPER [10600-10799] --
@@ -102,19 +110,24 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 
 -- LDAP User Adapter [10800-10979] --
+
 10901 - Cannot complete LDAP operation due to failure of binding as proxy user [LIB_SHUSERADAPTERSLDAP_ERR_10901]
 10906 - User has been deleted [LIB_SHUSERADAPTERSLDAP_ERR_10906]
 10909 - Cannot create a new user when user already exists [LIB_SHUSERADAPTERSLDAP_ERR_10909]
 
 
+
 -- LDAP Event Bouncer [10980-10999] --
+
 [S]10981 - Failed to commit the user changes to Ldap.
 [IT]10984 - Saving changes to Joomla user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_DEBUG_10984]
 [IT]10986 - Committed changes to Ldap user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_DEBUG_10986]
 [IT]10988 - Failed to save changes to Joomla user '%1$s' with error '%2$s'. [LIB_SHLDAPEVENTBOUNCER_ERR_10988]
 
 
+
 -- LDAP plug-in calls for Monitor (DEBUG ONLY) [11901-11999] --
+
 [S]11901 - onAfterInitialise called.
 [S]11902 - onUserBeforeDelete called.
 [S]11903 - onUserAfterDelete called.
@@ -141,6 +154,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 12021 - General Error ID for raising a exception log in onLdapSync 
 
 
+
 -- Ldap Profile [12200-12299] --
 
 [I]12201 - Failed to find XML profile '%1$s'. [PLG_LDAP_PROFILE_ERR_12201]
@@ -162,9 +176,11 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 [S]12234 - General Error ID for raising a exception log in onUserAfterDelete
 
 
+
 -- Ldap Password [12400-12499] --
 
 12401 - General Error ID for raising a exception log in onUserAfterSave
+
 
 
 -- SHLdap Authentication [12600-12799] --
@@ -177,6 +193,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 [ST]12621 - General Error ID for raising a exception log in onUserAuthenticate
 [S]12622 - General Error ID for raising a exception log in onUserAuthorisation
+
 
 
 -- Ldap Creation [12800-12899] --
@@ -192,6 +209,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 [I]12826 - The user '%1$s' has been deleted due to user creation failure. [PLG_LDAP_CREATION_INFO_12826]
 
 
+
 -- Ldap Deletion [12900-12919] --
 
 12901 - General Error ID for raising a exception log in onUserBeforeDelete
@@ -199,6 +217,7 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 12905 - Deleting the user '%1$s' from LDAP. [PLG_LDAP_DELETION_DEBUG_12905]
 
 12908 - The user '%1$s' has been deleted. [PLG_LDAP_DELETION_INFO_12908]
+
 
 
 - SSO Errors [15000-16999] -
