@@ -373,7 +373,10 @@ class SHLdapEventBouncer extends JEvent
 			SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10984', $user['username']), 10984, JLog::DEBUG, 'ldap');
 
 			// Save the user back to the Joomla database
-			$instance->save();
+			if (!$instance->save())
+			{
+				SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_ERR_10988', $user['username'], $instance->getError()), 10988, JLog::ERROR, 'ldap');
+			}
 		}
 
 		// Allow Ldap events to be called
