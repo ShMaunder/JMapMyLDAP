@@ -104,6 +104,7 @@ abstract class SHUserHelper
 	{
 		// Create the user table object
 		$table = $user->getTable();
+		$user->params = (string) $user->getParameters();
 		$table->bind($user->getProperties());
 
 		$username = $user->username;
