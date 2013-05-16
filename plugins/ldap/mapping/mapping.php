@@ -320,7 +320,7 @@ class PlgLdapMapping extends JPlugin
 			if (!(is_array($userGroups) && count($userGroups)))
 			{
 				// No groups to process
-				JLog::add(JText::sprintf('PLG_LDAP_MAPPING_DEBUG_12008', $username), 12008, JLog::DEBUG, 'ldap');
+				SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_DEBUG_12008', $username), 12008, JLog::DEBUG, 'ldap');
 				return;
 			}
 

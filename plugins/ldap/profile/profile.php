@@ -371,7 +371,7 @@ class PlgLdapProfile extends JPlugin
 			}
 			catch (Exception $e)
 			{
-				JLog::add($e, 12234, JLog::ERROR, 'ldap');
+				SHLog::add($e, 12234, JLog::ERROR, 'ldap');
 			}
 		}
 	}
