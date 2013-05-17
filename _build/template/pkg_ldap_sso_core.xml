@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>JMapMyLDAP Core Package</name>
-	<packagename>pkg_ldap_core</packagename>
+	<name>JMapMyLDAP and JSSOMySite Core Package</name>
+	<packagename>pkg_ldap_sso_core</packagename>
 	<version>2.0.0</version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
 	<author>Shaun Maunder</author>
-	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_core.zip</packagerurl>
+	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_sso_core.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>JMapMyLDAP Core Basics Package. This package includes the basic LDAP framework. Dedicated LDAP plugins can now be installed to extend functionality.</description>
+	<description>JMapMyLDAP and JSSOMySite Core Basics Package. This package includes the basic LDAP and SSO core framework. Dedicated LDAP and SSO plugins can now be installed to extend functionality.</description>
 	<files folder="packages">
 		<!-- <file type="component" id="com_shldap">com_shldap.zip</file> -->
 		<file type="library" id="lib_shmanic_ldap">lib_shmanic_ldap.zip</file>
+		<file type="library" id="lib_shmanic_sso">lib_shmanic_sso.zip</file>
 		<file type="plugin" id="shadapter" group="authentication">plg_authentication_shadapter.zip</file>
 		<file type="plugin" id="ldap" group="shlog">plg_shlog_ldap.zip</file>
 		<file type="plugin" id="shplatform" group="system">plg_system_shplatform.zip</file>
