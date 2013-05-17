@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="library" method="upgrade">
+	<name>lib_shmanic_sso</name>
+	<libraryname>shmanic</libraryname>
+	<author>Shaun Maunder</author>
+	<creationDate>September 2011</creationDate>
+	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.70</version>
+	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
+	<description>LIB_SHMANIC_SSO_XML_DESCRIPTION</description>
+	<build>
+		<folder>sso</folder>
+		<folder>import</folder>
+		<filename>import/sso.php</filename>
+		<filename>sso/helper.php</filename>
+		<filename>sso/monitor.php</filename>
+		<filename>sso/sso.php</filename>
+		<filename>sso.xml</filename>
+	</build>
+	<files>
+		<folder>sso</folder>
+		<filename>import/sso.php</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.lib_sso_core.ini</language>
+	</languages>
+</extension>

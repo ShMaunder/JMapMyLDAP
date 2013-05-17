@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="library" method="upgrade">
+	<name>lib_shmanic_platform</name>
+	<libraryname>shmanic</libraryname>
+	<author>Shaun Maunder</author>
+	<creationDate>September 2011</creationDate>
+	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.70</version>
+	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
+	<description>LIB_SHMANIC_PLATFORM_XML_DESCRIPTION</description>
+	<build>
+		<folder>form</folder>
+		<folder>form/fields</folder>
+		<folder>form/rules</folder>
+		<folder>import</folder>
+		<folder>user</folder>
+		<folder>user/adapters</folder>
+		<folder>util</folder>
+		<folder>exception</folder>
+		<folder>log</folder>
+		<folder>log/entries</folder>
+		<filename>exception/invaliduser.php</filename>
+		<filename>exception/stacked.php</filename>
+		<filename>log/entries/exception.php</filename>
+		<filename>log/entries/id.php</filename>
+		<filename>log/log.php</filename>
+		<filename>user/adapter.php</filename>
+		<filename>user/helper.php</filename>
+		<filename>util/ip.php</filename>
+		<filename>factory.php</filename>
+		<filename>import.php</filename>
+		<filename>loader.php</filename>
+		<filename>platform.xml</filename>
+	</build>
+	<files>
+		<folder>exception</folder>
+		<folder>form</folder>
+		<folder>import</folder>
+		<folder>log</folder>
+		<folder>user</folder>
+		<folder>util</folder>
+		<filename>factory.php</filename>
+		<filename>import.php</filename>
+		<filename>loader.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.shmanic_platform.ini</language>
+	</languages>
+</extension>
