@@ -169,7 +169,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			}
 
 			// Emulate dn as an attribute
-			$this->_attributes['dn'] = $this->_dn;
+			$this->_attributes['dn'] = array($this->_dn);
 		}
 	}
 
@@ -267,7 +267,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			}
 
 			// Emulate dn as an attribute
-			$this->_attributes['dn'] = $this->_dn;
+			$this->_attributes['dn'] = array($this->_dn);
 		}
 		catch (Exception $e)
 		{

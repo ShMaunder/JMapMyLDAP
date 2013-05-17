@@ -40,6 +40,19 @@ final class SHLdapResult
 	{
 		if (is_array($results))
 		{
+			// Emulate the DN correctly
+			for ($i = 0; $i < count($results); $i++)
+			{
+				if (isset($results[$i]['dn']))
+				{
+					/* Special case for distinguished name because it doesn't
+					 * have an array of values - uses string. Lets wrap it inside
+					 * an array for compatibility.
+					 */
+					$results[$i]['dn'] = array($results[$i]['dn']);
+				}
+			}
+
 			$this->_results = $results;
 		}
 	}
@@ -119,15 +132,6 @@ final class SHLdapResult
 		}
 
 		$values = JArrayHelper::getValue($getEntry, $attribute, $default);
-
-		if ($attribute === 'dn')
-		{
-			/* Special case for distinguished name because it doesn't
-			 * have an array of values - uses string. Lets wrap it inside
-			 * an array for compatibility.
-			 */
-			return array($values);
-		}
 
 		return $values;
 	}
