@@ -141,6 +141,16 @@ CentOS/RHEL: yum install xmlstarlet
 			<property name="manifest.use" value="1" />
 		</phingcall>
 		
+		<phingcall target="build">
+			<property name="extension.path" value="administrator/components/com_shconfig" />
+			<property name="manifest" value="shconfig.xml" />
+			<property name="manifest.use" value="1" />
+		</phingcall>
+		
+		<phingcall target="package">
+			<property name="manifest" value="pkg_shplatform.xml" />
+		</phingcall>
+		
 		<phingcall target="package">
 			<property name="manifest" value="pkg_ldap_core.xml" />
 		</phingcall>
@@ -346,10 +356,23 @@ CentOS/RHEL: yum install xmlstarlet
 			</elseif>
 		</if>
 		
-		
-		
+		<!-- Due to having multiple locations for the language XML, we need to provide it to a tmp variable -->
 		<if>
 			<isset property="extension.languages.language" />
+			<then>
+				<property name="temp.languages" value="${extension.languages.language}" />
+			</then>
+			<elseif>
+				<isset property="extension.administration.languages.language" />
+				<then>
+					<property name="temp.languages" value="${extension.administration.languages.language}" />
+				</then>
+			</elseif>
+		</if>
+			
+			
+		<if>
+			<isset property="temp.languages" />
 			<then>
 				<!-- Create the lang/en-GB strucutre for now until we have sorted out these XMLs -->
 				<if>
@@ -359,11 +382,11 @@ CentOS/RHEL: yum install xmlstarlet
 					</then>
 				</if>
 				
-				<!-- TODO fix this -->
+				<!-- TODO fix this - or just add as we go along -->
 				<mkdir dir="${extension.dest}/language" />
 				<mkdir dir="${extension.dest}/language/en-GB" />
 				
-				<foreach list="${extension.languages.language}" param="lang" target="prep:copyLang" />
+				<foreach list="${temp.languages}" param="lang" target="prep:copyLang" />
 			</then>
 		</if>
 
