@@ -1,73 +1,147 @@
-platform.schema
- [Platform database version]
 
-platform.version
- [Platform version]
-
-platform.import
- [JSON of imports/boot]
+============================================================================
+platform.version :: [string] :: Platform version
+============================================================================
+ Example Values:
+	2.0.0.1
 
 
-
-user.autoregister:
- 0 - Inherited False
- 1 - Inherited True
- 2 - Override True
- 3 - Override False
-
-user.defaultgroup:
- [Default Group if Component non-exist]
+============================================================================
+platform.import :: [JSON] :: Defines the imports
+============================================================================
+ Example Values:
+	{"1":"ldap","2":"sso"}
+	{"1":"ldap"}
 
 
-
-ldap.config
- [SQL|Plugin - The source of the LDAP configuration (possible to use multiple configs)]
- 1 - AUTO
- 2 - SQL
- 3 - FILE
- 4 - PLUGIN
-
-
-ldap.table
- [When config is SQL, specify the SQL table to use for configuration]
-
-ldap.plugin
- [Authentication Plugin name of the LDAP configuration]
-
-ldap.file
- [Used to store a location of Ldap configuration file]
-
-ldap.namespaces
- [Used to store namespaces of Ldap files]
-
-ldap.version
- [JMapMyLDAP Version]
+============================================================================
+user.autoregister :: [integer] :: Defines the autoregister behaviour
+============================================================================
+ Values:
+	0 - Inherited False
+	1 - Inherited True
+	2 - Override True
+	3 - Override False
 
 
-sso.bypasskey:
- [Bypass key like nosso for index.php?nosso=1]
+============================================================================
+user.defaultgroup :: [integer] :: Default Joomla group if no com_users
+============================================================================
+ Example Values:
+	2 - Meaning default registered group
 
-sso.urlbypass:
- [1|0 to enable URL bypassing]
 
-sso.iprule:
- [1|0 where 1 means allowall and 0 means denyall]
+============================================================================
+ldap.version :: [string] :: The version of JMapMyLDAP
+============================================================================
+ Example Values:
+	2.0.0.1
 
-sso.iplist:
- [JSON of ip lists]
 
-sso.backend:
- [1|0 where 1 means allow login to backend and 0 means disable backend login]
+============================================================================
+ldap.config :: [integer] :: Source of the LDAP configuration
+============================================================================
+ Values:
+	1 - AUTO
+	2 - SQL
+	3 - FILE
+	4 - PLUGIN
 
-sso.plugintype:
- [The SSO plugin type e.g. sso]
 
-sso.autoregister
- [1|0 where 1 means autoregister allowed and 0 means autoregister disabled]
+============================================================================
+ldap.table :: [string] :: SQL table to use for Ldap configuration
+============================================================================
+ Example Values:
+	#__sh_ldap_config
 
-sso.doauthorise
- [1|0 where 1 means to authorise the detected user with an authentication plugin and 0 means to log them in using Joomla database]
- 
 
-user.type
- [Used as default user adapter type e.g. ldap]
+============================================================================
+ldap.plugin :: [string] :: Authentication Plugin name for LDAP configuration
+============================================================================
+ Example Values:
+	ldap
+
+
+============================================================================
+ldap.file :: [string] :: Stores location of Ldap configuration file
+============================================================================
+ Example Values:
+	/etc/joomla/ldap.conf.php
+
+
+============================================================================
+ldap.namespaces :: [string] :: Namespaces of Ldap files
+============================================================================
+ Example Values:
+	office;home
+	office
+	home
+
+
+============================================================================
+sso.urlbypass :: [boolean] :: Enable SSO bypass
+============================================================================
+ Values:
+	0 - Disable
+	1 - Enable
+
+
+============================================================================
+sso.bypasskey :: [string] :: Bypass key for SSO
+============================================================================
+ Example Values:
+	nosso - setting it to this would mean index.php?nosso=1 would not sso
+
+
+============================================================================
+sso.iprule :: [boolean] :: The default IP rule to use
+============================================================================
+ Values:
+	0 - Deny All
+	1 - Allow All
+
+
+============================================================================
+sso.iplist :: [JSON] :: IP list to use in conjunction with the IP rule
+============================================================================
+ Examples Values:
+	{"1":"192.168.2.20"}
+
+
+============================================================================
+sso.backend :: [boolean] :: Allow backend login using SSO
+============================================================================
+ Values:
+	0 - Do not allow backend login using SSO
+	1 - Allow backend login using SSO
+
+
+============================================================================
+sso.plugintype :: [string] :: Plugin type name for SSO
+============================================================================
+ Example Values:
+	sso
+
+
+============================================================================
+sso.autoregister :: [boolean] :: Autoregister on SSO
+============================================================================
+ Values:
+	0 - Disable autoregister
+	1 - Enable autoregister
+
+
+============================================================================
+sso.doauthorise :: [boolean] :: Authorise the SSO user
+============================================================================
+ Values:
+	0 - Log them in using only the Joomla database (no authorising)
+	1 - Authorise the detected user with an authentication plugin
+
+
+============================================================================
+user.type :: [string] :: Default user adapter name
+============================================================================
+ Example Values:
+	ldap
+	
