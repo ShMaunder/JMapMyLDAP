@@ -265,7 +265,7 @@ abstract class SHFactory
 		$query->select($query->qn('name'))
 			->select($query->qn('value'))
 			->from($query->qn($table))
-			->order($query->qn('config_id'));
+			->order($query->qn('id'));
 
 		$handler->setQuery($query);
 
