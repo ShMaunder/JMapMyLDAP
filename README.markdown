@@ -13,6 +13,6 @@
 <p>Version <strong>2.x</strong></p>
 <ul>
  <li>Requires Joomla! 2.5 or above</li>
- <li>ETA on Beta Stage: Sunday 12 May 2013</li>
- <li>ETA on Final Release: Sunday 26 May 2013</li>
+ <li>ETA on Beta Stage: Monday 20 May 2013</li>
+ <li>ETA on Final Release: Monday 10 June 2013</li>
 </ul>
