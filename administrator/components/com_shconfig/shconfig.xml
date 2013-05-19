@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+	<name>com_shconfig</name>
+	<author>Shaun Maunder</author>
+	<creationDate>May 2013</creationDate>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.70</version>
+	<description>COM_SHCONFIG_XML_DESCRIPTION</description>
+	
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+	
+	
+	<administration>
+		<menu link="#">SHMANIC_MENU</menu>
+		<submenu>
+			<menu link="option=com_shconfig" view="items" alt="SHConfig">COM_SHCONFIG</menu>
+		</submenu>
+
+		<files>
+			<filename>config.xml</filename>
+			<filename>access.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>shconfig.php</filename>
+			<filename>shconfig.xml</filename>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+		</files>
+		
+		<languages>
+			<language tag="en-GB">language/en-GB/en-GB.com_shconfig.ini</language>
+			<language tag="en-GB">language/en-GB/en-GB.com_shconfig.sys.ini</language>
+		</languages>
+	</administration>
+	
+</extension>
