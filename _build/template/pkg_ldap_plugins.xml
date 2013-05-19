@@ -9,7 +9,7 @@
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_plugins.zip</packagerurl>
 	<buildDate></buildDate>
 	<description>JMapMyLDAP Plugins Package.</description>
-	<files folder="packages">
+	<files>
 		<file type="plugin" id="creation" group="ldap">plg_ldap_creation.zip</file>
 		<file type="plugin" id="deletion" group="ldap">plg_ldap_deletion.zip</file>
 		<file type="plugin" id="injection" group="ldap">plg_ldap_injection.zip</file>
