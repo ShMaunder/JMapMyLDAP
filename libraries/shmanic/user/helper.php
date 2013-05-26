@@ -68,6 +68,9 @@ abstract class SHUserHelper
 		$instance->set('usertype', 'depreciated');
 		$instance->set('groups', array($defaultUserGroup));
 
+		// Set the authentication type as a parameter
+		$instance->setParam('authtype', strtoupper(JArrayHelper::getValue($options, 'type')));
+
 		// If autoregister is set, register the user
 		$autoregister = isset($options['autoregister']) ? $options['autoregister'] : true;
 

@@ -239,6 +239,13 @@ class SHLdapEventBouncer extends JEvent
 			return false;
 		}
 
+		// Check if this user is new but also an existing LDAP user
+		if ($isNew && SHLdapHelper::isUserLdap($new))
+		{
+			// We don't want to do anything because this user isn't saved in the DB yet and already in LDAP
+			return;
+		}
+
 		// Ask all plugins if there is a plugin willing to deal with user creation for ldap
 		if ($isNew && count($results = SHFactory::getDispatcher('ldap')->trigger('askUserCreation')))
 		{
@@ -343,6 +350,9 @@ class SHLdapEventBouncer extends JEvent
 			// Override Auto-registration
 			$options['autoregister'] = ($autoRegister === 2) ? 1 : 0;
 		}
+
+		// Tell the getUser to store the authtype as LDAP
+		$options['type'] = 'LDAP';
 
 		// Get a handle to the Joomla User object ready to be passed to the individual plugins
 		$instance = SHUserHelper::getUser($user, $options);
