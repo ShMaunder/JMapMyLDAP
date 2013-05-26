@@ -335,6 +335,9 @@ class PlgLdapProfile extends JPlugin
 
 		if ($showForm)
 		{
+			// We have to launch the getxmlfields to correctly include languages
+			$this->getXMLFields();
+
 			// Load in the profile XML file to the form
 			if (($xml = JFactory::getXML($this->xmlFilePath, true)) && ($form->load($xml, false, false)))
 			{
