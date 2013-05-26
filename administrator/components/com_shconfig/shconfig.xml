@@ -28,10 +28,7 @@
 	
 	
 	<administration>
-		<menu link="#">SHMANIC_MENU</menu>
-		<submenu>
-			<menu link="option=com_shconfig" view="items" alt="SHConfig">COM_SHCONFIG</menu>
-		</submenu>
+		<menu link="option=com_shconfig" view="items" alt="SHConfig">COM_SHCONFIG</menu>
 
 		<files>
 			<filename>config.xml</filename>
