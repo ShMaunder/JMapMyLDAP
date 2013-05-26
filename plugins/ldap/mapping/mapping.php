@@ -31,6 +31,14 @@ class PlgLdapMapping extends JPlugin
 	const YESDEFAULT = 2;
 
 	/**
+	 * Allow groups to sync back to Ldap.
+	 *
+	 * @var    boolean
+	 * @since  2.0
+	 */
+	protected $sync_groups = false;
+
+	/**
 	 * Allow joomla group additions to users
 	 *
 	 * @var    boolean
@@ -93,7 +101,15 @@ class PlgLdapMapping extends JPlugin
 	 * @var    string
 	 * @since  1.0
 	 */
-	protected $lookup_attribute = null;
+	protected $memberof_attribute = null;
+
+	/**
+	 * The group attribute that holds members (i.e. member).
+	 *
+	 * @var    string
+	 * @since  1.0
+	 */
+	protected $member_attribute = null;
 
 	/**
 	 * The user attribute to be used for group member lookup (i.e. dn, uid)
@@ -101,7 +117,7 @@ class PlgLdapMapping extends JPlugin
 	 * @var    string
 	 * @since  1.0
 	 */
-	protected $lookup_member = null;
+	protected $member_dn = null;
 
 	/**
 	 * Use recursion
@@ -155,41 +171,201 @@ class PlgLdapMapping extends JPlugin
 	{
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
+	}
 
-		$this->addition = (bool) $this->params->get('addition', true);
-		$this->removal = (int) $this->params->get('removal', self::YESDEFAULT);
-		$this->unmanaged = array_map('intval', explode(';', $this->params->get('unmanaged')));
-		$this->public_id = (int) $this->params->get('public_id');
-
-		$this->dn_validate = $this->params->get('dn_validate', 1);
-
-		$this->lookup_type = (int) $this->params->get('lookup_type', self::LOOKUP_FORWARD);
-		$this->lookup_attribute = $this->params->get('lookup_attribute');
-		$this->lookup_member = $this->params->get('lookup_member', 'dn');
-
-		$this->recursion = (bool) $this->params->get('recursion', false);
-		$this->dn_attribute = $this->params->get('dn_attribute', 'distinguishedName');
-		$this->recursion_depth = (int) $this->params->get('recursion_depth', 0);
-
-		$this->list = array();
-		$list = preg_split('/\r\n|\n|\r/', $this->params->get('list'));
-
-		// Loops around each mapping entry parameter
-		foreach ($list as $item)
+	/**
+	 * Method is called before user data is stored in the database.
+	 *
+	 * @param   array    $user   Holds the old user data.
+	 * @param   boolean  $isNew  True if a new user is stored.
+	 * @param   array    $new    Holds the new user data.
+	 *
+	 * @return  boolean  Cancels the save if False.
+	 *
+	 * @since   2.0
+	 */
+	public function onUserBeforeSave($user, $isNew, $new)
+	{
+		if (!$this->doSetup())
 		{
-			// Remove any accidental whitespace from the entry
-			$item = trim($item);
+			return;
+		}
 
-			// Find the right most (outside of the distinguished name) to split groups
-			if ($pos = strrpos($item, ':'))
+		try
+		{
+			// Check that if any groups have changed for the user
+			if ($this->sync_groups && isset($new['groups']) && isset($user['groups']))
 			{
-				// Store distinguished name in a string and Joomla groups in an array
-				$entryDn = trim(substr($item, 0, $pos));
+				// Get the difference in the Joomla user groups from old and new
+				$addedGroups = array_diff($new['groups'], $user['groups']);
+				$removedGroups = array_diff($user['groups'], $new['groups']);
 
-				if ($entryGroups = array_map('intval', explode(',', substr($item, $pos + 1))))
+				$this->doGroupSync($user['username'], $addedGroups, $removedGroups);
+			}
+		}
+		catch (Exception $e)
+		{
+			SHLog::add($e, 12022, JLog::ERROR, 'ldap');
+		}
+	}
+
+	/**
+	 * Method is called after user data is stored in the database.
+	 *
+	 * @param   array    $user     Holds the new user data.
+	 * @param   boolean  $isNew    True if a new user has been stored.
+	 * @param   boolean  $success  True if user was successfully stored in the database.
+	 * @param   string   $msg      An error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onUserAfterSave($user, $isNew, $success, $msg)
+	{
+		if (!$this->doSetup())
+		{
+			return;
+		}
+
+		try
+		{
+			if ($isNew && $success && isset($user['groups']))
+			{
+				$this->doGroupSync($user['username'], $user['groups']);
+			}
+		}
+		catch (Exception $e)
+		{
+			SHLog::add($e, 12023, JLog::ERROR, 'ldap');
+		}
+	}
+
+	/**
+	 * Adds and Removes LDAP groups to and from a LDAP user.
+	 * This is based on the mapping list which maps Group DNs to
+	 * Joomla group IDs.
+	 *
+	 * @param   string  $username      Username of the Ldap user.
+	 * @param   array   $addGroups     Array of Joomla group IDs to add.
+	 * @param   array   $removeGroups  Array of Joomla group IDs to remove.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 * @throws  Exception
+	 */
+	protected function doGroupSync($username, $addGroups, $removeGroups = array())
+	{
+		// Only allow Managed groups to be added or removed from Ldap
+		$addedGroups = array_intersect($addGroups, $this->managed);
+		$removedGroups = array_intersect($removeGroups, $this->managed);
+
+		// Check if a group has changed
+		if (count($addedGroups) || count($removedGroups))
+		{
+			$groupsToAdd = array();
+			$groupsToRemove = array();
+
+			// Loop each DN in the list
+			foreach ($this->list as $dn => $groups)
+			{
+				// Loop each JGroup in this specific list
+				foreach ($groups as $group)
 				{
-					// Store as a parameter for validation later
-					$this->list[$entryDn] = $entryGroups;
+					if (in_array($group, $addedGroups))
+					{
+						// Add this Group to the user
+						$groupsToAdd[] = $dn;
+					}
+
+					if (in_array($group, $removedGroups))
+					{
+						// Remove this Group from the user
+						$groupsToRemove[] = $dn;
+					}
+				}
+			}
+
+			// Check whether we have any syncing to do
+			if (count($groupsToAdd) || count($groupsToRemove))
+			{
+				$attribute = $this->member_attribute;
+
+				$adapter = SHFactory::getUserAdapter($username);
+				$adapter->getId(false);
+
+				$tmp = $adapter->getAttributes($this->member_dn);
+
+				if (isset($tmp[$this->member_dn][0]) && !empty($tmp[$this->member_dn][0]))
+				{
+					// This should contain the User DN
+					$memberDn = $tmp[$this->member_dn][0];
+
+					// We are going to be dealing with LDAP directly right now
+					$ldap = $adapter->client;
+					$ldap->proxyBind();
+
+					if ($this->addition)
+					{
+						foreach ($groupsToAdd as $group)
+						{
+							try
+							{
+								// Get the current assigned users for this group
+								$users = $ldap->read($group, null, array($attribute))->getAttribute(0, $attribute);
+
+								// Check to ensure the attribute doesn't already exist
+								if (array_search($memberDn, $users) === false)
+								{
+									$users[] = $memberDn;
+									$ldap->replaceAttributes($group, array($attribute => $users));
+									SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_INFO_12038', $username, $group), 12038, JLog::INFO, 'ldap');
+								}
+							}
+							catch (Exception $e)
+							{
+								// An error occurred trying to add the group
+								SHLog::add($e, 12034, JLog::ERROR, 'ldap');
+							}
+						}
+					}
+
+					if ($this->removal)
+					{
+						foreach ($groupsToRemove as $group)
+						{
+							try
+							{
+								// Get the current assigned users for this group
+								$users = $ldap->read($group, null, array($attribute))->getAttribute(0, $attribute);
+
+								// Index of the array at which the value exists;
+								$key = array_search($memberDn, $users);
+
+								// Check to ensure the attribute exists
+								if ($key !== false)
+								{
+									// Remove it and reorder as its a LDAP modify operation
+									unset($users[$key]);
+									$users = array_values($users);
+
+									$ldap->replaceAttributes($group, array($attribute => $users));
+									SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_INFO_12039', $username, $group), 12039, JLog::INFO, 'ldap');
+								}
+							}
+							catch (Exception $e)
+							{
+								// An error occurred trying to remove the group
+								SHLog::add($e, 12036, JLog::ERROR, 'ldap');
+							}
+						}
+					}
+				}
+				else
+				{
+					// Invalid member_dn parameter
+					SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_ERR_12031', $username), 12031, JLog::ERROR, 'ldap');
 				}
 			}
 		}
@@ -230,6 +406,11 @@ class PlgLdapMapping extends JPlugin
 	 */
 	public function onLdapSync(&$instance, $options = array())
 	{
+		if (!$this->doSetup())
+		{
+			return;
+		}
+
 		try
 		{
 			// Gather the user adapter
@@ -239,82 +420,14 @@ class PlgLdapMapping extends JPlugin
 			// Get the distinguished name of the user
 			$dn = $adapter->getId(false);
 
-			// Get all the Joomla user groups
-			$JUserGroups = SHUserHelper::getJUserGroups();
-			$JUserGroupsKey = array_fill_keys($JUserGroups, '');
-
-			$this->entries = array();
-
-			/*
-			 * Process the map list parameter into validated entries.
-			 * Then ensure that there is atleast 1 valid entry to
-			 * proceed with the mapping process.
-			 */
-			foreach ($this->list as $dn => $groups)
-			{
-				foreach ($groups as $key => $group)
-				{
-					if (!isset($JUserGroupsKey[$group]))
-					{
-						// This isn't a valid Joomla group
-						unset($this->list[$dn][$key]);
-						continue;
-					}
-				}
-
-				if (empty($this->list[$dn]))
-				{
-					// This DN doesn't have any valid Joomla groups
-					unset($this->list[$dn]);
-					continue;
-				}
-
-				/*
-				 * Add the entry to a new mapping entry object then check if it is
-				 * valid. If so then we can assume this entry has no syntax errors.
-				 */
-				$entry = new SHLdapMappingEntry($dn, $this->list[$dn], $this->dn_validate);
-
-				if ($entry->isValid())
-				{
-					// Add as a valid entry
-					$this->entries[] = $entry;
-
-					// Add as a managed group
-					if ($this->removal === self::YES)
-					{
-						/*
-						 * Yes means we want to add only groups that are defined in the mapping list.
-						 * Looping around dn group parameter list, ensuring its not already there and not in unmanaged.
-						 */
-						$this->managed = array_merge(
-							$this->managed,
-							array_diff(array_diff($this->list[$dn], $this->unmanaged), $this->managed)
-						);
-					}
-				}
-			}
-
-			if ($this->removal === self::YESDEFAULT)
-			{
-				// Yesdefault means we want to add all Joomla groups to the managed pool
-				$this->managed = array_diff($JUserGroups, $this->unmanaged);
-			}
-
-			if (!count($this->entries))
-			{
-				// No valid entries here
-				SHLog::add(JText::_('PLG_LDAP_MAPPING_DEBUG_12006'), 12006, JLog::DEBUG, 'ldap');
-				return;
-			}
-
 			/*
 			 * Process the ldap attributes created from the source ldap
 			 * user into mapping entries, then evaulate which groups
 			 * are of interest when compared to the parameter list.
 			 */
+			$attribute = $this->lookup_type === self::LOOKUP_FORWARD ? $this->memberof_attribute : $this->member_attribute;
 			$userGroups = JArrayHelper::getValue(
-				$adapter->getAttributes($this->lookup_attribute), $this->lookup_attribute
+				$adapter->getAttributes($attribute), $attribute
 			);
 
 			if (!(is_array($userGroups) && count($userGroups)))
@@ -390,6 +503,135 @@ class PlgLdapMapping extends JPlugin
 	}
 
 	/**
+	 * Method to initialise all the properties based on the parameters
+	 * specified in the plugin.
+	 *
+	 * @return  boolean  True on valid entries in the mapping list.
+	 *
+	 * @since   2.0
+	 */
+	protected function doSetup()
+	{
+		static $done = null;
+
+		if (is_null($done))
+		{
+			// Assign class properties based on parameters from the plugin
+			$this->sync_groups = (bool) $this->params->get('sync_groups', false);
+			$this->addition = (bool) $this->params->get('addition', true);
+			$this->removal = (int) $this->params->get('removal', self::YESDEFAULT);
+			$this->unmanaged = array_map('intval', explode(';', $this->params->get('unmanaged')));
+			$this->public_id = (int) $this->params->get('public_id');
+
+			$this->dn_validate = $this->params->get('dn_validate', 1);
+
+			$this->lookup_type = (int) $this->params->get('lookup_type', self::LOOKUP_FORWARD);
+			$this->memberof_attribute = $this->params->get('memberof_attribute');
+			$this->member_attribute = $this->params->get('member_attribute', 'member');
+			$this->member_dn = $this->params->get('member_dn', 'dn');
+
+			$this->recursion = (bool) $this->params->get('recursion', false);
+			$this->dn_attribute = $this->params->get('dn_attribute', 'distinguishedName');
+			$this->recursion_depth = (int) $this->params->get('recursion_depth', 0);
+
+			$this->entries = array();
+			$this->list = array();
+			$list = preg_split('/\r\n|\n|\r/', $this->params->get('list'));
+
+			// Loops around each mapping entry parameter
+			foreach ($list as $item)
+			{
+				// Remove any accidental whitespace from the entry
+				$item = trim($item);
+
+				// Find the right most (outside of the distinguished name) to split groups
+				if ($pos = strrpos($item, ':'))
+				{
+					// Store distinguished name in a string and Joomla groups in an array
+					$entryDn = trim(substr($item, 0, $pos));
+
+					if ($entryGroups = array_map('intval', explode(',', substr($item, $pos + 1))))
+					{
+						// Store as a parameter for validation later
+						$this->list[$entryDn] = $entryGroups;
+					}
+				}
+			}
+
+			// Get all the Joomla user groups
+			$JUserGroups = SHUserHelper::getJUserGroups();
+			$JUserGroupsKey = array_fill_keys($JUserGroups, '');
+
+			/*
+			 * Process the map list parameter into validated entries.
+			 * Then ensure that there is atleast 1 valid entry to
+			 * proceed with the mapping process.
+			 */
+			foreach ($this->list as $dn => $groups)
+			{
+				foreach ($groups as $key => $group)
+				{
+					if (!isset($JUserGroupsKey[$group]))
+					{
+						// This isn't a valid Joomla group
+						unset($this->list[$dn][$key]);
+						continue;
+					}
+				}
+
+				if (empty($this->list[$dn]))
+				{
+					// This DN doesn't have any valid Joomla groups
+					unset($this->list[$dn]);
+					continue;
+				}
+
+				/*
+				 * Add the entry to a new mapping entry object then check if it is
+				 * valid. If so then we can assume this entry has no syntax errors.
+				 */
+				$entry = new SHLdapMappingEntry($dn, $this->list[$dn], $this->dn_validate);
+
+				if ($entry->isValid())
+				{
+					// Add as a valid entry
+					$this->entries[] = $entry;
+
+					// Add as a managed group
+					if ($this->removal === self::YES)
+					{
+						/*
+						 * Yes means we want to add only groups that are defined in the mapping list.
+						 * Looping around dn group parameter list, ensuring its not already there and not in unmanaged.
+						 */
+						$this->managed = array_merge(
+							$this->managed,
+							array_diff(array_diff($this->list[$dn], $this->unmanaged), $this->managed)
+						);
+					}
+				}
+			}
+
+			if ($this->removal === self::YESDEFAULT)
+			{
+				// Yesdefault means we want to add all Joomla groups to the managed pool
+				$this->managed = array_diff($JUserGroups, $this->unmanaged);
+			}
+
+			$done = true;
+
+			if (!count($this->entries))
+			{
+				// No valid entries here
+				SHLog::add(JText::_('PLG_LDAP_MAPPING_DEBUG_12006'), 12006, JLog::DEBUG, 'ldap');
+				$done = false;
+			}
+		}
+
+		return $done;
+	}
+
+	/**
 	 * Called before a user LDAP read to gather extra user ldap attribute keys
 	 * required for this plugin to function correctly.
 	 *
@@ -402,11 +644,13 @@ class PlgLdapMapping extends JPlugin
 	 */
 	public function onLdapBeforeRead($adapter, $options = array())
 	{
-		$return = array($this->lookup_member);
+		// Make sure we get the value used to query groups if required
+		$return = array($this->member_dn);
 
+		// We can only process forward requests as the groups are stored in the user object
 		if ($this->lookup_type === self::LOOKUP_FORWARD)
 		{
-			$return[] = $this->lookup_attribute;
+			$return[] = $this->memberof_attribute;
 		}
 
 		return $return;
@@ -440,7 +684,7 @@ class PlgLdapMapping extends JPlugin
 			 * Attempt to do a forward lookup if the Ldap user group attributes are
 			 * not present. Though in most cases, they should be present.
 			 */
-			if (!isset($attributes[$this->lookup_attribute]))
+			if (!isset($attributes[$this->memberof_attribute]))
 			{
 				// We cannot get any more information if there is no source user DN
 				if (is_null($adapter->getId(false)))
@@ -449,27 +693,28 @@ class PlgLdapMapping extends JPlugin
 				}
 
 				// Add to the user attribute request for an Ldap read
-				$details[] = $this->lookup_attribute;
+				$details[] = $this->memberof_attribute;
 				$return = $details;
 			}
 			else
 			{
-				if (!count($attributes[$this->lookup_attribute]))
+				if (!count($attributes[$this->memberof_attribute]))
 				{
 					// There are no groups to process for this user (or the parameter was set incorrectly)
 					return true;
 				}
 
 				// Yes we have groups already, we just need to check for recursion if required laters
-				$groups = $attributes[$this->lookup_attribute];
+				$groups = $attributes[$this->memberof_attribute];
 			}
 		}
 		else
 		{
 			// Attempt to do a reverse lookup
-			$return[] = $this->lookup_attribute;
+			$return[] = $this->member_attribute;
 
-			if (!isset($attributes[$this->lookup_member]) || is_null($this->lookup_member))
+			// The following will only execute if the attributes doesnt have what is required for reverse lookup
+			if (!isset($attributes[$this->member_dn]) || is_null($this->member_dn))
 			{
 				// We cannot get any more information if there is no source user DN
 				if (is_null($adapter->getId(false)))
@@ -477,7 +722,8 @@ class PlgLdapMapping extends JPlugin
 					return false;
 				}
 
-				$details[] = $this->lookup_member;
+				// This will indicate another ldap read later
+				$details[] = $this->member_dn;
 			}
 		}
 
@@ -497,16 +743,16 @@ class PlgLdapMapping extends JPlugin
 			if ($this->lookup_type === self::LOOKUP_FORWARD)
 			{
 				// Forward lookup: all we need is the user group values
-				$groups = $result->getAttribute(0, $this->lookup_attribute, array());
+				$groups = $result->getAttribute(0, $this->memberof_attribute, array());
 			}
 			else
 			{
 				// Reverse lookup: have to find the groups with the user dn present
-				$lookupValue = is_null($result) ? $attributes[$this->lookup_member][0] :
-					$result->getValue(0, $this->lookup_member, 0);
+				$lookupValue = is_null($result) ? $attributes[$this->member_dn][0] :
+					$result->getValue(0, $this->member_dn, 0);
 
 				// Build the search filter for this
-				$search = $this->lookup_attribute . '=' . $lookupValue;
+				$search = $this->member_attribute . '=' . $lookupValue;
 				$search = SHLDAPHelper::buildFilter(array($search));
 
 				// Find all the groups that have this user present as a member
@@ -533,13 +779,13 @@ class PlgLdapMapping extends JPlugin
 				{
 					// We need to override the lookup attribute for reverse recursion
 					self::getRecursiveGroups(
-						$adapter->client, $groups, $this->recursion_depth, $outcome, 'dn', $this->lookup_attribute
+						$adapter->client, $groups, $this->recursion_depth, $outcome, 'dn', $this->member_attribute
 					);
 				}
 				else
 				{
 					self::getRecursiveGroups(
-						$adapter->client, $groups, $this->recursion_depth, $outcome, $this->lookup_attribute, $this->dn_attribute
+						$adapter->client, $groups, $this->recursion_depth, $outcome, $this->memberof_attribute, $this->dn_attribute
 					);
 				}
 
@@ -550,7 +796,7 @@ class PlgLdapMapping extends JPlugin
 
 		// Lets store the groups
 		$groups = array_values($groups);
-		$attributes[$this->lookup_attribute] = $groups;
+		$attributes[$this->lookup_type === self::LOOKUP_FORWARD ? $this->memberof_attribute : $this->member_attribute] = $groups;
 
 		return true;
 	}

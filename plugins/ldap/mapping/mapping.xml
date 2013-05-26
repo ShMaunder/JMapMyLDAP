@@ -26,6 +26,10 @@
 					<option value="1">JYes</option>
 				</field>
 				<field name="spacer1" type="spacer" hr="true"/>
+				<field name="sync_groups" type="list" default="0" description="PLG_LDAP_MAPPING_FIELD_SYNC_GROUPS_DESC" label="PLG_LDAP_MAPPING_FIELD_SYNC_GROUPS_LABEL">
+					<option value="0">PLG_LDAP_MAPPING_FIELD_SYNC_YESFL</option>
+					<option value="1">PLG_LDAP_MAPPING_FIELD_SYNC_YESTFL</option>
+				</field>
 				<field name="addition" type="radio" default="1" description="PLG_LDAP_MAPPING_FIELD_ADD_DESC" label="PLG_LDAP_MAPPING_FIELD_ADD_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
@@ -49,8 +53,9 @@
 					<option value="0">PLG_LDAP_MAPPING_FIELD_LOOKUPTYPE_FORWARD</option>
 					<option value="1">PLG_LDAP_MAPPING_FIELD_LOOKUPTYPE_REVERSE</option>
 				</field>
-				<field name="lookup_attribute" type="text" required="true" default="" description="PLG_LDAP_MAPPING_FIELD_LOOKUPATTRIBUTE_DESC" label="PLG_LDAP_MAPPING_FIELD_LOOKUPATTRIBUTE_LABEL"/>
-				<field name="lookup_member" type="text" required="true" default="dn" description="PLG_LDAP_MAPPING_FIELD_LOOKUPMEMBER_DESC" label="PLG_LDAP_MAPPING_FIELD_LOOKUPMEMBER_LABEL"/>
+				<field name="memberof_attribute" type="text" required="true" default="memberOf" description="PLG_LDAP_MAPPING_FIELD_MEMBEROF_ATTRIBUTE_DESC" label="PLG_LDAP_MAPPING_FIELD_MEMBEROF_ATTRIBUTE_LABEL"/>
+				<field name="member_attribute" type="text" required="true" default="member" description="PLG_LDAP_MAPPING_FIELD_MEMBER_ATTRIBUTE_DESC" label="PLG_LDAP_MAPPING_FIELD_MEMBER_ATTRIBUTE_LABEL"/>
+				<field name="member_dn" type="text" required="true" default="dn" description="PLG_LDAP_MAPPING_FIELD_MEMBER_DN_DESC" label="PLG_LDAP_MAPPING_FIELD_MEMBER_DN_LABEL"/>
 				<field name="spacer4" type="spacer" hr="true"/>
 				<field name="recursion" type="radio" default="0" description="PLG_LDAP_MAPPING_FIELD_USERECURSION_DESC" label="PLG_LDAP_MAPPING_FIELD_USERECURSION_LABEL">
 					<option value="0">JNo</option>
