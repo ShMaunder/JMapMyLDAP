@@ -262,10 +262,10 @@ abstract class SHFactory
 		$query = $handler->getQuery(true);
 
 		// Do the SQL query ensuring only platform specific entries are returned
-		$query->select($query->qn('name'))
-			->select($query->qn('value'))
-			->from($query->qn($table))
-			->order($query->qn('id'));
+		$query->select($query->quoteName('name'))
+			->select($query->quoteName('value'))
+			->from($query->quoteName($table))
+			->order($query->quoteName('id'));
 
 		$handler->setQuery($query);
 
@@ -276,8 +276,9 @@ abstract class SHFactory
 		{
 			foreach ($array as $key => $value)
 			{
-				// Is there a better way to do this?
-				$registry->set($key, $value);
+				// Ensure compatibility between group.config and group:config
+				$registry->set(str_replace(':', '.', $key), $value);
+				$registry->set(str_replace('.', ':', $key), $value);
 			}
 		}
 
@@ -324,7 +325,9 @@ abstract class SHFactory
 			// Load the configuration values into the registry
 			foreach ($config as $key => $value)
 			{
+				// Ensure compatibility between group.config and group:config
 				$registry->set(str_replace('__', '.', $key), $value);
+				$registry->set(str_replace('__', ':', $key), $value);
 			}
 
 			return $registry;

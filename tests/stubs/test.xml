@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
 	<table name="jos_sh_config">
-		<column>config_id</column>
+		<column>id</column>
 		<column>name</column>
 		<column>value</column>
 		<row>
@@ -46,7 +46,7 @@
 		</row>
 	</table>
 	<table name="jos_sh_ldap_config">
-		<column>ldap_id</column>
+		<column>id</column>
 		<column>name</column>
 		<column>enabled</column>
 		<column>ordering</column>

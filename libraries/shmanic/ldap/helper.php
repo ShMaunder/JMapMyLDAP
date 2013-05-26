@@ -128,7 +128,7 @@ abstract class SHLdapHelper
 				$query->select('params')
 					->from($query->qn($table))
 					->where('enabled >= 1')
-					->where($query->qn('ldap_id') . '=' . $query->q((int) $id));
+					->where($query->qn('id') . '=' . $query->q((int) $id));
 
 				// Execute the query
 				if ($param = $db->setQuery($query)->loadResult())
@@ -497,7 +497,7 @@ abstract class SHLdapHelper
 		$query = $db->getQuery(true);
 
 		// Do the SQL query
-		$query->select($query->qn('ldap_id'))
+		$query->select($query->qn('id'))
 			->from($query->qn($table))
 			->where($query->qn('enabled') . '>= 1')
 			->where($query->qn('name') . '=' . $query->q($name));
@@ -539,7 +539,7 @@ abstract class SHLdapHelper
 			$query = $db->getQuery(true);
 
 			// Do the SQL query
-			$query->select($query->qn('ldap_id'))
+			$query->select($query->qn('id'))
 				->select($query->qn('name'))
 				->from($query->qn($table))
 				->where($query->qn('enabled') . '>= 1');
@@ -547,7 +547,7 @@ abstract class SHLdapHelper
 			$db->setQuery($query);
 
 			// Execute the query
-			$results = $db->loadAssocList('ldap_id', 'name');
+			$results = $db->loadAssocList('id', 'name');
 
 			return $results;
 		}
@@ -561,6 +561,9 @@ abstract class SHLdapHelper
 
 				return $namespaces;
 			}
+
+			// There are no namespaces, there return an array with one null element
+			return array(null);
 		}
 	}
 
