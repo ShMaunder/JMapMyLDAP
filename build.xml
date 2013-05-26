@@ -147,6 +147,12 @@ CentOS/RHEL: yum install xmlstarlet
 			<property name="manifest.use" value="1" />
 		</phingcall>
 		
+		<phingcall target="build">
+			<property name="extension.path" value="administrator/components/com_shldap" />
+			<property name="manifest" value="shldap.xml" />
+			<property name="manifest.use" value="1" />
+		</phingcall>
+		
 		<phingcall target="package">
 			<property name="manifest" value="pkg_shplatform.xml" />
 		</phingcall>
@@ -184,7 +190,7 @@ CentOS/RHEL: yum install xmlstarlet
 		<property name="manifest.source" value="${template.dir}/${manifest}" />
 		<xmlproperty file="${manifest.source}" collapseAttributes="true" />
 		
-		<property name="extension.dest" value="${package.dest}/${extension.packagename}" />
+		<property name="extension.dest" value="pkg_${package.dest}/${extension.packagename}" />
 		
 		<!-- Check if the target folder exists. If not, create it -->
 		<if>
@@ -223,7 +229,7 @@ CentOS/RHEL: yum install xmlstarlet
 			<equals arg1="${build.compress}" arg2="1" />
 			<then>
 				<phingcall target="build:compress">
-					<property name="extension.name" value="${extension.packagename}" override="true" />
+					<property name="extension.name" value="pkg_${extension.packagename}" override="true" />
 				</phingcall>
 			</then>
 		</if>
@@ -339,11 +345,16 @@ CentOS/RHEL: yum install xmlstarlet
 		
 		<!-- REMOVE IF NOT USED -->
 		<if>
-			<equals arg1="${extension.type}" arg2="plugin" />
+			<equals arg1="${extension.type}" arg2="component" />
 			<then>
 				
-				<echo message="Plugin" />
-				
+				<if>
+					<available file="${extension.dest}/sql/updates/mysql" type="dir" />
+					<then>
+						<echo message="Touch the update SQL so to ensure no errors on update" />
+						<touch file="${extension.dest}/sql/updates/mysql/${package.version}.sql" />
+					</then>
+				</if>
 
 			</then>
 			
