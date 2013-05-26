@@ -434,6 +434,7 @@ class PlgLdapMapping extends JPlugin
 			{
 				// No groups to process
 				SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_DEBUG_12008', $username), 12008, JLog::DEBUG, 'ldap');
+
 				return;
 			}
 
@@ -498,6 +499,7 @@ class PlgLdapMapping extends JPlugin
 		catch (Exception $e)
 		{
 			SHLog::add($e, 12021, JLog::ERROR, 'ldap');
+
 			return false;
 		}
 	}
@@ -927,6 +929,7 @@ class PlgLdapMapping extends JPlugin
 
 		// Lets process each group that was found
 		$entryCount = $results->countEntries();
+
 		for ($i = 0; $i < $entryCount; ++$i)
 		{
 			$dn = $results->getDN($i);
@@ -938,6 +941,7 @@ class PlgLdapMapping extends JPlugin
 
 				// Check if there are more groups we should process from the groups just discovered
 				$valueCount = $results->countValues($i, $attribute);
+
 				for ($j = 0; $j < $valueCount; ++$j)
 				{
 					// We want to process this object
@@ -1172,7 +1176,6 @@ class SHLdapMappingEntry extends JObject
 				{
 					return true;
 				}
-
 			}
 		}
 	}
