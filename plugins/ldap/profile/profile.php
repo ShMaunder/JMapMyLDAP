@@ -241,6 +241,7 @@ class PlgLdapProfile extends JPlugin
 		catch (Exception $e)
 		{
 			SHLog::add($e, 12231, JLog::ERROR, 'ldap');
+
 			return false;
 		}
 	}
@@ -311,6 +312,7 @@ class PlgLdapProfile extends JPlugin
 		if (!($form instanceof JForm))
 		{
 			$this->_subject->setError('JERROR_NOT_A_FORM');
+
 			return false;
 		}
 
@@ -423,11 +425,11 @@ class PlgLdapProfile extends JPlugin
 				// Save the profile back to LDAP
 				$result = $this->saveProfileToLdap($username, $profileData);
 			}
-
 		}
 		catch (Exception $e)
 		{
 			SHLog::add($e, 12232, JLog::ERROR, 'ldap');
+
 			return false;
 		}
 
@@ -534,6 +536,7 @@ class PlgLdapProfile extends JPlugin
 				$lang->load($this->profile_name, $this->lang_base);
 
 				$this->xml = $xml[0];
+
 				return $this->xml;
 			}
 		}
@@ -640,6 +643,7 @@ class PlgLdapProfile extends JPlugin
 				$attributes[] = $name;
 			}
 		}
+
 		return $attributes;
 	}
 
@@ -680,6 +684,7 @@ class PlgLdapProfile extends JPlugin
 		* currently in the SQL database.
 		*/
 		$attributes = $this->getAttributes($xml);
+
 		foreach ($attributes as $attribute)
 		{
 			// Lets check for a delimiter (this is the indicator that multiple values are supported)
@@ -689,7 +694,6 @@ class PlgLdapProfile extends JPlugin
 
 			if ($delimiter = (string) $xmlField[0]['delimiter'])
 			{
-
 				// These are potentially multiple values
 
 				if (strToUpper($delimiter) == 'NEWLINE')
@@ -709,7 +713,6 @@ class PlgLdapProfile extends JPlugin
 						}
 					}
 				}
-
 			}
 			else
 			{
@@ -747,7 +750,6 @@ class PlgLdapProfile extends JPlugin
 					$deleteRecords[] = $attribute;
 					break;
 			}
-
 		}
 
 		/* Lets commit these differences to the database
@@ -1010,6 +1012,7 @@ class PlgLdapProfile extends JPlugin
 			if ($record['profile_key'] == $key)
 			{
 				$status = 1;
+
 				if ($record['profile_value'] == $value)
 				{
 					$status = 0;
@@ -1040,6 +1043,7 @@ class PlgLdapProfile extends JPlugin
 			if ($xmlField = $xml->xpath("fieldset/field[@name='$key']"))
 			{
 				$disabled = (string) $xmlField[0]['disabled'];
+
 				if ($disabled != 'true' && $disabled != 1)
 				{
 					$clean[$key] = $value;
@@ -1095,7 +1099,6 @@ class PlgLdapProfile extends JPlugin
 				{
 					$processed[$key][$i] = $newValues[$i];
 				}
-
 			}
 			else
 			{

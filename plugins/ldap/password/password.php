@@ -88,6 +88,7 @@ class PlgLdapPassword extends JPlugin
 			{
 				// Log and Error out
 				SHLog::add($e, 12401, JLog::ERROR, 'ldap');
+
 				return false;
 			}
 		}

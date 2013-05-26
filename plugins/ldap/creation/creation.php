@@ -169,7 +169,6 @@ class PlgLdapCreation extends JPlugin
 						$attribute = $this->_execEval((string) $value, $new);
 						break;
 				}
-
 			}
 
 			$credentials = array(
@@ -200,6 +199,7 @@ class PlgLdapCreation extends JPlugin
 		catch (Exception $e)
 		{
 			SHLog::add($e, 12801, JLog::ERROR, 'ldap');
+
 			return false;
 		}
 	}
@@ -222,11 +222,13 @@ class PlgLdapCreation extends JPlugin
 			$adapter->create();
 
 			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $username), 12821, JLog::INFO, 'ldap');
+
 			return true;
 		}
 		catch (Exception $e)
 		{
 			SHLog::add($e, 12802, JLog::ERROR, 'ldap');
+
 			return false;
 		}
 	}
