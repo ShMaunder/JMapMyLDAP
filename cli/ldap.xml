@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="file" method="upgrade">
+	<name>cli_shmanic_ldap</name>
+	<author>Shaun Maunder</author>
+	<creationDate>May 2013</creationDate>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.70</version>
+	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
+	<description>Command Line Scripts for Shmanic LDAP.</description>
+	<fileset>
+		<files target="cli">
+			<file>ldap_cron.php</file>
+			<file>clear_db_passwords.php</file>
+		</files>
+	</fileset>
+	<build>
+		<filename>ldap_cron.php</filename>
+		<filename>clear_db_passwords.php</filename>
+		<filename>ldap.xml</filename>
+	</build>
+</extension>

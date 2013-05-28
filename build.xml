@@ -142,6 +142,12 @@ CentOS/RHEL: yum install xmlstarlet
 		</phingcall>
 		
 		<phingcall target="build">
+			<property name="extension.path" value="cli" />
+			<property name="manifest" value="ldap.xml" />
+			<property name="manifest.use" value="1" />
+		</phingcall>
+		
+		<phingcall target="build">
 			<property name="extension.path" value="administrator/components/com_shconfig" />
 			<property name="manifest" value="shconfig.xml" />
 			<property name="manifest.use" value="1" />
@@ -301,13 +307,26 @@ CentOS/RHEL: yum install xmlstarlet
 		</if>
 		
 		<if>
-			<isset property="extension.build.folder" />
+			<or>
+				<isset property="extension.build.folder" />
+				<isset property="extension.build.filename" />
+			</or>
 			<then>
 				<echo message="Folders: ${extension.build.folder}" />
 				<echo message="File: ${extension.build.filename}" />
 				<!-- Copy folders and files one by one -->
-				<foreach list="${extension.build.folder}" param="folder" target="prep:createFolder" />
-				<foreach list="${extension.build.filename}" param="filename" target="prep:copyFiles" />
+				<if>
+					<isset property="extension.build.folder" />
+					<then>
+						<foreach list="${extension.build.folder}" param="folder" target="prep:createFolder" />
+					</then>
+				</if>
+				<if>
+					<isset property="extension.build.filename" />
+					<then>
+						<foreach list="${extension.build.filename}" param="filename" target="prep:copyFiles" />
+					</then>
+				</if>
 			</then>
 			<else>
 				<copy todir="${extension.dest}">
