@@ -25,6 +25,6 @@
 		<filename>import/sso.php</filename>
 	</files>
 	<languages>
-		<language tag="en-GB">language/en-GB/en-GB.lib_sso_core.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.shmanic_sso.ini</language>
 	</languages>
 </extension>
