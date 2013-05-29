@@ -53,4 +53,6 @@ class SHLdapConfig
 	public $password_hash = 'sha';
 
 	public $password_prefix = '1';
+
+	public $all_user_filter = '(objectclass=inetOrgPerson)';
 }
