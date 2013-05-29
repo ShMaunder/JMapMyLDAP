@@ -24,7 +24,7 @@ abstract class SHFactory
 	/**
 	 * An array of dispatcher objects.
 	 *
-	 * @var    Array[JDispatcher]
+	 * @var    JDispatcher[]
 	 * @since  2.0
 	 */
 	public static $dispatcher = array();
@@ -40,7 +40,7 @@ abstract class SHFactory
 	/**
 	 * An array of user adapters.
 	 *
-	 * @var    Array[SHUserAdapter]
+	 * @var    SHUserAdapter[]
 	 * @since  2.0
 	 */
 	public static $adapters = array();
@@ -158,7 +158,7 @@ abstract class SHFactory
 
 		if (empty($username))
 		{
-			throw new Exception('Invalid username to instanitate a user adapter.');
+			throw new RuntimeException(JText::_('LIB_SHFACTORY_ERR_2121'), 2121);
 		}
 
 		if (!isset(self::$adapters[$username]))
@@ -173,8 +173,15 @@ abstract class SHFactory
 			$type = ucfirst(strtolower($type));
 			$class = "SHUserAdapters${type}";
 
-			// Create the adapter (note: remember to unset if using multiple adapters!)
-			self::$adapters[$username] = new $class($credentials, null, $options);
+			if (class_exists($class))
+			{
+				// Create the adapter (note: remember to unset if using multiple adapters!)
+				self::$adapters[$username] = new $class($credentials, null, $options);
+			}
+			else
+			{
+				throw new RuntimeException(JText::sprintf('LIB_SHFACTORY_ERR_2123', $class), 2123);
+			}
 		}
 		else
 		{
