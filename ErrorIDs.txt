@@ -17,14 +17,16 @@ Starting Letters:
 10341 - Failed to retrieve Ldap attributes for the authenticating user [LIB_SHLDAP_ERR_10341] [LIB_JLDAP2_ERROR_USER_ATTRIBUTE_FAIL]
 LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2$s)."
 
-10342 - Cancelled Login due to Ldap plug-in [LIB_SHLDAP_ERR_10342]
-LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
+
 
 
 
 - SHPlatform Related Errors [1000-9999] -
 
 1121 - Invalid configuration file. Either the file or namespace doesn't exist. %1$s:%2$s [LIB_SHPLATFORM_ERR_1121]
+
+2121 - Failed to instanitate a user adapter due to empty username. [LIB_SHFACTORY_ERR_2121]
+2123 - Cannot find User Adapter class %1$s. [LIB_SHFACTORY_ERR_2123]
 
 
 
@@ -111,9 +113,14 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 -- LDAP User Adapter [10800-10979] --
 
-10901 - Cannot complete LDAP operation due to failure of binding as proxy user [LIB_SHUSERADAPTERSLDAP_ERR_10901]
-10906 - User has been deleted [LIB_SHUSERADAPTERSLDAP_ERR_10906]
-10909 - Cannot create a new user when user already exists [LIB_SHUSERADAPTERSLDAP_ERR_10909]
+10901 - Cannot complete LDAP operation due to failure of binding as proxy user. [LIB_SHUSERADAPTERSLDAP_ERR_10901]
+10906 - User has been deleted from LDAP. [LIB_SHUSERADAPTERSLDAP_ERR_10906]
+10909 - Cannot create user '%1$s' when user already exists in LDAP. [LIB_SHUSERADAPTERSLDAP_ERR_10909]
+
+10912 - Login cancelled due to LDAP plug-in returning false. [LIB_SHUSERADAPTERSLDAP_ERR_10912]
+
+10917 - Failed to change password, current password not specified. [LIB_SHUSERADAPTERSLDAP_ERR_10917]
+10918 - Failed to change password, current password is incorrect. [LIB_SHUSERADAPTERSLDAP_ERR_10918]
 
 
 
@@ -190,13 +197,12 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 
 
--- SHLdap Authentication [12600-12799] --
+-- SHAdapter Authentication [12600-12799] --
 
-12601 - Failed to boot the SHLdap / SHPlatform [PLG_AUTHENTICATION_SHLDAP_ERR_12601]
-12602 - Blank passwords not allowed [PLG_AUTHENTICATION_SHLDAP_ERR_12602]
-12604 - No configurations could authenticate user [PLG_AUTHENTICATION_SHLDAP_ERR_12604]
-12611 - Failed to get user attributes [PLG_AUTHENTICATION_SHLDAP_ERR_12611] [PLG_AUTHENTICATION_JMAPMYLDAP_ERROR_ATTRIBUTES_FAIL]
-12612 - Successfully logged in [PLG_AUTHENTICATION_SHLDAP_INFO_12612]
+12601 - Failed to import the required libraries. [PLG_AUTHENTICATION_SHADAPTER_ERR_12601]
+12602 - Blank passwords not allowed. [PLG_AUTHENTICATION_SHADAPTER_ERR_12602]
+12611 - Failed to get user attributes. [PLG_AUTHENTICATION_SHADAPTER_ERR_12611] 
+12612 - Successfully logged in [PLG_AUTHENTICATION_SHADAPTER_INFO_12612]
 
 [ST]12621 - General Error ID for raising a exception log in onUserAuthenticate
 [S]12622 - General Error ID for raising a exception log in onUserAuthorisation
@@ -205,7 +211,6 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 -- Ldap Creation [12800-12899] --
 
-[S]12801 - General Error ID for raising a exception log in onUserBeforeSave
 [S]12802 - General Error ID for raising a exception log in onUserCreation
 [S]12803 - General Error ID for raising a exception log in onUserAfterSave
 
@@ -225,6 +230,29 @@ LIB_SHLDAP_ERR_10342="Cancelled login due to LDAP plug-in."
 
 12908 - The user '%1$s' has been deleted. [PLG_LDAP_DELETION_INFO_12908]
 
+
+
+-- Ldap CLI [13000-13099] --
+
+13001 - Started LDAP Cron Script for Joomla! [CLI_LDAP_INFO_13001]
+13002 - Found $1$d LDAP configurations. [CLI_LDAP_INFO_13002]
+13003 - Failed to find any LDAP configurations. [CLI_LDAP_ERR_13003]
+13004 - Invalid LDAP configuration. [CLI_LDAP_ERR_13004]
+
+13011 - Failed to bind with the proxy user for LDAP configuration %1$s. [CLI_LDAP_ERR_13011]
+13012 - Failed to search all users in the directory with error: %1$s. [CLI_LDAP_ERR_13012]
+
+13020 - Attempting to synchronise user %1$s... [CLI_LDAP_INFO_13020]
+13022 - Empty email not allowed. [CLI_LDAP_ERR_13022]
+13024 - Failed to create a JUser object. [CLI_LDAP_ERR_13024]
+13026 - Failed to synchronise user. [CLI_LDAP_ERR_13026]
+13028 - Fatal error (%2$s) for user: %1$s. [CLI_LDAP_ERR_13028]
+13029 - Successfully synchronised user %1$s. [CLI_LDAP_INFO_13029]
+
+13032 - ======= LDAP Results ======= [CLI_LDAP_INFO_13032]
+13034 - Users Success: %1$d. [CLI_LDAP_INFO_13034]
+13036 - Users Failed:  %1$d. [CLI_LDAP_INFO_13036]
+13038 - Error Messages: [CLI_LDAP_INFO_13038]
 
 
 - SSO Errors [15000-16999] -
