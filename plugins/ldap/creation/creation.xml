@@ -21,8 +21,8 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="template_name" type="text" default="default" description="PLG_LDAP_CREATION_FIELD_TEMPLATE_NAME_DESC" label="PLG_LDAP_CREATION_FIELD_TEMPLATE_NAME_LABEL"/>
-				<field name="template_base" type="text" default="" description="PLG_LDAP_CREATION_FIELD_TEMPLATE_BASE_DESC" label="PLG_LDAP_CREATION_FIELD_TEMPLATE_BASE_LABEL"/>
+				<field name="template_name" type="text" default="" required="true" description="PLG_LDAP_CREATION_FIELD_TEMPLATE_NAME_DESC" label="PLG_LDAP_CREATION_FIELD_TEMPLATE_NAME_LABEL"/>
+				<field name="template_base" type="text" default="" required="true" description="PLG_LDAP_CREATION_FIELD_TEMPLATE_BASE_DESC" label="PLG_LDAP_CREATION_FIELD_TEMPLATE_BASE_LABEL"/>
 				<field name="include_helper" type="radio" default="0" description="PLG_LDAP_CREATION_FIELD_INCLUDE_HELPER_DESC" label="PLG_LDAP_CREATION_FIELD_INCLUDE_HELPER_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>

@@ -45,8 +45,8 @@
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="profile_name" type="text" default="default" description="PLG_LDAP_PROFILE_FIELD_PROFILENAME_DESC" label="PLG_LDAP_PROFILE_FIELD_PROFILENAME_LABEL"/>
-				<field name="profile_base" type="text" default="" description="PLG_LDAP_PROFILE_FIELD_PROFILE_BASE_DESC" label="PLG_LDAP_PROFILE_FIELD_PROFILE_BASE_LABEL"/>
+				<field name="profile_name" type="text" default="" required="true" description="PLG_LDAP_PROFILE_FIELD_PROFILENAME_DESC" label="PLG_LDAP_PROFILE_FIELD_PROFILENAME_LABEL"/>
+				<field name="profile_base" type="text" default="" required="true" description="PLG_LDAP_PROFILE_FIELD_PROFILE_BASE_DESC" label="PLG_LDAP_PROFILE_FIELD_PROFILE_BASE_LABEL"/>
 				<field name="permitted_forms" type="text" default="com_users.profile; com_users.registration; com_users.user; com_admin.profile" description="PLG_LDAP_PROFILE_FIELD_PERMITTEDFORMS_DESC" label="PLG_LDAP_PROFILE_FIELD_PERMITTEDFORMS_LABEL"/>
 			</fieldset>
 		</fields>

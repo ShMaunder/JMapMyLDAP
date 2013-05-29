@@ -26,6 +26,7 @@
 					label="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_LABEL"
 					default="shlog"
 					size="20"
+					required="true"
 				/>
 			</fieldset>
 		</fields>
