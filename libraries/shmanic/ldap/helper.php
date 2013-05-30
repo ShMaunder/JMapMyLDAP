@@ -370,6 +370,7 @@ abstract class SHLdapHelper
 	 * @return  Array  Array of converted parameters
 	 *
 	 * @since   2.0
+	 * @deprecated  Due to the unreliability of the converted config, it really should not get used.
 	 */
 	public static function convertConfig($parameters, $convert = 'SHLdap')
 	{
@@ -432,7 +433,6 @@ abstract class SHLdapHelper
 		// Dodgy detection for SHLdap parameters
 		elseif ($params->get('user_qry') && $params->get('use_search'))
 		{
-
 			if ($convert === 'SHLdap')
 			{
 				// This appears to be converted already
@@ -470,7 +470,6 @@ abstract class SHLdapHelper
 			}
 
 			return $converted;
-
 		}
 	}
 
@@ -579,127 +578,19 @@ abstract class SHLdapHelper
 	 */
 	public static function isUserLdap($user = null)
 	{
-		if (is_null($user) || is_numeric($user))
-		{
-			// The input variable indicates we must load the user object
-			if (JFactory::getUser($user)->getParam('authtype') == 'LDAP')
-			{
-				// This user has the LDAP auth type
-				return true;
-			}
-		}
-		elseif ($user instanceof JUser)
-		{
-			// Direct access of the object
-			if ($user->getParam('authtype') == 'LDAP')
-			{
-				// This user has the LDAP auth type
-				return true;
-			}
-		}
-		elseif (is_array($user))
-		{
-			if (isset($user['params']))
-			{
-				// Load the user parameters into a registry object for inspection
-				$reg = new JRegistry;
-				$reg->loadString($user['params']);
+		$type = SHUserHelper::getTypeParam($user);
 
-				/**
-				 * Check whether this saved user was an LDAP user, and if so then
-				 * fire the LDAP event for it.
-				 */
-				if ($reg->get('authtype') == 'LDAP')
-				{
-					return true;
-				}
-			}
+		// Create a new adapter
+		if ($type = ucfirst(strtolower($type)))
+		{
+			$class = "SHUserAdapters${type}";
+
+			$adapter = new $class(array('username' => '', 'password' => ''));
+
+			return $adapter->getType('LDAP') ? true : false;
 		}
 
 		return false;
-	}
-
-	/**
-	 * Sets the LDAP flag for the user in the Joomla database parameters.
-	 *
-	 * @param   JUser|Integer  &$user   Specified user to set parameter
-	 * @param   string         $domain  Optional domain to store in the database.
-	 *
-	 * @return  boolean  If true then user has been changed, if false then failure to update.
-	 *
-	 * @since   2.0
-	 */
-	public static function setUserLdap(&$user, $domain = null)
-	{
-		if (is_int($user))
-		{
-			// Directly modify the table to include the parameter
-			$uTable = JUser::getTable();
-			$uTable->load($user);
-
-			$params = json_decode($uTable->params);
-
-			$updated = false;
-
-			if ($params->authtype !== 'LDAP')
-			{
-				$params->authtype = 'LDAP';
-				$updated = true;
-			}
-
-			if (!is_null($domain))
-			{
-				if (!$params->authdomain === $domain)
-				{
-					$params->authdomain = $domain;
-					$updated = true;
-				}
-			}
-
-			if ($updated)
-			{
-				$uTable->params = json_encode($params);
-
-				if (!$uTable->store())
-				{
-					// Update failed
-					return false;
-				}
-
-				// An update has happened
-				return true;
-			}
-
-			// Not updated so say so
-			return;
-
-		}
-		elseif ($user instanceof JUser)
-		{
-			$updated = false;
-
-			if ($user->getParam('authtype') !== 'LDAP')
-			{
-				// Direct manipulation of the object
-				$user->setParam('authtype', 'LDAP');
-				$updated = true;
-			}
-
-			if (!is_null($domain))
-			{
-				if ($user->getParam('authdomain') !== $domain)
-				{
-					// Direct manipulation of the object
-					$user->setParam('authdomain', $domain);
-					$updated = true;
-				}
-			}
-
-			if ($updated)
-			{
-				return true;
-			}
-		}
 	}
 
 	/**
