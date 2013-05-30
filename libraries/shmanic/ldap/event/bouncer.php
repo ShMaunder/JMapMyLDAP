@@ -46,6 +46,18 @@ class SHLdapEventBouncer extends JEvent
 	}
 
 	/**
+	 * Proxy method for onAfterInitialise to fix potential race conditions.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onSHPlaformInitialise()
+	{
+		$this->onAfterInitialise();
+	}
+
+	/**
 	 * Method is called after initialise.
 	 *
 	 * @return  void
@@ -216,16 +228,41 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		if (SHLdapHelper::isUserLdap($user))
+		$isAdapterExisting 	= true;
+		$isLdapExisting 	= false;
+
+		// Get the correct username where new username must be used when user isNew
+		$username = $isNew ? $new['username'] : $user['username'];
+
+		try
 		{
+			// We want to check if this user is an existing user in an Adapter
+			$adapter = SHFactory::getUserAdapter($username);
+			$adapter->getId(false);
+		}
+		catch (Exception $e)
+		{
+			// We will assume this user doesnt exist in an Adapter
+			$isAdapterExisting = false;
+		}
+
+		if ($isAdapterExisting)
+		{
+			// We need to check the adapter is LDAP or not
+			$isLdapExisting = $adapter->getType('LDAP');
+		}
+
+		if ($isLdapExisting)
+		{
+			$this->isLdap = true;
+
 			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
 			{
 				try
 				{
 					// Commit the changes to the Adapter if present
-					$adapter = SHFactory::getUserAdapter($user['username']);
 					$adapter->commitChanges();
-					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10986', $user['username']), 10986, JLog::DEBUG, 'ldap');
+					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10986', $username), 10986, JLog::DEBUG, 'ldap');
 				}
 				catch (Excpetion $e)
 				{
@@ -238,29 +275,40 @@ class SHLdapEventBouncer extends JEvent
 
 			return false;
 		}
-
-		// Check if this user is new but also an existing LDAP user
-		if ($isNew && SHLdapHelper::isUserLdap($new))
+		elseif ($isNew)
 		{
-			// We don't want to do anything because this user isn't saved in the DB yet and already in LDAP
-			return;
-		}
-
-		// Ask all plugins if there is a plugin willing to deal with user creation for ldap
-		if ($isNew && count($results = SHFactory::getDispatcher('ldap')->trigger('askUserCreation')))
-		{
-			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+			// Ask all plugins if there is a plugin willing to deal with user creation for ldap
+			if (count($results = SHFactory::getDispatcher('ldap')->trigger('askUserCreation')))
 			{
+				// First, we must create and save the user as some plugins may talk to LDAP directly and cannot be delayed
 				$result = SHLdapHelper::triggerEvent('onUserCreation', array($new));
 
 				// Allow Ldap events to be called
-				$this->isLdap = $result;
+				if ($this->isLdap = $result)
+				{
+					JFactory::getSession()->set('created', $username, 'ldap');
 
-				return $result;
+					if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+					{
+						try
+						{
+							// Commit the changes to the Adapter if present
+							$adapter = SHFactory::getUserAdapter($username);
+							$adapter->commitChanges();
+						}
+						catch (Exception $e)
+						{
+							SHLog::add($e, 10981, JLog::ERROR, 'ldap');
+						}
+
+						// For now lets NOT block the user from logging in even with a error
+						return true;
+					}
+				}
+
+				// Something went wrong with the user creation
+				return false;
 			}
-
-			// Something went wrong with the user creation
-			return false;
 		}
 	}
 
@@ -278,15 +326,20 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		if ($isNew && $success && $this->isLdap)
+		if ($this->isLdap)
 		{
-			// Ensure Joomla knows this is a new Ldap user
-			SHLdapHelper::setUserLdap($user['id']);
-		}
+			if ($isNew && $success)
+			{
+				// Ensure Joomla knows this is a new Ldap user
+				$adapter = SHFactory::getUserAdapter($user['username']);
+				$instance = SHUserHelper::getUser($user, array('adapter' => $adapter));
 
-		if ($this->isLdap || SHLdapHelper::isUserLdap($user))
-		{
+				// Silently resave the user without calling the onUserSave events
+				SHUserHelper::save($instance, false);
+			}
+
 			SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
+			JFactory::getSession()->clear('created', 'ldap');
 		}
 	}
 
@@ -302,57 +355,24 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserLogin($user, $options = array())
 	{
-		$type = strtoupper(JArrayHelper::getValue($user, 'type'));
-
-		// We can only process LDAP authentications
-		if ($type == 'SHADAPTER')
+		// Check if we have a user adapter already established for this user
+		if (!isset(SHFactory::$adapters[$user['username']]))
 		{
-			if (!$adapter = SHFactory::getUserAdapter($user))
-			{
-				return;
-			}
-		}
-		elseif ($type == 'LDAP')
-		{
-			// We can assume we need to create a user adapter
-			$credentials = array(
-				'username' => $user['username'],
-				'password' => $user['password']
-			);
-
-			if (!$adapter = SHFactory::getUserAdapter($credentials))
-			{
-				return;
-			}
-		}
-		else
-		{
+			// SHAdapter did not log this in, get out now
 			return;
 		}
 
-		// Check the user adapter is Ldap compatible (i.e. uses ldap like attributes)
-		if (!$adapter->isLdapCompatible)
+		// Get the processed user adapter directly from the static adapter holder
+		$adapter = SHFactory::$adapters[$user['username']];
+
+		if (!(isset($user['type']) && $adapter::getType($user['type']) && $adapter::getType('LDAP')))
 		{
+			// Incorrect authentication type for this adapter OR is not compatible with LDAP
 			return;
 		}
 
-		// Deal with auto registration flags
-		$config = SHFactory::getConfig();
-		$autoRegister = (int) $config->get('user.autoregister', 1);
-
-		if ($autoRegister === 0 || $autoRegister === 1)
-		{
-			// Inherited Auto-registration
-			$options['autoregister'] = isset($options['autoregister']) ? $options['autoregister'] : $autoRegister;
-		}
-		else
-		{
-			// Override Auto-registration
-			$options['autoregister'] = ($autoRegister === 2) ? 1 : 0;
-		}
-
-		// Tell the getUser to store the authtype as LDAP
-		$options['type'] = 'LDAP';
+		// Lets pass the getUser method the adapter so it can get extra values
+		$options['adapter'] = $adapter;
 
 		// Get a handle to the Joomla User object ready to be passed to the individual plugins
 		$instance = SHUserHelper::getUser($user, $options);
@@ -363,22 +383,10 @@ class SHLdapEventBouncer extends JEvent
 			return false;
 		}
 
-		// The needs a save variable stores whether the plugins did something that require a save
-		$needsSave = false;
-
-		/*
-		 * Set a user parameter to distinguish the authentication type even
-		 * when the user is not logged in.
-		 */
-		if (SHLdapHelper::setUserLdap($instance) === true)
-		{
-			$needsSave = true;
-		}
-
 		// Fire the ldap specific on login events
 		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $options));
 
-		if ($needsSave || $result === true)
+		if ($result === true)
 		{
 			SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10984', $user['username']), 10984, JLog::DEBUG, 'ldap');
 
