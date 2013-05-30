@@ -6,7 +6,7 @@
  * @subpackage  Authentication
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
- * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -22,15 +22,7 @@ defined('JPATH_PLATFORM') or die;
 class PlgAuthenticationSHAdapter extends JPlugin
 {
 	/**
-	 * Temporary constant to clear password. This must be reviewed!
-	 *
-	 * @var    boolean
-	 * @since  2.0
-	 */
-	const CLEAR_PASSWORD = true;
-
-	/**
-	 * Authentication type for Joomla logging.
+	 * Default authentication type.
 	 *
 	 * @var    string
 	 * @since  2.0
@@ -72,15 +64,17 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			// Blank passwords not allowed to prevent anonymous binding
 			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12602');
+
 			return;
 		}
 
 		// Check the Shmanic platform has been imported
 		if (!$this->_checkPlatform())
 		{
-			// Failed to boot the platform
+			// Failed to import the platform
 			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12601');
+
 			return false;
 		}
 
@@ -121,12 +115,12 @@ class PlgAuthenticationSHAdapter extends JPlugin
 				// Report back with success
 				$response->status			= JAuthentication::STATUS_SUCCESS;
 				$response->error_message 	= '';
+
 				return true;
 			}
 
-			// Unable to find user or attributes missing (an error should be thrown before this)
+			// Unable to find user or attributes missing (an error should get thrown already)
 			throw new Exception(JText::_('JGLOBAL_AUTH_NO_USER'), 999);
-
 		}
 		catch (Exception $e)
 		{
@@ -135,7 +129,7 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
 
 			// Process a error log even if it could be a simple incorrect user
-			SHLog::add($e, 12621, JLog::ERROR, 'ldap');
+			SHLog::add($e, 12621, JLog::ERROR, 'auth');
 
 			return;
 		}
@@ -168,36 +162,43 @@ class PlgAuthenticationSHAdapter extends JPlugin
 		// Check the Shmanic platform has been imported
 		if (!$this->_checkPlatform())
 		{
-			// Failed to boot the platform
+			// Failed to import the platform
 			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12601');
+
 			return false;
 		}
 
 		$response->type = self::AUTH_TYPE;
 
 		/*
-		 * Attempt to authorise with Ldap. This method will automatically detect
+		 * Attempt to authorise with User Adapter. This method will automatically detect
 		 * the correct configuration (if multiple ones are specified) and return a
-		 * SHLdap object. If this method returns false, then the authorise was
+		 * SHUserAdapter object. If this method returns false, then the authorise was
 		 * unsuccessful - basically the user was not found or configuration was
 		 * bad.
 		 */
 		try
 		{
-			// Setup new user adapter
-			// TODO: allow domains from sso?
-			$adapter = SHFactory::getUserAdapter($response->username);
+			// Setup user adapter injecting the domain from SSO if specified
+			$credentials = array('username' => $response->username);
+
+			if (isset($options['domain']))
+			{
+				$credentials['domain'] = $options['domain'];
+			}
+
+			$adapter = SHFactory::getUserAdapter($credentials);
 
 			// Get the authorising user dn
 			$id = $adapter->getId(false);
-
 		}
 		catch (Exception $e)
 		{
 			// Configuration or authorisation failure
 			$response->status = JAuthentication::STATUS_FAILURE;
 			$response->error_message = JText::_('JGLOBAL_AUTH_NO_USER');
+
 			return;
 		}
 
@@ -209,9 +210,8 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			if (!is_array($attributes) || !count($attributes))
 			{
 				// No attributes therefore error
-				throw new Exception('dasdassad');
+				throw new Exception(JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12611'), 12611);
 			}
-
 		}
 		catch (Exception $e)
 		{
@@ -220,30 +220,30 @@ class PlgAuthenticationSHAdapter extends JPlugin
 			$response->error_message = JText::_('PLG_AUTHENTICATION_SHADAPTER_ERR_12611');
 
 			// Process a error log
-			SHLog::add($e, 12622, JLog::ERROR, 'ldap');
+			SHLog::add($e, 12622, JLog::ERROR, 'auth');
 
 			return false;
 		}
 
-		/*
-		 * Set the required Joomla specific user fields with the returned Ldap
-		 * user attributes.
-		 */
+		// Set the required Joomla specific user fields with the returned User Adapter Attributes
 		$response->username 	= $adapter->getUid();
 		$response->fullname 	= $adapter->getFullname();
 		$response->email 		= $adapter->getEmail();
 
-		if (self::CLEAR_PASSWORD)
+		// The adapter type needs to be set before returning the response
+		$response->type 		= $adapter->getType();
+
+		if (SHFactory::getConfig()->get('user.nullpassword'))
 		{
-			// Do not store password in Joomla database  TODO: review this for password plug-in
+			// Do not store password in Joomla database
 			$response->password_clear = '';
 		}
 
 		/*
 		 * Everything appears to be a success and therefore we shall log the user login
-		 * information then report back to the subject.
+		 * then report back to the subject.
 		 */
-		SHLog::add(JText::sprintf('PLG_AUTHENTICATION_SHADAPTER_INFO_12612', $response->username), 12612, JLog::INFO, 'ldap');
+		SHLog::add(JText::sprintf('PLG_AUTHENTICATION_SHADAPTER_INFO_12612', $response->username), 12612, JLog::INFO, 'auth');
 
 		$retResponse->status = JAuthentication::STATUS_SUCCESS;
 
@@ -283,5 +283,4 @@ class PlgAuthenticationSHAdapter extends JPlugin
 		// Everything imported successfully
 		return true;
 	}
-
 }
