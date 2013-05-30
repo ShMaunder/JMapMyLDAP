@@ -388,6 +388,7 @@ class SHLdap
 			case 'password_hash':
 			case 'password_prefix':
 			case 'password_salt':
+			case 'debug':
 				return $this->$name;
 				break;
 
