@@ -74,31 +74,20 @@ class PlgLdapCreation extends JPlugin
 	}
 
 	/**
-	 * Method is called before user data is stored in the database.
+	 * Create the user to LDAP (before onUserBeforeSave).
 	 *
-	 * Setups the Adapter in isNew mode and sets some attributes based on template.
+	 * @param   array  $user  Populated LDAP attributes.
 	 *
-	 * @param   array    $user   Holds the old user data.
-	 * @param   boolean  $isNew  True if a new user is stored.
-	 * @param   array    $new    Holds the new user data.
-	 *
-	 * @return  boolean  Cancels the save if False.
+	 * @return  boolean  Cancels the user creation to Joomla if False.
 	 *
 	 * @since   2.0
 	 */
-	public function onUserBeforeSave($user, $isNew, $new)
+	public function onUserCreation($user)
 	{
-		if (!$isNew)
-		{
-			// Plugin doesnt care about existing users
-			return;
-		}
-
-		// Grab the XML for defining base attributes
 		try
 		{
 			// Kill any previous adapters for this user (though this plugin should be ordered first!!)
-			SHFactory::$adapters[$new['username']] = null;
+			SHFactory::$adapters[$user['username']] = null;
 
 			$dn = null;
 			$attributes = array();
@@ -111,7 +100,7 @@ class PlgLdapCreation extends JPlugin
 					// Calculate the correct domain to insert user on
 					if (method_exists($this->helper, 'getDomain'))
 					{
-						$this->domain = $this->helper->getDomain($new);
+						$this->domain = $this->helper->getDomain($user);
 					}
 				}
 			}
@@ -166,62 +155,37 @@ class PlgLdapCreation extends JPlugin
 						break;
 
 					case 'eval':
-						$attribute = $this->_execEval((string) $value, $new);
+						$attribute = $this->_execEval((string) $value, $user);
 						break;
 				}
 			}
 
 			$credentials = array(
-				'username' => $new[$this->usernameKey],
-				'password' => $new[$this->passwordKey],
+				'username' => $user[$this->usernameKey],
+				'password' => $user[$this->passwordKey],
 				'domain' => $this->domain,
 				'dn' => $dn
 			);
 
 			// Create an adapter and save core attributes
-			$adapter = SHFactory::getUserAdapter($credentials, null, array('isNew' => true));
+			$adapter = SHFactory::getUserAdapter($credentials, 'ldap', array('isNew' => true));
 
 			// Add core Joomla fields
 			$adapter->setAttributes(
 				array(
-					'username' => $new[$this->usernameKey],
-					'password' => $new[$this->passwordKey],
-					'fullname' => $new[$this->nameKey],
-					'email' => $new[$this->emailKey]
+					'username' => $user[$this->usernameKey],
+					'password' => $user[$this->passwordKey],
+					'fullname' => $user[$this->nameKey],
+					'email' => $user[$this->emailKey]
 				)
 			);
 
 			// Add extra fields based from the template xml
 			$adapter->setAttributes($attributes);
 
-			return true;
-		}
-		catch (Exception $e)
-		{
-			SHLog::add($e, 12801, JLog::ERROR, 'ldap');
-
-			return false;
-		}
-	}
-
-	/**
-	 * Create the user to LDAP (after onUserBeforeCreate but before onUserAfterCreate).
-	 *
-	 * @param   array  $user  Populated LDAP attributes.
-	 *
-	 * @return  boolean  Cancels the user creation to Joomla if False.
-	 *
-	 * @since   2.0
-	 */
-	public function onUserCreation($user)
-	{
-		try
-		{
-			$username = $user[$this->usernameKey];
-			$adapter = SHFactory::getUserAdapter($username);
+			// Create the LDAP user now
 			$adapter->create();
-
-			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $username), 12821, JLog::INFO, 'ldap');
+			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $user[$this->usernameKey]), 12821, JLog::INFO, 'ldap');
 
 			return true;
 		}
@@ -254,9 +218,14 @@ class PlgLdapCreation extends JPlugin
 			try
 			{
 				$username = $user[$this->usernameKey];
-				$adapter = SHFactory::getUserAdapter($username);
-				$adapter->delete();
-				SHLog::add(JTest::sprintf('PLG_LDAP_CREATION_INFO_12826', $username), 12826, JLog::INFO, 'ldap');
+
+				// Check the session to ensure this user was created successfully last time
+				if (JFactory::getSession()->get('creation', null, 'ldap') == $username)
+				{
+					$adapter = SHFactory::getUserAdapter($username);
+					$adapter->delete();
+					SHLog::add(JTest::sprintf('PLG_LDAP_CREATION_INFO_12826', $username), 12826, JLog::INFO, 'ldap');
+				}
 			}
 			catch (Exception $e)
 			{
