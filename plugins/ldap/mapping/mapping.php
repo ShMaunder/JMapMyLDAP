@@ -773,7 +773,7 @@ class PlgLdapMapping extends JPlugin
 		if ($this->recursion && count($groups))
 		{
 			// Check if the Adapter is LDAP based
-			if ($adapter->isLdapCompatible)
+			if ($adapter::getType('LDAP'))
 			{
 				$outcome = array();
 
