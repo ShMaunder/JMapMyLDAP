@@ -163,6 +163,15 @@ abstract class SHFactory
 
 		if (!isset(self::$adapters[$username]))
 		{
+			// Check if this user is in the blacklist
+			if ($blacklist = (array) json_decode(self::getConfig()->get('user.blacklist')))
+			{
+				if (in_array($username, $blacklist))
+				{
+					throw new RuntimeException(JText::_('LIB_SHFACTORY_ERR_2125'), 2125);
+				}
+			}
+
 			// If the JUser ID has been specified then use it (more efficient)
 			if ($id = isset($credentials['id']) ? (int) $credentials['id'] : JUserHelper::getUserId($username))
 			{

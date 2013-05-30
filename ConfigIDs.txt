@@ -32,6 +32,13 @@ user.defaultgroup :: [integer] :: Default Joomla group if no com_users
 
 
 ============================================================================
+user.blacklist :: [JSON] :: Blacklisted User Adapter users
+============================================================================
+ Example Values:
+	{"1":"admin"}
+
+
+============================================================================
 ldap.version :: [string] :: The version of JMapMyLDAP
 ============================================================================
  Example Values:

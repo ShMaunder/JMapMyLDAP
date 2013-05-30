@@ -129,14 +129,23 @@ class LdapCron extends JApplicationCli
 				// Loop around each Ldap user
 				for ($i = 0; $i < $result->countEntries(); ++$i)
 				{
-					// Get the Ldap username
-					if (!$username = $result->getValue($i, $ldap->keyUid, 0))
+					// Get the Ldap username (case insensitive)
+					if (!$username = strtolower($result->getValue($i, $ldap->keyUid, 0)))
 					{
 						continue;
 					}
 
 					try
 					{
+						// Check if this user is in the blacklist
+						if ($blacklist = (array) json_decode(SHFactory::getConfig()->get('user.blacklist')))
+						{
+							if (in_array($username, $blacklist))
+							{
+								throw new RuntimeException(JText::_('CLI_LDAP_ERR_13025'), 13025);
+							}
+						}
+
 						// Create the new user adapter
 						$adapter = new SHUserAdaptersLdap(array('username' => $username), $config);
 
@@ -240,7 +249,6 @@ class LdapCron extends JApplicationCli
 		$this->out()->out(JText::sprintf('CLI_LDAP_INFO_13034', $success));
 		$this->out(JText::sprintf('CLI_LDAP_INFO_13036', $failed));
 		$this->out()->out('============================');
-
 	}
 }
 

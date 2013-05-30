@@ -27,6 +27,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 2121 - Failed to instanitate a user adapter due to empty username. [LIB_SHFACTORY_ERR_2121]
 2123 - Cannot find User Adapter class %1$s. [LIB_SHFACTORY_ERR_2123]
+2125 - User is blacklisted. [LIB_SHFACTORY_ERR_2125]
 
 
 
@@ -245,6 +246,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 13020 - Attempting to synchronise user %1$s... [CLI_LDAP_INFO_13020]
 13022 - Empty email not allowed. [CLI_LDAP_ERR_13022]
 13024 - Failed to create a JUser object. [CLI_LDAP_ERR_13024]
+13025 - User is blacklisted. [CLI_LDAP_ERR_13025]
 13026 - Failed to synchronise user. [CLI_LDAP_ERR_13026]
 13028 - Fatal error (%2$s) for user: %1$s. [CLI_LDAP_ERR_13028]
 13029 - Successfully synchronised user %1$s. [CLI_LDAP_INFO_13029]
