@@ -134,9 +134,9 @@ abstract class SHFactory
 	 * Gets the user adapter for the user specified. Creates a new user
 	 * adapter if one doesnt already exist for the user.
 	 *
-	 * @param   array|string  $user     Either a username string or array of credentials.
+	 * @param   array|string  $user     Either a username string or array of credentials including JUser ID and domain.
 	 * @param   string        $type     Type of adapter (e.g. ldap, xml, federated).
-	 * @param   array         $options  An array of optional options.
+	 * @param   array         $options  An array of optional options including isNew.
 	 *
 	 * @return  SHUserAdapter  Object to user adapter.
 	 *
@@ -163,9 +163,27 @@ abstract class SHFactory
 
 		if (!isset(self::$adapters[$username]))
 		{
+			// If the JUser ID has been specified then use it (more efficient)
+			if ($id = isset($credentials['id']) ? (int) $credentials['id'] : JUserHelper::getUserId($username))
+			{
+				$jUser = JFactory::getUser($id);
+
+				if (!isset($credentials['domain']))
+				{
+					// Attempt to get the domain for this user
+					$credentials['domain'] = SHUserHelper::getDomainParam($jUser);
+				}
+
+				if (!isset($credentials['type']))
+				{
+					// Attempt to get the User Adapter type
+					$type = SHUserHelper::getTypeParam($jUser);
+				}
+			}
+
 			if (is_null($type))
 			{
-				// Get the default user adpater type from the database
+				// Get the default/primary user adpater type from the database
 				$type = self::getConfig()->get('user.type');
 			}
 
