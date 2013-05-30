@@ -22,6 +22,18 @@ defined('JPATH_PLATFORM') or die;
 class SHSsoMonitor extends JEvent
 {
 	/**
+	 * Proxy method for onAfterInitialise to fix potential race conditions.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onSHPlaformInitialise()
+	{
+		$this->onAfterInitialise();
+	}
+
+	/**
 	 * Called on application initialisation.
 	 *
 	 * @return  void
@@ -34,6 +46,7 @@ class SHSsoMonitor extends JEvent
 		{
 			// There is no current user logged in so attempt SSO
 			$this->_attemptSSO();
+
 			return;
 		}
 	}
@@ -52,6 +65,7 @@ class SHSsoMonitor extends JEvent
 		{
 			// Error: classes missing
 			SHLog::add(JText::_('LIB_SHSSOMONITOR_ERR_15001'), 15001, JLog::ERROR, 'sso');
+
 			return;
 		}
 
@@ -79,6 +93,7 @@ class SHSsoMonitor extends JEvent
 				{
 					// Disable the SSO in the session
 					SHSsoHelper::disableSession();
+
 					return;
 				}
 			}
