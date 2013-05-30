@@ -99,7 +99,6 @@ abstract class SHSsoHelper
 	 */
 	public static function doIPCheck($ip, $ranges, $rule)
 	{
-
 		if (is_numeric($rule))
 		{
 			$rule = (int) $rule;

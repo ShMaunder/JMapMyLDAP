@@ -41,6 +41,30 @@ class SHSso extends JDispatcher
 	const DETECT_METHOD_NAME = 'detectRemoteUser';
 
 	/**
+	 * When used the user is authorised against a plugin.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTHORISE_TRUE = 1;
+
+	/**
+	 * Used for inheriting from the default or SSO plugin.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTHORISE_INHERIT = 0;
+
+	/**
+	 * When used the user is authorised against the Joomla database.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const AUTHORISE_FALSE = -1;
+
+	/**
 	 * Constructor
 	 *
 	 * @param   string  $group  Plugin type for SSO.
@@ -74,6 +98,8 @@ class SHSso extends JDispatcher
 		if (!isset($this->_methods[$event]) || empty($this->_methods[$event]))
 		{
 			// No Plugins Associated To Event
+			SHLog::add(JText::_('LIB_SHSSO_DEBUG_15068'), 15068, JLog::DEBUG, 'sso');
+
 			return false;
 		}
 
@@ -109,6 +135,7 @@ class SHSso extends JDispatcher
 					if (!SHSsoHelper::doIPCheck($myIp, $ranges, $ipRule))
 					{
 						// IP address denies this plug-in from executing
+						SHLog::add(JText::sprintf('LIB_SHSSO_DEBUG_15064', $this->_observers[$key]), 15064, JLog::DEBUG, 'sso');
 						continue;
 					}
 				}
@@ -313,6 +340,7 @@ class SHSso extends JDispatcher
 	 * @return  boolean  True on successful login or False on fail.
 	 *
 	 * @since   1.0
+	 * @throws  RuntimeException
 	 */
 	public function login($options = array())
 	{
@@ -323,6 +351,8 @@ class SHSso extends JDispatcher
 		{
 			return false;
 		}
+
+		SHLog::add(JText::sprintf('LIB_SHSSO_DEBUG_15066', $detection['username'], $detection['sso']), 15066, JLog::DEBUG, 'sso');
 
 		// Set the action if its currently unset
 		if (!isset($options['action']))
@@ -340,40 +370,36 @@ class SHSso extends JDispatcher
 		// Set the doauthorise if its currently unset
 		if (!isset($options['doauthorise']))
 		{
-			$options['doauthorise'] = $config->get('sso.doauthorise', 0);
+			$options['doauthorise'] = $config->get('sso.doauthorise', self::AUTHORISE_INHERIT);
 		}
 
-		// Determine if the detection has extra attributes attached
-		if (is_array($detection))
+		$username = $detection['username'];
+
+		// Check if do authorised is based on the plug-in
+		if ((int) $options['doauthorise'] === self::AUTHORISE_INHERIT)
 		{
-			$username = $detection['username'];
-
-			// Check if do authorised is based on the plug-in
-			if ((int) $options['doauthorise'] === 0)
+			if (isset($detection['doauthorise']))
 			{
-				if (isset($detection['doauthorise']))
-				{
-					// Set the do authorised to the plug-in option
-					$options['doauthorise'] = ((boolean) $detection['doauthorise']) ? 1 : -1;
-				}
-				else
-				{
-					// Default the doauthorise to true
-					$options['doauthorise'] = 1;
-				}
+				// Set the do authorised to the plug-in option
+				$options['doauthorise'] = ((boolean) $detection['doauthorise']) ? self::AUTHORISE_TRUE : self::AUTHORISE_FALSE;
 			}
-
-			// Check for a domain
-			if (isset($detection['domain']))
+			else
 			{
-				$options['domain'] = $detection['domain'];
+				// Default the doauthorise to true
+				$options['doauthorise'] = self::AUTHORISE_TRUE;
 			}
+		}
 
-			// Check for any extra user attributes gathered from SSO
-			if (isset($detection['attributes']))
-			{
-				$options['attributes'] = $detection['attributes'];
-			}
+		// Check for a domain
+		if (isset($detection['domain']))
+		{
+			$options['domain'] = $detection['domain'];
+		}
+
+		// Check for any extra user attributes gathered from SSO
+		if (isset($detection['attributes']))
+		{
+			$options['attributes'] = $detection['attributes'];
 		}
 
 		/*
@@ -383,7 +409,7 @@ class SHSso extends JDispatcher
 		 * Joomla database. If autoregister is turned on then
 		 * it'll attempt to create the user in the Joomla database.
 		 */
-		if ($options['doauthorise'] !== -1)
+		if ($options['doauthorise'] !== self::AUTHORISE_FALSE)
 		{
 			// Do authentication plug-in authorisation
 			$response = $this->authorise($username, $options);
@@ -398,17 +424,17 @@ class SHSso extends JDispatcher
 		if (!((JAuthentication::STATUS_SUCCESS + JAuthentication::STATUS_UNKNOWN) & $response->status))
 		{
 			// We can only process success and unknown status'
-			return false;
+			throw new RuntimeException(JText::sprintf('LIB_SHSSO_ERR_15072', $username), 15072);
 		}
 		elseif (($response->status === JAuthentication::STATUS_UNKNOWN) && !$options['autoregister'])
 		{
 			// The user is unknown and there is no autoregister - fail.
-			return false;
+			throw new RuntimeException(JText::sprintf('LIB_SHSSO_ERR_15074', $username), 15074);
 		}
 		elseif (empty($response->email))
 		{
 			// There is not email set for this user - fail.
-			return false;
+			throw new RuntimeException(JText::sprintf('LIB_SHSSO_ERR_15076', $username), 15076);
 		}
 
 		/*
@@ -429,8 +455,10 @@ class SHSso extends JDispatcher
 		// Check if any of the events failed
 		if (in_array(false, $results, true))
 		{
-			return false;
+			throw new RuntimeException(JText::sprintf('LIB_SHSSO_ERR_15078', $username), 15078);
 		}
+
+		SHLog::add(JText::sprintf('LIB_SHSSO_INFO_15079', $username), 15079, JLog::INFO, 'sso');
 
 		// Everything successful - user should be logged on.
 		return true;
