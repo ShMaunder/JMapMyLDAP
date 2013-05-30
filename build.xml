@@ -112,6 +112,12 @@ CentOS/RHEL: yum install xmlstarlet
 		</phingcall>
 		
 		<phingcall target="build">
+			<property name="extension.path" value="plugins/shlog/sso" />
+			<property name="manifest" value="sso.xml" />
+			<property name="manifest.use" value="1" />
+		</phingcall>
+		
+		<phingcall target="build">
 			<property name="extension.path" value="plugins/sso/http" />
 			<property name="manifest" value="http.xml" />
 			<property name="manifest.use" value="1" />

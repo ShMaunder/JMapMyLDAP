@@ -17,6 +17,7 @@
 		<file type="library" id="lib_shmanic_sso">lib_shmanic_sso.zip</file>
 		<file type="plugin" id="shadapter" group="authentication">plg_authentication_shadapter.zip</file>
 		<file type="plugin" id="ldap" group="shlog">plg_shlog_ldap.zip</file>
+		<file type="plugin" id="sso" group="shlog">plg_shlog_sso.zip</file>
 	</files>
  	<updateservers>
 		<server type="collection" priority="2" name="JMapMyLDAP Updates">http://update.shmanic.com/jmapmyldap/2x/update.xml</server>
