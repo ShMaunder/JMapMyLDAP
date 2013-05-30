@@ -69,6 +69,9 @@ class PlgSystemSHPlatform extends JPlugin
 			}
 		}
 
+		// Fire the onAfterInitialise for all the registered imports/projects
+		JDispatcher::getInstance()->trigger('onSHPlaformInitialise');
+
 		if (in_array(false, $results, true))
 		{
 			// One of the specific projects failed to import

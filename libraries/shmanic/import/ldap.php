@@ -46,10 +46,4 @@ if (class_exists('SHLdapEventBouncer'))
 	$instance = new SHLdapEventBouncer(
 		JDispatcher::getInstance()
 	);
-
-	if (method_exists($instance, 'onAfterInitialise'))
-	{
-		// This is during initialisation
-		$instance->onAfterInitialise();
-	}
 }

@@ -23,6 +23,18 @@ defined('JPATH_PLATFORM') or die;
 class SHLdapEventDebug extends JEvent
 {
 	/**
+	 * Proxy method for onAfterInitialise to fix potential race conditions.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onSHPlaformInitialise()
+	{
+		$this->onAfterInitialise();
+	}
+
+	/**
 	 * Method is called after initialise.
 	 *
 	 * @return  void
