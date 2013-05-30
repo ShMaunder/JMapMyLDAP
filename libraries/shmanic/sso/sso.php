@@ -32,7 +32,6 @@ JLoader::register('JAuthenticationResponse', JPATH_PLATFORM . '/joomla/user/auth
  */
 class SHSso extends JDispatcher
 {
-
 	/**
 	 * Name of the method for SSO user detection.
 	 *
@@ -105,7 +104,7 @@ class SHSso extends JDispatcher
 					$myIp = $input->get('REMOTE_ADDR', false, 'string');
 
 					// Split the list into newline entries
-					$ranges = explode("\n", $ipList);
+					$ranges = preg_split('/\r\n|\n|\r/', $ipList);
 
 					if (!SHSsoHelper::doIPCheck($myIp, $ranges, $ipRule))
 					{
@@ -121,11 +120,13 @@ class SHSso extends JDispatcher
 				$args['event'] = $event;
 				$value = $this->_observers[$key]->update($args);
 			}
+
 			// Fire the event for a function based observer.
 			elseif (is_array($this->_observers[$key]))
 			{
 				$value = call_user_func_array($this->_observers[$key]['handler'], $args);
 			}
+
 			if (isset($value) && $value)
 			{
 				// Check if the detection has been successful for this plug-in
@@ -204,12 +205,14 @@ class SHSso extends JDispatcher
 			{
 				// This username is authorised to use the system
 				$response->status = JAuthentication::STATUS_SUCCESS;
+
 				return $response;
 			}
 		}
 
 		// No authorises found
 		$response->status = JAuthentication::STATUS_FAILURE;
+
 		return $response;
 	}
 
@@ -254,10 +257,10 @@ class SHSso extends JDispatcher
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 
-		$query->select('id')
-			->select('block')
-			->from('#__users')
-			->where('username=' . $db->Quote($username));
+		$query->select($db->quoteName('id'))
+			->select($db->quoteName('block'))
+			->from($db->quoteName('#__users'))
+			->where($db->quoteName('username') . ' = ' . $db->quote($username));
 
 		$db->setQuery($query);
 		$result = $db->loadObject();
@@ -265,7 +268,6 @@ class SHSso extends JDispatcher
 		// Check if the user exists in the database
 		if ($result)
 		{
-
 			// Check if the user has been blocked
 			if ($result->block)
 			{
@@ -359,7 +361,12 @@ class SHSso extends JDispatcher
 					// Default the doauthorise to true
 					$options['doauthorise'] = 1;
 				}
+			}
 
+			// Check for a domain
+			if (isset($detection['domain']))
+			{
+				$options['domain'] = $detection['domain'];
 			}
 
 			// Check for any extra user attributes gathered from SSO
