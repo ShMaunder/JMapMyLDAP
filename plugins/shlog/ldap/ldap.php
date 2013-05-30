@@ -29,6 +29,8 @@ class PlgShlogLdap extends JPlugin
 
 	const LDAP_CATEGORY = 'ldap';
 
+	const AUTH_CATEGORY = 'auth';
+
 	/**
 	 * Fired on log initialiser.
 	 *
@@ -39,7 +41,7 @@ class PlgShlogLdap extends JPlugin
 	public function onLogInitialise()
 	{
 		// This is the columns that the log files will use
-		$fileFormat = $this->params->get('FILE_FORMAT', '{DATETIME}	{ID}	{MESSAGE}');
+		$fileFormat = str_replace('\t', "\t", $this->params->get('FILE_FORMAT', '{DATETIME}\t{ID}\t{MESSAGE}'));
 
 		/*
 		 * Deals with the Information level logs.
@@ -54,7 +56,7 @@ class PlgShlogLdap extends JPlugin
 					'text_entry_format' => $fileFormat
 				),
 				JLog::INFO,
-				array(self::LDAP_CATEGORY)
+				array(self::LDAP_CATEGORY, self::AUTH_CATEGORY)
 			);
 		}
 
@@ -71,7 +73,7 @@ class PlgShlogLdap extends JPlugin
 					'text_entry_format' => $fileFormat
 				),
 				JLog::ALL,
-				array(self::LDAP_CATEGORY)
+				array(self::LDAP_CATEGORY, self::AUTH_CATEGORY)
 			);
 		}
 
@@ -88,7 +90,7 @@ class PlgShlogLdap extends JPlugin
 					'text_entry_format' => $fileFormat
 				),
 				JLog::ERROR,
-				array(self::LDAP_CATEGORY)
+				array(self::LDAP_CATEGORY, self::AUTH_CATEGORY)
 			);
 
 			if ($this->params->get('error_to_screen', true))
@@ -97,7 +99,7 @@ class PlgShlogLdap extends JPlugin
 				JLog::addLogger(
 					array('logger' => self::LOGGER_SCREEN),
 					JLog::ERROR,
-					array(self::LDAP_CATEGORY)
+					array(self::LDAP_CATEGORY, self::AUTH_CATEGORY)
 				);
 			}
 		}

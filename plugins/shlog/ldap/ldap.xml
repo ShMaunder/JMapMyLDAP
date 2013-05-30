@@ -45,7 +45,7 @@
 				</field>
 				<field name="log_name_debug" type="text" default="ldap.debug.php" description="PLG_SHLOG_LDAP_FIELD_LOG_NAME_DEBUG_DESC" label="PLG_SHLOG_LDAP_FIELD_LOG_NAME_DEBUG_LABEL"/>
 				<field name="spacer3" type="spacer" hr="true"/>
-				<field name="file_format" type="text" default="{DATETIME}	{ID}	{MESSAGE}" description="PLG_SHLOG_LDAP_FIELD_FILE_FORMAT_DESC" label="PLG_SHLOG_LDAP_FIELD_FILE_FORMAT_LABEL"/>
+				<field name="file_format" type="text" default="{DATETIME}\t{ID}\t{MESSAGE}" description="PLG_SHLOG_LDAP_FIELD_FILE_FORMAT_DESC" label="PLG_SHLOG_LDAP_FIELD_FILE_FORMAT_LABEL"/>
 			</fieldset>
 		</fields>
 	</config>
