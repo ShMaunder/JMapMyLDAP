@@ -98,6 +98,7 @@ class ShconfigModelItems extends JModelList
 
 		// Filter the items over the search string if set.
 		$search = $this->getState('filter.search');
+
 		if (!empty($search))
 		{
 			if (stripos($search, 'id:') === 0)

@@ -46,11 +46,12 @@ class ShconfigViewItems extends JViewLegacy
 		if (count($errors = $this->get('Errors')))
 		{
 			JError::raiseError(500, implode("\n", $errors));
+
 			return false;
 		}
 
-		parent::display($tpl);
 		$this->addToolbar();
+		parent::display($tpl);
 	}
 
 	/**
@@ -66,6 +67,7 @@ class ShconfigViewItems extends JViewLegacy
 		$canDo	= ShconfigHelper::getActions();
 
 		JToolBarHelper::title(JText::_('COM_SHCONFIG_MANAGER_ITEMS'), '');
+
 		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
 		{
 			JToolBarHelper::addNew('item.add');
@@ -80,5 +82,4 @@ class ShconfigViewItems extends JViewLegacy
 			}
 		}
 	}
-
 }

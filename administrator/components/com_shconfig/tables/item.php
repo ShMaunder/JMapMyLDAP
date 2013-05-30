@@ -51,6 +51,7 @@ class ShconfigTableItem extends JTable
 		if (empty($this->name))
 		{
 			$this->setError('A name or key field is required.');
+
 			return false;
 		}
 
@@ -67,6 +68,7 @@ class ShconfigTableItem extends JTable
 		if ($result && $result != (int) $this->id)
 		{
 			$this->setError('Duplicate name or key');
+
 			return false;
 		}
 

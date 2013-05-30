@@ -43,6 +43,7 @@ class ShconfigModelItem extends JModelAdmin
 	protected function canDelete($record)
 	{
 		$user = JFactory::getUser();
+
 		return $user->authorise('core.admin', 'com_shconfig');
 	}
 
@@ -104,5 +105,4 @@ class ShconfigModelItem extends JModelAdmin
 
 		return $data;
 	}
-
 }

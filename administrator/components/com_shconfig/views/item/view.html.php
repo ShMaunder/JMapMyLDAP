@@ -46,11 +46,12 @@ class ShconfigViewItem extends JViewLegacy
 		if (count($errors = $this->get('Errors')))
 		{
 			JError::raiseError(500, implode("\n", $errors));
+
 			return false;
 		}
 
-		parent::display($tpl);
 		$this->addToolbar();
+		parent::display($tpl);
 	}
 
 	/**
@@ -62,7 +63,7 @@ class ShconfigViewItem extends JViewLegacy
 	 */
 	protected function addToolbar()
 	{
-		JRequest::setVar('hidemainmenu', true);
+		JFactory::getApplication()->input->set('hidemainmenu', true);
 
 		$user		= JFactory::getUser();
 		$isNew		= ($this->item->id == 0);
@@ -88,5 +89,4 @@ class ShconfigViewItem extends JViewLegacy
 			}
 		}
 	}
-
 }
