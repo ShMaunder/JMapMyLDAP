@@ -44,6 +44,26 @@ interface SHUserAdapter
 	public function getId($authenticate);
 
 	/**
+	 * Returns the type/name of this adapter.
+	 *
+	 * @param   string  $type  An optional string to compare against the adapter type.
+	 *
+	 * @return  string|false  Adapter type/name or False on non-matching parameter.
+	 *
+	 * @since   2.0
+	 */
+	public static function getType($type = null);
+
+	/**
+	 * Returns the domain or the configuration ID used for this specific user.
+	 *
+	 * @return  string  Domain or Configuration ID.
+	 *
+	 * @since   2.0
+	 */
+	public function getDomain();
+
+	/**
 	 * Return specified user attributes from the source.
 	 *
 	 * @param   string|array  $input    Optional string or array of attributes to return.
