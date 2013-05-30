@@ -22,6 +22,14 @@ defined('JPATH_PLATFORM') or die;
 class SHUserAdaptersLdap implements SHUserAdapter
 {
 	/**
+	 * Name of this adapter implementation.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	const ADAPTER_TYPE = 'LDAP';
+
+	/**
 	 * Ldap client library (also known as driver).
 	 *
 	 * @var    SHLdap
@@ -123,7 +131,10 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		$this->username = JArrayHelper::getValue($credentials, 'username');
 		$this->password = JArrayHelper::getValue($credentials, 'password');
 
-		$this->domain = str_replace(array('(',')','\''), '', JArrayHelper::getValue($credentials, 'domain', null, 'string'));
+		if (isset($credentials['domain']))
+		{
+			$this->domain = str_replace(array('(',')','\''), '', $credentials['domain']);
+		}
 
 		if (is_array($config) && count($config))
 		{
@@ -165,7 +176,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			// Check whether the user already exists
 			if ($this->_checkUserExists())
 			{
-				throw new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10909'), 10909);
+				throw new RuntimeException(JText::sprintf('LIB_SHUSERADAPTERSLDAP_ERR_10909', $this->username), 10909);
 			}
 
 			// Emulate dn as an attribute
@@ -197,11 +208,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				break;
 
 			case 'type':
-				return 'ldap';
-				break;
-
-			case 'isLdapCompatible':
-				return true;
+				return self::ADAPTER_TYPE;
 				break;
 		}
 
@@ -278,6 +285,37 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 
 		return $this->_dn;
+	}
+
+	/**
+	 * Returns the type/name of this adapter.
+	 *
+	 * @param   string  $type  An optional string to compare against the adapter type.
+	 *
+	 * @return  string|false  Adapter type/name or False on non-matching parameter.
+	 *
+	 * @since   2.0
+	 */
+	public static function getType($type = null)
+	{
+		if (is_null($type) || strtoupper($type) === self::ADAPTER_TYPE)
+		{
+			return self::ADAPTER_TYPE;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns the domain or the configuration ID used for this specific user.
+	 *
+	 * @return  string  Domain or Configuration ID.
+	 *
+	 * @since   2.0
+	 */
+	public function getDomain()
+	{
+		return $this->domain;
 	}
 
 	// @throws  SHLdapException
@@ -401,8 +439,8 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				'onLdapAfterRead', array(&$this, &$this->_attributes, array('dn' => $this->_dn, 'source' => __METHOD__))
 			) === false)
 			{
-				// Cancelled login due to plug-in - should this really be thrown though?
-				throw new SHLdapException(null, 10342, JText::_('LIB_SHLDAP_ERR_10342'));
+				// Cancelled login due to plug-in
+				throw new RuntimeException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10912'), 10912);
 			}
 
 			// Blank need to find as there isn't anything more need finding
@@ -447,7 +485,6 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 		// Returns only the specified inputs unless all attributes are wanted
 		return is_null($input) ? $return : array_replace($inputFilled, array_intersect_key($return, $inputFilled));
-
 	}
 
 	/**
@@ -466,6 +503,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		{
 			// Only return the key id
 			$this->getId(false);
+
 			return $this->client->keyUid;
 		}
 
@@ -500,6 +538,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		{
 			// Only return the key id
 			$this->getId(false);
+
 			return $this->client->keyName;
 		}
 
@@ -534,6 +573,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		{
 			// Only return the key id
 			$this->getId(false);
+
 			return $this->client->keyEmail;
 		}
 
@@ -568,6 +608,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		{
 			// Only return the key id
 			$this->getId(false);
+
 			return $this->client->keyPassword;
 		}
 
@@ -606,13 +647,13 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		{
 			if (empty($old))
 			{
-				throw new Exception('no old password');
+				throw new InvalidArgumentException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10917', 10917));
 			}
 
 			if (!$this->client->bind($this->_dn, $old))
 			{
 				// Incorrect old password
-				throw new Exception('wrong password');
+				throw new InvalidArgumentException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10918', 10918));
 			}
 		}
 
@@ -750,7 +791,6 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 				for ($i = 0; $i < count($value); ++$i)
 				{
-
 					if ($return = self::_checkFieldHelper($current, $key, $count, $value[$i]))
 					{
 						$modification = true;
@@ -768,6 +808,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				{
 					// We want to delete it first
 					$deleteEntries[$key] = array();
+
 					if (count($new))
 					{
 						// Now lets re-add them
@@ -796,7 +837,6 @@ class SHUserAdaptersLdap implements SHUserAdapter
 					case 3:
 						$deleteEntries[$key] = array();
 						break;
-
 				}
 			}
 		}
@@ -993,6 +1033,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 					// Same value - no need to update
 					return 0;
 				}
+
 				if (is_null($value) || !$value)
 				{
 					// We don't want to include a blank or null value
@@ -1028,6 +1069,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		try
 		{
 			$this->client->getUserDN($this->username, null, false);
+
 			return true;
 		}
 		catch (Exception $e)
@@ -1035,5 +1077,4 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			return false;
 		}
 	}
-
 }
