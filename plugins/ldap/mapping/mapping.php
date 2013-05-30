@@ -387,7 +387,15 @@ class PlgLdapMapping extends JPlugin
 	{
 		if ($this->params->get('onlogin'))
 		{
-			return $this->onLdapSync($instance, $options);
+			$result = $this->onLdapSync($instance, $options);
+
+			if (!$this->params->get('abort_login') && $result === false)
+			{
+				// Abort login is disabled and the plugin failed - but lets not cancel login
+				return;
+			}
+
+			return $result;
 		}
 	}
 

@@ -25,6 +25,10 @@
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
+				<field name="abort_login" type="radio" default="1" description="PLG_LDAP_PROFILE_FIELD_ABORT_LOGIN_DESC" label="PLG_LDAP_PROFILE_FIELD_ABORT_LOGIN_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
 				<field name="spacer1" type="spacer" hr="true"/>
 				<field name="allow_ldap_save" type="radio" default="1" description="PLG_LDAP_PROFILE_FIELD_LDAP_SAVE_DESC" label="PLG_LDAP_PROFILE_FIELD_LDAP_SAVE_LABEL">
 					<option value="0">JNo</option>
