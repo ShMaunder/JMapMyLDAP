@@ -65,10 +65,12 @@ class ClearDBPasswords extends JApplicationCli
 			$db = JFactory::getDbo();
 			$query = $db->getQuery(true);
 
-			// UPDATE jos_users SET password = '' WHERE params LIKE '%LDAP%';
+			$authType = 'auth_type';
+
+			// UPDATE jos_users SET password = '' WHERE params LIKE '%\"auth_type\":\"LDAP\"%';
 			$query->update($query->quoteName('#__users'))
-				->set($query->quoteName('password') . '=' . '\'\'')
-				->where($query->quoteName('params') . ' LIKE \'%LDAP%\'');
+				->set($query->quoteName('password') . ' = ' . $db->quote(''))
+				->where($query->quoteName('params') . ' LIKE ' . $db->quote("%\"{$authType}\":\"LDAP\"%"));
 
 			$result = $db->setQuery($query)->execute();
 
