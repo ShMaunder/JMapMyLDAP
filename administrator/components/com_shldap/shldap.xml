@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+	<name>com_shldap</name>
+	<author>Shaun Maunder</author>
+	<creationDate>May 2013</creationDate>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see	LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version>2.0.0.70</version>
+	<description>COM_SHLDAP_XML_DESCRIPTION</description>
+	
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+	
+	<administration>
+		<menu link="option=com_shldap">com_shldap</menu>
+		
+		<files>
+			<filename>config.xml</filename>
+			<filename>access.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>shldap.php</filename>
+			<filename>shldap.xml</filename>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>views</folder>
+		</files>
+		
+		<languages>
+			<language tag="en-GB">language/en-GB/en-GB.com_shldap.ini</language>
+			<language tag="en-GB">language/en-GB/en-GB.com_shldap.sys.ini</language>
+		</languages>
+	</administration>
+	
+</extension>

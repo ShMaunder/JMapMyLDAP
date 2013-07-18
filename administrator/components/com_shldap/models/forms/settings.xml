@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="ldap">
+		<field name="ldap:include"
+			type="radio"
+			default="1"
+			description="COM_SHLDAP_SETTINGS_FIELD_INCLUDE_LDAP_DESC"
+			label="COM_SHLDAP_SETTINGS_FIELD_INCLUDE_LDAP_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+		<field name="ldap:config"
+			type="list"
+			default="2"
+			label="COM_SHLDAP_SETTINGS_FIELD_LDAP_CONFIG_LABEL"
+			description ="COM_SHLDAP_SETTINGS_FIELD_LDAP_CONFIG_DESC"
+		>
+			<option value="1">COM_SHLDAP_SETTINGS_FIELD_LDAP_CONFIG_AUTO</option>
+			<option value="2">COM_SHLDAP_SETTINGS_FIELD_LDAP_CONFIG_SQL</option>
+			<option value="3">COM_SHLDAP_SETTINGS_FIELD_LDAP_CONFIG_FILE</option>
+			<option value="4">COM_SHLDAP_SETTINGS_FIELD_LDAP_CONFIG_PLUGIN</option>
+		</field>
+		<field name="ldap:table"
+			type="text"
+			default="#__sh_ldap_config"
+			label="COM_SHLDAP_SETTINGS_FIELD_LDAP_TABLE_LABEL"
+			description="COM_SHLDAP_SETTINGS_FIELD_LDAP_TABLE_DESC"
+		/>
+		<field name="ldap:file"
+			type="text"
+			default=""
+			label="COM_SHLDAP_SETTINGS_FIELD_LDAP_FILE_LABEL"
+			description="COM_SHLDAP_SETTINGS_FIELD_LDAP_FILE_DESC"
+		/>
+		<field name="ldap:namespaces"
+			type="text"
+			default=""
+			label="COM_SHLDAP_SETTINGS_FIELD_LDAP_NAMESPACES_LABEL"
+			description="COM_SHLDAP_SETTINGS_FIELD_LDAP_NAMESPACES_DESC"
+		/>
+		<field name="ldap:plugin"
+			type="text"
+			default="ldap"
+			label="COM_SHLDAP_SETTINGS_FIELD_LDAP_PLUGIN_LABEL"
+			description="COM_SHLDAP_SETTINGS_FIELD_LDAP_PLUGIN_DESC"
+		/>
+	</fieldset>
+	<fieldset name="user">
+		<field name="user:type"
+			type="text"
+			default="ldap"
+			label="COM_SHLDAP_SETTINGS_FIELD_USER_TYPE_LABEL"
+			description="COM_SHLDAP_SETTINGS_FIELD_USER_TYPE_DESC"
+		/>
+		<field name="user:autoregister"
+			type="list"
+			default="1"
+			label="COM_SHLDAP_SETTINGS_FIELD_USER_AUTOREG_LABEL"
+			description ="COM_SHLDAP_SETTINGS_FIELD_USER_AUTOREG_DESC"
+		>
+			<option value="0">COM_SHLDAP_SETTINGS_FIELD_USER_AUTOREG_IF</option>
+			<option value="1">COM_SHLDAP_SETTINGS_FIELD_USER_AUTOREG_IT</option>
+			<option value="2">COM_SHLDAP_SETTINGS_FIELD_USER_AUTOREG_OT</option>
+			<option value="3">COM_SHLDAP_SETTINGS_FIELD_USER_AUTOREG_OF</option>
+		</field>
+		<field name="user:defaultgroup"
+			type="text"
+			default="2"
+			label="COM_SHLDAP_SETTINGS_FIELD_USER_GROUP_LABEL"
+			description="COM_SHLDAP_SETTINGS_FIELD_USER_GROUP_DESC"
+		/>
+		<field name="user:nullpassword"
+			type="radio"
+			default="1"
+			description="COM_SHLDAP_SETTINGS_FIELD_USER_NULL_PASSWORD_DESC"
+			label="COM_SHLDAP_SETTINGS_FIELD_USER_NULL_PASSWORD_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+	</fieldset>
+</form>
+
+

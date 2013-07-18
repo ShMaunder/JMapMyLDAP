@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="record" label="COM_SHLDAP_RECORD_FIELDSET_LABEL">
+		<field
+			name="id"
+			type="text"
+			class="readonly"
+			label="JGLOBAL_FIELD_ID_LABEL"
+			description ="JGLOBAL_FIELD_ID_DESC"
+			default="0"
+			readonly="true"
+		/>
+		<field name="name"
+			type="text"
+			description="COM_SHLDAP_RECORD_FIELD_NAME_DESC"
+			label="COM_SHLDAP_RECORD_FIELD_NAME_LABEL"
+			size="20" required="true"
+		/>
+	</fieldset>
+	
+	<fieldset name="host" label="COM_SHLDAP_HOST_FIELDSET_LABEL">
+		<field name="spacer6" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_OPTS"/>
+	
+		<field name="use_v3"
+			type="radio"
+			default="1"
+			description="COM_SHLDAP_HOST_FIELD_USE_V3_DESC"
+			label="COM_SHLDAP_HOST_FIELD_USE_V3_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
+		<field name="negotiate_tls"
+			type="radio"
+			default="0"
+			description="COM_SHLDAP_HOST_FIELD_NEGOTIATE_TLS_DESC"
+			label="COM_SHLDAP_HOST_FIELD_NEGOTIATE_TLS_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
+		<field name="use_referrals"
+			type="radio"
+			default="0"
+			description="COM_SHLDAP_HOST_FIELD_USE_REFERRALS_DESC"
+			label="COM_SHLDAP_HOST_FIELD_USE_REFERRALS_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
+		<field name="spacer5" type="spacer" hr="true"/>
+		<field name="spacer" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_CONNECT"/>
+
+		<field name="host"
+			type="text"
+			description="COM_SHLDAP_HOST_FIELD_HOST_DESC"
+			label="COM_SHLDAP_HOST_FIELD_HOST_LABEL"
+			size="20" required="true"
+		/>
+		
+		<field name="port"
+			type="text"
+			default="389"
+			description="COM_SHLDAP_HOST_FIELD_PORT_DESC"
+			label="COM_SHLDAP_HOST_FIELD_PORT_LABEL"
+			size="20" required="true"
+		/>
+
+		<field name="spacer1" type="spacer" hr="true"/>
+		<field name="spacer2" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_CREDENTIALS"/>
+
+		<field name="proxy_username"
+			type="text"
+			description="COM_SHLDAP_HOST_FIELD_USERNAME_DESC"
+			label="COM_SHLDAP_HOST_FIELD_USERNAME_LABEL"
+			size="20"
+		/>
+
+		<field name="proxy_password"
+			type="password"
+			description="COM_SHLDAP_HOST_FIELD_PASSWORD_DESC"
+			label="COM_SHLDAP_HOST_FIELD_PASSWORD_LABEL"
+			size="20"
+		/>
+
+		<field name="spacer3" type="spacer" hr="true"/>
+		<field name="spacer8" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_BIND"/>
+
+		<field name="use_search"
+			type="radio"
+			default="0"
+			description="COM_SHLDAP_HOST_FIELD_USESEARCH_DESC"
+			label="COM_SHLDAP_HOST_FIELD_USESEARCH_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
+		<field name="base_dn"
+			type="text"
+			description="COM_SHLDAP_HOST_FIELD_BASEDN_DESC"
+			label="COM_SHLDAP_HOST_FIELD_BASEDN_LABEL"
+			size="20"
+		/>
+
+		<field name="user_qry"
+			type="text"
+			description="COM_SHLDAP_HOST_FIELD_USERQRY_DESC"
+			label="COM_SHLDAP_HOST_FIELD_USERQRY_LABEL"
+			size="20" required="true"
+		/>
+
+		<field name="spacer7" type="spacer" hr="true"/>
+		<field name="spacer9" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_MAPPING"/>
+
+		<field name="ldap_uid"
+			type="text"
+			default="uid"
+			description="COM_SHLDAP_HOST_FIELD_UID_DESC"
+			label="COM_SHLDAP_HOST_FIELD_UID_LABEL"
+			size="20" required="true"
+		/>
+		
+		<field name="ldap_fullname"
+			type="text"
+			default="fullName"
+			description="COM_SHLDAP_HOST_FIELD_FULLNAME_DESC"
+			label="COM_SHLDAP_HOST_FIELD_FULLNAME_LABEL"
+			size="20" required="true"
+		/>
+		
+		<field name="ldap_email"
+			type="text"
+			default="mail"
+			description="COM_SHLDAP_HOST_FIELD_EMAIL_DESC"
+			label="COM_SHLDAP_HOST_FIELD_EMAIL_LABEL"
+			size="20" required="true"
+		/>
+	</fieldset>
+	
+	<fieldset name="debug" label="COM_SHLDAP_DEBUG_FIELDSET_LABEL">
+		<field name="debug_username"
+			type="text"
+			description="COM_SHLDAP_DEBUG_FIELD_USERNAME_DESC"
+			label="COM_SHLDAP_DEBUG_FIELD_USERNAME_LABEL"
+			size="20" required="false"
+		/>
+		
+		<field name="debug_password"
+			type="password"
+			description="COM_SHLDAP_DEBUG_FIELD_PASSWORD_DESC"
+			label="COM_SHLDAP_DEBUG_FIELD_PASSWORD_LABEL"
+			size="20" required="false"
+		/>
+	</fieldset>
+</form>
