@@ -39,22 +39,22 @@ $canEdit	= $user->authorise('core.edit', 'com_shldap');
 					<input type="checkbox" name="checkall-toggle" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this)" />
 				</th>
 				<th width="20%">
-					<?php echo $this->escape(JText::_('COM_SHCONFIG_HOSTS_NAME_KEY')); ?>
+					<?php echo $this->escape(JText::_('COM_SHLDAP_HOSTS_NAME_KEY')); ?>
 				</th>
 				<th>
-					<?php echo $this->escape(JText::_('COM_SHCONFIG_HOSTS_HOST_KEY')); ?>
+					<?php echo $this->escape(JText::_('COM_SHLDAP_HOSTS_HOST_KEY')); ?>
 				</th>
 				<th width="12%">
-					<?php echo $this->escape(JText::_('COM_SHCONFIG_HOSTS_ATTR_UID_KEY')); ?>
+					<?php echo $this->escape(JText::_('COM_SHLDAP_HOSTS_ATTR_UID_KEY')); ?>
 				</th>
 				<th width="12%">
-					<?php echo $this->escape(JText::_('COM_SHCONFIG_HOSTS_ATTR_NAME_KEY')); ?>
+					<?php echo $this->escape(JText::_('COM_SHLDAP_HOSTS_ATTR_NAME_KEY')); ?>
 				</th>
 				<th width="12%">
-					<?php echo $this->escape(JText::_('COM_SHCONFIG_HOSTS_ATTR_EMAIL_KEY')); ?>
+					<?php echo $this->escape(JText::_('COM_SHLDAP_HOSTS_ATTR_EMAIL_KEY')); ?>
 				</th>
 				<th width="8%">
-					<?php echo $this->escape(JText::_('COM_SHCONFIG_HOSTS_USERS_KEY')); ?>
+					<?php echo $this->escape(JText::_('COM_SHLDAP_HOSTS_USERS_KEY')); ?>
 				</th>
 			</tr>
 		</thead>

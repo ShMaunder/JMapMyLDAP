@@ -3,7 +3,7 @@
  * PHP Version 5.3
  *
  * @package     Shmanic.Components
- * @subpackage  Shconfig
+ * @subpackage  Shldap
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
  * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
@@ -13,10 +13,10 @@
 defined('_JEXEC') or die;
 
 /**
- * Item Table class for Shconfig.
+ * Host Table class for Shldap.
  *
  * @package     Shmanic.Components
- * @subpackage  Shconfig
+ * @subpackage  Shldap
  * @since       2.0
  */
 class ShldapTableHost extends JTable

@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 jimport('joomla.application.component.controllerform');
 
 /**
- * Items controller class for Shconfig.
+ * Host controller class for Shldap.
  *
  * @package     Shmanic.Components
  * @subpackage  Shldap

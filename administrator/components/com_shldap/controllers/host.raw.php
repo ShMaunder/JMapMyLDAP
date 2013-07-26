@@ -13,7 +13,7 @@
 defined('_JEXEC') or die;
 
 /**
- * Items controller class for Shconfig.
+ * RAW Host controller class for Shldap.
  *
  * @package     Shmanic.Components
  * @subpackage  Shldap

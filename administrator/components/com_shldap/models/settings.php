@@ -18,7 +18,7 @@ jimport('joomla.application.component.modelform');
  * Settings model class for Shldap.
  *
  * @package     Shmanic.Components
- * @subpackage  Shconfig
+ * @subpackage  Shldap
  * @since       2.0
  */
 class ShldapModelSettings extends JModelForm
