@@ -15,8 +15,21 @@ echo
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "Please specify a version for this package (e.g. 2.0.0.25):"
-read VER
+if [ -f ${DIR}/_build/version.txt ]
+then
+	echo "Automatic increment of version based on version.txt"
+	VER=$(<${DIR}/_build/version.txt)
+
+	POINT=$(echo $VER | awk -F'.' '{print $4}')
+
+	POINT=$((POINT + 1))
+
+	NEW=$(echo $VER | awk -F'.' '{print $1"."$2"."$3".""'"$POINT"'"}')
+	echo $NEW > ${DIR}/_build/version.txt
+else
+	echo "Please specify a version for this package (e.g. 2.0.0.25):"
+	read VER
+fi
 
 cd $DIR
 phing -Dpackage.version=$VER
