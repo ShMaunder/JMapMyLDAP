@@ -256,7 +256,7 @@ class SHLdapEventBouncer extends JEvent
 		{
 			$this->isLdap = true;
 
-			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)) !== false)
 			{
 				try
 				{
