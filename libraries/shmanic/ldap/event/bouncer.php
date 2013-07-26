@@ -374,12 +374,16 @@ class SHLdapEventBouncer extends JEvent
 		// Lets pass the getUser method the adapter so it can get extra values
 		$options['adapter'] = $adapter;
 
-		// Get a handle to the Joomla User object ready to be passed to the individual plugins
-		$instance = SHUserHelper::getUser($user, $options);
-
-		if ($instance === false)
+		try
+		{
+			// Get a handle to the Joomla User object ready to be passed to the individual plugins
+			$instance = SHUserHelper::getUser($user, $options);
+		}
+		catch (Exception $e)
 		{
 			// Failed to get the user either due to save error or autoregister
+			SHLog::add($e, 10991, JLog::ERROR, 'ldap');
+
 			return false;
 		}
 

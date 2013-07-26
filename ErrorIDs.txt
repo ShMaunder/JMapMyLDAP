@@ -132,6 +132,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 [IT]10986 - Committed changes to Ldap user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_DEBUG_10986]
 [IT]10988 - Failed to save changes to Joomla user '%1$s'. [LIB_SHLDAPEVENTBOUNCER_ERR_10988]
 [IT]10989 - Exception thrown on save user.
+10991 - General Error ID for failing to get the user.
 
 
 -- LDAP plug-in calls for Monitor (DEBUG ONLY) [11901-11999] --
