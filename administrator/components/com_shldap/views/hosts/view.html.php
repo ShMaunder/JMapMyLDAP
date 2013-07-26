@@ -68,15 +68,15 @@ class ShldapViewHosts extends JViewLegacy
 
 		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
 		{
-			JToolBarHelper::addNew('item.add');
-			JToolBarHelper::editList('item.edit');
+			JToolBarHelper::addNew('host.add');
+			JToolBarHelper::editList('host.edit');
 
-			JToolBarHelper::deleteList('', 'items.delete');
+			JToolBarHelper::deleteList('', 'hosts.delete');
 			JToolBarHelper::divider();
 
 			if ($canDo->get('core.admin'))
 			{
-				JToolBarHelper::preferences('com_shconfig');
+				JToolBarHelper::preferences('com_shldap');
 			}
 		}
 	}

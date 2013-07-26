@@ -55,16 +55,16 @@ class ShldapController extends JControllerLegacy
 		$lName	 = $input->get('layout', 'default', 'cmd');
 		$id		 = $input->get('id', null, 'cmd');
 
-		// Check for edit form. TODO: Are we using the check in system ?
-		/* if ($vName == 'item' && $lName == 'edit' && !$this->checkEditId('com_shldap.edit.item', $id))
+		// Check for edit form.
+		if ($vName == 'host' && $lName == 'edit' && !$this->checkEditId('com_shldap.edit.host', $id))
 		{
 			// Somehow the person just went to the form - we don't allow that.
 			$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $id));
 			$this->setMessage($this->getError(), 'error');
-			$this->setRedirect(JRoute::_('index.php?option=com_shldap&view=itemsabc', false));
+			$this->setRedirect(JRoute::_('index.php?option=com_shldap&view=hosts', false));
 
 			return false;
-		}*/
+		}
 
 		// Add the submenu
 		ComShldapHelper::addSubmenu($vName);
