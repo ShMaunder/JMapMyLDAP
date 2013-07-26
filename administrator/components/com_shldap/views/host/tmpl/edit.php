@@ -15,7 +15,6 @@ defined('_JEXEC') or die;
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 
-JHtml::_('behavior.mootools');
 JHtml::_('behavior.framework', true);
 
 ?>
