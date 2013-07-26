@@ -32,7 +32,7 @@ abstract class SHUserHelper
 	 * @param   array  $user     Holds the user data.
 	 * @param   array  $options  Array holding options (remember, autoregister, group).
 	 *
-	 * @return  JUser|False  A JUser object containing the user or False on error.
+	 * @return  JUser  A JUser object containing the user.
 	 *
 	 * @since   1.0
 	 * @throws  Exception
