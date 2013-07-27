@@ -12,7 +12,8 @@
 
 <p>Version <strong>2.x</strong></p>
 <ul>
- <li>Requires Joomla! 2.5 or above</li>
- <li>ETA on Beta Stage: Monday 20 May 2013</li>
- <li>ETA on Final Release: Monday 10 June 2013</li>
+ <li>Requires Joomla! 2.5+ or Joomla! Platform 12.1+</li>
 </ul>
+
+<h2>Building</h2>
+<p>Use the included build.sh script to generate each individual extension from this project. This script requires Phing and xmlstarlet.</p>
