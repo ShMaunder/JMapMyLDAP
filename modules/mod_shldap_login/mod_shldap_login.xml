@@ -12,14 +12,15 @@
 	<description>MOD_SHLDAP_LOGIN_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_shldap_login">mod_shldap_login.php</filename>
+		<folder>forms</folder>
 		<folder>tmpl</folder>
 		<filename>helper.php</filename>
 		<filename>index.html</filename>
 		<filename>mod_shldap_login.xml</filename>
 	</files>
 	<languages>
-		<language tag="en-GB">en-GB.mod_shldap_login.ini</language>
-		<language tag="en-GB">en-GB.mod_shldap_login.sys.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.mod_shldap_login.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.mod_shldap_login.sys.ini</language>
 	</languages>
 	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_LOGIN" />
 	<config>

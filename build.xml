@@ -45,10 +45,8 @@ CentOS/RHEL: yum install xmlstarlet
 	
 		<phingcall target="build">
 			<property name="extension.path" value="modules/mod_shldap_login" />
-			<property name="extension.name" value="mod_shldap_login" />
-			<property name="extension.type" value="module" />
 			<property name="manifest" value="mod_shldap_login.xml" />
-			<property name="build.compress" value="1" />
+			<property name="manifest.use" value="1" />
 		</phingcall>
 		
 		<phingcall target="build">
