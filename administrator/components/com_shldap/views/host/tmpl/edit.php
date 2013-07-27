@@ -63,7 +63,7 @@ JHtml::_('behavior.framework', true);
 		return true;
 	}
 </script>
-<form action="<?php echo JRoute::_('index.php?option=com_shldap&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="host-form" class="form-validate">
+<form action="<?php echo JRoute::_('index.php?option=com_shldap&layout=edit&id=' . (int) $this->id); ?>" method="post" name="adminForm" id="host-form" class="form-validate">
 	<div class="row-fluid">
 	<div class="width-50 fltlft span6 form-horizontal">
 		<?php foreach ($this->form->getFieldSets() as $fieldset) : ?>

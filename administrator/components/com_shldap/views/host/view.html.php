@@ -23,6 +23,8 @@ class ShldapViewHost extends JViewLegacy
 {
 	protected $form = null;
 
+	protected $id = null;
+
 	/**
 	 * Method to display the view.
 	 *
@@ -35,6 +37,8 @@ class ShldapViewHost extends JViewLegacy
 	public function display($tpl = null)
 	{
 		$this->form = $this->get('Form');
+
+		$this->id = $this->form->getValue('id');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
@@ -58,9 +62,7 @@ class ShldapViewHost extends JViewLegacy
 	protected function addToolbar()
 	{
 		JFactory::getApplication()->input->set('hidemainmenu', true);
-
 		$user	= JFactory::getUser();
-		$isNew	= ($this->item->id == 0);
 		$canDo	= ComShldapHelper::getActions();
 
 		JToolBarHelper::title(JText::_('COM_SHLDAP_HOST_MANAGER'), '');
@@ -76,13 +78,15 @@ class ShldapViewHost extends JViewLegacy
 
 			JToolBarHelper::divider();
 
-			if ($isNew)
+			if ($this->id)
 			{
-				JToolBarHelper::cancel('host.cancel');
+				// Is Existing
+				JToolBarHelper::cancel('host.cancel', 'JTOOLBAR_CLOSE');
 			}
 			else
 			{
-				JToolBarHelper::cancel('host.cancel', 'JTOOLBAR_CLOSE');
+				// Is New
+				JToolBarHelper::cancel('host.cancel');
 			}
 		}
 	}

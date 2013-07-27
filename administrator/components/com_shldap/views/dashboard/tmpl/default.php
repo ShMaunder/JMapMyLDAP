@@ -41,8 +41,9 @@ $canEdit	= $user->authorise('core.edit', 'com_plugins');
 	</tfoot>
 	<tbody>
 		<?php if (is_array($this->binds)) : ?>
-			<?php foreach ($this->binds as $bind) : ?>
-			<tr>
+			<?php if (count($this->binds)) : ?>
+			<?php foreach ($this->binds as $i => $bind) : ?>
+			<tr class="row<?php echo $i % 2; ?>">
 				<td class="center">
 					<?php echo JHtml::_('grid.boolean', 0, $bind->connect, 0, 0); ?>
 				</td>
@@ -57,6 +58,14 @@ $canEdit	= $user->authorise('core.edit', 'com_plugins');
 				</td>
 			</tr>
 			<?php endforeach; ?>
+			<?php else : ?>
+			<tr class="row0">
+				<td class="center" colspan="4">
+					<?php echo JText::_('COM_SHLDAP_DASHBOARD_NO_HOSTS'); ?>
+				</td>
+			</tr>
+			<?php endif; ?>
+
 		<?php else : ?>
 			<tr><td colspan="4">An error occurred: <?php echo $this->binds; ?></td></tr>
 		<?php endif; ?>

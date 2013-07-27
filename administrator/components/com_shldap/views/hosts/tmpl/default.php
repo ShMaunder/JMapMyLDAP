@@ -65,6 +65,7 @@ $canEdit	= $user->authorise('core.edit', 'com_shldap');
 			</tr>
 		</tfoot>
 		<tbody>
+			<?php if (count($this->items)) : ?>
 			<?php foreach ($this->items as $i => $item): ?>
 				<tr class="row<?php echo $i % 2; ?>">
 					<td class="center">
@@ -95,6 +96,13 @@ $canEdit	= $user->authorise('core.edit', 'com_shldap');
 					</td>
 				</tr>
 			<?php endforeach; ?>
+			<?php else : ?>
+			<tr class="row0">
+				<td class="center" colspan="7">
+					<?php echo JText::_('COM_SHLDAP_HOSTS_NO_HOSTS'); ?>
+				</td>
+			</tr>
+			<?php endif; ?>
 		</tbody>
 	</table>
 

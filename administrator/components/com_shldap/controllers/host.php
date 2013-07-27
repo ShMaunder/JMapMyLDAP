@@ -62,6 +62,9 @@ class ShldapControllerHost extends JControllerForm
 
 		$context = "$this->option.edit.$this->context";
 
+		$key = 'id';
+		$urlVar = 'id';
+
 		$task = $this->getTask();
 
 		// Access check.
@@ -149,11 +152,13 @@ class ShldapControllerHost extends JControllerForm
 
 		$this->setMessage(JText::_('JLIB_APPLICATION_SAVE_SUCCESS'));
 
-		// Redirect back to the edit screen.
+		$recordId = $model->getState($this->context . '.id');
+
+		// Redirect back to the edit screen (on the same record)
 		$this->setRedirect(
 			JRoute::_(
-				'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=edit'
-				. $this->getRedirectToListAppend(), false
+				'index.php?option=' . $this->option . '&view=' . $this->view_item
+				. $this->getRedirectToItemAppend($recordId, $urlVar), false
 			)
 		);
 

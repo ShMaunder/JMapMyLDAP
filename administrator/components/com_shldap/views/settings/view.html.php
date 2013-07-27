@@ -68,6 +68,7 @@ class ShldapViewSettings extends JViewLegacy
 
 				if ($canDo->get('core.admin'))
 				{
+					JToolBarHelper::divider();
 					JToolBarHelper::preferences('com_shldap');
 				}
 		}
