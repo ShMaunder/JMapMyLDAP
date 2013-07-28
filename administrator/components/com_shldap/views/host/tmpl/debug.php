@@ -29,6 +29,12 @@ try
 
 	echo "Attempting to find the distinguished name for user {$this->debug['username']}...<br />";
 
+	// Hacky way to detect whether proxy encryption could be the problem
+	if (!$client->proxyBind() && isset($_REQUEST['jform']['proxy_encryption']) && $_REQUEST['jform']['proxy_encryption'])
+	{
+		echo '<br /><p style="background-color:#BBF;display:block;padding:4px 0;font-weight:bold;"><strong>NOTE: after changing proxy password, save before testing otherwise it will fail!</strong></p><br />';
+	}
+
 	$dn = $client->getUserDN($this->debug['username'], $this->debug['password'], true);
 
 	echo "Successfully found distinguished name {$dn}.<br />";

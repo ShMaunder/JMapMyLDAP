@@ -131,6 +131,16 @@ class ShldapTableHost extends JTable
 				// Remove the params from the source data
 				$src = array_diff($src, $params);
 
+				// Deal with the proxy encryption at table level (little nasty but it works)
+				if (isset($params['proxy_encryption'])
+					&& $params['proxy_encryption']
+					&& (!$this->proxy_encryption || $this->proxy_password != $params['proxy_password']))
+				{
+					$crypt = SHFactory::getCrypt();
+
+					$params['proxy_password'] = $crypt->encrypt($params['proxy_password']);
+				}
+
 				// Add the params back in as a JSON'd object
 				$src['params'] = json_encode($params);
 

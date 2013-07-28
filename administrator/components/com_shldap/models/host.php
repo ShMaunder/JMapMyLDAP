@@ -97,6 +97,13 @@ class ShldapModelHost extends JModelAdmin
 		return $data;
 	}
 
+	/**
+	 * Gets the SHLdap object from the Debug data.
+	 *
+	 * @param   JForm   $form
+	 *
+	 * @return  SHLdap
+	 */
 	public function getLdapObject($form = null)
 	{
 		if (is_null($form))

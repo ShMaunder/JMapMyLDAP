@@ -9,6 +9,8 @@ $listOrder	= $this->escape($this->state->get('list.ordering'));
 $listDirn	= $this->escape($this->state->get('list.direction'));
 $canEdit	= $user->authorise('core.edit', 'com_plugins');
 
+$gridState = array(array('inactive_class' => 'unpublish'), array('inactive_class' => 'publish'));
+
 ?>
 
 <div class="width-100 span12">
@@ -45,10 +47,10 @@ $canEdit	= $user->authorise('core.edit', 'com_plugins');
 			<?php foreach ($this->binds as $i => $bind) : ?>
 			<tr class="row<?php echo $i % 2; ?>">
 				<td class="center">
-					<?php echo JHtml::_('grid.boolean', 0, $bind->connect, 0, 0); ?>
+					<?php echo JHtml::_('jgrid.state', $gridState, $bind->connect, $i, 'hosts.', false); ?>
 				</td>
 				<td class="center">
-					<?php echo JHtml::_('grid.boolean', 0, isset($bind->bind), 0, 0); ?>
+					<?php echo JHtml::_('jgrid.state', $gridState, isset($bind->bind), $i, 'hosts.', false); ?>
 				</td>
 				<td class="left">
 					<?php echo $this->escape($bind->name); ?>

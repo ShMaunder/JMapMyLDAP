@@ -86,6 +86,16 @@
 			size="20"
 		/>
 
+		<field name="proxy_encryption"
+			type="radio"
+			default="1"
+			description="COM_SHLDAP_HOST_FIELD_ENCRYPTION_DESC"
+			label="COM_SHLDAP_HOST_FIELD_ENCRYPTION_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
 		<field name="spacer3" type="spacer" hr="true"/>
 		<field name="spacer8" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_BIND"/>
 
