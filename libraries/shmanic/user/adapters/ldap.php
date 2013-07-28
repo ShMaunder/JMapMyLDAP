@@ -315,6 +315,13 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	 */
 	public function getDomain()
 	{
+		if (is_null($this->domain))
+		{
+			// Lets pull the domain from the SHLdap object
+			$this->getId(false);
+			$this->domain = $this->client->domain;
+		}
+
 		return $this->domain;
 	}
 

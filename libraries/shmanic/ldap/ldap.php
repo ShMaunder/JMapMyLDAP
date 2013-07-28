@@ -273,6 +273,14 @@ class SHLdap
 	protected $password_prefix = false;
 
 	/**
+	 * Holds the domain ID or name.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $domain = null;
+
+	/**
 	 * Set to the current status/level of user bind such as none, proxy or user.
 	 *
 	 * @var     integer
@@ -388,6 +396,7 @@ class SHLdap
 			case 'password_hash':
 			case 'password_prefix':
 			case 'password_salt':
+			case 'domain':
 			case 'debug':
 				return $this->$name;
 				break;

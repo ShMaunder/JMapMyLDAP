@@ -93,21 +93,24 @@ abstract class SHLdapHelper
 			if (empty($id))
 			{
 				// Get all the enabled Ldap configurations from SQL
-				$query->select('params')
+				$query->select('id')->select('params')
 					->from($query->qn($table))
 					->where('enabled >= 1')
 					->order('ordering');
 
 				// Execute the query
-				if ($params = $db->setQuery($query)->loadAssocList(null, 'params'))
+				if ($rows = $db->setQuery($query)->loadAssocList())
 				{
 					$configs = array();
 
 					// Push each found set of params into a registry
-					foreach ($params as $param)
+					foreach ($rows as $row)
 					{
 						$newConfig = new JRegistry;
-						$newConfig->loadString($param, 'JSON');
+						$newConfig->loadString($row['params'], 'JSON');
+
+						// Inject the domain ID into the config
+						$newConfig->set('domain', (int) $row['id']);
 
 						// Push the Ldap config onto the return array
 						$configs[] = $newConfig;
@@ -121,6 +124,7 @@ abstract class SHLdapHelper
 					throw new InvalidArgumentException(JText::_('LIB_SHLDAPHELPER_ERR_10604'), 10604);
 				}
 			}
+
 			// Check if we need to get the config based on an ID
 			elseif (is_numeric($id))
 			{
@@ -136,6 +140,9 @@ abstract class SHLdapHelper
 					$config = new JRegistry;
 					$config->loadString($param, 'JSON');
 
+					// Inject the domain ID into the config
+					$config->set('domain', (int) $id);
+
 					// Return our configuration result
 					return $config;
 				}
@@ -144,22 +151,25 @@ abstract class SHLdapHelper
 					// No result found
 					throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10605', $id), 10605);
 				}
-
 			}
+
 			// Assume this is based on name (string)
 			else
 			{
 				// Get the enabled configuration of the specified name
-				$query->select('params')
+				$query->select('id')->select('params')
 					->from($query->qn($table))
 					->where('enabled >= 1')
 					->where($query->qn('name') . '=' . $query->q((string) $id));
 
 				// Execute the query
-				if ($param = $db->setQuery($query)->loadResult())
+				if ($row = $db->setQuery($query)->loadAssoc())
 				{
 					$config = new JRegistry;
-					$config->loadString($param, 'JSON');
+					$config->loadString($row['params'], 'JSON');
+
+					// Inject the domain ID into the config
+					$config->set('domain', (int) $row['id']);
 
 					// Return our configuration result
 					return $config;
@@ -170,7 +180,6 @@ abstract class SHLdapHelper
 					throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10606', $id), 10606);
 				}
 			}
-
 		}
 		elseif ($source === self::CONFIG_PLUGIN)
 		{
@@ -350,6 +359,9 @@ abstract class SHLdapHelper
 
 			// Load the configuration values into the registry
 			$config->loadObject($params);
+
+			// Inject the domain ID into the config
+			$config->set('domain', $namespace);
 
 			return $config;
 		}
