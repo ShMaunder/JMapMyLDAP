@@ -78,6 +78,14 @@
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
+				<field name="usetext" type="list"
+					default="0"
+					label="MOD_SHLDAP_LOGIN_FIELD_USETEXT_LABEL"
+					description="MOD_SHLDAP_LOGIN_FIELD_USETEXT_DESC"
+				>
+					<option value="0">MOD_SHLDAP_LOGIN_VALUE_ICONS</option>
+					<option value="1">MOD_SHLDAP_LOGIN_VALUE_TEXT</option>
+				</field>
 				<field name="spacer1" type="spacer" hr="true"/>
 				<field name="forcedomain" type="sh.ldapdomain"
 					default="0"

@@ -19,6 +19,7 @@
 		/>
 		
 		<field name="login_domain" type="sh.ldapdomain"
+			class="input-small"
 			filter="int"
 			label="MOD_SHLDAP_LOGIN_VALUE_DOMAIN"
 			id="modlgn-domain"
