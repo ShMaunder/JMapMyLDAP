@@ -67,10 +67,11 @@ JHtml::_('behavior.framework', true);
 	<div class="row-fluid">
 	<div class="width-50 fltlft span6 form-horizontal">
 		<?php foreach ($this->form->getFieldSets() as $fieldset) : ?>
+		<?php if ($fieldset->name !== 'debug') : ?>
 		<fieldset class="adminform">
-			<legend><?php echo JText::sprintf($fieldset->label); ?></legend>
+			<legend><?php echo JText::_($fieldset->label); ?></legend>
 			<div class="adminformlist tab-content">
-				<div class="tab-pane active" id="details">
+				<div class="tab-pane active" id="<?php echo $fieldset->name; ?>">
 				<?php foreach ($this->form->getFieldset($fieldset->name) as $field) : ?>
 					<?php if (!$field->hidden) : ?>
 						<div class="control-group"><?php echo $field->label; ?>
@@ -80,21 +81,42 @@ JHtml::_('behavior.framework', true);
 				</div>
 			</div>
 		</fieldset>
+		<?php endif; ?>
+		<?php endforeach; ?>
+	</div>
+
+	<div class="width-50 fltrt span6">
+		<?php foreach ($this->form->getFieldSets() as $fieldset) : ?>
+		<?php if ($fieldset->name == 'debug') : ?>
+		<fieldset class="adminform form-vertical">
+			<legend><?php echo JText::_($fieldset->label); ?></legend>
+			<div class="adminformlist tab-content">
+				<div class="tab-pane active" id="<?php echo $fieldset->name; ?>">
+
+					<?php foreach ($this->form->getFieldset($fieldset->name) as $field) : ?>
+						<?php if (!$field->hidden) : ?>
+							<div class="control-group"><?php echo $field->label; ?>
+							<?php echo $field->input; ?></div>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</fieldset>
+		<?php endif; ?>
 		<?php endforeach; ?>
 	</div>
 
 	<div class="width-50 fltrt span6">
 		<fieldset class="adminform form-vertical">
-			<legend><?php echo JText::sprintf('COM_SLDAP_HOST_OPTIONS_TITLE'); ?></legend>
+			<legend><?php echo JText::sprintf('COM_SHLDAP_HOST_DEBUG_SECTION'); ?></legend>
 			<div class="adminformlist">
-				<div><?php echo JText::sprintf('COM_SHLDAP_HOST_DEBUG_SECTION'); ?></div>
-				<div id="debug-output" style="width:100%;height:300px;overflow:scroll;border:1px solid #bbb;">
-					Ready
+				<div id="debug-output" style="width:100%;height:500px;overflow:scroll;border:1px solid #bbb;background-color:#eee;">
+					...
 				</div>
-
 			</div>
 		</fieldset>
 	</div>
+
 	<div class="clearfix"> </div>
 
 	<div>

@@ -24,6 +24,7 @@
 		<field name="use_v3"
 			type="radio"
 			default="1"
+			class="btn-group"
 			description="COM_SHLDAP_HOST_FIELD_USE_V3_DESC"
 			label="COM_SHLDAP_HOST_FIELD_USE_V3_LABEL"
 		>
@@ -34,6 +35,7 @@
 		<field name="negotiate_tls"
 			type="radio"
 			default="0"
+			class="btn-group"
 			description="COM_SHLDAP_HOST_FIELD_NEGOTIATE_TLS_DESC"
 			label="COM_SHLDAP_HOST_FIELD_NEGOTIATE_TLS_LABEL"
 		>
@@ -44,6 +46,7 @@
 		<field name="use_referrals"
 			type="radio"
 			default="0"
+			class="btn-group"
 			description="COM_SHLDAP_HOST_FIELD_USE_REFERRALS_DESC"
 			label="COM_SHLDAP_HOST_FIELD_USE_REFERRALS_LABEL"
 		>
@@ -89,6 +92,7 @@
 		<field name="proxy_encryption"
 			type="radio"
 			default="1"
+			class="btn-group"
 			description="COM_SHLDAP_HOST_FIELD_ENCRYPTION_DESC"
 			label="COM_SHLDAP_HOST_FIELD_ENCRYPTION_LABEL"
 		>
@@ -102,6 +106,7 @@
 		<field name="use_search"
 			type="radio"
 			default="0"
+			class="btn-group"
 			description="COM_SHLDAP_HOST_FIELD_USESEARCH_DESC"
 			label="COM_SHLDAP_HOST_FIELD_USESEARCH_LABEL"
 		>
@@ -148,6 +153,57 @@
 			description="COM_SHLDAP_HOST_FIELD_EMAIL_DESC"
 			label="COM_SHLDAP_HOST_FIELD_EMAIL_LABEL"
 			size="20" required="true"
+		/>
+		
+		<field name="spacer12" type="spacer" hr="true"/>
+		<field name="spacer13" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_PASSWORD"/>
+		
+		<field name="ldap_password"
+			type="text"
+			default="userPassword"
+			description="COM_SHLDAP_HOST_FIELD_LDAP_PASSWORD_DESC"
+			label="COM_SHLDAP_HOST_FIELD_LDAP_PASSWORD_LABEL"
+			size="20" required="false"
+		/>
+		
+		<field name="password_hash" 
+			type="list" 
+			default="plain" 
+			description="COM_SHLDAP_HOST_FIELD_PASSWORD_HASH_DESC" 
+			label="COM_SHLDAP_HOST_FIELD_PASSWORD_HASH_LABEL"
+		>
+			<option value="plain">plain</option>
+			<option value="sha">sha</option>
+			<option value="ssha">ssha</option>
+			<option value="md5-base64">md5-base64</option>
+			<option value="smd5">smd5</option>
+			<option value="aprmd5">aprmd5</option>
+			<option value="md5-hex">md5-hex</option>
+			<option value="crypt">crypt</option>
+			<option value="unicode">unicode</option>
+		</field>
+		
+		<field name="password_prefix"
+			type="radio"
+			default="0"
+			class="btn-group"
+			description="COM_SHLDAP_HOST_FIELD_PASSWORD_PREFIX_DESC"
+			label="COM_SHLDAP_HOST_FIELD_PASSWORD_PREFIX_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+		
+		
+		<field name="spacer14" type="spacer" hr="true"/>
+		<field name="spacer15" type="spacer" class="text" label="COM_SHLDAP_HOST_SPACER_MISC"/>
+		
+		<field name="all_user_filter"
+			type="text"
+			default="(objectClass=person)"
+			description="COM_SHLDAP_HOST_FIELD_ALL_USER_FILTER_DESC"
+			label="COM_SHLDAP_HOST_FIELD_ALL_USER_FILTER_LABEL"
+			size="20" required="false"
 		/>
 	</fieldset>
 	

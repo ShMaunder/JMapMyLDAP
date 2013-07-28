@@ -113,6 +113,15 @@ try
 	echo '</table></div>';
 
 	echo '<em>This may not be an exhaustive list of attributes where some attributes only return when specifically requested.</em>';
+
+	echo '<br><br>';
+
+	echo 'Attempting to get users using the All User Filter...<br />';
+
+	$client->proxyBind();
+	$result = $client->search(null, $client->allUserFilter, array('dn'));
+
+	echo 'Found ' . $result->countEntries() . ' users.';
 }
 catch (Exception $e)
 {

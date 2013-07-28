@@ -69,8 +69,16 @@ class ShldapViewHost extends JViewLegacy
 
 		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
 		{
-			// TODO: change test
-			JToolBarHelper::custom('host.debug', 'extension', '', 'Test', false);
+			$debugIcon = 'extension';
+
+			$version = new JVersion;
+
+			if ($version->isCompatible('3.0.0'))
+			{
+				$debugIcon = 'checkin';
+			}
+
+			JToolBarHelper::custom('host.debug', $debugIcon, '', JText::_('COM_SHLDAP_HOST_TOOLBAR_DEBUG'), false);
 
 			JToolBarHelper::divider();
 
