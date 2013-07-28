@@ -4,6 +4,7 @@
 		<field name="ldap:include"
 			type="radio"
 			default="1"
+			class="btn-group"
 			description="COM_SHLDAP_SETTINGS_FIELD_INCLUDE_LDAP_DESC"
 			label="COM_SHLDAP_SETTINGS_FIELD_INCLUDE_LDAP_LABEL"
 		>
@@ -73,6 +74,7 @@
 		<field name="user:nullpassword"
 			type="radio"
 			default="1"
+			class="btn-group"
 			description="COM_SHLDAP_SETTINGS_FIELD_USER_NULL_PASSWORD_DESC"
 			label="COM_SHLDAP_SETTINGS_FIELD_USER_NULL_PASSWORD_LABEL"
 		>

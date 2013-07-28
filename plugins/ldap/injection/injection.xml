@@ -22,11 +22,11 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="use_ldap_password" type="radio" default="0" description="PLG_LDAP_INJECTION_FIELD_USE_LDAP_PASSWORD_DESC" label="PLG_LDAP_INJECTION_FIELD_USE_LDAP_PASSWORD_LABEL">
+				<field name="use_ldap_password" type="radio" default="0" class="btn-group" description="PLG_LDAP_INJECTION_FIELD_USE_LDAP_PASSWORD_DESC" label="PLG_LDAP_INJECTION_FIELD_USE_LDAP_PASSWORD_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="ldap_password_layout_edit" type="radio" default="1" description="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_LAYOUT_EDIT_DESC" label="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_LAYOUT_EDIT_LABEL">
+				<field name="ldap_password_layout_edit" type="radio" default="1" class="btn-group" description="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_LAYOUT_EDIT_DESC" label="PLG_LDAP_INJECTION_FIELD_LDAP_PASSWORD_LAYOUT_EDIT_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
@@ -34,7 +34,7 @@
 				
 				<field name="spacer1" type="spacer" hr="true"/>
 				
-				<field name="use_ldap_domain" type="radio" default="0" description="PLG_LDAP_INJECTION_FIELD_USE_LDAP_DOMAIN_DESC" label="PLG_LDAP_INJECTION_FIELD_USE_LDAP_DOMAIN_LABEL">
+				<field name="use_ldap_domain" type="radio" default="0" class="btn-group" description="PLG_LDAP_INJECTION_FIELD_USE_LDAP_DOMAIN_DESC" label="PLG_LDAP_INJECTION_FIELD_USE_LDAP_DOMAIN_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>

@@ -21,11 +21,11 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="onlogin" type="radio" default="1" description="PLG_LDAP_MAPPING_FIELD_ONLOGIN_DESC" label="PLG_LDAP_MAPPING_FIELD_ONLOGIN_LABEL">
+				<field name="onlogin" type="radio" default="1" class="btn-group" description="PLG_LDAP_MAPPING_FIELD_ONLOGIN_DESC" label="PLG_LDAP_MAPPING_FIELD_ONLOGIN_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="abort_login" type="radio" default="1" description="PLG_LDAP_MAPPING_FIELD_ABORT_LOGIN_DESC" label="PLG_LDAP_MAPPING_FIELD_ABORT_LOGIN_LABEL">
+				<field name="abort_login" type="radio" default="1" class="btn-group" description="PLG_LDAP_MAPPING_FIELD_ABORT_LOGIN_DESC" label="PLG_LDAP_MAPPING_FIELD_ABORT_LOGIN_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
@@ -34,7 +34,7 @@
 					<option value="0">PLG_LDAP_MAPPING_FIELD_SYNC_YESFL</option>
 					<option value="1">PLG_LDAP_MAPPING_FIELD_SYNC_YESTFL</option>
 				</field>
-				<field name="addition" type="radio" default="1" description="PLG_LDAP_MAPPING_FIELD_ADD_DESC" label="PLG_LDAP_MAPPING_FIELD_ADD_LABEL">
+				<field name="addition" type="radio" default="1" class="btn-group" description="PLG_LDAP_MAPPING_FIELD_ADD_DESC" label="PLG_LDAP_MAPPING_FIELD_ADD_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
@@ -47,7 +47,7 @@
 				<field name="public_id" type="text" required="true" default="1" description="PLG_LDAP_MAPPING_FIELD_PUBLICID_DESC" label="PLG_LDAP_MAPPING_FIELD_PUBLICID_LABEL"/>
 				<field name="spacer2" type="spacer" hr="true"/>
 				<field name="list" type="textarea" cols="50" required="true" description="PLG_LDAP_MAPPING_FIELD_LIST_DESC" label="PLG_LDAP_MAPPING_FIELD_LIST_LABEL" rows="6" default=""/>
-				<field name="dn_validate" type="radio" default="1" description="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_DESC" label="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_LABEL">
+				<field name="dn_validate" type="radio" default="1" class="btn-group" description="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_DESC" label="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
@@ -61,7 +61,7 @@
 				<field name="member_attribute" type="text" required="true" default="member" description="PLG_LDAP_MAPPING_FIELD_MEMBER_ATTRIBUTE_DESC" label="PLG_LDAP_MAPPING_FIELD_MEMBER_ATTRIBUTE_LABEL"/>
 				<field name="member_dn" type="text" required="true" default="dn" description="PLG_LDAP_MAPPING_FIELD_MEMBER_DN_DESC" label="PLG_LDAP_MAPPING_FIELD_MEMBER_DN_LABEL"/>
 				<field name="spacer4" type="spacer" hr="true"/>
-				<field name="recursion" type="radio" default="0" description="PLG_LDAP_MAPPING_FIELD_USERECURSION_DESC" label="PLG_LDAP_MAPPING_FIELD_USERECURSION_LABEL">
+				<field name="recursion" type="radio" default="0" class="btn-group" description="PLG_LDAP_MAPPING_FIELD_USERECURSION_DESC" label="PLG_LDAP_MAPPING_FIELD_USERECURSION_LABEL">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
