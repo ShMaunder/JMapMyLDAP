@@ -82,6 +82,7 @@ class ShldapModelHosts extends JModelLegacy
 			->where(
 				array(
 					$db->quoteName('params') . ' LIKE ' . $db->quote("%\"{$authDomain}\":\"{$id}\"%"),
+					$db->quoteName('params') . ' LIKE ' . $db->quote("%\"{$authDomain}\":{$id}%"),
 					$db->quoteName('params') . ' LIKE ' . $db->quote("%\"{$authDomain}\":\"{$name}\"%")
 				), 'OR'
 			);
