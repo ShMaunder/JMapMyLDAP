@@ -96,7 +96,7 @@ abstract class SHFactory
 				if (!isset($options['handler']))
 				{
 					// Uses the default Joomla database object
-					$options['handler'] = & JFactory::getDbo();
+					$options['handler'] = JFactory::getDbo();
 				}
 
 				if (!isset($options['table']))

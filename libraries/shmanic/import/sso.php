@@ -31,8 +31,10 @@ JFactory::getLanguage()->load('shmanic_sso', JPATH_ROOT);
 // Employ the event monitor for SSO
 if (class_exists('SHSsoMonitor'))
 {
+	$dispatcher = JDispatcher::getInstance();
+
 	$instance = new SHSsoMonitor(
-		JDispatcher::getInstance()
+		$dispatcher
 	);
 
 	if (method_exists($instance, 'onAfterInitialise'))

@@ -434,8 +434,9 @@ class PlgLdapMapping extends JPlugin
 			 * are of interest when compared to the parameter list.
 			 */
 			$attribute = $this->lookup_type === self::LOOKUP_FORWARD ? $this->memberof_attribute : $this->member_attribute;
+			$attributes = $adapter->getAttributes($attribute);
 			$userGroups = JArrayHelper::getValue(
-				$adapter->getAttributes($attribute), $attribute
+				$attributes, $attribute
 			);
 
 			if (!(is_array($userGroups) && count($userGroups)))

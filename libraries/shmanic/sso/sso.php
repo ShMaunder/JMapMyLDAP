@@ -74,7 +74,7 @@ class SHSso extends JDispatcher
 	public function __construct($group = 'sso')
 	{
 		// Attempt to import the plugins using this class instance as a dispatcher
-		JPluginHelper::importPlugin($group, null, true, & $this);
+		JPluginHelper::importPlugin($group, null, true, $this);
 	}
 
 	/**
@@ -442,9 +442,6 @@ class SHSso extends JDispatcher
 		 * standard Joomla log-on by calling the onUserLogin event.
 		 */
 		JPluginHelper::importPlugin('user');
-
-		// Fixes an undefined notice from the Joomla user plug-in
-		$response->def('password_clear');
 
 		$results = JFactory::getApplication()->triggerEvent(
 			'onUserLogin',

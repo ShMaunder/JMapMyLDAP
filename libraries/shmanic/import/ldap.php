@@ -43,7 +43,9 @@ JPluginHelper::importPlugin('ldap', null, true, $dispatcher);
 // Employ the event bouncer to control the global Joomla event triggers
 if (class_exists('SHLdapEventBouncer'))
 {
+	$dispatcher = JDispatcher::getInstance();
+
 	$instance = new SHLdapEventBouncer(
-		JDispatcher::getInstance()
+		$dispatcher
 	);
 }
