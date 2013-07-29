@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `#__sh_config` (
 
 REPLACE INTO `#__sh_config` 
   SET `name` = 'platform:version',
-  `value` = '2.0.0.153';
+  `value` = '2.0.0.243';
 
 REPLACE INTO `#__sh_config` 
   SET `name` = 'platform:import',

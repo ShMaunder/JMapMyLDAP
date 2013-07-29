@@ -15,11 +15,15 @@ CREATE TABLE IF NOT EXISTS `#__sh_ldap_config` (
 -- LDAP default table data for `jos_sh_config`
 --
 
-REPLACE INTO `#__sh_config` 
+REPLACE INTO `#__sh_config`
+  SET `name` = 'ldap:version',
+  `value` = '2.0.0.243';
+
+REPLACE INTO `#__sh_config`
   SET `name` = 'ldap:source',
   `value` = '1';
 
-REPLACE INTO `#__sh_config` 
+REPLACE INTO `#__sh_config`
   SET `name` = 'ldap:plugin',
   `value` = 'ldap';
 
