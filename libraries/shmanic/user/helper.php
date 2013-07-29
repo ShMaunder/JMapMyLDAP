@@ -29,15 +29,15 @@ abstract class SHUserHelper
 	 * This method returns a user object. If options['autoregister'] is true,
 	 * and if the user doesn't exist, then it'll be created.
 	 *
-	 * @param   array  $user     Holds the user data.
-	 * @param   array  $options  Array holding options (remember, autoregister, group).
+	 * @param   array  $user      Holds the user data.
+	 * @param   array  &$options  Array holding options (remember, autoregister, group).
 	 *
 	 * @return  JUser  A JUser object containing the user.
 	 *
 	 * @since   1.0
 	 * @throws  Exception
 	 */
-	public static function getUser(array $user, $options = array())
+	public static function getUser(array $user, &$options = array())
 	{
 		$instance = JUser::getInstance();
 
@@ -56,12 +56,20 @@ abstract class SHUserHelper
 			// Inject the type and domain into this object if they are set
 			if (isset($options['type']))
 			{
-				$instance->setParam(self::PARAM_AUTH_TYPE, $options['type']);
+				if ($instance->getParam(self::PARAM_AUTH_TYPE) != $options['type'])
+				{
+					$options['change'] = true;
+					$instance->setParam(self::PARAM_AUTH_TYPE, $options['type']);
+				}
 			}
 
 			if (isset($options['domain']))
 			{
-				$instance->setParam(self::PARAM_AUTH_DOMAIN, $options['domain']);
+				if ($instance->getParam(self::PARAM_AUTH_DOMAIN) != $options['domain'])
+				{
+					$options['change'] = true;
+					$instance->setParam(self::PARAM_AUTH_DOMAIN, $options['domain']);
+				}
 			}
 
 			return $instance;

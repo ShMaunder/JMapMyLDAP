@@ -390,7 +390,14 @@ class SHLdapEventBouncer extends JEvent
 		// Fire the ldap specific on login events
 		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $options));
 
-		if ($result === true)
+		if ($result === false)
+		{
+			// Due to Joomla's inbuilt User Plugin, we have to raise an exception to abort login
+			throw new RuntimeException(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_ERR_10999', $user['username']), 10999);
+		}
+
+		// Check if any changes were made that need to be saved
+		if ($result === true || isset($options['change']))
 		{
 			SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10984', $user['username']), 10984, JLog::DEBUG, 'ldap');
 
@@ -411,11 +418,7 @@ class SHLdapEventBouncer extends JEvent
 		// Allow Ldap events to be called
 		$this->isLdap = true;
 
-		if ($result === false)
-		{
-			// Due to Joomla's inbuilt User Plugin, we have to raise an exception to abort login
-			throw new RuntimeException(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_ERR_10999', $user['username']), 10999);
-		}
+
 
 		return true;
 	}
