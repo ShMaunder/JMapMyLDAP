@@ -34,10 +34,10 @@ class PlgLdapProfile extends JPlugin
 	/**
 	 * Holds the reference to the xml file.
 	 *
-	 *  @var    JXMLElement
+	 *  @var    JXMLElement[]
 	 *  @since  2.0
 	 */
-	protected $xml = null;
+	protected $xml = array();
 
 	/**
 	 * Holds the permitted forms the profile will render on.
@@ -64,6 +64,14 @@ class PlgLdapProfile extends JPlugin
 	 * @since  2.0
 	 */
 	protected $sync_email = null;
+
+	/**
+	 * Use profiles based on domain.
+	 *
+	 * @var    boolean
+	 * @since  2.0
+	 */
+	protected $use_domain = false;
 
 	/**
 	* Profile XML name to use.
@@ -117,6 +125,7 @@ class PlgLdapProfile extends JPlugin
 		$this->sync_email = (int) $this->params->get('sync_email', 1);
 
 		$this->use_profile = (bool) $this->params->get('use_profile', false);
+		$this->use_domain = (bool) $this->params->get('use_domain', false);
 		$this->profile_name = $this->params->get('profile_name', 'default');
 		$this->profile_base = $this->params->get('profile_base');
 
@@ -331,11 +340,16 @@ class PlgLdapProfile extends JPlugin
 		}
 
 		$showForm = true;
+		$domain = null;
 
 		// Check if this user should have a profile
 		if ($userId = isset($data->id) ? $data->id : 0)
 		{
-			if (!SHLdapHelper::isUserLdap($userId))
+			if (SHLdapHelper::isUserLdap($userId))
+			{
+				$domain = SHUserHelper::getDomainParam($data);
+			}
+			else
 			{
 				$showForm = false;
 			}
@@ -344,10 +358,14 @@ class PlgLdapProfile extends JPlugin
 		if ($showForm)
 		{
 			// We have to launch the getxmlfields to correctly include languages
-			$this->getXMLFields();
+			$this->getXMLFields($domain);
+
+			// Get the File and Path for the Profile XML
+			$file 		= $this->getXMLFileName($domain);
+			$xmlPath 	= $this->profile_base . '/' . $file . '.xml';
 
 			// Load in the profile XML file to the form
-			if (($xml = JFactory::getXML($this->xmlFilePath, true)) && ($form->load($xml, false, false)))
+			if (($xml = JFactory::getXML($xmlPath, true)) && ($form->load($xml, false, false)))
 			{
 				// Successfully loaded in the XML
 				return true;
@@ -430,11 +448,13 @@ class PlgLdapProfile extends JPlugin
 			// Check there is a profile to save (i.e. this event may not have been called from the profile form)
 			if ($this->use_profile && (isset($new[self::FORM_FIELDS_NAME]) && (count($new[self::FORM_FIELDS_NAME]))))
 			{
+				$xml = $this->getXMLFields(SHUserHelper::getDomainParam($new));
+
 				// Only get profile data and enabled elements from the input
-				$profileData = $this->cleanInput($new[self::FORM_FIELDS_NAME]);
+				$profileData = $this->cleanInput($xml, $new[self::FORM_FIELDS_NAME]);
 
 				// Save the profile back to LDAP
-				$result = $this->saveProfileToLdap($username, $profileData);
+				$result = $this->saveProfileToLdap($xml, $username, $profileData);
 			}
 		}
 		catch (Exception $e)
@@ -497,39 +517,86 @@ class PlgLdapProfile extends JPlugin
 	{
 		if ($this->use_profile)
 		{
-			// Process the profile XML (this only needs to be done once)
-			return $this->getAttributes();
+			try
+			{
+				$xml = $this->getXMLFields($adapter->getDomain());
+
+				// Process the profile XML (this only needs to be done once)
+				return $this->getAttributes($xml);
+			}
+			catch (Exception $e)
+			{
+				SHLog::add($e, 12235, JLog::ERROR, 'ldap');
+			}
 		}
 	}
 
 	/**
+	 * Retrieves the file name of the profile based on domain.
+	 *
+	 * @param   string  $domain  Optional domain to use.
+	 *
+	 * @return  string  File name of the XML file.
+	 *
+	 * @throws  RuntimeException
+	 */
+	protected function getXMLFileName($domain)
+	{
+		// Use the profile name as the default if a domain is not specified
+		$file = (is_null($domain) || !$this->use_domain) ? $this->profile_name : $domain;
+
+		if (empty($file))
+		{
+			throw new RuntimeException(JText::_('PLG_LDAP_PROFILE_ERR_12204'), 12204);
+		}
+
+		// Get the full XML file path
+		$xmlPath = $this->profile_base . '/' . $file . '.xml';
+
+		if (!file_exists($xmlPath))
+		{
+			if (!$this->use_domain || ($file == $domain && $file == $this->profile_name))
+			{
+				// XML file doesn't exist
+				throw new RuntimeException(JText::sprintf('PLG_LDAP_PROFILE_ERR_12201', $file), 12201);
+			}
+			else
+			{
+				// We will try to use the profile_name as a default due to the users domain profile being unavailable
+				$file = $this->profile_name;
+				$xmlPath = $this->profile_base . '/' . $file . '.xml';
+
+				if (!file_exists($xmlPath))
+				{
+					// XML file doesn't exist
+					throw new RuntimeException(JText::sprintf('PLG_LDAP_PROFILE_ERR_12201', $file), 12201);
+				}
+			}
+		}
+
+		return $file;
+	}
+
+	/**
 	* Include the optional profile language and return the XML profile fields.
+	*
+	* @param   string  $domain  Optional domain to use.
 	*
 	* @return  JXMLElement  Required XML profile fields
 	*
 	* @since   2.0
 	* @throws  RuntimeException
 	*/
-	protected function getXMLFields()
+	protected function getXMLFields($domain = null)
 	{
-		if (!is_null($this->xml))
+		// Get the File and Path for the Profile XML
+		$file 		= $this->getXMLFileName($domain);
+		$xmlPath 	= $this->profile_base . '/' . $file . '.xml';
+
+		if (isset($this->xml[$file]))
 		{
 			// Xml has already been loaded
-			return $this->xml;
-		}
-
-		if (empty($this->profile_name))
-		{
-			throw new RuntimeException(JText::_('PLG_LDAP_PROFILE_ERR_12204'), 12204);
-		}
-
-		// Get the full XML file path
-		$xmlPath = $this->xmlFilePath;
-
-		if (!file_exists($xmlPath))
-		{
-			// XML file doesn't exist
-			throw new RuntimeException(JText::sprintf('PLG_LDAP_PROFILE_ERR_12201', $file), 12201);
+			return $this->xml[$file];
 		}
 
 		$fields = self::FORM_FIELDS_NAME;
@@ -544,11 +611,11 @@ class PlgLdapProfile extends JPlugin
 
 				// Attempt to load profile language
 				$lang = JFactory::getLanguage();
-				$lang->load($this->profile_name, $this->lang_base);
+				$lang->load($file, $this->lang_base);
 
-				$this->xml = $xml[0];
+				$this->xml[$file] = $xml[0];
 
-				return $this->xml;
+				return $this->xml[$file];
 			}
 		}
 
@@ -636,14 +703,14 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Return the attributes required from the users LDAP account.
 	*
+	* @param   JXMLElement  $xml  The XML profile to process.
+	*
 	* @return  array  An array of attributes
 	*
 	* @since   2.0
 	*/
-	protected function getAttributes()
+	protected function getAttributes($xml)
 	{
-		$xml = $this->getXMLFields();
-
 		$attributes = array();
 
 		foreach ($xml->fieldset as $fieldset)
@@ -672,7 +739,7 @@ class PlgLdapProfile extends JPlugin
 	*/
 	protected function saveProfile($userId, $username, $adapter, $options = array())
 	{
-		$xml = $this->getXMLFields();
+		$xml = $this->getXMLFields($adapter->getDomain());
 
 		SHLog::add(JText::sprintf('PLG_LDAP_PROFILE_DEBUG_12221', $username), 12221, JLog::DEBUG, 'ldap');
 
@@ -1037,16 +1104,15 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Cleans the form fields to return only XML enabled form fields.
 	*
-	* @param   array  $fields  An array of fields to be processed.
+	* @param   JXMLElement  $xml     The XML profile to process.
+	* @param   array        $fields  An array of fields to be processed.
 	*
 	* @return  array  An array of fields that are enabled.
 	*
 	* @since   2.0
 	*/
-	protected function cleanInput($fields = array())
+	protected function cleanInput($xml, $fields = array())
 	{
-		$xml = $this->getXMLFields();
-
 		$clean = array();
 
 		foreach ($fields as $key => $value)
@@ -1068,18 +1134,17 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Stage the profile to LDAP ready for committing.
 	*
-	* @param   string  $username  Username of profile owner to change.
-	* @param   array   $profile   Array of profile fields to save (key=>value).
+	* @param   JXMLElement  $xml       The XML profile to process.
+	* @param   string       $username  Username of profile owner to change.
+	* @param   array        $profile   Array of profile fields to save (key=>value).
 	*
 	* @return  boolean  True on success
 	*
 	* @since   2.0
 	* @throws  Exception
 	*/
-	protected function saveProfileToLdap($username, $profile = array())
+	protected function saveProfileToLdap($xml, $username, $profile = array())
 	{
-		$xml = $this->getXMLFields();
-
 		// Setup the profile user in user adapter
 		$adapter = SHFactory::getUserAdapter($username);
 
