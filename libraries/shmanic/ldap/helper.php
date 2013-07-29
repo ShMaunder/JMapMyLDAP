@@ -93,7 +93,7 @@ abstract class SHLdapHelper
 			if (empty($id))
 			{
 				// Get all the enabled Ldap configurations from SQL
-				$query->select('id')->select('params')
+				$query->select('name')->select('params')
 					->from($query->qn($table))
 					->where('enabled >= 1')
 					->order('ordering');
@@ -110,7 +110,7 @@ abstract class SHLdapHelper
 						$newConfig->loadString($row['params'], 'JSON');
 
 						// Inject the domain ID into the config
-						$newConfig->set('domain', (int) $row['id']);
+						$newConfig->set('domain', $row['name']);
 
 						// Push the Ldap config onto the return array
 						$configs[] = $newConfig;
@@ -129,19 +129,19 @@ abstract class SHLdapHelper
 			elseif (is_numeric($id))
 			{
 				// Get the enabled configuration of the specified ID
-				$query->select('params')
+				$query->select('name')->select('params')
 					->from($query->qn($table))
 					->where('enabled >= 1')
 					->where($query->qn('id') . '=' . $query->q((int) $id));
 
 				// Execute the query
-				if ($param = $db->setQuery($query)->loadResult())
+				if ($row = $db->setQuery($query)->loadAssoc())
 				{
 					$config = new JRegistry;
-					$config->loadString($param, 'JSON');
+					$config->loadString($row['params'], 'JSON');
 
 					// Inject the domain ID into the config
-					$config->set('domain', (int) $id);
+					$config->set('domain', $row['name']);
 
 					// Return our configuration result
 					return $config;
@@ -157,19 +157,19 @@ abstract class SHLdapHelper
 			else
 			{
 				// Get the enabled configuration of the specified name
-				$query->select('id')->select('params')
+				$query->select('params')
 					->from($query->qn($table))
 					->where('enabled >= 1')
 					->where($query->qn('name') . '=' . $query->q((string) $id));
 
 				// Execute the query
-				if ($row = $db->setQuery($query)->loadAssoc())
+				if ($param = $db->setQuery($query)->loadResult())
 				{
 					$config = new JRegistry;
-					$config->loadString($row['params'], 'JSON');
+					$config->loadString($param, 'JSON');
 
 					// Inject the domain ID into the config
-					$config->set('domain', (int) $row['id']);
+					$config->set('domain', (string) $id);
 
 					// Return our configuration result
 					return $config;

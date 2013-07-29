@@ -49,7 +49,7 @@ class SHFormFieldLdapdomain extends JFormFieldList
 		// Present the Ldap domains in the list
 		foreach ($configs as $id => $config)
 		{
-			$options[] = JHtml::_('select.option', $id, $config, 'value', 'text');
+			$options[] = JHtml::_('select.option', $config, $config, 'value', 'text');
 		}
 
 		// Merge any additional options in the XML definition.

@@ -133,7 +133,8 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 		if (isset($credentials['domain']))
 		{
-			$this->domain = str_replace(array('(',')','\''), '', $credentials['domain']);
+			$this->domain = (string) preg_replace('/[^A-Z0-9_\.-]/i', '', $credentials['domain']);
+			$this->domain = ltrim($this->domain, '.');
 		}
 
 		if (is_array($config) && count($config))
