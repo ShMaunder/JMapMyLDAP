@@ -413,7 +413,8 @@ class SHLdapEventBouncer extends JEvent
 
 		if ($result === false)
 		{
-			return $result;
+			// Due to Joomla's inbuilt User Plugin, we have to raise an exception to abort login
+			throw new RuntimeException(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_ERR_10999', $user['username']), 10999);
 		}
 
 		return true;
