@@ -186,7 +186,7 @@ class LdapCron extends JApplicationCli
 						);
 
 						// Create a JUser object from the Ldap user
-						$options = array();
+						$options = array('adapter' => &$adapter);
 						$instance = SHUserHelper::getUser($user, $options);
 
 						if ($instance === false)
