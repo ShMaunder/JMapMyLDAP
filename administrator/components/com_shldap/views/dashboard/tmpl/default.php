@@ -9,7 +9,7 @@ $listOrder	= $this->escape($this->state->get('list.ordering'));
 $listDirn	= $this->escape($this->state->get('list.direction'));
 $canEdit	= $user->authorise('core.edit', 'com_plugins');
 
-$gridState = array(array('inactive_class' => 'unpublish'), array('inactive_class' => 'publish'));
+$gridState = array(array('task' => '', 'inactive_class' => 'unpublish'), array('task' => '', 'inactive_class' => 'publish'));
 
 ?>
 
