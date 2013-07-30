@@ -332,7 +332,8 @@ class SHLdapEventBouncer extends JEvent
 			{
 				// Ensure Joomla knows this is a new Ldap user
 				$adapter = SHFactory::getUserAdapter($user['username']);
-				$instance = SHUserHelper::getUser($user, array('adapter' => $adapter));
+				$options = array('adapter' => &$adapter);
+				$instance = SHUserHelper::getUser($user, $options);
 
 				// Silently resave the user without calling the onUserSave events
 				SHUserHelper::save($instance, false);
