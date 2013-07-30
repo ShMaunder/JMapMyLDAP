@@ -17,3 +17,4 @@
 
 <h2>Building</h2>
 <p>Use the included build.sh script to generate each individual extension from this project. This script requires Phing and xmlstarlet.</p>
+<p>There is also a server hosting pre-built packages found at <a href="http://server.shmanic.co.uk/jmml_builds">http://server.shmanic.co.uk/jmml_builds</a>.</p>
