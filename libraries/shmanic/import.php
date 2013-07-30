@@ -49,5 +49,17 @@ if (file_exists(SHPATH_PLATFORM . '/form/rules'))
 	JForm::addRulePath(SHPATH_PLATFORM . '/form/rules');
 }
 
-// Register JComponentHelper in case it is required later
-JLoader::register('JComponentHelper', JPATH_PLATFORM . '/joomla/application/component/helper.php');
+// We need to check for the legacy folder which indicates Joomla 3+ / Platform
+if (file_exists(JPATH_PLATFORM . '/legacy'))
+{
+	// Resolve some legacy classes without importing all legacy classes
+	JLoader::register('JDispatcher', JPATH_PLATFORM . '/legacy/dispatcher/dispatcher.php');
+	JLoader::register('JApplication', JPATH_PLATFORM . '/legacy/application/application.php');
+	JLoader::register('JApplicationHelper', JPATH_PLATFORM . '/legacy/application/helper.php');
+	JLoader::register('JComponentHelper', JPATH_PLATFORM . '/legacy/component/helper.php');
+}
+else
+{
+	// Register JComponentHelper in case it is required later
+	JLoader::register('JComponentHelper', JPATH_PLATFORM . '/joomla/application/component/helper.php');
+}
