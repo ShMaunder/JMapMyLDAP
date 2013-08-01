@@ -12,6 +12,8 @@
 
 defined('_JEXEC') or die;
 
+$errorStyle = 'background-color:#FBB;display:block;padding:4px 0;font-weight:bold;';
+
 echo ' :: PHP LDAP Debug ' . SHLDAP_VERSION . ' Script Started :: <br /><br />';
 
 try
@@ -60,7 +62,7 @@ try
 	}
 	else
 	{
-		echo '<p><strong>Invalid Map User ID.</strong></p>';
+		echo "<p style=\"{$errorStyle}\">Invalid Map User ID.</p>";
 	}
 
 	if ($fullname = $read->getValue(0, $client->keyName, 0))
@@ -69,7 +71,7 @@ try
 	}
 	else
 	{
-		echo '<p><strong>Invalid Map Full Name.</strong></p>';
+		echo "<p style=\"{$errorStyle}\">Invalid Map Full Name.</p>";
 	}
 
 	if ($email = $read->getValue(0, $client->keyEmail, 0))
@@ -78,7 +80,7 @@ try
 	}
 	else
 	{
-		echo '<p><strong>Invalid Map Email. If your LDAP server does not use emails, then use a \'fake\' email.</strong></p>';
+		echo "<p style=\"{$errorStyle}\">Invalid Map Email. If your LDAP server does not use emails, then use a 'fake' email.</p>";
 	}
 
 	/* *****************************************************
@@ -125,7 +127,7 @@ try
 }
 catch (Exception $e)
 {
-	echo '<p style="background-color:#FBB;display:block;padding:4px 0;font-weight:bold;">' . '[' . $e->getCode() . '] ' . $e->getMessage() . '</p>';
+	echo "<p style=\"{$errorStyle}\">" . '[' . $e->getCode() . '] ' . $e->getMessage() . '</p>';
 }
 
 
