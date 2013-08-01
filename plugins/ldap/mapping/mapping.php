@@ -655,6 +655,11 @@ class PlgLdapMapping extends JPlugin
 	 */
 	public function onLdapBeforeRead($adapter, $options = array())
 	{
+		if (!$this->doSetup())
+		{
+			return;
+		}
+
 		// Make sure we get the value used to query groups if required
 		$return = array($this->member_dn);
 
@@ -681,6 +686,11 @@ class PlgLdapMapping extends JPlugin
 	 */
 	public function onLdapAfterRead($adapter, &$attributes, $options = array())
 	{
+		if (!$this->doSetup())
+		{
+			return;
+		}
+
 		$details	= array();
 		$return		= array();
 		$groups		= array();
