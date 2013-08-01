@@ -218,8 +218,10 @@ final class SHLdapResult
 	 */
 	public function getAttributeKeyAtIndex($entry, $index, $default = false)
 	{
+		$array = array_keys($this->getEntry($entry));
+
 		return JArrayHelper::getValue(
-			array_keys($this->getEntry($entry)), $index, $default
+			$array, $index, $default
 		);
 	}
 
