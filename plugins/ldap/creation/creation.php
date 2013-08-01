@@ -87,7 +87,7 @@ class PlgLdapCreation extends JPlugin
 		try
 		{
 			// Kill any previous adapters for this user (though this plugin should be ordered first!!)
-			SHFactory::$adapters[$user['username']] = null;
+			SHFactory::$adapters[strtolower($user['username'])] = null;
 
 			$dn = null;
 			$attributes = array();

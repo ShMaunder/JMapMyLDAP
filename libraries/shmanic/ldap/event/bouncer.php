@@ -357,14 +357,14 @@ class SHLdapEventBouncer extends JEvent
 	public function onUserLogin($user, $options = array())
 	{
 		// Check if we have a user adapter already established for this user
-		if (!isset(SHFactory::$adapters[$user['username']]))
+		if (!isset(SHFactory::$adapters[strtolower($user['username'])]))
 		{
 			// SHAdapter did not log this in, get out now
 			return;
 		}
 
 		// Get the processed user adapter directly from the static adapter holder
-		$adapter = SHFactory::$adapters[$user['username']];
+		$adapter = SHFactory::$adapters[strtolower($user['username'])];
 
 		if (!(isset($user['type']) && $adapter::getType($user['type']) && $adapter::getType('LDAP')))
 		{
