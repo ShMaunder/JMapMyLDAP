@@ -44,7 +44,7 @@
 					<option value="0">PLG_LDAP_MAPPING_FIELD_REMOVE_NO</option>
 				</field>
 				<field name="unmanaged" type="text" default="" description="PLG_LDAP_MAPPING_FIELD_UNMANAGED_DESC" label="PLG_LDAP_MAPPING_FIELD_UNMANAGED_LABEL"/>
-				<field name="public_id" type="text" required="true" default="1" description="PLG_LDAP_MAPPING_FIELD_PUBLICID_DESC" label="PLG_LDAP_MAPPING_FIELD_PUBLICID_LABEL"/>
+				<field name="public_id" type="text" required="true" default="2" description="PLG_LDAP_MAPPING_FIELD_PUBLICID_DESC" label="PLG_LDAP_MAPPING_FIELD_PUBLICID_LABEL"/>
 				<field name="spacer2" type="spacer" hr="true"/>
 				<field name="list" type="textarea" cols="50" required="true" description="PLG_LDAP_MAPPING_FIELD_LIST_DESC" label="PLG_LDAP_MAPPING_FIELD_LIST_LABEL" rows="6" default=""/>
 				<field name="dn_validate" type="radio" default="1" class="btn-group" description="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_DESC" label="PLG_LDAP_MAPPING_FIELD_DNVALIDATE_LABEL">
