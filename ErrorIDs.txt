@@ -165,8 +165,8 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 12023 - General Error ID for raising a exception log in onUserAfterSave
 
 12031 - Failed to find the member dn attribute in the Ldap user '%1$s'. [PLG_LDAP_MAPPING_ERR_12031]
-12034 - Failed to add LDAP group to Ldap user.
-12036 - Failed to remove LDAP group to Ldap user.
+12034 - Failed to add LDAP group '%1$s' to Ldap user '%2$s'.
+12036 - Failed to remove LDAP group '%1$s' from Ldap user '%2$s'.
 12038 - Successfully added LDAP group '%2$s' to LDAP user '%1$s'. [PLG_LDAP_MAPPING_INFO_12038]
 12039 - Successfully removed LDAP group '%2$s' from LDAP user '%1$s'. [PLG_LDAP_MAPPING_INFO_12039]
 

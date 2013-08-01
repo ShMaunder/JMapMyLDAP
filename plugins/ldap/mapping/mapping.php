@@ -313,10 +313,13 @@ class PlgLdapMapping extends JPlugin
 							try
 							{
 								// Get the current assigned users for this group
-								$users = $ldap->read($group, null, array($attribute))->getAttribute(0, $attribute);
+								$groupDetails = $ldap->read($group, null, array($attribute));
 
-								// Check to ensure the attribute doesn't already exist
-								if (array_search($memberDn, $users) === false)
+								$users = $groupDetails->getAttribute(0, $attribute);
+
+								// Check to ensure the group is not empty or user is already part of it
+								if (($groupDetails->countValues(0, $attribute) === 0)
+									|| (array_search($memberDn, $users) === false))
 								{
 									$users[] = $memberDn;
 									$ldap->replaceAttributes($group, array($attribute => $users));
@@ -326,6 +329,7 @@ class PlgLdapMapping extends JPlugin
 							catch (Exception $e)
 							{
 								// An error occurred trying to add the group
+								SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_ERR_12034', $group, $username), 12034, JLog::ERROR, 'ldap');
 								SHLog::add($e, 12034, JLog::ERROR, 'ldap');
 							}
 						}
@@ -357,6 +361,7 @@ class PlgLdapMapping extends JPlugin
 							catch (Exception $e)
 							{
 								// An error occurred trying to remove the group
+								SHLog::add(JText::sprintf('PLG_LDAP_MAPPING_ERR_12036', $group, $username), 12036, JLog::ERROR, 'ldap');
 								SHLog::add($e, 12036, JLog::ERROR, 'ldap');
 							}
 						}
