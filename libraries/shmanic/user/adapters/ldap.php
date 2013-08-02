@@ -890,6 +890,29 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 					// Change the attribute field for this commit
 					$this->_attributes = array_merge($this->_attributes, $commit);
+
+					if ($operation == 'add')
+					{
+						// Add operation means we need to remove attribute keys from nullAttributes
+						foreach (array_keys($commit) as $k)
+						{
+							if (($index = array_search($k, $this->_nullAttributes)) !== false)
+							{
+								unset ($this->_nullAttributes[$index]);
+							}
+						}
+					}
+					elseif ($operation == 'delete')
+					{
+						// Delete operation means we need to add attribute keys to nullAttributes
+						foreach (array_keys($commit) as $k)
+						{
+							if (array_search($k, $this->_nullAttributes) === false)
+							{
+								$this->_nullAttributes[] = $k;
+							}
+						}
+					}
 				}
 				catch (Exception $e)
 				{
