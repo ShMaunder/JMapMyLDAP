@@ -8,11 +8,13 @@
 <ul>
  <li>Requires Joomla! 1.6, 1.7 or 2.5+</li>
  <li>Released: September 2011</li>
+ <li>Github repository available at <a href="https://github.com/ShMaunder/JMapMyLDAPv1">https://github.com/ShMaunder/JMapMyLDAPv1</a></li>
 </ul>
 
 <p>Version <strong>2.x</strong></p>
 <ul>
- <li>Requires Joomla! 2.5+ or Joomla! Platform 12.1+</li>
+ <li>Requires Joomla! 2.5+ or Joomla! Platform 11.3+</li>
+ <li>Test builds available</li>
 </ul>
 
 <h2>Building</h2>
