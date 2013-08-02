@@ -635,6 +635,17 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $default;
 	}
 
+	/**
+	 * Sets the users password.
+	 *
+	 * @param   string  $new           New password.
+	 * @param   string  $old           Current password.
+	 * @param   string  $authenticate  Authenticate the old password before setting new.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
 	public function setPassword($new, $old = null, $authenticate = false)
 	{
 		if (is_null($this->_dn))
@@ -680,6 +691,15 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return false;
 	}
 
+	/**
+	 * Generates the correct password string for pushing to LDAP.
+	 *
+	 * @param   string  $password  Plain text password
+	 *
+	 * @return  string  Correctly encoded password for LDAP.
+	 *
+	 * @since   2.0
+	 */
 	private function _genPassword($password)
 	{
 		$hash = strtolower($this->client->passwordHash);
@@ -688,7 +708,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if ($hash === 'unicode')
 		{
 			// Active Directory Unicode
-			return preg_replace('/./', '$0\\\\000', "\"{$password}\"");
+			return preg_replace('/./', '$0' . "\000", "\"{$password}\"");
 		}
 		else
 		{
@@ -723,6 +743,15 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 	}
 
+	/**
+	 * Sets new attributes for the user but doesnt commit to the driver.
+	 *
+	 * @param   array  $attributes  An array of the new/changed attributes for the object.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function setAttributes(array $attributes)
 	{
 		if (!empty($attributes))
@@ -832,19 +861,27 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				 */
 				$return = self::_checkFieldHelper($current, $key, 0, $value);
 
-				switch ($return)
+				// Check if this is a password attribute as the replace needs to be forced
+				if ($key === $this->getPassword(true))
 				{
-					case 1:
-						$replaceEntries[$key] = array($value);
-						break;
+					$replaceEntries[$key] = array($value);
+				}
+				else
+				{
+					switch ($return)
+					{
+						case 1:
+							$replaceEntries[$key] = array($value);
+							break;
 
-					case 2:
-						$addEntries[$key] = array($value);
-						break;
+						case 2:
+							$addEntries[$key] = array($value);
+							break;
 
-					case 3:
-						$deleteEntries[$key] = array();
-						break;
+						case 3:
+							$deleteEntries[$key] = array();
+							break;
+					}
 				}
 			}
 		}
@@ -1095,6 +1132,13 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 	}
 
+	/**
+	 * Checks whether a user exists in the LDAP directory.
+	 *
+	 * @return  boolean  True if user exists.
+	 *
+	 * @since   2.0
+	 */
 	private function _checkUserExists()
 	{
 		try
