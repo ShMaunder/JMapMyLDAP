@@ -187,6 +187,21 @@ class PlgLdapCreation extends JPlugin
 			$adapter->create();
 			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $user[$this->usernameKey]), 12821, JLog::INFO, 'ldap');
 
+			/*
+			 * Call onAfterCreation method in the helper which can be used to run
+			 * external scripts (such as creating home directories) and/or adding
+			 * groups to the new user.
+			 *
+			 * This method will be passed:
+			 * - $user        Values directly from the user registration form.
+			 * - $attributes  The attributes passed to the LDAP server for creation.
+			 * - $adapter     The user adapter object.
+			 */
+			if ($this->helper && method_exists($this->helper, 'onAfterCreation'))
+			{
+				$this->helper->onAfterCreation($user, $attributes, $adapter);
+			}
+
 			return true;
 		}
 		catch (Exception $e)
