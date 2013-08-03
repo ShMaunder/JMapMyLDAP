@@ -34,7 +34,7 @@ class PlgLdapProfile extends JPlugin
 	/**
 	 * Holds the reference to the xml file.
 	 *
-	 *  @var    JXMLElement[]
+	 *  @var    SimpleXMLElement[]
 	 *  @since  2.0
 	 */
 	protected $xml = array();
@@ -582,7 +582,7 @@ class PlgLdapProfile extends JPlugin
 	*
 	* @param   string  $domain  Optional domain to use.
 	*
-	* @return  JXMLElement  Required XML profile fields
+	* @return  SimpleXMLElement  Required XML profile fields
 	*
 	* @since   2.0
 	* @throws  RuntimeException
@@ -601,8 +601,11 @@ class PlgLdapProfile extends JPlugin
 
 		$fields = self::FORM_FIELDS_NAME;
 
+		// Disable libxml errors and allow to fetch error information as needed
+		libxml_use_internal_errors(true);
+
 		// Attempt to load the XML file.
-		if ($xml = JFactory::getXML($xmlPath, true))
+		if ($xml = simplexml_load_file($xmlPath))
 		{
 			// Get only the required header - i.e. ldap_profile
 			if ($xml = $xml->xpath("/form/fields[@name='{$fields}']"))
@@ -703,7 +706,7 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Return the attributes required from the users LDAP account.
 	*
-	* @param   JXMLElement  $xml  The XML profile to process.
+	* @param   SimpleXMLElement  $xml  The XML profile to process.
 	*
 	* @return  array  An array of attributes
 	*
@@ -1104,8 +1107,8 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Cleans the form fields to return only XML enabled form fields.
 	*
-	* @param   JXMLElement  $xml     The XML profile to process.
-	* @param   array        $fields  An array of fields to be processed.
+	* @param   SimpleXMLElement  $xml     The XML profile to process.
+	* @param   array             $fields  An array of fields to be processed.
 	*
 	* @return  array  An array of fields that are enabled.
 	*
@@ -1134,9 +1137,9 @@ class PlgLdapProfile extends JPlugin
 	/**
 	* Stage the profile to LDAP ready for committing.
 	*
-	* @param   JXMLElement  $xml       The XML profile to process.
-	* @param   string       $username  Username of profile owner to change.
-	* @param   array        $profile   Array of profile fields to save (key=>value).
+	* @param   SimpleXMLElement  $xml       The XML profile to process.
+	* @param   string            $username  Username of profile owner to change.
+	* @param   array             $profile   Array of profile fields to save (key=>value).
 	*
 	* @return  boolean  True on success
 	*
