@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-	<template domain="" usernameKey="username" passwordKey="password_clear" emailKey="email" nameKey="name">
+	<template domain="openldap" usernameKey="username" passwordKey="password_clear" emailKey="email" nameKey="name">
 		<dn type="eval"><![CDATA[return "uid=${username},ou=People,dc=shmanic,dc=net";]]></dn>
 		<attribute name="objectClass" type="string">inetOrgPerson</attribute>
 		<attribute name="objectClass" type="string">posixAccount</attribute>
