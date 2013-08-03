@@ -107,29 +107,29 @@ class PlgLdapCreation extends JPlugin
 
 			$fields = $this->_getXMLFields();
 
-			if ($fields->getAttribute('usernameKey'))
+			if ($fields->attributes()->usernameKey)
 			{
-				$this->usernameKey = $fields->getAttribute('usernameKey');
+				$this->usernameKey = (string) $fields->attributes()->usernameKey;
 			}
 
-			if ($fields->getAttribute('passwordKey'))
+			if ($fields->attributes()->passwordKey)
 			{
-				$this->passwordKey = $fields->getAttribute('passwordKey');
+				$this->passwordKey = (string) $fields->attributes()->passwordKey;
 			}
 
-			if ($fields->getAttribute('emailKey'))
+			if ($fields->attributes()->emailKey)
 			{
-				$this->emailKey = $fields->getAttribute('emailKey');
+				$this->emailKey = (string) $fields->attributes()->emailKey;
 			}
 
-			if ($fields->getAttribute('nameKey'))
+			if ($fields->attributes()->nameKey)
 			{
-				$this->nameKey = $fields->getAttribute('nameKey');
+				$this->nameKey = (string) $fields->attributes()->nameKey;
 			}
 
 			foreach ($fields as $key => $value)
 			{
-				if ($key == 'dn')
+				if ((string) $key == 'dn')
 				{
 					// The dn which isn't an array
 					$attribute =& $dn;
@@ -137,7 +137,7 @@ class PlgLdapCreation extends JPlugin
 				else
 				{
 					// Standard multi-array attributes
-					$name = $value->getAttribute('name');
+					$name = (string) $value->attributes()->name;
 
 					if (!isset($attributes[$name]))
 					{
@@ -148,7 +148,7 @@ class PlgLdapCreation extends JPlugin
 				}
 
 				// Get the value of the dn/attribute using a variety of types
-				switch ($value->getAttribute('type'))
+				switch ((string) $value->attributes()->type)
 				{
 					case 'string':
 						$attribute = (string) $value;
@@ -284,7 +284,7 @@ class PlgLdapCreation extends JPlugin
 	/**
 	* Gets the XML for the creation template.
 	*
-	* @return  XMLElement  Required XML fields.
+	* @return  SimpleXMLElement  Required XML fields.
 	*
 	* @since   2.0
 	* @throws  RuntimeException
@@ -299,8 +299,11 @@ class PlgLdapCreation extends JPlugin
 			throw new RuntimeException(JText::sprintf('PLG_LDAP_CREATION_ERR_12811', $file), 12811);
 		}
 
+		// Disable libxml errors and allow to fetch error information as needed
+		libxml_use_internal_errors(true);
+
 		// Attempt to load the XML file.
-		if ($xml = JFactory::getXML($file, true))
+		if ($xml = simplexml_load_file($file))
 		{
 			// Get only the required header - i.e. domain
 			if ($xml = $xml->xpath("/templates/template[@domain='{$this->domain}']"))
