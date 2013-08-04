@@ -264,10 +264,10 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals(
 			array(
-				'uid=craig.david,ou=People,dc=shmanic,dc=net',
-				'uid=justin.bieber,ou=People,dc=shmanic,dc=net',
-				'uid=lister,ou=People,dc=shmanic,dc=net',
-				'uid=rebecca.black,ou=People,dc=shmanic,dc=net'
+				array('uid=craig.david,ou=People,dc=shmanic,dc=net'),
+				array('uid=justin.bieber,ou=People,dc=shmanic,dc=net'),
+				array('uid=lister,ou=People,dc=shmanic,dc=net'),
+				array('uid=rebecca.black,ou=People,dc=shmanic,dc=net')
 			),
 			$o
 		);

@@ -30,7 +30,7 @@ class SHLUserAdaptersLdapTest extends PHPUnit_Framework_TestCase
 
 		$adapter = new SHUserAdaptersLdap($user, $ldap);
 
-		$this->assertEquals('ldap', $adapter->type);
+		$this->assertEquals('LDAP', $adapter->type);
 	}
 
 	public function testGetIdBasicSuccess()
