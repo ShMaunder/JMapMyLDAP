@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  Ldap
  * @since       2.0
  */
-final class LdapCreation_AD
+final class LdapCreation_ad
 {
 	/**
 	 * Returns the distinguished name.

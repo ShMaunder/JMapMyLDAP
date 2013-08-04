@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  Ldap
  * @since       2.0
  */
-final class LdapCreation_Openldap
+final class LdapCreation_openldap
 {
 	/**
 	 * The name/key to use in the #__sh_config table for storing UID number.
