@@ -969,6 +969,16 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->authenticate(SHLdap::AUTH_USER, $user['username'], $user['password'] . ')(*&^%$£"!"£%^&*()');
 	}
 
+	public function testSlapdExplodeDn()
+	{
+		$actual = SHLdap::explodeDn('uid=oracle,  ou=Matrix,  ou = People,  dc=shmanic, dc=net', 0);
+
+		$this->assertEquals(
+			array('count' => 5, 'uid=oracle', 'ou=Matrix', 'ou=People', 'dc=shmanic','dc=net'),
+			$actual
+		);
+	}
+
 	/**
 	 * TODO: move to a SHPlatform specific test in the future
 	 */
