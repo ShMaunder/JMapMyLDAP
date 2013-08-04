@@ -33,13 +33,13 @@ class PlgLdapCreation extends JPlugin
 
 	protected $helper = null;
 
-	protected $usernameKey = 'username';
-
-	protected $passwordKey = 'password_clear';
-
-	protected $emailKey = 'email';
-
-	protected $nameKey = 'name';
+	/**
+	 * This fields only populates after user creation.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $username = null;
 
 	/**
 	 * Constructor
@@ -76,7 +76,7 @@ class PlgLdapCreation extends JPlugin
 	/**
 	 * Create the user to LDAP (before onUserBeforeSave).
 	 *
-	 * @param   array  $user  Populated LDAP attributes.
+	 * @param   array  $user  Populated LDAP attributes from the form.
 	 *
 	 * @return  boolean  Cancels the user creation to Joomla if False.
 	 *
@@ -86,11 +86,16 @@ class PlgLdapCreation extends JPlugin
 	{
 		try
 		{
-			// Kill any previous adapters for this user (though this plugin should be ordered first!!)
-			SHFactory::$adapters[strtolower($user['username'])] = null;
-
 			$dn = null;
 			$attributes = array();
+
+			// Populate defaults for the mandatory
+			$mandatory = array(
+				'username' => JArrayHelper::getValue($user, 'username'),
+				'password' => JArrayHelper::getValue($user, 'password_clear'),
+				'email' => JArrayHelper::getValue($user, 'email'),
+				'name' => JArrayHelper::getValue($user, 'name')
+			);
 
 			// Include the helper file only if it exists
 			if ($this->includeHelper)
@@ -107,38 +112,34 @@ class PlgLdapCreation extends JPlugin
 
 			$fields = $this->_getXMLFields();
 
-			if ($fields->attributes()->usernameKey)
-			{
-				$this->usernameKey = (string) $fields->attributes()->usernameKey;
-			}
-
-			if ($fields->attributes()->passwordKey)
-			{
-				$this->passwordKey = (string) $fields->attributes()->passwordKey;
-			}
-
-			if ($fields->attributes()->emailKey)
-			{
-				$this->emailKey = (string) $fields->attributes()->emailKey;
-			}
-
-			if ($fields->attributes()->nameKey)
-			{
-				$this->nameKey = (string) $fields->attributes()->nameKey;
-			}
-
+			// Loops around everything in the template XML
 			foreach ($fields as $key => $value)
 			{
-				if ((string) $key == 'dn')
+				// Convert the value to a string
+				$stringValue = (string) $value;
+
+				// Convert the key to a string
+				$stringKey = (string) $key;
+
+				$name = (string) $value->attributes()->name;
+
+				if ($stringKey == 'dn')
 				{
+					$name = 'mandatory' . $stringKey;
+
 					// The dn which isn't an array
 					$attribute =& $dn;
+				}
+				elseif ($stringKey == 'username' || $stringKey == 'password' || $stringKey == 'email' || $stringKey == 'name')
+				{
+					$name = 'mandatory' . $stringKey;
+
+					// The mandatory fields use something a bit different
+					$attribute =& $mandatory[$stringKey];
 				}
 				else
 				{
 					// Standard multi-array attributes
-					$name = (string) $value->attributes()->name;
-
 					if (!isset($attributes[$name]))
 					{
 						$attributes[$name] = array();
@@ -147,25 +148,37 @@ class PlgLdapCreation extends JPlugin
 					$attribute =& $attributes[$name][];
 				}
 
-				// Get the value of the dn/attribute using a variety of types
+				// Get the value of the attributes using a variety of types
 				switch ((string) $value->attributes()->type)
 				{
+					case 'form':
+						$attribute = $user[$stringValue];
+						break;
+
 					case 'string':
-						$attribute = (string) $value;
+						$attribute = $stringValue;
 						break;
 
 					case 'eval':
-						$attribute = $this->_execEval((string) $value, $user);
+						$attribute = $this->_execEval($stringValue, $user);
+						break;
+
+					case 'helper':
+						$method = 'get' . (string) $name;
+						$attribute = $this->helper->{$method}($user);
 						break;
 				}
 			}
 
 			$credentials = array(
-				'username' => $user[$this->usernameKey],
-				'password' => $user[$this->passwordKey],
+				'username' => $mandatory['username'],
+				'password' => $mandatory['password'],
 				'domain' => $this->domain,
 				'dn' => $dn
 			);
+
+			// Kill any previous adapters for this user (though this plugin should be ordered first!!)
+			SHFactory::$adapters[strtolower($user['username'])] = null;
 
 			// Create an adapter and save core attributes
 			$adapter = SHFactory::getUserAdapter($credentials, 'ldap', array('isNew' => true));
@@ -173,10 +186,10 @@ class PlgLdapCreation extends JPlugin
 			// Add core Joomla fields
 			$adapter->setAttributes(
 				array(
-					'username' => $user[$this->usernameKey],
-					'password' => $user[$this->passwordKey],
-					'fullname' => $user[$this->nameKey],
-					'email' => $user[$this->emailKey]
+					'username' => $mandatory['username'],
+					'password' => $mandatory['password'],
+					'fullname' => $mandatory['name'],
+					'email' => $mandatory['email']
 				)
 			);
 
@@ -185,7 +198,9 @@ class PlgLdapCreation extends JPlugin
 
 			// Create the LDAP user now
 			$adapter->create();
-			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $user[$this->usernameKey]), 12821, JLog::INFO, 'ldap');
+			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $mandatory['username']), 12821, JLog::INFO, 'ldap');
+
+			$this->username = $mandatory['username'];
 
 			/*
 			 * Call onAfterCreation method in the helper which can be used to run
@@ -228,24 +243,24 @@ class PlgLdapCreation extends JPlugin
 	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		if ($isNew && !$success && $this->params->get('onfail_delete', false))
+		if ($isNew && !$success && $this->params->get('onfail_delete', false) && $this->username)
 		{
 			try
 			{
-				$username = $user[$this->usernameKey];
-
 				// Check the session to ensure this user was created successfully last time
-				if (JFactory::getSession()->get('creation', null, 'ldap') == $username)
+				if (JFactory::getSession()->get('creation', null, 'ldap') == $this->username)
 				{
-					$adapter = SHFactory::getUserAdapter($username);
+					$adapter = SHFactory::getUserAdapter($this->username);
 					$adapter->delete();
-					SHLog::add(JTest::sprintf('PLG_LDAP_CREATION_INFO_12826', $username), 12826, JLog::INFO, 'ldap');
+					SHLog::add(JTest::sprintf('PLG_LDAP_CREATION_INFO_12826', $this->username), 12826, JLog::INFO, 'ldap');
 				}
 			}
 			catch (Exception $e)
 			{
 				SHLog::add($e, 12803, JLog::ERROR, 'ldap');
 			}
+
+			$this->username = null;
 		}
 	}
 
@@ -254,18 +269,14 @@ class PlgLdapCreation extends JPlugin
 	 * User attributes are also available.
 	 *
 	 * @param   string  $eval  Eval statement to be executed.
-	 * @param   array   $user  Holds the new user attributes array.
+	 * @param   array   $form  Holds the new user attributes array (from the form).
 	 *
 	 * @return  string  LDAP attribute value.
 	 *
 	 * @since   2.0
 	 */
-	private function _execEval($eval, $user)
+	private function _execEval($eval, $form)
 	{
-		// Create some common safe DN values if required in the eval
-		$username = SHLdapHelper::escape(JArrayHelper::getValue($user, 'username'));
-		$email = SHLdapHelper::escape(JArrayHelper::getValue($user, 'email'));
-
 		return eval($eval);
 	}
 

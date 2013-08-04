@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-	<template domain="openldap" usernameKey="username" passwordKey="password_clear" emailKey="email" nameKey="name">
-		<dn type="eval"><![CDATA[return "uid=${username},ou=People,dc=shmanic,dc=net";]]></dn>
+	<template domain="openldap">
+		<dn type="helper" />
+		<username type="form">username</username>
+		<password type="form">password_clear</password>
+		<email type="form">email</email>
+		<name type="form">name</name>
 		<attribute name="objectClass" type="string">inetOrgPerson</attribute>
 		<attribute name="objectClass" type="string">posixAccount</attribute>
 		<attribute name="objectClass" type="string">shadowAccount</attribute>
 		<attribute name="gidNumber" type="string">1000</attribute>
-		<attribute name="givenName" type="eval"><![CDATA[return $this->helper->getFirstname($user['name']);]]></attribute>
-		<attribute name="homeDirectory" type="eval"><![CDATA[return "/home/${user['username']}";]]></attribute>
+		<attribute name="givenName" type="helper" />
+		<attribute name="homeDirectory" type="helper" />
 		<attribute name="loginShell" type="string">/bin/bash</attribute>
-		<attribute name="sn" type="eval"><![CDATA[return $this->helper->getLastname($user['name']);]]></attribute>
-		<attribute name="uidNumber" type="eval"><![CDATA[return $this->helper->getUidNumber();]]></attribute>
+		<attribute name="sn" type="helper" />
+		<attribute name="uidNumber" type="helper" />
 	</template>
 </templates>

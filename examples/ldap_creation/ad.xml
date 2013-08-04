@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-	<template domain="ad" usernameKey="username" passwordKey="password_clear" emailKey="email" nameKey="name">
-		<dn type="eval"><![CDATA[return "CN=${user['name']},OU=People,DC=shmanic,DC=net";]]></dn>
+	<template domain="ad">
+		<dn type="helper" />
+		<username type="form">username</username>
+		<password type="form">password_clear</password>
+		<email type="form">email</email>
+		<name type="form">name</name>
 		<attribute name="objectClass" type="string">top</attribute>
 		<attribute name="objectClass" type="string">person</attribute>
 		<attribute name="objectClass" type="string">organizationalPerson</attribute>
 		<attribute name="objectClass" type="string">user</attribute>
-		<attribute name="cn" type="eval"><![CDATA[return "${user['name']}";]]></attribute>
-		<attribute name="givenName" type="eval"><![CDATA[return $this->helper->getFirstname($user['name']);]]></attribute>
-		<attribute name="sn" type="eval"><![CDATA[return $this->helper->getLastname($user['name']);]]></attribute>
-		<attribute name="userPrincipalName" type="eval"><![CDATA[return "${user['username']}@shmanic.net";]]></attribute>
+		<attribute name="cn" type="form">name</attribute>
+		<attribute name="givenName" type="helper" />
+		<attribute name="sn" type="helper" />
+		<attribute name="userPrincipalName" type="helper" />
 		<attribute name="userAccountControl" type="string">512</attribute>
 	</template>
 </templates>

@@ -38,40 +38,61 @@ final class LdapCreation_Openldap
 	const UID_DEFAULT = 1001;
 
 	/**
-	 * Splits the full name using a space and returns the first section.
-	 * If no space is detected, then the whole name is returned.
+	 * Returns the distinguished name.
 	 *
-	 * @param   string  $name  Full name.
+	 * @param   array  $form  Registration form.
 	 *
-	 * @return  string  First name.
+	 * @return  string  Distinguished name.
 	 *
 	 * @since   2.0
 	 */
-	public function getFirstname($name)
+	public function getMandatoryDN($form)
 	{
-		if ($pos = strrpos($name, ' '))
-		{
-			// Space detected therefore return first section.
-			return substr($name, 0, $pos);
-		}
+		$username = SHLdapHelper::escape($form['username'], true);
 
-		return $name;
+		return "uid={$username},ou=People,dc=shmanic,dc=net";
 	}
 
 	/**
-	 * Splits the full name using a space and returns the last section.
-	 * If no space is detected, then the whole name is returned.
+	 * Returns the givenName.
 	 *
-	 * @param   string  $name  Full name.
+	 * @param   array  $form  Registration form.
 	 *
-	 * @return  string  Last name.
+	 * @return  string  Given name.
 	 *
 	 * @since   2.0
 	 */
-	public function getLastname($name)
+	public function getGivenName($form)
 	{
-		// Get the last name (if no space then return whole name)
-		return substr($name, strrpos($name, ' ') + 1);
+		return $this->genFirstname($form['name']);
+	}
+
+	/**
+	 * Returns the sn.
+	 *
+	 * @param   array  $form  Registration form.
+	 *
+	 * @return  string  sn
+	 *
+	 * @since   2.0
+	 */
+	public function getSn($form)
+	{
+		return $this->genLastname($form['name']);
+	}
+
+	/**
+	 * Returns the homeDirectory.
+	 *
+	 * @param   array  $form  Registration form.
+	 *
+	 * @return  string  homeDirectory.
+	 *
+	 * @since   2.0
+	 */
+	public function getHomeDirectory($form)
+	{
+		return "/home/{$form['username']}";
 	}
 
 	/**
@@ -118,5 +139,58 @@ final class LdapCreation_Openldap
 		}
 
 		return $uid;
+	}
+
+	/**
+	 * Splits the full name using a space and returns the first section.
+	 * If no space is detected, then the whole name is returned.
+	 *
+	 * @param   string  $name  Full name.
+	 *
+	 * @return  string  First name.
+	 *
+	 * @since   2.0
+	 */
+	protected function genFirstname($name)
+	{
+		if ($pos = strrpos($name, ' '))
+		{
+			// Space detected therefore return first section.
+			return substr($name, 0, $pos);
+		}
+
+		return $name;
+	}
+
+	/**
+	 * Splits the full name using a space and returns the last section.
+	 * If no space is detected, then the whole name is returned.
+	 *
+	 * @param   string  $name  Full name.
+	 *
+	 * @return  string  Last name.
+	 *
+	 * @since   2.0
+	 */
+	protected function genLastname($name)
+	{
+		// Get the last name (if no space then return whole name)
+		return substr($name, strrpos($name, ' ') + 1);
+	}
+
+	/**
+	 * Method is called after the user is created in LDAP. This can be used to run external
+	 * scripts (such as creating home directories) and/or adding groups to the new user.
+	 *
+	 * @param   array          $user        Values directly from the user registration form.
+	 * @param   array          $attributes  The attributes passed to the LDAP server for creation.
+	 * @param   SHUserAdapter  $adapter     The user adapter object.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onAfterCreation($user, $attributes, $adapter)
+	{
 	}
 }

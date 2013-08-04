@@ -13,7 +13,7 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * LDAP creation helper file.
+ * LDAP creation helper file for Active Directory.
  *
  * @package     Shmanic.Examples
  * @subpackage  Ldap
@@ -21,6 +21,64 @@ defined('JPATH_PLATFORM') or die;
  */
 final class LdapCreation_AD
 {
+	/**
+	 * Returns the distinguished name.
+	 *
+	 * @param   array  $form  Registration form.
+	 *
+	 * @return  string  Distinguished name.
+	 *
+	 * @since   2.0
+	 */
+	public function getMandatoryDN($form)
+	{
+		$name = SHLdapHelper::escape($form['name'], true);
+
+		return "CN={$name},OU=People,DC=shmanic,DC=net";
+	}
+
+	/**
+	 * Returns the first name.
+	 *
+	 * @param   array  $form  Registration form.
+	 *
+	 * @return  string  Last name.
+	 *
+	 * @since   2.0
+	 */
+	public function getGivenName($form)
+	{
+		return $this->genFirstname($form['name']);
+	}
+
+	/**
+	 * Returns the last name.
+	 *
+	 * @param   array  $form  Registration form.
+	 *
+	 * @return  string  Last name.
+	 *
+	 * @since   2.0
+	 */
+	public function getSn($form)
+	{
+		return $this->genLastname($form['name']);
+	}
+
+	/**
+	 * Returns the correct userPrincipalName.
+	 *
+	 * @param   array  $form  Registration form.
+	 *
+	 * @return  string  userPrincipalName.
+	 *
+	 * @since   2.0
+	 */
+	public function getUserPrincipalName($form)
+	{
+		return $form['username'] . '@shmanic.net';
+	}
+
 	/**
 	 * Splits the full name using a space and returns the first section.
 	 * If no space is detected, then the whole name is returned.
@@ -31,7 +89,7 @@ final class LdapCreation_AD
 	 *
 	 * @since   2.0
 	 */
-	public function getFirstname($name)
+	protected function genFirstname($name)
 	{
 		if ($pos = strrpos($name, ' '))
 		{
@@ -52,9 +110,25 @@ final class LdapCreation_AD
 	 *
 	 * @since   2.0
 	 */
-	public function getLastname($name)
+	protected function genLastname($name)
 	{
 		// Get the last name (if no space then return whole name)
 		return substr($name, strrpos($name, ' ') + 1);
+	}
+
+	/**
+	 * Method is called after the user is created in LDAP. This can be used to run external
+	 * scripts (such as creating home directories) and/or adding groups to the new user.
+	 *
+	 * @param   array          $form        Values directly from the user registration form.
+	 * @param   array          $attributes  The attributes passed to the LDAP server for creation.
+	 * @param   SHUserAdapter  $adapter     The user adapter object.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onAfterCreation($form, $attributes, $adapter)
+	{
 	}
 }
