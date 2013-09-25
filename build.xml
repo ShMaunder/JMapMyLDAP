@@ -122,6 +122,12 @@ CentOS/RHEL: yum install xmlstarlet
 		</phingcall>
 		
 		<phingcall target="build">
+			<property name="extension.path" value="plugins/sso/dummy" />
+			<property name="manifest" value="dummy.xml" />
+			<property name="manifest.use" value="1" />
+		</phingcall>
+
+		<phingcall target="build">
 			<property name="extension.path" value="plugins/sso/edirldap" />
 			<property name="manifest" value="edirldap.xml" />
 			<property name="manifest.use" value="1" />
