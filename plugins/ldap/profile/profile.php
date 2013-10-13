@@ -354,6 +354,28 @@ class PlgLdapProfile extends JPlugin
 				$showForm = false;
 			}
 		}
+		elseif (!JFactory::getUser()->guest)
+		{
+			/*
+			 * Sometimes the $data variable is not populated even when an edit is required.
+			 * This means we have to check the form post data directly for the user ID.
+			 * We do not worry about frontend registrations as we check for guest.
+			 * If there is no form posted then this could be a backend registration.
+			 */
+			if ($inForm = JFactory::getApplication()->input->get('jform', false, 'array'))
+			{
+				$id = JArrayHelper::getValue($inForm, 'id', 0, 'int');
+
+				if (SHLdapHelper::isUserLdap($id))
+				{
+					$domain = SHUserHelper::getDomainParam($id);
+				}
+				else
+				{
+					$showForm = false;
+				}
+			}
+		}
 
 		if ($showForm)
 		{
