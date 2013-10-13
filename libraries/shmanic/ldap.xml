@@ -4,12 +4,12 @@
 	<libraryname>shmanic</libraryname>
 	<author>Shaun Maunder</author>
 	<creationDate>September 2011</creationDate>
-	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.70</version>
-	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
+	<version></version>
+	<buildDate></buildDate>
 	<description>LIB_SHMANIC_LDAP_XML_DESCRIPTION</description>
 	<build>
 		<folder>ldap</folder>

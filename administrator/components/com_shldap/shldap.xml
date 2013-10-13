@@ -4,10 +4,11 @@
 	<author>Shaun Maunder</author>
 	<creationDate>May 2013</creationDate>
 	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
-	<license>GNU General Public License version 2 or later; see	LICENSE.txt</license>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.70</version>
+	<version></version>
+	<buildDate></buildDate>
 	<description>COM_SHLDAP_XML_DESCRIPTION</description>
 	
 	<install>

@@ -3,12 +3,12 @@
 	<name>plg_shlog_sso</name>
 	<author>Shaun Maunder</author>
 	<creationDate>August 2011</creationDate>
-	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.50</version>
-	<buildDate>Mon Mar 19 18:00:17 GMT 2012</buildDate>
+	<version></version>
+	<buildDate></buildDate>
 	<description>PLG_SHLOG_SSO_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="sso">sso.php</filename>

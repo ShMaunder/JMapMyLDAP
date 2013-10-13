@@ -3,11 +3,11 @@
 	<name>mod_shldap_login</name>
 	<author>Shaun Maunder</author>
 	<creationDate>July 2012</creationDate>
-	<copyright>Copyright (C) 2012 Shaun Maunder. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.70</version>
+	<version></version>
 	<buildDate></buildDate>
 	<description>MOD_SHLDAP_LOGIN_XML_DESCRIPTION</description>
 	<files>
@@ -22,101 +22,47 @@
 		<language tag="en-GB">language/en-GB/en-GB.mod_shldap_login.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.mod_shldap_login.sys.ini</language>
 	</languages>
-	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_LOGIN" />
+	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_LOGIN"/>
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="pretext" type="textarea"
-					filter="safehtml"
-					cols="30"
-					rows="5"
-					label="MOD_SHLDAP_LOGIN_FIELD_PRE_TEXT_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_PRE_TEXT_DESC" 
-				/>
-				<field name="posttext" type="textarea"
-					filter="safehtml"
-					cols="30"
-					rows="5"
-					label="MOD_SHLDAP_LOGIN_FIELD_POST_TEXT_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_POST_TEXT_DESC" 
-				/>
-				<field name="login" type="menuitem"
-					disable="separator"
-					label="MOD_SHLDAP_LOGIN_FIELD_LOGIN_REDIRECTURL_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_LOGIN_REDIRECTURL_DESC" 
-				>
+				<field name="pretext" type="textarea" filter="safehtml" cols="30" rows="5" label="MOD_SHLDAP_LOGIN_FIELD_PRE_TEXT_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_PRE_TEXT_DESC"/>
+				<field name="posttext" type="textarea" filter="safehtml" cols="30" rows="5" label="MOD_SHLDAP_LOGIN_FIELD_POST_TEXT_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_POST_TEXT_DESC"/>
+				<field name="login" type="menuitem" disable="separator" label="MOD_SHLDAP_LOGIN_FIELD_LOGIN_REDIRECTURL_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_LOGIN_REDIRECTURL_DESC">
 					<option value="">JDEFAULT</option>
 				</field>
-				<field name="logout" type="menuitem"
-					disable="separator"
-					label="MOD_SHLDAP_LOGIN_FIELD_LOGOUT_REDIRECTURL_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_LOGOUT_REDIRECTURL_DESC" 
-				>
+				<field name="logout" type="menuitem" disable="separator" label="MOD_SHLDAP_LOGIN_FIELD_LOGOUT_REDIRECTURL_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_LOGOUT_REDIRECTURL_DESC">
 					<option value="">JDEFAULT</option>
 				</field>
-				<field name="greeting" type="radio"
-					default="1"
-					label="MOD_SHLDAP_LOGIN_FIELD_GREETING_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_GREETING_DESC"
-				>
+				<field name="greeting" type="radio" default="1" label="MOD_SHLDAP_LOGIN_FIELD_GREETING_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_GREETING_DESC">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="name" type="list"
-					default="0"
-					label="MOD_SHLDAP_LOGIN_FIELD_NAME_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_NAME_DESC"
-				>
+				<field name="name" type="list" default="0" label="MOD_SHLDAP_LOGIN_FIELD_NAME_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_NAME_DESC">
 					<option value="0">MOD_SHLDAP_LOGIN_VALUE_NAME</option>
 					<option value="1">MOD_SHLDAP_LOGIN_VALUE_USERNAME</option>
 				</field>
-				<field name="usesecure" type="radio"
-					default="0"
-					label="MOD_SHLDAP_LOGIN_FIELD_USESECURE_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_USESECURE_DESC"
-				>
+				<field name="usesecure" type="radio" default="0" label="MOD_SHLDAP_LOGIN_FIELD_USESECURE_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_USESECURE_DESC">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
-				<field name="usetext" type="list"
-					default="0"
-					label="MOD_SHLDAP_LOGIN_FIELD_USETEXT_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_USETEXT_DESC"
-				>
+				<field name="usetext" type="list" default="0" label="MOD_SHLDAP_LOGIN_FIELD_USETEXT_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_USETEXT_DESC">
 					<option value="0">MOD_SHLDAP_LOGIN_VALUE_ICONS</option>
 					<option value="1">MOD_SHLDAP_LOGIN_VALUE_TEXT</option>
 				</field>
 				<field name="spacer1" type="spacer" hr="true"/>
-				<field name="forcedomain" type="sh.ldapdomain"
-					default="0"
-					label="MOD_SHLDAP_LOGIN_FIELD_FORCEDOMAIN_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_FORCEDOMAIN_DESC"
-				>
+				<field name="forcedomain" type="sh.ldapdomain" default="0" label="MOD_SHLDAP_LOGIN_FIELD_FORCEDOMAIN_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_FORCEDOMAIN_DESC">
 					<option value="0">JNONE</option>
 				</field>
-				<field name="hidedomain" type="radio"
-					default="0"
-					label="MOD_SHLDAP_LOGIN_FIELD_HIDEDOMAIN_LABEL"
-					description="MOD_SHLDAP_LOGIN_FIELD_HIDEDOMAIN_DESC"
-				>
+				<field name="hidedomain" type="radio" default="0" label="MOD_SHLDAP_LOGIN_FIELD_HIDEDOMAIN_LABEL" description="MOD_SHLDAP_LOGIN_FIELD_HIDEDOMAIN_DESC">
 					<option value="0">JNo</option>
 					<option value="1">JYes</option>
 				</field>
 			</fieldset>
 			<fieldset name="advanced">
-				<field name="layout" type="modulelayout"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					description="JFIELD_ALT_MODULE_LAYOUT_DESC" 
-				/>
-				<field name="moduleclass_sfx" type="text"
-					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
-					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" 
-				/>
-				<field name="cache" type="list"
-					default="0"
-					label="COM_MODULES_FIELD_CACHING_LABEL"
-					description="COM_MODULES_FIELD_CACHING_DESC"
-				>
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC"/>
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"/>
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
 					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
 				</field>
 			</fieldset>

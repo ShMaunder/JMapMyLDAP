@@ -7,7 +7,8 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>1.0.9</version>
+	<version></version>
+	<buildDate></buildDate>
 	<description>PLG_SSO_DUMMY_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="dummy">dummy.php</filename>
@@ -20,27 +21,13 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="username" type="text" 
-					size="20" 
-					default="shaun" 
-					label="PLG_DUMMY_FIELD_USERNAME_LABEL" 
-					description="PLG_DUMMY_FIELD_USERNAME_DESC" 
-				/>
+				<field name="username" type="text" size="20" default="shaun" label="PLG_DUMMY_FIELD_USERNAME_LABEL" description="PLG_DUMMY_FIELD_USERNAME_DESC"/>
 							
-				<field name="ip_rule" type="list"
-					default="allowall"
-					description="PLG_DUMMY_FIELD_IPRULE_DESC"
-					label="PLG_DUMMY_FIELD_IPRULE_LABEL"
-				>
+				<field name="ip_rule" type="list" default="allowall" description="PLG_DUMMY_FIELD_IPRULE_DESC" label="PLG_DUMMY_FIELD_IPRULE_LABEL">
 					<option value="allowall">PLG_DUMMY_FIELD_IPRULE_ALLOW</option>
 					<option value="denyall">PLG_DUMMY_FIELD_IPRULE_DENY</option>
 				</field>
-				<field name="ip_list" type="textarea" 
-					default="" 
-					cols="30" rows="10" 
-					label="PLG_DUMMY_FIELD_IPLIST_LABEL" 
-					description="PLG_DUMMY_FIELD_IPLIST_DESC"
-				/>
+				<field name="ip_list" type="textarea" default="" cols="30" rows="10" label="PLG_DUMMY_FIELD_IPLIST_LABEL" description="PLG_DUMMY_FIELD_IPLIST_DESC"/>
 			</fieldset>
 		</fields>
 	</config>

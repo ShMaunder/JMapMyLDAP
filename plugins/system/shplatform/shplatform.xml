@@ -3,12 +3,12 @@
 	<name>plg_system_shplatform</name>
 	<author>Shaun Maunder</author>
 	<creationDate>August 2011</creationDate>
-	<copyright>Copyright (C) 2011 Shaun Maunder. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
-	<version>2.0.0.70</version>
-	<buildDate>Wed Mar 21 18:09:54 GMT 2012</buildDate>
+	<version></version>
+	<buildDate></buildDate>
 	<description>PLG_SYSTEM_SHPLATFORM_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="shplatform">shplatform.php</filename>
@@ -21,13 +21,7 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="log_group" type="text"
-					description="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_DESC"
-					label="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_LABEL"
-					default="shlog"
-					size="20"
-					required="true"
-				/>
+				<field name="log_group" type="text" description="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_DESC" label="PLG_SYSTEM_SHPLATFORM_FIELD_LOG_GROUP_LABEL" default="shlog" size="20" required="true"/>
 			</fieldset>
 		</fields>
 	</config>
