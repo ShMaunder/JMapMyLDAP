@@ -419,8 +419,6 @@ class SHLdapEventBouncer extends JEvent
 		// Allow Ldap events to be called
 		$this->isLdap = true;
 
-
-
 		return true;
 	}
 
