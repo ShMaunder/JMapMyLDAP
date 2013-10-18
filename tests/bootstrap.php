@@ -56,6 +56,10 @@ if (!defined('JPATH_THEMES'))
 {
 	define('JPATH_THEMES', JPATH_BASE . '/themes');
 }
+if (!defined('JPATH_LIBRARIES'))
+{
+	define('JPATH_LIBRARIES', JPATH_ROOT . '/libraries');
+}
 
 // Import the platform.
 require_once JPATH_PLATFORM . '/import.php';
