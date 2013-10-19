@@ -4,6 +4,8 @@
  * Due to a lack of sqlite driver in 2.5.x series, we have to use a real
  * sql database. Totally uncool!
  *
+ * These tests are forced to use MySQLI (the currently only supported database)
+ *
  * @package    Joomla.Test
  *
  * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
@@ -26,6 +28,8 @@ abstract class TestCaseDatabase extends PHPUnit_Extensions_Database_TestCase
 	public static $database;
 
 	public static $dbo;
+
+	private static $options = array('driver' => 'mysqli');
 
 	/**
 	 * @var factoryState
@@ -60,26 +64,52 @@ abstract class TestCaseDatabase extends PHPUnit_Extensions_Database_TestCase
 		jimport('joomla.database.database');
 		jimport('joomla.database.table');
 
-		// Load the config if available.
-		if (class_exists('JTestConfig'))
+		// First let's look to see if we have a DSN defined or in the environment variables.
+		if (defined('JTEST_DATABASE_MYSQLI_DSN') || getenv('JTEST_DATABASE_MYSQLI_DSN'))
 		{
-			$config = new JTestConfig;
+			$dsn = defined('JTEST_DATABASE_MYSQLI_DSN') ? JTEST_DATABASE_MYSQLI_DSN : getenv('JTEST_DATABASE_MYSQLI_DSN');
+		}
+		else
+		{
+			return;
+		}
+
+		// First let's trim the mysql: part off the front of the DSN if it exists.
+		if (strpos($dsn, 'mysql:') === 0)
+		{
+			$dsn = substr($dsn, 6);
+		}
+
+		// Split the DSN into its parts over semicolons.
+		$parts = explode(';', $dsn);
+
+		// Parse each part and populate the options array.
+		foreach ($parts as $part)
+		{
+			list ($k, $v) = explode('=', $part, 2);
+
+			switch ($k)
+			{
+				case 'host':
+					self::$options['host'] = $v;
+					break;
+				case 'dbname':
+					self::$options['database'] = $v;
+					break;
+				case 'user':
+					self::$options['user'] = $v;
+					break;
+				case 'pass':
+					self::$options['password'] = $v;
+					break;
+			}
 		}
 
 		if (!is_object(self::$dbo))
 		{
-			$options = array (
-				'driver' => isset ($config) ? $config->dbtype : 'mysql',
-				'host' => isset ($config) ? $config->host : '127.0.0.1',
-				'user' => isset ($config) ? $config->user : 'ut',
-				'password' => isset ($config) ? $config->password : 'ut1234',
-				'database' => isset ($config) ? $config->db : 'jmml_ut',
-				'prefix' => isset ($config) ? $config->dbprefix : 'jos_'
-			);
-
 			try
 			{
-				self::$dbo = JDatabase::getInstance($options);
+				self::$dbo = JDatabase::getInstance(self::$options);
 			}
 			catch (Exception $e)
 			{
@@ -210,28 +240,15 @@ abstract class TestCaseDatabase extends PHPUnit_Extensions_Database_TestCase
 	 */
 	protected function getConnection()
 	{
-		// Load the config if available.
-		if (class_exists('JTestConfig'))
-		{
-			$config = new JTestConfig;
-		}
+		$dsn = 'mysql:host=' . self::$options['host'] . ';dbname=' . self::$options['database'];
 
-		$options = array (
-			'driver' => ((isset ($config)) && ($config->dbtype != 'mysqli')) ? $config->dbtype : 'mysql',
-			'host' => isset ($config) ? $config->host : '127.0.0.1',
-			'user' => isset ($config) ? $config->user : 'ut',
-			'password' => isset ($config) ? $config->password : 'ut1234',
-			'database' => isset ($config) ? $config->db : 'jmml_ut',
-			'prefix' => isset ($config) ? $config->dbprefix : 'jos_'
-		);
-
-		$pdo = new PDO($options['driver'].':host='.$options['host'].';dbname='.$options['database'], $options['user'], $options['password']);
+		$pdo = new PDO($dsn, self::$options['user'], self::$options['password']);
 
 		// Try to load the Test Schema
 		$pdo->exec(file_get_contents(JPATH_TESTS . '/schema/shplatform.sql'));
 		$pdo->exec(file_get_contents(JPATH_TESTS . '/schema/shldap.sql'));
 
-		return $this->createDefaultDBConnection($pdo, $options['database']);
+		return $this->createDefaultDBConnection($pdo, self::$options['database']);
 	}
 	/**
 	 * Gets the data set to be loaded into the database during setup
