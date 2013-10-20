@@ -109,7 +109,14 @@ abstract class TestCaseDatabase extends PHPUnit_Extensions_Database_TestCase
 		{
 			try
 			{
-				self::$dbo = JDatabase::getInstance(self::$options);
+				if (class_exists('JDatabaseDriver'))
+				{
+					self::$dbo = JDatabaseDriver::getInstance(self::$options);
+				}
+				else
+				{
+					self::$dbo = JDatabase::getInstance(self::$options);
+				}
 			}
 			catch (Exception $e)
 			{
