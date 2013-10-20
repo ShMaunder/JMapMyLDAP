@@ -21,4 +21,8 @@
 		<filename>clear_db_passwords.php</filename>
 		<filename>cli_shmanic_ldap.xml</filename>
 	</build>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.files_cli_shmanic_ldap.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.files_cli_shmanic_ldap.sys.ini</language>
+	</languages>
 </extension>

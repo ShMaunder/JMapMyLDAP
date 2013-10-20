@@ -41,9 +41,9 @@ ini_set('display_errors', 1);
 $lang = JFactory::getLanguage();
 
 // Try the Shmanic LDAP file in the current language (without allowing the loading of the file in the default language)
-$lang->load('shmanic_ldap', JPATH_SITE, null, false, false)
+$lang->load('files_cli_shmanic_ldap', JPATH_SITE, null, false, false)
 // Fallback to the Shmanic LDAP file in the default language
-|| $lang->load('shmanic_ldap', JPATH_SITE, null, true);
+|| $lang->load('files_cli_shmanic_ldap', JPATH_SITE, null, true);
 
 // Get the Shmanic platform and Ldap libraries.
 require_once JPATH_PLATFORM . '/shmanic/import.php';
@@ -75,13 +75,13 @@ class LdapCron extends JApplicationCli
 		// It appears we have to tell the system we are running with the site otherwise bad things happen
 		JFactory::getApplication('site');
 
-		$this->out(JText::_('CLI_LDAP_INFO_13001'));
+		$this->out(JText::_('CLI_SHMANIC_LDAP_INFO_13001'));
 
 		// Get all the valid configurations
 		if (!$configs = SHLdapHelper::getConfig())
 		{
 			// Failed to find any Ldap configs
-			$this->out(JText::_('CLI_LDAP_ERR_13003'));
+			$this->out(JText::_('CLI_SHMANIC_LDAP_ERR_13003'));
 			$this->close(1);
 		}
 
@@ -96,7 +96,7 @@ class LdapCron extends JApplicationCli
 		}
 
 		$count = count($configs);
-		$this->out(JText::sprintf('CLI_LDAP_INFO_13002', $count))->out();
+		$this->out(JText::sprintf('CLI_SHMANIC_LDAP_INFO_13002', $count))->out();
 
 		// Loop around each LDAP configuration
 		foreach ($configs as $config)
@@ -110,7 +110,7 @@ class LdapCron extends JApplicationCli
 				if (!$ldap->authenticate(SHLdap::AUTH_PROXY))
 				{
 					// Something is wrong with this LDAP configuration - cannot bind to proxy user
-					$errors[] = new Exception(JText::sprintf('CLI_LDAP_ERR_13011', $ldap->info), 13011);
+					$errors[] = new Exception(JText::sprintf('CLI_SHMANIC_LDAP_ERR_13011', $ldap->info), 13011);
 					unset($ldap);
 
 					continue;
@@ -120,7 +120,7 @@ class LdapCron extends JApplicationCli
 				if (!$result = $ldap->search(null, $ldap->allUserFilter, array('dn', $ldap->keyUid)))
 				{
 					// Failed to search for all users in the directory
-					$errors[] = new Exception(JText::sprintf('CLI_LDAP_ERR_13012', $ldap->getErrorMsg()), 13012);
+					$errors[] = new Exception(JText::sprintf('CLI_SHMANIC_LDAP_ERR_13012', $ldap->getErrorMsg()), 13012);
 					unset($ldap);
 
 					continue;
@@ -142,7 +142,7 @@ class LdapCron extends JApplicationCli
 						{
 							if (in_array($username, $blacklist))
 							{
-								throw new RuntimeException(JText::_('CLI_LDAP_ERR_13025'), 13025);
+								throw new RuntimeException(JText::_('CLI_SHMANIC_LDAP_ERR_13025'), 13025);
 							}
 						}
 
@@ -155,7 +155,7 @@ class LdapCron extends JApplicationCli
 							continue;
 						}
 
-						$this->out(JText::sprintf('CLI_LDAP_INFO_13020', $username));
+						$this->out(JText::sprintf('CLI_SHMANIC_LDAP_INFO_13020', $username));
 
 						// Get the Ldap user attributes
 						$source = $adapter->getAttributes();
@@ -174,7 +174,7 @@ class LdapCron extends JApplicationCli
 						if (empty($email))
 						{
 							// Email doesnt exist; cannot proceed
-							throw new Exception(JText::_('CLI_LDAP_ERR_13022'), 13022);
+							throw new Exception(JText::_('CLI_SHMANIC_LDAP_ERR_13022'), 13022);
 						}
 
 						// Create the user array to enable creating a JUser object
@@ -192,7 +192,7 @@ class LdapCron extends JApplicationCli
 						if ($instance === false)
 						{
 							// Failed to get the user either due to save error or autoregister
-							throw new Exception(JText::_('CLI_LDAP_ERR_13024'), 13024);
+							throw new Exception(JText::_('CLI_SHMANIC_LDAP_ERR_13024'), 13024);
 						}
 
 						// Fire the Ldap specific on Sync feature
@@ -205,12 +205,12 @@ class LdapCron extends JApplicationCli
 							SHUserHelper::save($instance);
 
 							// Above should throw an exception on error so therefore we can report success
-							$this->out(JText::sprintf('CLI_LDAP_INFO_13029', $username));
+							$this->out(JText::sprintf('CLI_SHMANIC_LDAP_INFO_13029', $username));
 							++$success;
 						}
 						else
 						{
-							throw new Exception(JText::_('CLI_LDAP_ERR_13026'), 13026);
+							throw new Exception(JText::_('CLI_SHMANIC_LDAP_ERR_13026'), 13026);
 						}
 
 						unset($adapter);
@@ -219,20 +219,20 @@ class LdapCron extends JApplicationCli
 					{
 						unset($adapter);
 						++$failed;
-						$errors[] = new Exception(JText::sprintf('CLI_LDAP_ERR_13028', $username, $e->getMessage()), $e->getCode());
+						$errors[] = new Exception(JText::sprintf('CLI_SHMANIC_LDAP_ERR_13028', $username, $e->getMessage()), $e->getCode());
 					}
 				}
 			}
 			catch (Exception $e)
 			{
-				$errors[] = new Exception(JText::_('CLI_LDAP_ERR_13004'), 13004);
+				$errors[] = new Exception(JText::_('CLI_SHMANIC_LDAP_ERR_13004'), 13004);
 			}
 		}
 
 		// Print out some results and stats
-		$this->out()->out()->out(JText::_('CLI_LDAP_INFO_13032'))->out();
+		$this->out()->out()->out(JText::_('CLI_SHMANIC_LDAP_INFO_13032'))->out();
 
-		$this->out(JText::_('CLI_LDAP_INFO_13038'));
+		$this->out(JText::_('CLI_SHMANIC_LDAP_INFO_13038'));
 
 		foreach ($errors as $error)
 		{
@@ -246,8 +246,8 @@ class LdapCron extends JApplicationCli
 			}
 		}
 
-		$this->out()->out(JText::sprintf('CLI_LDAP_INFO_13034', $success));
-		$this->out(JText::sprintf('CLI_LDAP_INFO_13036', $failed));
+		$this->out()->out(JText::sprintf('CLI_SHMANIC_LDAP_INFO_13034', $success));
+		$this->out(JText::sprintf('CLI_SHMANIC_LDAP_INFO_13036', $failed));
 		$this->out()->out('============================');
 	}
 }
