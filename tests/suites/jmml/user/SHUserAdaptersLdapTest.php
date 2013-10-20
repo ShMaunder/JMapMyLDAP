@@ -1,6 +1,6 @@
 <?php
 
-class SHLUserAdaptersLdapTest extends PHPUnit_Framework_TestCase
+class SHUserAdaptersLdapTest extends TestCase
 {
 	const PLATFORM_CONFIG_FILE = 'platform_config.php';
 
@@ -14,6 +14,8 @@ class SHLUserAdaptersLdapTest extends PHPUnit_Framework_TestCase
 		// Create some files
 		TestsHelper::createPlatformConfigFile(1, static::PLATFORM_CONFIG_FILE);
 		TestsHelper::createLdapConfigFile(214, static::LDAP_CONFIG_FILE);
+
+		parent::setUp();
 	}
 
 	public function tearDown()
