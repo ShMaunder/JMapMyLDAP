@@ -32,6 +32,7 @@ class TestMockApplication
 			'getIdentity',
 			'getRouter',
 			'getTemplate',
+			'getClientId',
 		);
 
 		// Create the mock.
@@ -47,6 +48,9 @@ class TestMockApplication
 		);
 
 		$mockObject->input = new JInput;
+
+		// Not running in a site or backend
+		$mockObject->expects($test->any())->method('getClientId')->will($test->returnValue(2));
 
 		return $mockObject;
 	}
