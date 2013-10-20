@@ -19,6 +19,6 @@
 	<build>
 		<filename>ldap_cron.php</filename>
 		<filename>clear_db_passwords.php</filename>
-		<filename>ldap.xml</filename>
+		<filename>cli_shmanic_ldap.xml</filename>
 	</build>
 </extension>

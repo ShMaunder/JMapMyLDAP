@@ -33,7 +33,7 @@
 		<filename>factory.php</filename>
 		<filename>import.php</filename>
 		<filename>loader.php</filename>
-		<filename>platform.xml</filename>
+		<filename>lib_shmanic_platform.xml</filename>
 	</build>
 	<files>
 		<folder>exception</folder>

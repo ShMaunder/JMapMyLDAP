@@ -31,7 +31,7 @@
 		<filename>ldap/ldap.php</filename>
 		<filename>ldap/result.php</filename>
 		<filename>user/adapters/ldap.php</filename>
-		<filename>ldap.xml</filename>
+		<filename>lib_shmanic_ldap.xml</filename>
 	</build>
 	<files>
 		<folder>ldap</folder>

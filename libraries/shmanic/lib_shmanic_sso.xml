@@ -18,7 +18,7 @@
 		<filename>sso/helper.php</filename>
 		<filename>sso/monitor.php</filename>
 		<filename>sso/sso.php</filename>
-		<filename>sso.xml</filename>
+		<filename>lib_shmanic_sso.xml</filename>
 	</build>
 	<files>
 		<folder>sso</folder>
