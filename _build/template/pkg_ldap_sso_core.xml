@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>Shmanic LDAP and SSO Core Package</name>
+	<name>pkg_ldap_sso_core</name>
 	<packagename>ldap_sso_core</packagename>
 	<version></version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
@@ -8,7 +8,7 @@
 	<author>Shaun Maunder</author>
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_sso_core.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>Shmanic LDAP and SSO Core package containing basic LDAP and SSO libraries and components. Dedicated LDAP and SSO plugins can be installed to extend functionality.</description>
+	<description>PKG_LDAP_SSO_CORE_DESCRIPTION</description>
 	<files>
 		<!-- <file type="component" id="com_shsso">com_shsso.zip</file> -->
 		<file type="component" id="com_shldap">com_shldap.zip</file>
@@ -23,4 +23,8 @@
 		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
 		<server type="collection" priority="2" name="Shmanic SSO"><![CDATA[http://update.shmanic.com/shsso/2.0/update.xml]]></server>
 	</updateservers>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_sso_core.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_sso_core.sys.ini</language>
+	</languages>
 </extension>

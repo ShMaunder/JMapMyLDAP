@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>Shmanic Platform Package</name>
+	<name>pkg_shplatform</name>
 	<packagename>shplatform</packagename>
 	<version></version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
@@ -8,7 +8,7 @@
 	<author>Shaun Maunder</author>
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_shplatform.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>Shmanic Platform package containing a basic plugin and configuration component.</description>
+	<description>PKG_SHPLATFORM_DESCRIPTION</description>
 	<files>
 		<file type="component" id="com_shconfig">com_shconfig.zip</file>
 		<file type="library" id="lib_shmanic_platform">lib_shmanic_platform.zip</file>
@@ -17,4 +17,8 @@
 	<updateservers>
 		<server type="collection" priority="2" name="Shmanic Platform"><![CDATA[http://update.shmanic.com/shplatform/2.0/update.xml]]></server>
 	</updateservers>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_shplatform.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_shplatform.sys.ini</language>
+	</languages>
 </extension>

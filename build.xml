@@ -135,18 +135,21 @@ CentOS/RHEL: yum install xmlstarlet
 		
 		<phingcall target="build">
 			<property name="extension.path" value="libraries/shmanic" />
+			<property name="extension.name" value="lib_shmanic_platform" />
 			<property name="manifest" value="lib_shmanic_platform.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
 		
 		<phingcall target="build">
 			<property name="extension.path" value="libraries/shmanic" />
+			<property name="extension.name" value="lib_shmanic_ldap" />
 			<property name="manifest" value="lib_shmanic_ldap.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
 		
 		<phingcall target="build">
 			<property name="extension.path" value="libraries/shmanic" />
+			<property name="extension.name" value="lib_shmanic_sso" />
 			<property name="manifest" value="lib_shmanic_sso.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
@@ -206,7 +209,7 @@ CentOS/RHEL: yum install xmlstarlet
 		<property name="manifest.source" value="${template.dir}/${manifest}" />
 		<xmlproperty file="${manifest.source}" collapseAttributes="true" />
 		
-		<property name="extension.dest" value="pkg_${package.dest}/${extension.packagename}" />
+		<property name="extension.dest" value="${package.dest}/pkg_${extension.packagename}" />
 		
 		<!-- Check if the target folder exists. If not, create it -->
 		<if>
@@ -225,10 +228,29 @@ CentOS/RHEL: yum install xmlstarlet
 		<phingcall target="prep:updateXml">
 			<property name="path.xml" value="${manifest.dest}" override="true" />
 		</phingcall>
-		
+
 		<foreach list="${extension.files.file}" param="filename" target="prep:copyFiles">
 			<property name="extension.path" value="${package.dest}/packages" override="true" />
 		</foreach>
+
+		<if>
+			<isset property="extension.languages.language" />
+			<then>
+				<!-- Create the lang/en-GB strucutre for now until we have sorted out these XMLs -->
+				<if>
+					<available file="${extension.dest}/language" type="dir" />
+					<then>
+						<delete dir="${extension.dest}/language" />
+					</then>
+				</if>
+
+				<!-- TODO fix this - or just add as we go along -->
+				<mkdir dir="${extension.dest}/language" />
+				<mkdir dir="${extension.dest}/language/en-GB" />
+
+				<foreach list="${extension.languages.language}" param="lang" target="prep:copyLang" />
+			</then>
+		</if>
 
 		<!-- Switch to tell this task to make the zip files. Default is on. -->
 		<if>
@@ -450,7 +472,7 @@ CentOS/RHEL: yum install xmlstarlet
 				</then>
 			</elseif>
 		</if>
-		
+
 		<!-- Delete any existing language files at the destination -->
 		<if>
 			<available file="${lang.dest}" type="file" />
@@ -458,7 +480,7 @@ CentOS/RHEL: yum install xmlstarlet
 				<delete file="${lang.dest}" />
 			</then>
 		</if>
-		
+
 		<!-- Do the language copy -->
 		<if>
 			<isset property="lang.source" />

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="library" method="upgrade">
-	<name>lib_shmanic_sso</name>
+	<name>Shmanic SSO Library</name>
 	<libraryname>shmanic</libraryname>
 	<author>Shaun Maunder</author>
 	<creationDate>September 2011</creationDate>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>Shmanic LDAP Core Package</name>
+	<name>pkg_ldap_core</name>
 	<packagename>ldap_core</packagename>
 	<version></version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
@@ -8,7 +8,7 @@
 	<author>Shaun Maunder</author>
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_core.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>Shmanic LDAP Core package containing a basic LDAP library and component. Dedicated LDAP plugins can be installed to extend functionality.</description>
+	<description>PKG_LDAP_CORE_DESCRIPTION</description>
 	<files>
 		<file type="component" id="com_shldap">com_shldap.zip</file>
 		<file type="library" id="lib_shmanic_ldap">lib_shmanic_ldap.zip</file>
@@ -19,4 +19,8 @@
  	<updateservers>
 		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
 	</updateservers>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_core.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_core.sys.ini</language>
+	</languages>
 </extension>

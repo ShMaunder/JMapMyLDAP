@@ -9,7 +9,7 @@
 	<authorUrl>www.shmanic.com</authorUrl>
 	<version></version>
 	<buildDate></buildDate>
-	<description>Command Line Scripts for Shmanic LDAP.</description>
+	<description>CLI_SHMANIC_LDAP_DESCRIPTION</description>
 	<fileset>
 		<files target="cli">
 			<file>ldap_cron.php</file>
