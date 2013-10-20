@@ -1,17 +1,19 @@
 #!/bin/bash
 
+SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo "- Installing LDAP and Configuration -"
 DEBIAN_FRONTEND=noninteractive apt-get install -y slapd ldap-utils shelldap
 
-ldapmodify -Y EXTERNAL -H ldapi:/// -f ./ldifs/db-config.ldif
-ldapmodify -Y EXTERNAL -H ldapi:/// -f ./ldifs/activate-memberof.ldif
+ldapmodify -Y EXTERNAL -H ldapi:/// -f $SRCDIR/ldifs/db-config.ldif
+ldapmodify -Y EXTERNAL -H ldapi:/// -f $SRCDIR/ldifs/activate-memberof.ldif
 
-ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/add-ou.ldif
-ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/default-group.ldif
-ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/add-users.ldif
-ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f ./ldifs/add-groups.ldif
+ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f $SRCDIR/ldifs/add-ou.ldif
+ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f $SRCDIR/ldifs/default-group.ldif
+ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f $SRCDIR/ldifs/add-users.ldif
+ldapmodify -x -D cn=admin,dc=shmanic,dc=net -w shmanic.com -f $SRCDIR/ldifs/add-groups.ldif
 
-ldapmodify -Y EXTERNAL -H ldapi:/// -f ./ldifs/add-index.ldif
+ldapmodify -Y EXTERNAL -H ldapi:/// -f $SRCDIR/ldifs/add-index.ldif
 
 /etc/init.d/slapd stop
 

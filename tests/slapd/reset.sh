@@ -1,4 +1,6 @@
 #!/bin/bash
 
-./purge.sh
-./install.sh
+SRCDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+$SRCDIR/purge.sh
+$SRCDIR/install.sh
