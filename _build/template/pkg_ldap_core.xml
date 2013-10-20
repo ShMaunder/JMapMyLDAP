@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>JMapMyLDAP Core Package</name>
+	<name>Shmanic LDAP Core Package</name>
 	<packagename>ldap_core</packagename>
-	<version>2.0.0</version>
+	<version></version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
 	<author>Shaun Maunder</author>
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_core.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>JMapMyLDAP Core Basics Package. This package includes the basic LDAP framework. Dedicated LDAP plugins can now be installed to extend functionality.</description>
+	<description>Shmanic LDAP Core package containing a basic LDAP library and component. Dedicated LDAP plugins can be installed to extend functionality.</description>
 	<files>
 		<file type="component" id="com_shldap">com_shldap.zip</file>
 		<file type="library" id="lib_shmanic_ldap">lib_shmanic_ldap.zip</file>
@@ -17,6 +17,6 @@
 		<file type="plugin" id="ldap" group="shlog">plg_shlog_ldap.zip</file>
 	</files>
  	<updateservers>
-		<server type="collection" priority="2" name="JMapMyLDAP Updates">http://update.shmanic.com/jmapmyldap/2x/update.xml</server>
+		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
 	</updateservers>
 </extension>

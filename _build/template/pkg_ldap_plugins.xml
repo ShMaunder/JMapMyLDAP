@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension type="package" version="2.5" method="upgrade">
-	<name>JMapMyLDAP Plugins Package</name>
+	<name>Shmanic LDAP Plugins Package</name>
 	<packagename>ldap_plugins</packagename>
-	<version>2.0.0</version>
+	<version></version>
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
 	<author>Shaun Maunder</author>
 	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_plugins.zip</packagerurl>
 	<buildDate></buildDate>
-	<description>JMapMyLDAP Plugins Package.</description>
+	<description>Shmanic LDAP Plugins package containing various LDAP specific plugins.</description>
 	<files>
 		<file type="plugin" id="creation" group="ldap">plg_ldap_creation.zip</file>
 		<file type="plugin" id="deletion" group="ldap">plg_ldap_deletion.zip</file>
@@ -18,6 +18,6 @@
 		<file type="plugin" id="profile" group="ldap">plg_ldap_profile.zip</file>
 	</files>
  	<updateservers>
-		<server type="collection" priority="2" name="JMapMyLDAP Updates">http://update.shmanic.com/jmapmyldap/2x/update.xml</server>
+		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
 	</updateservers>
 </extension>
