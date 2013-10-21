@@ -326,8 +326,18 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $this->domain;
 	}
 
-	// @throws  SHLdapException
-	// TODO: implement changes parameter to include staged changes
+	/**
+	 * Return specified user attributes from LDAP.
+	 *
+	 * @param   string|array  $input    Optional string or array of attributes to return.
+	 * @param   boolean       $null     Include null or non existent values.
+	 * @param   boolean       $changes  Use the attribute changes (before change commit).
+	 *
+	 * @return  mixed  Ldap attribute results.
+	 *
+	 * @since   2.0
+	 * @throws  SHLdapException
+	 */
 	public function getAttributes($input = null, $null = false, $changes = false)
 	{
 		if (is_null($this->_dn))
