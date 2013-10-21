@@ -300,6 +300,42 @@ class SHUserAdaptersLdapTest extends TestCase
 		$this->assertEquals($user[$ldap['ldap_uid']][0], $attribute[$ldap['ldap_uid']][0]);
 	}
 
+	public function testGetAttributesChanges()
+	{
+		$ldap = TestsHelper::getLdapConfig(216);
+		$user = TestsHelper::getUserCreds();
+
+		$adapter = new SHUserAdaptersLdap($user, $ldap);
+
+		// Standard first pass
+		$attribute = $adapter->getAttributes(array($ldap['ldap_email'], $ldap['ldap_fullname']), false, false);
+		$this->assertEquals($user[$ldap['ldap_email']][0], $attribute[$ldap['ldap_email']][0]);
+		$this->assertEquals($user[$ldap['ldap_fullname']][0], $attribute[$ldap['ldap_fullname']][0]);
+
+		// Stage a change
+		$adapter->setAttributes(
+			array(
+				$ldap['ldap_email'] => array('lalalala@me.com'),
+				'description' => array('Different'),
+			)
+		);
+
+		// Check the staged change isn't returned
+		$attribute = $adapter->getAttributes(array($ldap['ldap_email'], $ldap['ldap_fullname']), false, false);
+		$this->assertEquals($user[$ldap['ldap_email']][0], $attribute[$ldap['ldap_email']][0]);
+		$this->assertEquals($user[$ldap['ldap_fullname']][0], $attribute[$ldap['ldap_fullname']][0]);
+		$this->assertArrayNotHasKey('description', $attribute);
+
+		// Return staged changes now and test
+		$attribute = $adapter->getAttributes(array($ldap['ldap_email'], $ldap['ldap_fullname']), false, true);
+		$this->assertEquals('lalalala@me.com', $attribute[$ldap['ldap_email']][0]);
+		$this->assertEquals($user[$ldap['ldap_fullname']][0], $attribute[$ldap['ldap_fullname']][0]);
+		$this->assertArrayNotHasKey('description', $attribute);
+
+		// Check a single attribute staged change
+		$attribute = $adapter->getAttributes(array('description'), false, true);
+		$this->assertEquals('Different', $attribute['description'][0]);
+	}
 
 	public function testSetAttributes1()
 	{

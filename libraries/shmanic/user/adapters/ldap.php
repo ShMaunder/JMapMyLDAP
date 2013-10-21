@@ -491,6 +491,9 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			$inputFilled = array_diff_key($inputFilled, array_flip($this->_nullAttributes));
 		}
 
+		// Include staged changes to the attributes
+		$return = $changes ? array_merge($return, $this->_changes) : $return;
+
 		// Returns only the specified inputs unless all attributes are wanted
 		return is_null($input) ? $return : array_replace($inputFilled, array_intersect_key($return, $inputFilled));
 	}
