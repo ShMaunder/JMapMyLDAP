@@ -46,6 +46,12 @@ class ShldapControllerHost extends JControllerLegacy
 	 */
 	public function debug()
 	{
+		if (!JFactory::getUser()->authorise('core.manage', 'com_shldap'))
+		{
+			JError::raiseError(500, JText::_('JERROR_ALERTNOAUTHOR'));
+			jexit();
+		}
+
 		$input = JFactory::getApplication()->input;
 		$model = $this->getModel();
 

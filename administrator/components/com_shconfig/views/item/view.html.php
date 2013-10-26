@@ -65,28 +65,27 @@ class ShconfigViewItem extends JViewLegacy
 	{
 		JFactory::getApplication()->input->set('hidemainmenu', true);
 
-		$user		= JFactory::getUser();
-		$isNew		= ($this->item->id == 0);
-		$canDo	= ShconfigHelper::getActions();
+		$user	= JFactory::getUser();
+		$isNew	= ($this->item->id == 0);
 
 		JToolBarHelper::title(JText::_('COM_SHCONFIG_MANAGER_ITEM'), '');
 
-		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
+		if (JFactory::getUser()->authorise('core.admin', 'com_shconfig'))
 		{
 			JToolBarHelper::apply('item.apply');
 			JToolBarHelper::save('item.save');
 			JToolBarHelper::save2new('item.save2new');
 
 			JToolBarHelper::divider();
+		}
 
-			if ($isNew)
-			{
-				JToolBarHelper::cancel('item.cancel');
-			}
-			else
-			{
-				JToolBarHelper::cancel('item.cancel', 'JTOOLBAR_CLOSE');
-			}
+		if ($isNew)
+		{
+			JToolBarHelper::cancel('item.cancel');
+		}
+		else
+		{
+			JToolBarHelper::cancel('item.cancel', 'JTOOLBAR_CLOSE');
 		}
 	}
 }

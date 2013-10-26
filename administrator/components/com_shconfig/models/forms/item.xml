@@ -26,7 +26,7 @@
 			label="COM_SHCONFIG_FIELD_VALUE_LABEL"
 			description="COM_SHCONFIG_FIELD_VALUE_DESC"
 			size="50"
-			required="true" 
+			required="false" 
 		/>
 	</fieldset>
 </form>

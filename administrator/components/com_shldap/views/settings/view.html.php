@@ -58,19 +58,14 @@ class ShldapViewSettings extends JViewLegacy
 	protected function addToolbar()
 	{
 		$user	= JFactory::getUser();
-		$canDo	= ComShldapHelper::getActions();
 
 		JToolBarHelper::title(JText::_('COM_SHLDAP_SETTINGS_MANAGER'), '');
 
-		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
+		if (JFactory::getUser()->authorise('core.admin', 'com_shldap'))
 		{
 			JToolBarHelper::apply('settings.apply');
-
-				if ($canDo->get('core.admin'))
-				{
-					JToolBarHelper::divider();
-					JToolBarHelper::preferences('com_shldap');
-				}
+			JToolBarHelper::divider();
+			JToolBarHelper::preferences('com_shldap');
 		}
 	}
 }

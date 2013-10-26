@@ -63,39 +63,36 @@ class ShldapViewHost extends JViewLegacy
 	{
 		JFactory::getApplication()->input->set('hidemainmenu', true);
 		$user	= JFactory::getUser();
-		$canDo	= ComShldapHelper::getActions();
 
 		JToolBarHelper::title(JText::_('COM_SHLDAP_HOST_MANAGER'), '');
 
-		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
+		$debugIcon = 'extension';
+
+		$version = new JVersion;
+
+		if ($version->isCompatible('3.0.0'))
 		{
-			$debugIcon = 'extension';
+			$debugIcon = 'checkin';
+		}
 
-			$version = new JVersion;
+		JToolBarHelper::custom('host.debug', $debugIcon, '', JText::_('COM_SHLDAP_HOST_TOOLBAR_DEBUG'), false);
+		JToolBarHelper::divider();
 
-			if ($version->isCompatible('3.0.0'))
-			{
-				$debugIcon = 'checkin';
-			}
-
-			JToolBarHelper::custom('host.debug', $debugIcon, '', JText::_('COM_SHLDAP_HOST_TOOLBAR_DEBUG'), false);
-
-			JToolBarHelper::divider();
-
+		if (JFactory::getUser()->authorise('core.admin', 'com_shldap'))
+		{
 			JToolBarHelper::apply('host.apply');
-
 			JToolBarHelper::divider();
+		}
 
-			if ($this->id)
-			{
-				// Is Existing
-				JToolBarHelper::cancel('host.cancel', 'JTOOLBAR_CLOSE');
-			}
-			else
-			{
-				// Is New
-				JToolBarHelper::cancel('host.cancel');
-			}
+		if ($this->id)
+		{
+			// Is Existing
+			JToolBarHelper::cancel('host.cancel', 'JTOOLBAR_CLOSE');
+		}
+		else
+		{
+			// Is New
+			JToolBarHelper::cancel('host.cancel');
 		}
 	}
 }

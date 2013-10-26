@@ -64,11 +64,10 @@ class ShconfigViewItems extends JViewLegacy
 	protected function addToolbar()
 	{
 		$state	= $this->get('State');
-		$canDo	= ShconfigHelper::getActions();
 
 		JToolBarHelper::title(JText::_('COM_SHCONFIG_MANAGER_ITEMS'), '');
 
-		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
+		if (JFactory::getUser()->authorise('core.admin', 'com_shconfig'))
 		{
 			JToolBarHelper::addNew('item.add');
 			JToolBarHelper::editList('item.edit');
@@ -76,10 +75,7 @@ class ShconfigViewItems extends JViewLegacy
 			JToolBarHelper::deleteList('', 'items.delete');
 			JToolBarHelper::divider();
 
-			if ($canDo->get('core.admin'))
-			{
-				JToolBarHelper::preferences('com_shconfig');
-			}
+			JToolBarHelper::preferences('com_shconfig');
 		}
 	}
 }

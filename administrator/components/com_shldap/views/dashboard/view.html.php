@@ -63,11 +63,9 @@ class ShldapViewDashboard extends JViewLegacy
 	 */
 	protected function addToolbar()
 	{
-		$canDo	= ComShldapHelper::getActions();
-
 		JToolBarHelper::title(JText::_('COM_SHLDAP_DASHBOARD_MANAGER'), '');
 
-		if ($canDo->get('core.admin'))
+		if (JFactory::getUser()->authorise('core.admin', 'com_shldap'))
 		{
 			JToolBarHelper::preferences('com_shldap');
 		}

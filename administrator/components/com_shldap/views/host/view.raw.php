@@ -36,10 +36,10 @@ class ShldapViewHost extends JViewLegacy
 	 */
 	public function display($tpl = null)
 	{
-		$this->form = $this->get('Form');
+			$this->form = $this->get('Form');
 
-		$this->debug = $this->get('DebugParams');
+			$this->debug = $this->get('DebugParams');
 
-		parent::display($tpl);
+			parent::display($tpl);
 	}
 }

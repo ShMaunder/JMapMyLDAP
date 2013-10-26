@@ -38,4 +38,24 @@ class ShconfigControllerItems extends JControllerAdmin
 	{
 		return parent::getModel($name, $prefix, $config);
 	}
+
+	/**
+	* Removes an item.
+	*
+	* Overrides JControllerAdmin::delete to check the core.admin permission.
+	*
+	* @return  void
+	*
+	* @since   2.0
+	*/
+	public function delete()
+	{
+		if (!JFactory::getUser()->authorise('core.admin', $this->option))
+		{
+			JError::raiseError(500, JText::_('JERROR_ALERTNOAUTHOR'));
+			jexit();
+		}
+
+		return parent::delete();
+	}
 }

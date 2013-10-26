@@ -62,11 +62,10 @@ class ShldapViewHosts extends JViewLegacy
 	protected function addToolbar()
 	{
 		$state	= $this->get('State');
-		$canDo	= ComShldapHelper::getActions();
 
 		JToolBarHelper::title(JText::_('COM_SHLDAP_HOSTS_MANAGER'), '');
 
-		if ($canDo->get('core.edit') || $canDo->get('core.admin'))
+		if (JFactory::getUser()->authorise('core.admin', 'com_shldap'))
 		{
 			JToolBarHelper::addNew('host.add');
 			JToolBarHelper::editList('host.edit');
@@ -74,10 +73,7 @@ class ShldapViewHosts extends JViewLegacy
 			JToolBarHelper::deleteList('', 'hosts.delete');
 			JToolBarHelper::divider();
 
-			if ($canDo->get('core.admin'))
-			{
-				JToolBarHelper::preferences('com_shldap');
-			}
+			JToolBarHelper::preferences('com_shldap');
 		}
 	}
 }
