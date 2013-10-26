@@ -63,7 +63,6 @@
 		<folder>sso</folder>
 		<folder>user</folder>
 		<folder>util</folder>
-		<filename>import/sso.php</filename>
 		<filename>factory.php</filename>
 		<filename>import.php</filename>
 		<filename>loader.php</filename>
