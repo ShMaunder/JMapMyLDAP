@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `#__sh_ldap_config` (
 
 REPLACE INTO `#__sh_config`
   SET `name` = 'ldap:version',
-  `value` = '2.0.0.243';
+  `value` = '2.0.0.0';
 
 REPLACE INTO `#__sh_config`
   SET `name` = 'ldap:source',
