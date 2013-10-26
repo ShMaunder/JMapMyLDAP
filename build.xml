@@ -8,14 +8,16 @@ CentOS/RHEL: yum install xmlstarlet
 
 	<property name="package" value="jmmldap" override="true" />
 
+	<property name="script.dir" value="./_build/scripts" override="false" />
+
 	<property name="template.dir" value="./_build/template" override="false" />
-	
+
 	<property name="package.manifest" value="${template.dir}" override="false" />
-	
+
 	<property name="package.version" value="2.0.0.trunk" override="false" />
-	
+
 	<property name="package.dest" value="./_build/${package.version}" override="false" />
-	
+
 	<tstamp>
   		<format property="DATE" pattern="%c" locale="en_GB" />
 	</tstamp>
@@ -31,7 +33,7 @@ CentOS/RHEL: yum install xmlstarlet
 	<target name="main" description="">
 
 		<echo message="Building JMapMyLDAP Version ${package.version} packages..." />
-		
+
 		<!-- Cleanup build area -->
 		<if>
 			<available file="${package.dest}" type="dir" />
@@ -39,88 +41,88 @@ CentOS/RHEL: yum install xmlstarlet
 				<delete dir="${package.dest}" />
 			</then>
 		</if>
-		
+
 		<mkdir dir="${package.dest}" />
 		<mkdir dir="${package.dest}/packages" />
-	
+
 		<phingcall target="build">
 			<property name="extension.path" value="modules/mod_shldap_login" />
 			<property name="manifest" value="mod_shldap_login.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/authentication/shadapter" />
 			<property name="manifest" value="shadapter.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/authentication/shadapter" />
 			<property name="manifest" value="shadapter.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/system/shplatform" />
 			<property name="manifest" value="shplatform.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/ldap/creation" />
 			<property name="manifest" value="creation.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/ldap/deletion" />
 			<property name="manifest" value="deletion.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/ldap/injection" />
 			<property name="manifest" value="injection.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/ldap/mapping" />
 			<property name="manifest" value="mapping.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/ldap/password" />
 			<property name="manifest" value="password.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-			
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/ldap/profile" />
 			<property name="manifest" value="profile.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/shlog/ldap" />
 			<property name="manifest" value="ldap.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/shlog/sso" />
 			<property name="manifest" value="sso.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/sso/http" />
 			<property name="manifest" value="http.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="plugins/sso/dummy" />
 			<property name="manifest" value="dummy.xml" />
@@ -132,55 +134,55 @@ CentOS/RHEL: yum install xmlstarlet
 			<property name="manifest" value="edirldap.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="libraries/shmanic" />
 			<property name="extension.name" value="lib_shmanic" />
 			<property name="manifest" value="lib_shmanic.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="cli" />
 			<property name="manifest" value="cli_shmanic_ldap.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="administrator/components/com_shconfig" />
 			<property name="manifest" value="shconfig.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="build">
 			<property name="extension.path" value="administrator/components/com_shldap" />
 			<property name="manifest" value="shldap.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
-		
+
 		<phingcall target="package">
 			<property name="manifest" value="pkg_shplatform.xml" />
 		</phingcall>
-		
+
 		<phingcall target="package">
 			<property name="manifest" value="pkg_ldap_core.xml" />
 		</phingcall>
-		
+
 		<phingcall target="package">
 			<property name="manifest" value="pkg_ldap_sso_core.xml" />
 		</phingcall>
-		
+
 		<phingcall target="package">
 			<property name="manifest" value="pkg_ldap_plugins.xml" />
 		</phingcall>
-		
+
 		<phingcall target="zipall" />
-		
+
 		<echo message="Package export directory ${package.dest}/packages" />
-	
+
 	</target>
 
-	<target name="zipall">		
+	<target name="zipall">
 		<!-- Also make a Zip of everything called UNZIPFIRST.zip -->
 		<zip destfile="${package.dest}/packages/UNZIPFIRST.zip" basedir="${package.dest}/packages">
 			<fileset dir="${package.dest}/packages">
@@ -190,13 +192,13 @@ CentOS/RHEL: yum install xmlstarlet
 			</fileset>
 		</zip>
 	</target>
-	
+
 	<target name="package" description="Creates several packages after the build to package packages.">
 		<property name="manifest.source" value="${template.dir}/${manifest}" />
 		<xmlproperty file="${manifest.source}" collapseAttributes="true" />
-		
+
 		<property name="extension.dest" value="${package.dest}/pkg_${extension.packagename}" />
-		
+
 		<!-- Check if the target folder exists. If not, create it -->
 		<if>
 			<not>
@@ -206,11 +208,11 @@ CentOS/RHEL: yum install xmlstarlet
 				<mkdir dir="${extension.dest}" />
 			</then>
 		</if>
-		
+
 		<property name="manifest.dest" value="${extension.dest}/${manifest}" />
-		
+
 		<copy file="${manifest.source}" tofile="${manifest.dest}" overwrite="true" />
-		
+
 		<phingcall target="prep:updateXml">
 			<property name="path.xml" value="${manifest.dest}" override="true" />
 		</phingcall>
@@ -218,6 +220,15 @@ CentOS/RHEL: yum install xmlstarlet
 		<foreach list="${extension.files.file}" param="filename" target="prep:copyFiles">
 			<property name="extension.path" value="${package.dest}/packages" override="true" />
 		</foreach>
+
+		<!-- Add the scriptfile to the extension -->
+		<if>
+			<isset property="extension.scriptfile" />
+			<then>
+				<echo message="Adding install script ${extension.scriptfile}" />
+				<copy file="${script.dir}/${extension.scriptfile}" tofile="${extension.dest}/${extension.scriptfile}" overwrite="true" />
+			</then>
+		</if>
 
 		<if>
 			<isset property="extension.languages.language" />
@@ -247,7 +258,7 @@ CentOS/RHEL: yum install xmlstarlet
 				<property name="build.compress" value="1" />
 			</then>
 		</if>
-		
+
 		<!-- Start the compress if specified -->
 		<if>
 			<equals arg1="${build.compress}" arg2="1" />
@@ -257,14 +268,14 @@ CentOS/RHEL: yum install xmlstarlet
 				</phingcall>
 			</then>
 		</if>
-		
+
 	</target>
-	
-	
+
+
 	<target name="build" description="Packages the extension for delivery." depends="prep">
 
 		<echo message="Building Package ${extension.name}" />
-		
+
 		<!-- Switch to tell this task to make the zip files. Default is on. -->
 		<if>
 			<not>
@@ -274,7 +285,7 @@ CentOS/RHEL: yum install xmlstarlet
 				<property name="build.compress" value="1" />
 			</then>
 		</if>
-		
+
 		<!-- Start the compress if specified -->
 		<if>
 			<equals arg1="${build.compress}" arg2="1" />
@@ -284,13 +295,13 @@ CentOS/RHEL: yum install xmlstarlet
 				</phingcall>
 			</then>
 		</if>
-		
+
 	</target>
 
-	
-	
+
+
 	<target name="prep" description="Copies the extension file and directories to the package destination.">
-		
+
 		<!-- The following options are for picking up the right files/folders. -->
 		<if>
 			<not>
@@ -300,9 +311,9 @@ CentOS/RHEL: yum install xmlstarlet
 				<property name="manifest" value="${extension.name}.xml" />
 			</then>
 		</if>
-		
+
 		<property name="manifest.source" value="${extension.path}/${manifest}" />
-		
+
 		<!-- Use the Manifest file to populate extension.* -->
 		<if>
 			<equals arg1="${manifest.use}" arg2="1" />
@@ -310,10 +321,10 @@ CentOS/RHEL: yum install xmlstarlet
 				<xmlproperty file="${manifest.source}" collapseAttributes="true" />
 			</then>
 		</if>
-		
+
 		<property name="extension.dest" value="${package.dest}/${extension.name}" override="true" />
 		<property name="manifest.dest" value="${extension.dest}/${manifest}" />
-		
+
 		<!-- Check if the target folder exists. If not, create it -->
 		<if>
 			<not>
@@ -323,7 +334,7 @@ CentOS/RHEL: yum install xmlstarlet
 				<mkdir dir="${extension.dest}" />
 			</then>
 		</if>
-		
+
 		<if>
 			<or>
 				<isset property="extension.build.folder" />
@@ -358,7 +369,16 @@ CentOS/RHEL: yum install xmlstarlet
 				</copy>
 			</else>
 		</if>
-		
+
+		<!-- Add the scriptfile to the extension -->
+		<if>
+			<isset property="extension.scriptfile" />
+			<then>
+				<echo message="Adding install script ${extension.scriptfile}" />
+				<copy file="${script.dir}/${extension.scriptfile}" tofile="${extension.dest}/${extension.scriptfile}" overwrite="true" />
+			</then>
+		</if>
+
 		<copy todir="${extension.dest}">
 			<!-- Copy the index and license template files to the target folder -->
 			<fileset dir="${template.dir}">
@@ -366,7 +386,7 @@ CentOS/RHEL: yum install xmlstarlet
 				<include name="index.html" />
 			</fileset>
 		</copy>
-		
+
 		<!-- Puts index.html in all subdirs -->
 		<foreach param="path.dir" absparam="absname" target="prep:copyIndex">
 		  <fileset dir="${extension.dest}">
@@ -374,17 +394,17 @@ CentOS/RHEL: yum install xmlstarlet
 		        <depth max="20" min="0" />
 		  </fileset>
 		</foreach>
-		
+
 		<phingcall target="prep:updateXml">
 			<property name="path.xml" value="${extension.dest}/${manifest}" override="true" />
 		</phingcall>
-		
-		
+
+
 		<!-- REMOVE IF NOT USED -->
 		<if>
 			<equals arg1="${extension.type}" arg2="component" />
 			<then>
-				
+
 				<if>
 					<available file="${extension.dest}/sql/updates/mysql" type="dir" />
 					<then>
@@ -394,16 +414,16 @@ CentOS/RHEL: yum install xmlstarlet
 				</if>
 
 			</then>
-			
+
 			<elseif>
 				<equals arg1="${extension.type}" arg2="library" />
 				<then>
 					<echo message="Library" />
-					
+
 				</then>
 			</elseif>
 		</if>
-		
+
 		<!-- Due to having multiple locations for the language XML, we need to provide it to a tmp variable -->
 		<if>
 			<isset property="extension.languages.language" />
@@ -417,8 +437,8 @@ CentOS/RHEL: yum install xmlstarlet
 				</then>
 			</elseif>
 		</if>
-			
-			
+
+
 		<if>
 			<isset property="temp.languages" />
 			<then>
@@ -429,22 +449,22 @@ CentOS/RHEL: yum install xmlstarlet
 						<delete dir="${extension.dest}/language" />
 					</then>
 				</if>
-				
+
 				<!-- TODO fix this - or just add as we go along -->
 				<mkdir dir="${extension.dest}/language" />
 				<mkdir dir="${extension.dest}/language/en-GB" />
-				
+
 				<foreach list="${temp.languages}" param="lang" target="prep:copyLang" />
 			</then>
 		</if>
 
-		
+
 	</target>
-	
-	
+
+
 	<target name="prep:copyLang">
 		<property name="lang.dest" value="${extension.dest}/${lang}" />
-		
+
 		<!-- Find where the language source is (i.e. admin or site) -->
 		<if>
 			<available file="${lang}" type="file" />
@@ -475,40 +495,40 @@ CentOS/RHEL: yum install xmlstarlet
 			</then>
 		</if>
 	</target>
-	
-	
-	
+
+
+
 	<target name="prep:createFolder">
 		<property name="folder.dest" value="${extension.dest}/${folder}" />
-		
+
 		<if>
 			<available file="${folder.dest}" type="dir" />
 			<then>
 				<delete dir="${folder.dest}" />
 			</then>
 		</if>
-		
+
 		<mkdir dir="${folder.dest}" />
 	</target>
-	
-	
-	
+
+
+
 	<target name="prep:copyFiles">
 		<property name="file.dest" value="${extension.dest}/${filename}" />
 		<property name="file.source" value="${extension.path}/${filename}" />
-		
+
 		<if>
 			<available file="${file.dest}" type="file" />
 			<then>
 				<delete file="${file.dest}" />
 			</then>
 		</if>
-		
+
 		<copy file="${file.source}" tofile="${file.dest}" overwrite="true" />
 	</target>
-	
-	
-	
+
+
+
 	<target name="prep:copyIndex">
 		<copy todir="${absname}">
 			<!-- Copy the index template file to the target folder -->
@@ -517,9 +537,9 @@ CentOS/RHEL: yum install xmlstarlet
 			</fileset>
 		</copy>
 	</target>
-		
-	
-	
+
+
+
 	<target name="build:compress" description="Compresses each extension.">
 		<if>
 			<isset property="extension.name" />
@@ -527,7 +547,7 @@ CentOS/RHEL: yum install xmlstarlet
 				<property name="path.tar" value="${package.dest}/packages/${extension.name}.tar.gz" />
 				<property name="path.zip" value="${package.dest}/packages/${extension.name}.zip" />
 				<property name="path.source" value="${extension.dest}" />
-				
+
 				<!-- Build the TAR file -->
 				<if>
 					<available file="${path.tar}" type="file" />
@@ -545,7 +565,7 @@ CentOS/RHEL: yum install xmlstarlet
 						<exclude name=".*" />
 					</fileset>
 				</tar>
-				
+
 				<!-- Build the ZIP file -->
 				<if>
 					<available file="${path.zip}" type="file" />
@@ -559,11 +579,11 @@ CentOS/RHEL: yum install xmlstarlet
 						<exclude name=".*" />
 					</fileset>
 				</zip>
-				
+
 			</then>
 		</if>
 	</target>
-	
+
 	<target name="prep:updateXml" description="Updates the XML manifest fields.">
 		<if>
 			<isset property="path.xml" />
@@ -579,5 +599,5 @@ CentOS/RHEL: yum install xmlstarlet
 			</then>
 		</if>
 	</target>
-	
+
 </project>
