@@ -110,7 +110,7 @@ JHtml::_('behavior.framework', true);
 		<fieldset class="adminform form-vertical">
 			<legend><?php echo JText::sprintf('COM_SHLDAP_HOST_DEBUG_SECTION'); ?></legend>
 			<div class="adminformlist">
-				<div id="debug-output" style="width:100%;height:500px;overflow:scroll;border:1px solid #bbb;background-color:#eee;">
+				<div id="debug-output" style="width:100%;height:auto;min-height:250px;max-height:2000px;overflow:scroll;border:1px solid #bbb;background-color:#eee;">
 					...
 				</div>
 			</div>
