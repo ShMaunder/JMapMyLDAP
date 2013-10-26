@@ -11,7 +11,7 @@
 	<description>PKG_SHPLATFORM_DESCRIPTION</description>
 	<files>
 		<file type="component" id="com_shconfig">com_shconfig.zip</file>
-		<file type="library" id="lib_shmanic_platform">lib_shmanic_platform.zip</file>
+		<file type="library" id="lib_shmanic">lib_shmanic.zip</file>
 		<file type="plugin" id="shplatform" group="system">plg_system_shplatform.zip</file>
 	</files>
 	<updateservers>

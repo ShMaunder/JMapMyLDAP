@@ -11,7 +11,6 @@
 	<description>PKG_LDAP_CORE_DESCRIPTION</description>
 	<files>
 		<file type="component" id="com_shldap">com_shldap.zip</file>
-		<file type="library" id="lib_shmanic_ldap">lib_shmanic_ldap.zip</file>
 		<file type="file" id="cli_shmanic_ldap">cli_shmanic_ldap.zip</file>
 		<file type="plugin" id="shadapter" group="authentication">plg_authentication_shadapter.zip</file>
 		<file type="plugin" id="ldap" group="shlog">plg_shlog_ldap.zip</file>

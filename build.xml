@@ -135,22 +135,8 @@ CentOS/RHEL: yum install xmlstarlet
 		
 		<phingcall target="build">
 			<property name="extension.path" value="libraries/shmanic" />
-			<property name="extension.name" value="lib_shmanic_platform" />
-			<property name="manifest" value="lib_shmanic_platform.xml" />
-			<property name="manifest.use" value="1" />
-		</phingcall>
-		
-		<phingcall target="build">
-			<property name="extension.path" value="libraries/shmanic" />
-			<property name="extension.name" value="lib_shmanic_ldap" />
-			<property name="manifest" value="lib_shmanic_ldap.xml" />
-			<property name="manifest.use" value="1" />
-		</phingcall>
-		
-		<phingcall target="build">
-			<property name="extension.path" value="libraries/shmanic" />
-			<property name="extension.name" value="lib_shmanic_sso" />
-			<property name="manifest" value="lib_shmanic_sso.xml" />
+			<property name="extension.name" value="lib_shmanic" />
+			<property name="manifest" value="lib_shmanic.xml" />
 			<property name="manifest.use" value="1" />
 		</phingcall>
 		
