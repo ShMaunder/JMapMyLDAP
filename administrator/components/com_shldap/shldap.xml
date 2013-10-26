@@ -10,6 +10,7 @@
 	<version></version>
 	<buildDate></buildDate>
 	<description>COM_SHLDAP_XML_DESCRIPTION</description>
+	<scriptfile>shldap_install.php</scriptfile>
 	
 	<install>
 		<sql>

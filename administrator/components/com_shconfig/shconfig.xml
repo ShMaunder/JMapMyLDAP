@@ -10,6 +10,7 @@
 	<version></version>
 	<buildDate></buildDate>
 	<description>COM_SHCONFIG_XML_DESCRIPTION</description>
+	<scriptfile>shconfig_install.php</scriptfile>
 	
 	<install>
 		<sql>
