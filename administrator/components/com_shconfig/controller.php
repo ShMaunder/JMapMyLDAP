@@ -50,10 +50,17 @@ class ShconfigController extends JControllerLegacy
 		$input = JFactory::getApplication()->input;
 
 		// Set the default view name and format from the Request.
-		$vName	 = $input->get('view', 'items', 'cmd');
+		$vName	 = $input->get('view', 'default', 'cmd');
 		$vFormat = $document->getType();
 		$lName	 = $input->get('layout', 'default', 'cmd');
 		$id		 = $input->get('id', null, 'cmd');
+
+		if ($vName == 'default')
+		{
+			$input->set('view', 'settings');
+			$input->set('layout', 'edit');
+			$vName = 'settings';
+		}
 
 		// Check for edit form.
 		if ($vName == 'item' && $lName == 'edit' && !$this->checkEditId('com_shconfig.edit.item', $id))
@@ -65,6 +72,9 @@ class ShconfigController extends JControllerLegacy
 
 			return false;
 		}
+
+		// Add the submenu
+		ShconfigHelper::addSubmenu($vName);
 
 		parent::display($cachable, $urlparams);
 
