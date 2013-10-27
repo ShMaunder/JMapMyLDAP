@@ -108,8 +108,16 @@ class SHLog
 			// Inform any logging plugins that an entry has been produced
 			$dispatcher->trigger('onLogEntry', array($entry));
 
-			// Add the entry to all avilable loggers
-			JLog::add($entry);
+			try
+			{
+				// Add the entry to all avilable loggers
+				JLog::add($entry);
+			}
+			catch (Exception $e)
+			{
+				// Logging is broken - this isn't a reason though to
+				error_log(JText::_('LIB_SHLOG_ERR_2200'));
+			}
 		}
 	}
 
