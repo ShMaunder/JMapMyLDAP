@@ -58,25 +58,4 @@ abstract class ComShldapHelper
 			$vName == 'hosts'
 		);
 	}
-
-	/**
-	 * Gets a list of the actions that can be performed.
-	 *
-	 * @return	JObject
-	 */
-	public static function getActions()
-	{
-		$user		= JFactory::getUser();
-		$result		= new JObject;
-		$assetName	= 'com_shldap';
-
-		$actions = JAccess::getActions($assetName);
-
-		foreach ($actions as $action)
-		{
-			$result->set($action->name,	$user->authorise($action->name, $assetName));
-		}
-
-		return $result;
-	}
 }
