@@ -15,6 +15,12 @@ defined('_JEXEC') or die;
 // Include dependancies
 jimport('joomla.application.component.controller');
 
+// Access check.
+if (!JFactory::getUser()->authorise('core.manage', 'com_shldap'))
+{
+	return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
+}
+
 // Register the helper class for this component
 JLoader::register('ComShldapHelper', JPATH_COMPONENT . '/helpers/shldap.php');
 
