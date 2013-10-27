@@ -41,6 +41,7 @@ abstract class ModShldapLoginHelper
 			$query->where($db->quoteName('id') . '=' . $db->quote($itemid));
 
 			$db->setQuery($query);
+
 			if ($link = $db->loadResult())
 			{
 				if ($router->getMode() == JROUTER_MODE_SEF)
@@ -60,6 +61,7 @@ abstract class ModShldapLoginHelper
 			$uri = clone JFactory::getURI();
 			$vars = $router->parse($uri);
 			unset($vars['lang']);
+
 			if ($router->getMode() == JROUTER_MODE_SEF)
 			{
 				if (isset($vars['Itemid']))
@@ -68,6 +70,7 @@ abstract class ModShldapLoginHelper
 					$menu = $app->getMenu();
 					$item = $menu->getItem($itemid);
 					unset($vars['Itemid']);
+
 					if (isset($item) && $vars == $item->query)
 					{
 						$url = 'index.php?Itemid=' . $itemid;
@@ -101,6 +104,7 @@ abstract class ModShldapLoginHelper
 	public static function getType()
 	{
 		$user = JFactory::getUser();
+
 		return (!$user->get('guest')) ? 'logout' : 'login';
 	}
 }

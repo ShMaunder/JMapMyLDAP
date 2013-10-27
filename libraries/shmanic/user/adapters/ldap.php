@@ -987,6 +987,15 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return $results;
 	}
 
+	/**
+	 * Creates the user in the LDAP directory.
+	 *
+	 * @param   array  $options  Optional array of options.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
 	public function create($options = array())
 	{
 		if ($this->_dn instanceof Exception)
@@ -1063,6 +1072,15 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		return true;
 	}
 
+	/**
+	 * Deletes the user from the LDAP directory.
+	 *
+	 * @param   array  $options  Optional array of options.
+	 *
+	 * @return  boolean  True on success or False on error.
+	 *
+	 * @since   2.0
+	 */
 	public function delete($options = array())
 	{
 		$this->getId(false);

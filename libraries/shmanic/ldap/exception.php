@@ -169,17 +169,21 @@ class SHLdapException extends RuntimeException
 	final public function getBackTraceAsString()
 	{
 		$result = null;
+
 		foreach ($this->backTrace as $a => $b)
 		{
 			$result .= "#{$a} ";
+
 			foreach ($b as $c => $d)
 			{
 				$result .= "[{$c}] ";
 				$result .= var_export($d, true);
 				$result .= "\n";
 			}
+
 			$result .= "\n\n";
 		}
+
 		return $result;
 	}
 }

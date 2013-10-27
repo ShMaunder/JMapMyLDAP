@@ -43,7 +43,6 @@ abstract class SHUtilIp
 
 		foreach ($ranges as $range)
 		{
-
 			if (empty($range))
 			{
 				// This IP range contains nothing
@@ -131,7 +130,6 @@ abstract class SHUtilIp
 				return false;
 			}
 		}
-
 	}
 
 	/**
@@ -152,6 +150,7 @@ abstract class SHUtilIp
 		{
 			return false;
 		}
+
 		$ip_binary_string = sprintf("%032b", ip2long($ip));
 		$net_binary_string = sprintf("%032b", ip2long($allowed_ip_ip));
 
@@ -174,6 +173,7 @@ abstract class SHUtilIp
 		$begin = ip2long($begin);
 		$end = ip2long($end);
 		$ip = ip2long($ip);
+
 		return ($ip >= $begin && $ip <= $end);
 	}
 }

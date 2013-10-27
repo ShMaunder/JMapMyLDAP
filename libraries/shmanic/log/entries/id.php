@@ -42,7 +42,6 @@ class SHLogEntriesId extends JLogEntry
 	 */
 	public function __construct($id, $message, $priority = JLog::INFO, $category = '', $date = null)
 	{
-
 		// Internal ID code of this specific entry.
 		$this->id = (int) $id;
 

@@ -349,7 +349,6 @@ class SHLdap
 					// This is the correct configuration so return the new client
 					return $ldap;
 				}
-
 			}
 			catch (Exception $e)
 			{
@@ -561,11 +560,13 @@ class SHLdap
 		{
 			return true;
 		}
+
 		// Check if we only want a proxy user.
 		elseif ($authenticate === self::AUTH_PROXY)
 		{
 			return $this->proxyBind();
 		}
+
 		// Assume we need to authenticate or authorise the specified user.
 		else
 		{
@@ -653,6 +654,7 @@ class SHLdap
 
 		// Connecting has been successful
 		$this->addDebug('Successfully connected.');
+
 		return true;
 	}
 
@@ -749,12 +751,14 @@ class SHLdap
 			// Successfully binded so set the level
 			$this->bind_status = self::AUTH_PROXY;
 			unset($password);
+
 			return true;
 		}
 
 		// Unsuccessful bind
 		$this->addDebug('Unsuccessful proxy bind');
 		unset($password);
+
 		return false;
 	}
 
@@ -781,6 +785,7 @@ class SHLdap
 			{
 				// Anonymous binding disabled
 				$this->addDebug("Anonymous bind rejected {$username}");
+
 				return false;
 			}
 
@@ -792,11 +797,13 @@ class SHLdap
 		{
 			// Successfully binded so set the level
 			$this->bind_status = self::AUTH_USER;
+
 			return true;
 		}
 
 		// Unsuccessful bind
 		$this->addDebug("Unsuccessful bind for {$username}");
+
 		return false;
 	}
 
@@ -1226,6 +1233,7 @@ class SHLdap
 					// Successfully binded with this distinguished name
 					$this->addDebug("Successfully authenticated {$username} with distinguished name {$dn}.");
 					$this->last_user_dn = $dn;
+
 					return $dn;
 				}
 			}
@@ -1240,11 +1248,9 @@ class SHLdap
 				// Unable to bind directly to the given distinguished name parameters
 				throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10304'), 10304, $username);
 			}
-
 		}
 		else
 		{
-
 			$result = false;
 
 			if ($this->use_search)
@@ -1307,6 +1313,7 @@ class SHLdap
 
 			$this->addDebug("Using distinguished name {$result} for user {$username}.");
 			$this->last_user_dn = $result;
+
 			return $result;
 		}
 	}

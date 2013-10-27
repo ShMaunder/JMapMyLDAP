@@ -21,7 +21,6 @@ defined('JPATH_PLATFORM') or die;
  */
 abstract class SHLoader
 {
-
 	/**
 	 * Container for already imported library paths.
 	 *
@@ -66,6 +65,7 @@ abstract class SHLoader
 		if (isset(self::$classes[$class]))
 		{
 			include_once self::$classes[$class];
+
 			return true;
 		}
 

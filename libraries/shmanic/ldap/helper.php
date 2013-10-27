@@ -624,6 +624,7 @@ abstract class SHLdapHelper
 			array('*', '(', ')', '\\', chr(0));
 
 		$quotedMetaChars = array();
+
 		foreach ($metaChars as $key => $value)
 		{
 			$quotedMetaChars[$key] = '\\' . str_pad(dechex(ord($value)), 2, '0');
@@ -653,6 +654,7 @@ abstract class SHLdapHelper
 		}
 
 		$string = null;
+
 		foreach ($filters as $filter)
 		{
 			$filter = self::escape($filter);
@@ -682,12 +684,15 @@ abstract class SHLdapHelper
 		foreach ($parts as $int)
 		{
 			$tmp = dechex($int);
+
 			if (strlen($tmp) != 2)
 			{
 				$tmp = '0' . $tmp;
 			}
+
 			$address .= '\\' . $tmp;
 		}
+
 		return $address;
 	}
 

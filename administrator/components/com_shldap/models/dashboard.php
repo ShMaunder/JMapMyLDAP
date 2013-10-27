@@ -139,6 +139,14 @@ class ShldapModelDashboard extends JModelList
 		return $query;
 	}
 
+	/**
+	 * Gets all the LDAP configs and attempts to bind with each.
+	 * This is presented on the dashboard.
+	 *
+	 * @return  array  Array of objects containing LDAP config information.
+	 *
+	 * @since   2.0
+	 */
 	public function getBinds()
 	{
 		try

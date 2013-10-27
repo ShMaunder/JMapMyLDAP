@@ -254,6 +254,7 @@ abstract class SHFactory
 		elseif ($source === 'file')
 		{
 			$file = JArrayHelper::getValue($options, 'file', '', 'string');
+
 			if (file_exists($file))
 			{
 				$options['key'] = file_get_contents($file);
@@ -369,6 +370,5 @@ abstract class SHFactory
 
 		// Not a valid file or namespace
 		throw new RuntimeException(JText::sprintf('LIB_SHPLATFORM_ERR_1121', $file, $name), 1121);
-
 	}
 }

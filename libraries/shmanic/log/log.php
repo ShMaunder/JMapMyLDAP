@@ -58,6 +58,7 @@ class SHLog
 		$dispatcher = JDispatcher::getInstance();
 		$result = JPluginHelper::importPlugin($type);
 		$dispatcher->trigger('onLogInitialise');
+
 		return $result;
 	}
 
@@ -120,5 +121,4 @@ class SHLog
 			}
 		}
 	}
-
 }

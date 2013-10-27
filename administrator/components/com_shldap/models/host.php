@@ -78,6 +78,13 @@ class ShldapModelHost extends JModelAdmin
 		return $form;
 	}
 
+	/**
+	 * Method to get the data that should be injected in the form.
+	 *
+	 * @return  mixed  The data for the form.
+	 *
+	 * @since   2.0
+	 */
 	protected function loadFormData()
 	{
 		if (!empty($this->formData))
@@ -100,9 +107,11 @@ class ShldapModelHost extends JModelAdmin
 	/**
 	 * Gets the SHLdap object from the Debug data.
 	 *
-	 * @param   JForm   $form
+	 * @param   JForm  $form  Form to process.
 	 *
 	 * @return  SHLdap
+	 *
+	 * @since   2.0
 	 */
 	public function getLdapObject($form = null)
 	{
@@ -125,6 +134,15 @@ class ShldapModelHost extends JModelAdmin
 		return new SHLdap($config);
 	}
 
+	/**
+	 * Returns the debug parameters from the form.
+	 *
+	 * @param   JForm  $form  Form to process.
+	 *
+	 * @return  array  Debug data.
+	 *
+	 * @since   2.0
+	 */
 	public function getDebugParams($form = null)
 	{
 		if (is_null($form))

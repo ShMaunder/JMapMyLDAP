@@ -44,6 +44,7 @@ class SHExceptionStacked extends Exception
 
 		// Get the stacked exceptions and loop around each to parse them
 		$stackedMsg = null;
+
 		foreach ($this->stacked as $item)
 		{
 			if (!is_null($stackedMsg))

@@ -23,6 +23,13 @@ jimport('joomla.event.dispatcher');
  */
 class ShldapModelHosts extends JModelLegacy
 {
+	/**
+	 * Gets all the LDAP configurations.
+	 *
+	 * @return  array  Array of objects containing LDAP config information.
+	 *
+	 * @since   2.0
+	 */
 	public function getItems()
 	{
 		try
