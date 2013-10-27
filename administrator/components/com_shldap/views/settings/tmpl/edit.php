@@ -42,21 +42,6 @@ JHtml::_('behavior.formvalidation');
 		</fieldset>
 	</div>
 
-	<div class="width-50 fltrt span6 form-horizontal">
-		<fieldset class="adminform">
-			<legend><?php echo JText::sprintf('COM_SHLDAP_SETTINGS_USER_TITLE'); ?></legend>
-			<div class="adminformlist tab-content">
-				<div class="tab-pane active" id="details">
-				<?php foreach ($this->form->getFieldset('user') as $field) : ?>
-					<?php if (!$field->hidden) : ?>
-						<div class="control-group"><?php echo $field->label; ?>
-						<?php echo $field->input; ?></div>
-					<?php endif; ?>
-				<?php endforeach; ?>
-				</div>
-			</div>
-		</fieldset>
-	</div>
 	<div class="clearfix"> </div>
 
 	<div>

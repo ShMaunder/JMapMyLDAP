@@ -44,7 +44,7 @@ class ShldapModelSettings extends JModelForm
 	{
 		$user = JFactory::getUser();
 
-		return $user->authorise('core.admin', 'com_shconfig');
+		return $user->authorise('core.admin', 'com_shldap');
 	}
 
 	/**
@@ -157,76 +157,6 @@ class ShldapModelSettings extends JModelForm
 				$this->setError($table->getError());
 
 				return false;
-			}
-		}
-
-		// Check the enable LDAP
-		if (isset($data['ldap:include']))
-		{
-			$db = JFactory::getDbo();
-			$result = $db->setQuery(
-				$db->getQuery(true)
-					->select($db->quoteName('value'))
-					->from($db->quoteName('#__sh_config'))
-					->where($db->quoteName('name') . ' = ' . $db->quote('platform:import'))
-			)->loadResult();
-
-			$isNew = is_null($result);
-
-			if (!$result)
-			{
-				// The import value is blank in the database
-				$result = '{}';
-			}
-
-			$decoded = array_values((array) json_decode($result));
-
-			$change = false;
-
-			if ($data['ldap:include'])
-			{
-				if (!in_array('ldap', $decoded))
-				{
-					// Lets include the import
-					$decoded[] = 'ldap';
-					$change = true;
-				}
-			}
-			else
-			{
-				if (($pos = array_search('ldap', $decoded)) !== false)
-				{
-					// Lets remove the import
-					unset($decoded[$pos]);
-					$change = true;
-				}
-			}
-
-			if ($change)
-			{
-				$encoded = json_encode(array_values($decoded));
-
-				// Add the encoded value back to the database
-				if ($isNew)
-				{
-					// Do an insert as its new
-					$db->setQuery(
-						$db->getQuery(true)
-							->insert($db->quoteName('#__sh_config'))
-							->columns(array($db->quoteName('name'), $db->quoteName('value')))
-							->values($db->quote('platform:import') . ', ' . $db->quote($encoded))
-					)->execute();
-				}
-				else
-				{
-					// Do an update as it currently exists
-					$db->setQuery(
-						$db->getQuery(true)
-							->update($db->quoteName('#__sh_config'))
-							->set($db->quoteName('value') . ' = ' . $db->quote($encoded))
-							->where($db->quoteName('name') . ' = ' . $db->quote('platform:import'))
-					)->execute();
-				}
 			}
 		}
 
