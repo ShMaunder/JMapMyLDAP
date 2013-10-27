@@ -47,9 +47,9 @@ class SHFormRuleLdappassword extends JFormRule
 				$db = JFactory::getDbo();
 				$query = $db->getQuery(true);
 
-				$query->select($query->quoteName('username'))
-					->from('#__users')
-					->where($query->quoteName('id') . '=' . (int) $form->getValue('id'));
+				$query->select($db->quoteName('username'))
+					->from($db->quoteName('#__users'))
+					->where($db->quoteName('id') . ' = ' . $db->quote((int) $form->getValue('id')));
 
 				$db->setQuery($query)->execute();
 

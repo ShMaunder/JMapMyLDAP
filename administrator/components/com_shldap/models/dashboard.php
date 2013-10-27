@@ -97,9 +97,11 @@ class ShldapModelDashboard extends JModelList
 
 		// Select the required fields from the table.
 		$query->select(
-			$this->getState(
-				'list.select',
-				'a.*'
+			$db->escape(
+				$this->getState(
+					'list.select',
+					'a.*'
+				)
 			)
 		);
 
@@ -119,7 +121,7 @@ class ShldapModelDashboard extends JModelList
 		{
 			if (stripos($search, 'extension_id:') === 0)
 			{
-				$query->where('a.extension_id = ' . (int) substr($search, 3));
+				$query->where($db->quoteName('a.extension_id') . ' = ' . $db->quote((int) substr($search, 3)));
 			}
 			else
 			{

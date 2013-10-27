@@ -60,9 +60,9 @@ class ShconfigTableItem extends JTable
 		// Check for an existing record with the same name
 		$result = (int) $db->setQuery(
 				$db->getQuery(true)
-					->select('id')
-					->from('#__sh_config')
-					->where('name = ' . $db->quote($this->name))
+					->select($db->quoteName('id'))
+					->from($db->quoteName('#__sh_config'))
+					->where($db->quoteName('name') . ' = ' . $db->quote($this->name))
 		)->loadResult();
 
 		if ($result && $result != (int) $this->id)

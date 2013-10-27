@@ -63,9 +63,9 @@ class ShldapTableHost extends JTable
 		// Check for an existing record with the same name
 		$result = (int) $db->setQuery(
 				$db->getQuery(true)
-					->select('id')
-					->from($this->table)
-					->where('name = ' . $db->quote($this->name))
+					->select($db->quoteName('id'))
+					->from($db->quoteName($this->table))
+					->where($db->quoteName('name') . ' = ' . $db->quote($this->name))
 		)->loadResult();
 
 		if ($result && $result != (int) $this->id)

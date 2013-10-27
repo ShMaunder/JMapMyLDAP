@@ -93,10 +93,10 @@ abstract class SHLdapHelper
 			if (empty($id))
 			{
 				// Get all the enabled Ldap configurations from SQL
-				$query->select('name')->select('params')
-					->from($query->qn($table))
-					->where('enabled >= 1')
-					->order('ordering');
+				$query->select($db->quoteName('name'))->select($db->quoteName('params'))
+					->from($db->quoteName($table))
+					->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
+					->order($db->quoteName('ordering'));
 
 				// Execute the query
 				if ($rows = $db->setQuery($query)->loadAssocList())
@@ -129,10 +129,10 @@ abstract class SHLdapHelper
 			elseif (is_numeric($id))
 			{
 				// Get the enabled configuration of the specified ID
-				$query->select('name')->select('params')
-					->from($query->qn($table))
-					->where('enabled >= 1')
-					->where($query->qn('id') . '=' . $query->q((int) $id));
+				$query->select($db->quoteName('name'))->select($db->quoteName('params'))
+					->from($db->quoteName($table))
+					->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
+					->where($db->quoteName('id') . ' = ' . $db->quote((int) $id));
 
 				// Execute the query
 				if ($row = $db->setQuery($query)->loadAssoc())
@@ -157,10 +157,10 @@ abstract class SHLdapHelper
 			else
 			{
 				// Get the enabled configuration of the specified name
-				$query->select('params')
-					->from($query->qn($table))
-					->where('enabled >= 1')
-					->where($query->qn('name') . '=' . $query->q((string) $id));
+				$query->select($db->quoteName('params'))
+					->from($db->quoteName($table))
+					->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
+					->where($db->quoteName('name') . ' = ' . $db->quote((string) $id));
 
 				// Execute the query
 				if ($param = $db->setQuery($query)->loadResult())
@@ -508,10 +508,10 @@ abstract class SHLdapHelper
 		$query = $db->getQuery(true);
 
 		// Do the SQL query
-		$query->select($query->qn('id'))
-			->from($query->qn($table))
-			->where($query->qn('enabled') . '>= 1')
-			->where($query->qn('name') . '=' . $query->q($name));
+		$query->select($db->quoteName('id'))
+			->from($db->quoteName($table))
+			->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
+			->where($db->quoteName('name') . ' = ' . $db->quote($name));
 
 		$db->setQuery($query);
 
@@ -550,10 +550,10 @@ abstract class SHLdapHelper
 			$query = $db->getQuery(true);
 
 			// Do the SQL query
-			$query->select($query->qn('id'))
-				->select($query->qn('name'))
-				->from($query->qn($table))
-				->where($query->qn('enabled') . '>= 1');
+			$query->select($db->quoteName('id'))
+				->select($db->quoteName('name'))
+				->from($db->quoteName($table))
+				->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'));
 
 			$db->setQuery($query);
 

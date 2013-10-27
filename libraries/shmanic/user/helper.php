@@ -340,9 +340,9 @@ abstract class SHUserHelper
 		$query = $db->getQuery(true);
 
 		// Build SQL to return both group IDs and Names/Titles
-		$query->select('id')
-			->from('#__usergroups')
-			->order('id');
+		$query->select($db->quoteName('id'))
+			->from($db->quoteName('#__usergroups'))
+			->order($db->quoteName('id'));
 
 		$db->setQuery($query);
 
@@ -370,9 +370,9 @@ abstract class SHUserHelper
 			$db	= JFactory::getDbo();
 			$query = $db->getQuery(true);
 
-			$query->select('title')
-				->from('#__usergroups')
-				->where($query->quoteName('id') . '=' . $query->quote($groupId));
+			$query->select($db->quoteName('title'))
+				->from($db->quoteName('#__usergroups'))
+				->where($db->quoteName('id') . ' = ' . $db->quote($groupId));
 
 			$db->setQuery($query);
 

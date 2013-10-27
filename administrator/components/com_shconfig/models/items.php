@@ -88,9 +88,11 @@ class ShconfigModelItems extends JModelList
 
 		// Select the required fields from the table.
 		$query->select(
-			$this->getState(
-				'list.select',
-				'a.*'
+			$db->escape(
+				$this->getState(
+					'list.select',
+					'a.*'
+				)
 			)
 		);
 
@@ -103,10 +105,11 @@ class ShconfigModelItems extends JModelList
 		{
 			if (stripos($search, 'id:') === 0)
 			{
-				$query->where('a.id = ' . (int) substr($search, 3));
+				$query->where($db->quoteName('a.id') . ' = ' . $db->quote((int) substr($search, 3)));
 			}
 			else
 			{
+				// Note: * we use an escape so no quote required *
 				$search = $db->quote('%' . $db->escape($search, true) . '%');
 				$query->where(
 					'(' . $db->quoteName('name') . ' LIKE ' . $search .
