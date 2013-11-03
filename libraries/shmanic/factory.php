@@ -163,8 +163,10 @@ abstract class SHFactory
 
 		if (!isset(self::$adapters[$username]))
 		{
+			$config = self::getConfig();
+
 			// Check if this user is in the blacklist
-			if ($blacklist = (array) json_decode(self::getConfig()->get('user.blacklist')))
+			if ($blacklist = (array) json_decode($config->get('user.blacklist')))
 			{
 				if (in_array($username, $blacklist))
 				{
@@ -177,10 +179,17 @@ abstract class SHFactory
 			{
 				$jUser = JFactory::getUser($id);
 
-				if (!isset($credentials['domain']))
+				if ((boolean) $config->get('user.usedomain', true))
 				{
-					// Attempt to get the domain for this user
-					$credentials['domain'] = SHUserHelper::getDomainParam($jUser);
+					if (!isset($credentials['domain']))
+					{
+						// Attempt to get the domain for this user
+						$credentials['domain'] = SHUserHelper::getDomainParam($jUser);
+					}
+				}
+				else
+				{
+					unset($credentials['domain']);
 				}
 
 				if (!isset($credentials['type']))
@@ -193,7 +202,7 @@ abstract class SHFactory
 			if (is_null($type))
 			{
 				// Get the default/primary user adpater type from the database
-				$type = self::getConfig()->get('user.type');
+				$type = $config->get('user.type');
 			}
 
 			// Camel case friendly for class name

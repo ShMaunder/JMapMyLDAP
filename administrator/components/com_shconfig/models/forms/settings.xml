@@ -53,6 +53,16 @@
 			<option value="0">JNo</option>
 			<option value="1">JYes</option>
 		</field>
+		<field name="user:usedomain"
+			type="radio"
+			default="1"
+			class="btn-group"
+			description="COM_SHCONFIG_SETTINGS_FIELD_USER_USE_DOMAIN_DESC"
+			label="COM_SHCONFIG_SETTINGS_FIELD_USER_USE_DOMAIN_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
 		<field name="user:blacklist"
 			type="userblacklist"
 			filter="ShconfigModelSettings::filterBlackList"
