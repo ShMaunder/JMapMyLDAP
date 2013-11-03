@@ -168,7 +168,7 @@ abstract class SHFactory
 			{
 				if (in_array($username, $blacklist))
 				{
-					throw new RuntimeException(JText::_('LIB_SHFACTORY_ERR_2125'), 2125);
+					throw new RuntimeException(JText::sprintf('LIB_SHFACTORY_ERR_2125', $username), 2125);
 				}
 			}
 

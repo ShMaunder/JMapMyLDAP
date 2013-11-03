@@ -27,7 +27,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 2121 - Failed to instanitate a user adapter due to empty username. [LIB_SHFACTORY_ERR_2121]
 2123 - Cannot find User Adapter class %1$s. [LIB_SHFACTORY_ERR_2123]
-2125 - User is blacklisted. [LIB_SHFACTORY_ERR_2125]
+2125 - The user '%1$s' is blacklisted. [LIB_SHFACTORY_ERR_2125]
 
 2200 - Failed to add Joomla log entry. [LIB_SHLOG_ERR_2200]
 
@@ -272,7 +272,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 15061 - Invalid detection response from plug-in '%1$s'. [LIB_SHSSO_ERR_15061]
 15064 - IP address denies the plug-in '%1$s' from executing. [LIB_SHSSO_DEBUG_15064]
 15066 - Successfully detected user '%1$s' using SSO plug-in '%2$s'. [LIB_SHSSO_DEBUG_15066]
-15068 - No detection plug-ins found. [LIB_SHSSO_DEBUG_15068]
+15068 - No SSO detection plug-ins found. [LIB_SHSSO_DEBUG_15068]
 
 15072 - Invalid authorisation status response for user '%1$s'. [LIB_SHSSO_ERR_15072]
 15074 - Failed to logon user '%1$s' due to user being unknown and no autoregister enabled. [LIB_SHSSO_ERR_15074]
