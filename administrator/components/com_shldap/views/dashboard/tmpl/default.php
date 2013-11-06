@@ -22,16 +22,16 @@ $gridState = array(array('task' => '', 'inactive_class' => 'unpublish'), array('
 	<thead>
 		<tr>
 			<th width="8%" class="center">
-				<?php echo $this->escape('Connect'); ?>
+				<?php echo $this->escape(JText::_('COM_SHLDAP_DASHBOARD_HEADING_CONFIG_CONNECT')); ?>
 			</th>
 			<th width="8%" class="center">
-				<?php echo $this->escape('Bind'); ?>
+				<?php echo $this->escape(JText::_('COM_SHLDAP_DASHBOARD_HEADING_CONFIG_BIND')); ?>
 			</th>
 			<th width="20%" class="left">
-				<?php echo $this->escape('Config Name'); ?>
+				<?php echo $this->escape(JText::_('COM_SHLDAP_DASHBOARD_HEADING_CONFIG_NAME')); ?>
 			</th>
 			<th class="left">
-				<?php echo $this->escape('LDAP Host'); ?>
+				<?php echo $this->escape(JText::_('COM_SHLDAP_DASHBOARD_HEADING_CONFIG_HOST')); ?>
 			</th>
 		</tr>
 	</thead>
