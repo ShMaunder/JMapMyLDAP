@@ -23,6 +23,7 @@
 			filter="int"
 			label="MOD_SHLDAP_LOGIN_VALUE_DOMAIN"
 			id="modlgn-domain"
+			validate="sh.ldapdomain"
 		/>
 		
 		<field name="remember" type="checkbox"

@@ -15,6 +15,7 @@
 			description="COM_SHLDAP_RECORD_FIELD_NAME_DESC"
 			label="COM_SHLDAP_RECORD_FIELD_NAME_LABEL"
 			size="20" required="true"
+			validate="sh.ldapdomain"
 		/>
 	</fieldset>
 	

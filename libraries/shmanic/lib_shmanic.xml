@@ -29,6 +29,7 @@
 		<filename>exception/invaliduser.php</filename>
 		<filename>exception/stacked.php</filename>
 		<filename>form/fields/ldapdomain.php</filename>
+		<filename>form/rules/ldapdomain.php</filename>
 		<filename>form/rules/ldappassword.php</filename>
 		<filename>import/ldap.php</filename>
 		<filename>import/sso.php</filename>
