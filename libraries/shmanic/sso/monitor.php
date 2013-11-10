@@ -213,10 +213,21 @@ class SHSsoMonitor extends JEvent
 
 			$detection = $sso->detect();
 
-			if ($detection && $forceLogin)
+			if ($detection)
 			{
+				// Check the detected user is not blacklisted
+				$blacklist = (array) json_decode($config->get('user.blacklist'));
+
+				if (in_array($detection['username'], $blacklist))
+				{
+					SHLog::add(JText::sprintf('LIB_SHSSO_DEBUG_15007', $detection['username']), 15007, JLog::DEBUG, 'sso');
+
+					// Detected user is blacklisted
+					return;
+				}
+
 				// Check if the current logged in user matches the detection
-				if (strtolower($detection['username']) != strtolower(JFactory::getUser()->get('username')))
+				if ($forceLogin && (strtolower($detection['username']) != strtolower(JFactory::getUser()->get('username'))))
 				{
 					SHLog::add(JText::sprintf('LIB_SHSSO_DEBUG_15008', $detection['username']), 15008, JLog::DEBUG, 'sso');
 
