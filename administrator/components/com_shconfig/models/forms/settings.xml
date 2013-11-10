@@ -64,8 +64,8 @@
 			<option value="1">JYes</option>
 		</field>
 		<field name="user:blacklist"
-			type="userblacklist"
-			filter="ShconfigModelSettings::filterBlackList"
+			type="sh.jsontextarea"
+			filter="SHFormFilters::newline2json"
 			default=""
 			label="COM_SHCONFIG_SETTINGS_FIELD_USER_BLACKLIST_LABEL"
 			description="COM_SHCONFIG_SETTINGS_FIELD_USER_BLACKLIST_DESC"

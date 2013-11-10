@@ -2,26 +2,26 @@
 /**
  * PHP Version 5.3
  *
- * @package     Shmanic.Components
- * @subpackage  Shconfig
+ * @package     Shmanic.Libraries
+ * @subpackage  Form.Fields
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
- * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
+ * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 JFormHelper::loadFieldClass('textarea');
 
 /**
- * User Blacklist field for config.
+ * Json to text area field.
  *
- * @package     Shmanic.Components
- * @subpackage  Shconfig
+ * @package     Shmanic.Libraries
+ * @subpackage  Form.Fields
  * @since       2.0
  */
-class JFormFieldUserBlacklist extends JFormFieldTextarea
+class SHFormFieldJsontextarea extends JFormFieldTextarea
 {
 	/**
 	 * The form field type.
@@ -29,7 +29,7 @@ class JFormFieldUserBlacklist extends JFormFieldTextarea
 	 * @var    string
 	 * @since  2.0
 	 */
-	protected $type = 'UserBlacklist';
+	protected $type = 'Jsontextarea';
 
 	/**
 	 * Method to get the textarea field input markup.

@@ -32,25 +32,6 @@ class ShconfigModelSettings extends JModelForm
 	protected $text_prefix = 'COM_SHCONFIG';
 
 	/**
-	 * Filters the blacklist from newlines to json.
-	 *
-	 * @param   string  $value  Raw input.
-	 *
-	 * @return  string  Json string
-	 *
-	 * @since   2.0
-	 */
-	public static function filterBlackList($value)
-	{
-		if (!empty($value))
-		{
-			return json_encode(preg_split('/\r\n|\n|\r/', $value));
-		}
-
-		return '';
-	}
-
-	/**
 	 * Filters the platform import into json.
 	 *
 	 * @param   string  $value  Raw input.
