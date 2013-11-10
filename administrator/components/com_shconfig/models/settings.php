@@ -97,7 +97,10 @@ class ShconfigModelSettings extends JModelForm
 	 */
 	public function getForm($data = array(), $loadData = false)
 	{
-		$form = $this->loadForm('com_shconfig.settings', 'settings', array('control' => 'jform', 'load_data' => $loadData));
+		$input = new JInput;
+		$name = $input->get('layout', 'base', 'cmd');
+
+		$form = $this->loadForm('com_shconfig.settings', $name, array('control' => 'jform', 'load_data' => $loadData));
 
 		if (empty($form))
 		{

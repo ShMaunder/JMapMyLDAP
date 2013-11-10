@@ -108,7 +108,11 @@ class ShconfigControllerSettings extends JControllerForm
 		$app   = JFactory::getApplication();
 		$lang  = JFactory::getLanguage();
 		$model = $this->getModel();
-		$data  = JRequest::getVar('jform', array(), 'post', 'array');
+		$input = $app->input;
+
+		$data = $input->get('jform', array(), 'array');
+
+		$layout = $input->get('layout', 'base', 'cmd');
 
 		$context = "$this->option.edit.$this->context";
 
@@ -122,7 +126,7 @@ class ShconfigControllerSettings extends JControllerForm
 
 			$this->setRedirect(
 				JRoute::_(
-					'index.php?option=' . $this->option . '&view=' . $this->view_list . '&layout=edit'
+					'index.php?option=' . $this->option . '&view=' . $this->view_list . '&layout=' . $layout
 					. $this->getRedirectToListAppend(), false
 				)
 			);
@@ -169,7 +173,7 @@ class ShconfigControllerSettings extends JControllerForm
 			// Redirect back to the edit screen.
 			$this->setRedirect(
 				JRoute::_(
-					'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=edit'
+					'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=' . $layout
 					. $this->getRedirectToListAppend(), false
 				)
 			);
@@ -189,7 +193,7 @@ class ShconfigControllerSettings extends JControllerForm
 
 			$this->setRedirect(
 				JRoute::_(
-					'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=edit'
+					'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=' . $layout
 					. $this->getRedirectToListAppend(), false
 				)
 			);
@@ -202,7 +206,7 @@ class ShconfigControllerSettings extends JControllerForm
 		// Redirect back to the edit screen.
 		$this->setRedirect(
 			JRoute::_(
-				'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=edit'
+				'index.php?option=' . $this->option . '&view=' . $this->view_item . '&layout=' . $layout
 				. $this->getRedirectToListAppend(), false
 			)
 		);

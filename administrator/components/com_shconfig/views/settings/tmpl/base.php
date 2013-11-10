@@ -3,7 +3,7 @@
  * PHP Version 5.3
  *
  * @package     Shmanic.Components
- * @subpackage  Shldap
+ * @subpackage  Shconfig
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
  * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
@@ -24,14 +24,15 @@ JHtml::_('behavior.formvalidation');
 		}
 	}
 </script>
-<form action="<?php echo JRoute::_('index.php?option=com_shldap&layout=edit'); ?>" method="post" name="adminForm" id="settings-form" class="form-validate">
+<form action="<?php echo JRoute::_('index.php?option=com_shconfig&task=settings.edit&layout=base'); ?>" method="post" name="adminForm" id="settings-form" class="form-validate">
 	<div class="row-fluid">
+
 	<div class="width-50 fltlft span6 form-horizontal">
 		<fieldset class="adminform">
-			<legend><?php echo JText::sprintf('COM_SHLDAP_SETTINGS_LDAP_TITLE'); ?></legend>
+			<legend><?php echo JText::sprintf('COM_SHCONFIG_SETTINGS_PLATFORM_TITLE'); ?></legend>
 			<div class="adminformlist tab-content">
 				<div class="tab-pane active" id="details">
-				<?php foreach ($this->form->getFieldset('ldap') as $field) : ?>
+				<?php foreach ($this->form->getFieldset('platform') as $field) : ?>
 					<?php if (!$field->hidden) : ?>
 						<div class="control-group"><?php echo $field->label; ?>
 						<?php echo $field->input; ?></div>
@@ -42,6 +43,21 @@ JHtml::_('behavior.formvalidation');
 		</fieldset>
 	</div>
 
+	<div class="width-50 fltrt span6 form-horizontal">
+		<fieldset class="adminform">
+			<legend><?php echo JText::sprintf('COM_SHCONFIG_SETTINGS_USER_TITLE'); ?></legend>
+			<div class="adminformlist tab-content">
+				<div class="tab-pane active" id="details">
+				<?php foreach ($this->form->getFieldset('user') as $field) : ?>
+					<?php if (!$field->hidden) : ?>
+						<div class="control-group"><?php echo $field->label; ?>
+						<?php echo $field->input; ?></div>
+					<?php endif; ?>
+				<?php endforeach; ?>
+				</div>
+			</div>
+		</fieldset>
+	</div>
 	<div class="clearfix"> </div>
 
 	<div>

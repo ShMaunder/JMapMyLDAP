@@ -58,7 +58,8 @@ class ShconfigController extends JControllerLegacy
 		if ($vName == 'default')
 		{
 			$input->set('view', 'settings');
-			$input->set('layout', 'edit');
+			$input->set('layout', 'base');
+			$lName = $input->get('layout', 'default', 'cmd');
 			$vName = 'settings';
 		}
 
@@ -74,7 +75,7 @@ class ShconfigController extends JControllerLegacy
 		}
 
 		// Add the submenu
-		ShconfigHelper::addSubmenu($vName);
+		ShconfigHelper::addSubmenu($vName, $lName);
 
 		parent::display($cachable, $urlparams);
 

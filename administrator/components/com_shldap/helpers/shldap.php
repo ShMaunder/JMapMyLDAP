@@ -47,12 +47,6 @@ abstract class ComShldapHelper
 		);
 
 		JSubMenuHelper::addEntry(
-			JText::_('COM_SHLDAP_SUBMENU_SETTINGS'),
-			'index.php?option=com_shldap&view=settings&task=settings.edit',
-			$vName == 'settings'
-		);
-
-		JSubMenuHelper::addEntry(
 			JText::_('COM_SHLDAP_SUBMENU_HOSTS'),
 			'index.php?option=com_shldap&view=hosts',
 			$vName == 'hosts'

@@ -44,7 +44,7 @@ class ShconfigViewSettings extends JViewLegacy
 			return false;
 		}
 
-		$this->addToolbar();
+		$this->addToolbar($this->getLayout());
 		parent::display($tpl);
 	}
 
@@ -55,11 +55,11 @@ class ShconfigViewSettings extends JViewLegacy
 	 *
 	 * @since   2.0
 	 */
-	protected function addToolbar()
+	protected function addToolbar($lName = 'base')
 	{
 		$user	= JFactory::getUser();
 
-		JToolBarHelper::title(JText::_('COM_SHCONFIG_SETTINGS_MANAGER'), '');
+		JToolBarHelper::title(JText::sprintf('COM_SHCONFIG_SETTINGS_MANAGER', ucfirst($lName)), '');
 
 		if (JFactory::getUser()->authorise('core.admin', 'com_shconfig'))
 		{
