@@ -42,12 +42,71 @@ class SHSsoMonitor extends JEvent
 	 */
 	public function onAfterInitialise()
 	{
-		if (!JFactory::getUser()->get('id'))
+		$config = SHFactory::getConfig();
+
+		// Check if URL bypassing is enabled
+		if ($config->get('sso.urlbypass', false))
 		{
-			// There is no current user logged in so attempt SSO
-			$this->_attemptSSO();
+			// Check if the URL contains this key and the value assigned to it
+			$input = new JInput;
+			$value = $input->get($config->get('sso.bypasskey'), false);
+
+			// Check whether the url has been set
+			if ($value !== false)
+			{
+				if ($value == 0)
+				{
+					// Enable SSO
+					SHSsoHelper::enable(true);
+				}
+				elseif ($value == 1)
+				{
+					// Disable SSO
+					SHSsoHelper::disable(true);
+
+					return;
+				}
+			}
+		}
+
+		$this->_attemptSSO();
+	}
+
+	/**
+	 * Method handles logout logic and reports back to the subject.
+	 *
+	 * @param   array  $user     Holds the user data.
+	 * @param   array  $options  Array holding options such as client.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @since   2.0
+	 */
+	public function onUserLogout($user, $options = array())
+	{
+		// Check the required SSO libraries exist
+		if (!(class_exists('SHSsoHelper') && class_exists('SHSso')))
+		{
+			// Error: classes missing
+			SHLog::add(JText::_('LIB_SHSSOMONITOR_ERR_15001'), 15001, JLog::ERROR, 'sso');
 
 			return;
+		}
+
+		try
+		{
+			$config = SHFactory::getConfig();
+
+			$sso = new SHSso(
+				$config->get('sso.plugintype', 'sso')
+			);
+
+			// Attempt the logout
+			return $sso->logout();
+		}
+		catch (Exception $e)
+		{
+			SHLog::add($e, 15009, JLog::ERROR, 'sso');
 		}
 	}
 
@@ -73,39 +132,32 @@ class SHSsoMonitor extends JEvent
 		{
 			$config = SHFactory::getConfig();
 
-			// Get the bypass key
-			$bypass = $config->get('sso.bypasskey');
-
-			// Check if URL bypassing is enabled
-			if ($config->get('sso.urlbypass', false))
-			{
-				// Check if the URL contains this key and the value assigned to it
-				$input = new JInput;
-				$value = $input->get($bypass, false);
-
-				// Check whether the url has been set
-				if ($value !== false)
-				{
-					if ($value == 0)
-					{
-						// Enable the SSO in the session
-						SHSsoHelper::enableSession();
-					}
-					elseif ($value == 1)
-					{
-						// Disable the SSO in the session
-						SHSsoHelper::disableSession();
-
-						return;
-					}
-				}
-			}
-
 			// Check if SSO is disabled via the session
-			if (SHSsoHelper::isDisabled())
+			if (SHSsoHelper::status() !== SHSsoHelper::STATUS_ENABLE)
 			{
 				// It is disabled so do not continue
 				return;
+			}
+
+			$forceLogin = false;
+
+			$userId = JFactory::getUser()->get('id');
+
+			if ($config->get('sso.forcelogin', false))
+			{
+				if ($userId)
+				{
+					// Log out current user if detect user is not equal
+					$forceLogin = true;
+				}
+			}
+			else
+			{
+				if ($userId)
+				{
+					// User already logged in and no forcelogout
+					return;
+				}
 			}
 
 			/*
@@ -126,8 +178,11 @@ class SHSsoMonitor extends JEvent
 
 			if (!SHSsoHelper::doIPCheck($myIp, $ipList, $ipRule))
 			{
-				// This IP isn't allowed
-				SHLog::add(JText::_('LIB_SHSSO_DEBUG_15004'), 15004, JLog::DEBUG, 'sso');
+				if (!$forceLogin)
+				{
+					// This IP isn't allowed
+					SHLog::add(JText::_('LIB_SHSSO_DEBUG_15004'), 15004, JLog::DEBUG, 'sso');
+				}
 
 				return;
 			}
@@ -141,8 +196,11 @@ class SHSsoMonitor extends JEvent
 			{
 				if (!$config->get('sso.backend', false))
 				{
-					// Not allowed to SSO on backend
-					SHLog::add(JText::_('LIB_SHSSO_DEBUG_15006'), 15006, JLog::DEBUG, 'sso');
+					if (!$forceLogin)
+					{
+						// Not allowed to SSO on backend
+						SHLog::add(JText::_('LIB_SHSSO_DEBUG_15006'), 15006, JLog::DEBUG, 'sso');
+					}
 
 					return;
 				}
@@ -153,8 +211,22 @@ class SHSsoMonitor extends JEvent
 				$config->get('sso.plugintype', 'sso')
 			);
 
+			$detection = $sso->detect();
+
+			if ($detection && $forceLogin)
+			{
+				// Check if the current logged in user matches the detection
+				if (strtolower($detection['username']) != strtolower(JFactory::getUser()->get('username')))
+				{
+					SHLog::add(JText::sprintf('LIB_SHSSO_DEBUG_15008', $detection['username']), 15008, JLog::DEBUG, 'sso');
+
+					// Need to logout the current user
+					JFactory::getApplication()->logout();
+				}
+			}
+
 			// Attempt the login
-			return $sso->login();
+			return $sso->login($detection);
 		}
 		catch (Exception $e)
 		{

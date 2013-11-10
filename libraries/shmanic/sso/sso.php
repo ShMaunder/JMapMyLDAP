@@ -335,19 +335,25 @@ class SHSso extends JDispatcher
 	 * Attempts to login a user via Single Sign On.
 	 * Only if a username is detected can a login been attempted.
 	 *
-	 * @param   array  $options  An optional array of options to override config settings.
+	 * @param   array  $detection  Optional SSO user.
+	 * @param   array  $options    An optional array of options to override config settings.
 	 *
 	 * @return  boolean  True on successful login or False on fail.
 	 *
 	 * @since   1.0
 	 * @throws  RuntimeException
 	 */
-	public function login($options = array())
+	public function login($detection = null, $options = array())
 	{
 		$config = SHFactory::getConfig();
 
 		// Get the SSO username and optional details from the plug-ins
-		if (!$detection = $this->detect())
+		if (is_null($detection))
+		{
+			$detection = $this->detect();
+		}
+
+		if (!$detection)
 		{
 			return false;
 		}
@@ -441,6 +447,7 @@ class SHSso extends JDispatcher
 		 * Username has been authorised. We can now proceed with the
 		 * standard Joomla log-on by calling the onUserLogin event.
 		 */
+		$options[SHSsoHelper::SESSION_PLUGIN_KEY] = $detection['sso'];
 		JPluginHelper::importPlugin('user');
 
 		$results = JFactory::getApplication()->triggerEvent(
@@ -448,6 +455,10 @@ class SHSso extends JDispatcher
 			array((array) $response,
 			$options)
 		);
+
+		// Save the SSO plug-in name for logout later
+		$session = JFactory::getSession();
+		$session->set(SHSsoHelper::SESSION_PLUGIN_KEY, $detection['sso']);
 
 		// Check if any of the events failed
 		if (in_array(false, $results, true))
@@ -457,7 +468,38 @@ class SHSso extends JDispatcher
 
 		SHLog::add(JText::sprintf('LIB_SHSSO_INFO_15079', $username), 15079, JLog::INFO, 'sso');
 
+		// Do a check if URL redirect is required
+		SHSsoHelper::redirect();
+
 		// Everything successful - user should be logged on.
 		return true;
+	}
+
+	/**
+	 * Calls the logoutRemoteUser method within SSO plug-in if the user
+	 * was logged on with SSO.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function logout()
+	{
+		// Save the SSO plug-in name for logout later
+		$session = JFactory::getSession();
+
+		if ($class = $session->get(SHSsoHelper::SESSION_PLUGIN_KEY, false))
+		{
+			// Lets disable SSO until the user requests login
+			SHSsoHelper::disable();
+
+			$index = array_search($class, $this->_observers);
+
+			// Ensure the SSO plug-in is still available
+			if ($index !== false && method_exists($this->_observers[$index], 'logoutRemoteUser'))
+			{
+				$this->_observers[$index]->logoutRemoteUser();
+			}
+		}
 	}
 }
