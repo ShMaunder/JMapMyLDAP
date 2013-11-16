@@ -58,12 +58,6 @@ CentOS/RHEL: yum install xmlstarlet
 		</phingcall>
 
 		<phingcall target="build">
-			<property name="extension.path" value="plugins/authentication/shadapter" />
-			<property name="manifest" value="shadapter.xml" />
-			<property name="manifest.use" value="1" />
-		</phingcall>
-
-		<phingcall target="build">
 			<property name="extension.path" value="plugins/system/shplatform" />
 			<property name="manifest" value="shplatform.xml" />
 			<property name="manifest.use" value="1" />
