@@ -51,6 +51,14 @@ abstract class ShconfigHelper
 					($vName == 'settings' && $lName == 'ldap')
 				);
 			}
+			elseif ($mod === 'sso')
+			{
+				JSubMenuHelper::addEntry(
+					JText::_('COM_SHCONFIG_SUBMENU_SETTINGS_SSO'),
+					'index.php?option=com_shconfig&task=settings.edit&layout=sso',
+					($vName == 'settings' && $lName == 'sso')
+				);
+			}
 		}
 
 		JSubMenuHelper::addEntry(

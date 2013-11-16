@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="sso">
+		<field name="sso:doauthorise"
+			type="radio"
+			default="1"
+			class="btn-group"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_DOAUTHORISE_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_DOAUTHORISE_DESC"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+		<!-- // This value should never need changing therefore lets comment out
+		<field name="sso:plugintype"
+			type="text"
+			default="sso"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_PLUGINTYPE_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_PLUGINTYPE_DESC"
+		/>
+		-->
+		<field name="sso:autoregister"
+			type="radio"
+			default="1"
+			class="btn-group"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_AUTOREGISTER_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_AUTOREGISTER_DESC"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+		<field name="sso:backend"
+			type="radio"
+			default="0"
+			class="btn-group"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_BACKEND_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_BACKEND_DESC"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+		<field name="sso:forcelogin"
+			type="radio"
+			default="0"
+			class="btn-group"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_FORCELOGIN_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_FORCELOGIN_DESC"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
+		<field name="spacer5" type="spacer" hr="true"/>
+		<field name="sso:bypasskey"
+			type="text"
+			default=""
+			required="true"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_BYPASSKEY_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_BYPASSKEY_DESC"
+		/>
+		<field name="sso:behaviour"
+			type="list"
+			default="2"
+			class="btn-group"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_DESC"
+		>
+			<option value="1">COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_ALWAYS</option>
+			<option value="2">COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_ONFLAGS</option>
+			<option value="0">COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_ONDEMAND</option>
+		</field>
+		
+		<field name="spacer4" type="spacer" hr="true"/>
+		<!-- // This value should never need changing therefore lets comment out
+		<field name="sso:checkusernull"
+			type="radio"
+			default="1"
+			class="btn-group"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_CHECKUSERNULL_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_CHECKUSERNULL_DESC"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+		-->
+		<field name="sso:logintasks"
+			type="sh.jsontextarea"
+			filter="SHFormFilters::newline2json"
+			default="[&quot;user.login&quot;,&quot;sso.login&quot;]"
+			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_LOGINTASKS_LABEL"
+			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_LOGINTASKS_DESC"
+		/>
+	</fieldset>
+</form>
+
+
