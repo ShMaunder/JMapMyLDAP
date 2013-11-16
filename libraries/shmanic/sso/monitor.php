@@ -45,7 +45,7 @@ class SHSsoMonitor extends JEvent
 		$config = SHFactory::getConfig();
 
 		// Check if URL bypassing is enabled
-		if ($config->get('sso.urlbypass', false))
+		if ($config->get('sso.bypasskey', false))
 		{
 			// Check if the URL contains this key and the value assigned to it
 			$input = new JInput;
