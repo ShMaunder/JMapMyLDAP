@@ -282,3 +282,5 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 15076 - Failed to logon user '%1$s' due to missing email. [LIB_SHSSO_ERR_15076]
 15078 - The user login for '%1$s' was aborted due to a failure on a onUserLogin plug-in. [LIB_SHSSO_ERR_15078]
 15079 - Successfully logged in user '%1$s' via SSO. [LIB_SHSSO_INFO_15079]
+
+16010 - General Error ID for raising a exception in SSO eDirLDAP

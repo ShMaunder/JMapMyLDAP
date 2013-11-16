@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.6" type="plugin" group="sso" method="upgrade">
+<!-- original based on JAuthTools - refer to source for acknowledgments -->
+	<name>plg_sso_edirldap</name>
+	<author>Shaun Maunder</author>
+	<creationDate>July 2011</creationDate>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version></version>
+	<buildDate></buildDate>
+	<description>PLG_SSO_EDIRLDAP_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="edirldap">edirldap.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_sso_edirldap.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_sso_edirldap.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="use_legacy" type="radio" default="0" class="btn-group" description="PLG_SSO_EDIRLDAP_FIELD_USE_LEGACY_DESC" label="PLG_SSO_EDIRLDAP_FIELD_USE_LEGACY_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="ip_rule" type="list" default="allowall" description="PLG_SSO_EDIRLDAP_FIELD_IPRULE_DESC" label="PLG_SSO_EDIRLDAP_FIELD_IPRULE_LABEL">
+					<option value="allowall">PLG_SSO_EDIRLDAP_FIELD_IPRULE_ALLOW</option>
+					<option value="denyall">PLG_SSO_EDIRLDAP_FIELD_IPRULE_DENY</option>
+				</field>
+				<field name="ip_list" type="textarea" default="" cols="30" rows="10" label="PLG_SSO_EDIRLDAP_FIELD_IPLIST_LABEL" description="PLG_SSO_EDIRLDAP_FIELD_IPLIST_DESC"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

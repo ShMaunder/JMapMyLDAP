@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.6" type="plugin" group="sso" method="upgrade">
+	<name>plg_sso_http</name>
+	<author>Shaun Maunder</author>
+	<creationDate>July 2011</creationDate>
+	<copyright>Copyright (C) 2013 Shaun Maunder. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<version></version>
+	<buildDate></buildDate>
+	<description>PLG_SSO_HTTP_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="http">http.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_sso_http.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_sso_http.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="use_legacy" type="radio" default="0" class="btn-group" description="PLG_SSO_HTTP_FIELD_USE_LEGACY_DESC" label="PLG_SSO_HTTP_FIELD_USE_LEGACY_LABEL">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="userkey" type="text" size="20" default="REMOTE_USER" required="true" label="PLG_SSO_HTTP_FIELD_USERKEY_LABEL" description="PLG_SSO_HTTP_FIELD_USERKEY_DESC"/>
+				<field name="username_replacement" type="text" size="20" default="" label="PLG_SSO_HTTP_FIELD_USERREPLACE_LABEL" description="PLG_SSO_HTTP_FIELD_USERREPLACE_DESC"/>
+							
+				<field name="ip_rule" type="list" default="allowall" description="PLG_SSO_HTTP_FIELD_IPRULE_DESC" label="PLG_SSO_HTTP_FIELD_IPRULE_LABEL">
+					<option value="allowall">PLG_SSO_HTTP_FIELD_IPRULE_ALLOW</option>
+					<option value="denyall">PLG_SSO_HTTP_FIELD_IPRULE_DENY</option>
+				</field>
+				<field name="ip_list" type="textarea" default="" cols="30" rows="10" label="PLG_SSO_HTTP_FIELD_IPLIST_LABEL" description="PLG_SSO_HTTP_FIELD_IPLIST_DESC"/>
+				
+				<field name="clearHeader" type="text" size="20" default="" label="PLG_SSO_HTTP_FIELD_CLEARHEADER_LABEL" description="PLG_SSO_HTTP_FIELD_CLEARHEADER_DESC"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
