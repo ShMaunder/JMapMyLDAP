@@ -38,18 +38,44 @@ abstract class SHSsoHelper
 	const RULE_ALLOW_ALL = 1;
 
 	/**
-	 * Cookie key to use for SSO status.
+	 * Session key to use for SSO status.
 	 *
 	 * @var    string
 	 * @since  2.0
 	 */
-	const COOKIE_STATUS_KEY = 'jmml_sso_status';
+	const SESSION_STATUS_KEY = 'sso_status';
 
-	const STATUS_BYPASS_DISABLE = -1;
+	/**
+	 * Used to specify if the SSO is disabled due to behaviour setting.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const STATUS_BEHAVIOUR_DISABLED = 3;
 
-	const STATUS_LOGOUT_DISABLE = -2;
+	/**
+	 * Session value for SSO disabled via manual bypass.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const STATUS_BYPASS_DISABLE = 2;
 
-	const STATUS_ENABLE = 1;
+	/**
+	 * Session value for SSO disabled via logout.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const STATUS_LOGOUT_DISABLE = 1;
+
+	/**
+	 * Session value for SSO enabled.
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
+	const STATUS_ENABLE = 0;
 
 	/**
 	 * Session key to use for SSO plug-in.
@@ -58,14 +84,6 @@ abstract class SHSsoHelper
 	 * @since  2.0
 	 */
 	const SESSION_PLUGIN_KEY = 'sso_plugin';
-
-	/**
-	 * Set when cookie destory cannot happen in a single execution.
-	 *
-	 * @var    integer
-	 * @since  2.0
-	 */
-	protected static $statusNow = 0;
 
 	/**
 	 * When set to true, redirect after login.
@@ -84,38 +102,64 @@ abstract class SHSsoHelper
 	 */
 	public static function status()
 	{
-		if ((self::$statusNow != self::STATUS_ENABLE) && (self::$statusNow == self::STATUS_BYPASS_DISABLE
-			|| (isset($_COOKIE[self::COOKIE_STATUS_KEY]) && $_COOKIE[self::COOKIE_STATUS_KEY] == self::STATUS_BYPASS_DISABLE)))
+		$config = SHFactory::getConfig();
+
+		$behaviour = (int) $config->get('sso.behaviour', 2);
+
+		$status = JFactory::getSession()->get(self::SESSION_STATUS_KEY, false);
+
+		if ($status === false)
 		{
-			// Bypass is activated
-			return self::STATUS_BYPASS_DISABLE;
+			$status = self::STATUS_ENABLE;
 		}
 
-		if ((self::$statusNow != self::STATUS_ENABLE) && (self::$statusNow == self::STATUS_LOGOUT_DISABLE
-			|| (isset($_COOKIE[self::COOKIE_STATUS_KEY]) && $_COOKIE[self::COOKIE_STATUS_KEY] == self::STATUS_LOGOUT_DISABLE)))
+		$status = (int) $status;
+
+		if ($status === self::STATUS_BYPASS_DISABLE)
 		{
-			$config = SHFactory::getConfig();
-
-			if (!$config->get('sso.ignoredisabled', false))
+			if ($behaviour !== 1)
 			{
-				// Get the login tasks and check if username can be null to sso
-				$tasks = json_decode($config->get('sso.logintasks', '[]'));
-				$usernameField = $config->get('sso.checkusernull', true);
+				// Manual bypass is activated
+				return self::STATUS_BYPASS_DISABLE;
+			}
+		}
+		elseif ($behaviour === 2 || $behaviour === 0)
+		{
+			$formLogin = true;
 
-				// Check if the URL contains this key and the value assigned to it
-				$input = new JInput;
-				$task = $input->get('task', false);
+			// Get the login tasks and check if username can be null to sso
+			$tasks = json_decode($config->get('sso.logintasks', '[]'));
+			$usernameField = $config->get('sso.checkusernull', true);
 
-				if ((!in_array($task, $tasks) || !JSession::checkToken()) || ($usernameField && $input->get('username', null)))
+			// Check if the URL contains this key and the value assigned to it
+			$input = new JInput;
+			$task = $input->get('task', false);
+
+			if ((!in_array($task, $tasks) || !JSession::checkToken()) || ($usernameField && $input->get('username', null)))
+			{
+				$formLogin = false;
+			}
+
+			if ($status === self::STATUS_LOGOUT_DISABLE)
+			{
+				// Logout bypass is activated
+				if (!$formLogin)
 				{
 					return self::STATUS_LOGOUT_DISABLE;
 				}
 			}
+			elseif ($status === self::STATUS_ENABLE)
+			{
+				if ($behaviour === 0 && !$formLogin)
+				{
+					return self::STATUS_BEHAVIOUR_DISABLED;
+				}
+			}
 
 			self::$redirect = true;
-			self::enable();
 		}
 
+		// Default to SSO enabled
 		return self::STATUS_ENABLE;
 	}
 
@@ -130,12 +174,18 @@ abstract class SHSsoHelper
 	 */
 	public static function enable($bypass = false)
 	{
-		$config = JFactory::getConfig();
-		$cookie_domain = $config->get('cookie_domain', '');
-		$cookie_path = $config->get('cookie_path', '/');
+		$session = JFactory::getSession();
 
-		setcookie(self::COOKIE_STATUS_KEY, '', time() - 3600, $cookie_path, $cookie_domain);
-		self::$statusNow = self::STATUS_ENABLE;
+		if (!$bypass)
+		{
+			if ($session->get(self::SESSION_STATUS_KEY, false) == self::STATUS_BYPASS_DISABLE)
+			{
+				// We dont allow re-enable of manual bypass without the specific variable
+				return;
+			}
+		}
+
+		$session->clear(self::SESSION_STATUS_KEY);
 	}
 
 	/**
@@ -149,19 +199,12 @@ abstract class SHSsoHelper
 	 */
 	public static function disable($bypass = false)
 	{
-		// If this is a logout then we only want to set the cookie if bypass disable isn't enabled
-		if ($bypass || !(isset($_COOKIE[self::COOKIE_STATUS_KEY]) && $_COOKIE[self::COOKIE_STATUS_KEY] == self::STATUS_BYPASS_DISABLE))
+		$session = JFactory::getSession();
+
+		// If this is a logout then we only want to set the session if bypass disable isn't enabled
+		if ($bypass || $session->get(self::SESSION_STATUS_KEY, false) != self::STATUS_BYPASS_DISABLE)
 		{
-			$config = JFactory::getConfig();
-			$cookie_domain = $config->get('cookie_domain', '');
-			$cookie_path = $config->get('cookie_path', '/');
-
-			$value = $bypass ? self::STATUS_BYPASS_DISABLE : self::STATUS_LOGOUT_DISABLE;
-
-			$time = (int) SHFactory::getConfig()->get('sso.cookietime', 3600);
-
-			setcookie(self::COOKIE_STATUS_KEY, $value, time() + $time, $cookie_path, $cookie_domain);
-			self::$statusNow = $value;
+			JFactory::getSession()->set(self::SESSION_STATUS_KEY, $bypass ? self::STATUS_BYPASS_DISABLE : self::STATUS_LOGOUT_DISABLE);
 		}
 	}
 

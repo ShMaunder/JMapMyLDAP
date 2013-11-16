@@ -42,30 +42,34 @@ class SHSsoMonitor extends JEvent
 	 */
 	public function onAfterInitialise()
 	{
+		$input = new JInput;
+
 		$config = SHFactory::getConfig();
 
-		// Check if URL bypassing is enabled
-		if ($config->get('sso.bypasskey', false))
+		$bypass = $config->get('sso.bypasskey', 'nosso');
+
+		// Check if the URL contains this key and the value assigned to it
+		$value = $input->get($bypass, false);
+
+		// Check whether the url has been set
+		if ($value !== false)
 		{
-			// Check if the URL contains this key and the value assigned to it
-			$input = new JInput;
-			$value = $input->get($config->get('sso.bypasskey'), false);
+			$value = (int) $value;
 
-			// Check whether the url has been set
-			if ($value !== false)
+			if ($value === SHSsoHelper::STATUS_ENABLE)
 			{
-				if ($value == 0)
-				{
-					// Enable SSO
-					SHSsoHelper::enable(true);
-				}
-				elseif ($value == 1)
-				{
-					// Disable SSO
-					SHSsoHelper::disable(true);
-
-					return;
-				}
+				// Enable SSO
+				SHSsoHelper::enable(true);
+			}
+			elseif ($value === SHSsoHelper::STATUS_LOGOUT_DISABLE)
+			{
+				// SSO user logout detected
+				SHSsoHelper::disable(false);
+			}
+			elseif ($value === SHSsoHelper::STATUS_BYPASS_DISABLE)
+			{
+				// Disable SSO for bypass
+				SHSsoHelper::disable(true);
 			}
 		}
 
@@ -138,6 +142,8 @@ class SHSsoMonitor extends JEvent
 				// It is disabled so do not continue
 				return;
 			}
+
+			SHSsoHelper::enable();
 
 			$forceLogin = false;
 

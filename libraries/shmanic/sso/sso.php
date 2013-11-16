@@ -41,6 +41,14 @@ class SHSso extends JDispatcher
 	const DETECT_METHOD_NAME = 'detectRemoteUser';
 
 	/**
+	 * Key used in the URI for sso logout.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	const URI_LOGOUT_KEY = 'ssologout';
+
+	/**
 	 * When used the user is authorised against a plugin.
 	 *
 	 * @var    integer
@@ -485,13 +493,22 @@ class SHSso extends JDispatcher
 	 */
 	public function logout()
 	{
-		// Save the SSO plug-in name for logout later
 		$session = JFactory::getSession();
 
+		$app = JFactory::getApplication();
+
+		// Get the SSO plug-in name from login if we used SSO
 		if ($class = $session->get(SHSsoHelper::SESSION_PLUGIN_KEY, false))
 		{
 			// Lets disable SSO until the user requests login
 			SHSsoHelper::disable();
+
+			$router = $app->getRouter();
+
+			// We need to add a callback on the router to tell the routed page we just logged out from SSO
+			$router->setVar('ssologoutkey', SHFactory::getConfig()->get('sso.bypasskey', 'nosso'));
+			$router->setVar('ssologoutval', $session->get(SHSsoHelper::SESSION_STATUS_KEY, SHSsoHelper::STATUS_ENABLE));
+			$router->attachBuildRule('SHSso::logoutRouterRule');
 
 			$index = array_search($class, $this->_observers);
 
@@ -501,5 +518,20 @@ class SHSso extends JDispatcher
 				$this->_observers[$index]->logoutRemoteUser();
 			}
 		}
+	}
+
+	/**
+	 * Router callback rule for appending the SSO logout variable to the URL.
+	 *
+	 * @param   JRouter  $router  Reference to the router object.
+	 * @param   JURI     $uri     Reference to the JURI object.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public static function logoutRouterRule(JRouter $router, JURI $uri)
+	{
+		$uri->setVar($router->getVar('ssologoutkey'), $router->getVar('ssologoutval'));
 	}
 }
