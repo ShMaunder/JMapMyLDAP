@@ -53,7 +53,7 @@
 		<field name="spacer5" type="spacer" hr="true"/>
 		<field name="sso:bypasskey"
 			type="text"
-			default=""
+			default="sso"
 			required="true"
 			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_BYPASSKEY_LABEL"
 			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_BYPASSKEY_DESC"
@@ -61,7 +61,6 @@
 		<field name="sso:behaviour"
 			type="list"
 			default="2"
-			class="btn-group"
 			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_LABEL"
 			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_DESC"
 		>
