@@ -24,7 +24,7 @@ REPLACE INTO `#__sh_config`
 
 REPLACE INTO `#__sh_config` 
   SET `name` = 'user:autoregister',
-  `value` = '1';
+  `value` = '2';
 
 REPLACE INTO `#__sh_config` 
   SET `name` = 'user:defaultgroup',
