@@ -15,9 +15,6 @@
 		<file type="plugin" id="shadapter" group="authentication">plg_authentication_shadapter.zip</file>
 		<file type="plugin" id="ldap" group="shlog">plg_shlog_ldap.zip</file>
 	</files>
- 	<updateservers>
-		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
-	</updateservers>
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_core.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_core.sys.ini</language>

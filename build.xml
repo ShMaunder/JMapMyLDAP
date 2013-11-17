@@ -12,6 +12,8 @@ CentOS/RHEL: yum install xmlstarlet
 
 	<property name="template.dir" value="./_build/template" override="false" />
 
+	<property name="updates.dir" value="./_build/updates" override="false" />
+
 	<property name="package.manifest" value="${template.dir}" override="false" />
 
 	<property name="package.version" value="2.0.0.trunk" override="false" />
@@ -170,6 +172,8 @@ CentOS/RHEL: yum install xmlstarlet
 			<property name="manifest" value="pkg_ldap_plugins.xml" />
 		</phingcall>
 
+		<phingcall target="updates" />
+
 		<phingcall target="zipall" />
 
 		<echo message="Package export directory ${package.dest}/packages" />
@@ -186,6 +190,48 @@ CentOS/RHEL: yum install xmlstarlet
 			</fileset>
 		</zip>
 	</target>
+
+	<target name="updates" description="Updates the update manifests.">
+		<property name="updates.dest" value="${package.dest}/updates" />
+
+		<!-- Check if the target folder exists. If not, create it -->
+		<if>
+			<not>
+				<available file="${updates.dest}" type="dir" />
+			</not>
+			<then>
+				<mkdir dir="${updates.dest}" />
+			</then>
+		</if>
+
+		<copy todir="${updates.dest}">
+			<!-- Copy the source files to the target folder -->
+			<fileset dir="${updates.dir}">
+				<include name="**" />
+				<exclude name=".*" />
+			</fileset>
+		</copy>
+
+
+		<foreach param="file.xml" absparam="absname" target="updates:updateXml">
+			<fileset dir="${updates.dest}">
+				<type type="file" />
+			</fileset>
+		</foreach>
+	</target>
+
+	<target name="updates:updateXml">
+		<if>
+			<isset property="file.xml" />
+			<then>
+				<!-- TODO put in native PHP script to do this - use xmlstarlet for now -->
+				<property name="path.xml" value="${updates.dest}/${file.xml}" />
+				<echo msg="xmlstarlet ed -P -L -u '/category/extension/@version' --value '${package.version}' '${path.xml}'" />
+				<exec command="xmlstarlet ed -P -L -u '/category/extension/@version' --value '${package.version}' '${path.xml}'" checkreturn="false" />
+			</then>
+		</if>
+	</target>
+
 
 	<target name="package" description="Creates several packages after the build to package packages.">
 		<property name="manifest.source" value="${template.dir}/${manifest}" />

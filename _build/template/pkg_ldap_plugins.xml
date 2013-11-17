@@ -17,9 +17,6 @@
 		<file type="plugin" id="password" group="ldap">plg_ldap_password.zip</file>
 		<file type="plugin" id="profile" group="ldap">plg_ldap_profile.zip</file>
 	</files>
- 	<updateservers>
-		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
-	</updateservers>
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_plugins.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_plugins.sys.ini</language>

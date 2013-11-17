@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<updates>
+	<update>
+		<name>Shmanic LDAP and SSO Core Package</name>
+		<packagename>ldap_sso_core</packagename>
+		<description></description>
+		<type>package</type>
+		<infourl title="Project Home">http://shmanic.com/tool/jmapmyldap</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip"><![CDATA[http://shmanic.com/tool/joomla/file.php?name=pkg_ldap_sso_core.zip]]></downloadurl>
+		</downloads>
+		<maintainer>Shaun Maunder</maintainer>
+		<maintainerurl>http://www.shmanic.com</maintainerurl>
+		<targetplatform name="joomla" version=".*" />
+	</update>
+</updates>

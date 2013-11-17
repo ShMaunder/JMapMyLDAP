@@ -17,10 +17,6 @@
 		<file type="plugin" id="ldap" group="shlog">plg_shlog_ldap.zip</file>
 		<file type="plugin" id="sso" group="shlog">plg_shlog_sso.zip</file>
 	</files>
- 	<updateservers>
-		<server type="collection" priority="2" name="Shmanic LDAP"><![CDATA[http://update.shmanic.com/shldap/2.0/update.xml]]></server>
-		<server type="collection" priority="2" name="Shmanic SSO"><![CDATA[http://update.shmanic.com/shsso/2.0/update.xml]]></server>
-	</updateservers>
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_sso_core.ini</language>
 		<language tag="en-GB">language/en-GB/en-GB.pkg_ldap_sso_core.sys.ini</language>
