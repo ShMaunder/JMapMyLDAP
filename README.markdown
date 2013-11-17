@@ -24,7 +24,6 @@
 <h2>Known Issues</h2>
 <ul>
  <li>SSO framework and configuration need to support jauthtools-sso plug-ins for SSI/SSO solutions</li>
- <li>Basic SSO plug-ins are absent from repo and causes builds to fail</li>
  <li>Groups do not save to LDAP after creating a new user through the Joomla user manager</li>
  <li>Username change code is missing meaning sites should disable it</li>
 </ul>
