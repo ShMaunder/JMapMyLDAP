@@ -89,6 +89,14 @@ class SHLdap
 	const AUTH_PROXY = 2;
 
 	/**
+	 * Extra configuration values that have no class properties.
+	 *
+	 * @var    array
+	 * @since  2.0
+	 */
+	public $extras = array();
+
+	/**
 	 * Debug stack
 	 *
 	 * @var    Array
@@ -382,6 +390,7 @@ class SHLdap
 			case 'ldap_uid':
 			case 'last_user_dn':
 			case 'all_user_filter':
+			case 'base_dn':
 			case 'bind_status':
 			case 'ldap_password':
 			case 'password_hash':
@@ -402,6 +411,10 @@ class SHLdap
 
 			case 'allUserFilter':
 				return $this->all_user_filter;
+				break;
+
+			case 'baseDn':
+				return $this->base_dn;
 				break;
 
 			case 'passwordHash':
@@ -481,6 +494,10 @@ class SHLdap
 			if (property_exists($this, $k))
 			{
 				$this->$k = $v;
+			}
+			else
+			{
+				$this->extras[$k] = $v;
 			}
 		}
 
