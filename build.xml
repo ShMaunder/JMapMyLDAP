@@ -226,8 +226,8 @@ CentOS/RHEL: yum install xmlstarlet
 			<then>
 				<!-- TODO put in native PHP script to do this - use xmlstarlet for now -->
 				<property name="path.xml" value="${updates.dest}/${file.xml}" />
-				<echo msg="xmlstarlet ed -P -L -u '/category/extension/@version' --value '${package.version}' '${path.xml}'" />
-				<exec command="xmlstarlet ed -P -L -u '/category/extension/@version' --value '${package.version}' '${path.xml}'" checkreturn="false" />
+				<echo msg="xmlstarlet ed -P -L -u '/extensionset/extension/@version' --value '${package.version}' '${path.xml}'" />
+				<exec command="xmlstarlet ed -P -L -u '/extensionset/extension/@version' --value '${package.version}' '${path.xml}'" checkreturn="false" />
 			</then>
 		</if>
 	</target>

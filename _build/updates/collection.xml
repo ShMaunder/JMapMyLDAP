@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<category name="Shmanic Extensions 2.0" description="Updators for Shmanic Extensions Version 2.0">
-	<extension version="2.0.0.390" name="Shmanic Platform" description="Shmanic Platform package containing the platform library and configuration component." element="pkg_shplatform" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_shplatform.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
-	<extension version="2.0.0.390" name="Shmanic LDAP Core Package" description="Shmanic LDAP Core package containing various LDAP tools, LDAP component and user authentication." element="pkg_ldap_core" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_ldap_core.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
-	<extension version="2.0.0.390" name="Shmanic LDAP Plugins Package" description="Shmanic LDAP Plugins package containing various LDAP specific plugins." element="pkg_ldap_plugins" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_ldap_plugins.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
-	<extension version="2.0.0.390" name="Shmanic LDAP and SSO Core Package" description="Shmanic LDAP and SSO Core package containing LDAP and SSO tools and components." element="pkg_ldap_sso_core" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_ldap_sso_core.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
-</category>
-
+<extensionset name="Shmanic Extensions 2.0" description="Updators for Shmanic Extensions Version 2.0">
+	<extension version="" name="Shmanic Platform" description="Shmanic Platform package containing the platform library and configuration component." element="pkg_shplatform" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_shplatform.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
+	<extension version="" name="Shmanic LDAP Core Package" description="Shmanic LDAP Core package containing various LDAP tools, LDAP component and user authentication." element="pkg_ldap_core" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_ldap_core.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
+	<extension version="" name="Shmanic LDAP Plugins Package" description="Shmanic LDAP Plugins package containing various LDAP specific plugins." element="pkg_ldap_plugins" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_ldap_plugins.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
+	<extension version="" name="Shmanic LDAP and SSO Core Package" description="Shmanic LDAP and SSO Core package containing LDAP and SSO tools and components." element="pkg_ldap_sso_core" type="package" detailsurl="http://update.shmanic.com/joomla/pkg_ldap_sso_core.xml" infourl="http://www.shmanic.com/tools/jmapmyldap" />
+</extensionset>
