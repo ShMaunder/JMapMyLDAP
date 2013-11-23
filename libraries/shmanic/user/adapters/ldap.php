@@ -932,6 +932,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		if (isset($this->_changes['dn']) && ($this->_changes['dn'] != $this->_dn))
 		{
 			// TODO: Need to rename the DN using SHLdap::rename()
+			throw new InvalidArgumentException(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10922'), 10922);
 		}
 
 		foreach ($operations as $operation => $commit)
@@ -957,21 +958,21 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				// Commit the Ldap password operation
 				if ($password !== false)
 				{
-					$this->client->$method($this->_dn, array($passwordKey => $password));
+					$this->client->replaceAttributes($this->_dn, array($passwordKey => $password));
 
-					// Successful commit so say so
+					// Successful password commit so say so
 					$commits['password'] = array(
 						'status' => JLog::INFO,
-						'info' => JText::sprintf('LIB_SHUSERADAPTERSLDAP_INFO_10914', $this->username, $operation)
+						'info' => JText::sprintf('LIB_SHUSERADAPTERSLDAP_INFO_10914', $this->username)
 					);
 				}
 			}
 			catch (Exception $e)
 			{
-				// An error happened trying to commit the change so lets log it
+				// An error happened trying to commit the password change so lets log it
 				$commits['password'] = array(
 					'status' => JLog::ERROR,
-					'info' => JText::sprintf('LIB_SHUSERADAPTERSLDAP_ERR_10915', $this->username, $operation),
+					'info' => JText::sprintf('LIB_SHUSERADAPTERSLDAP_ERR_10915', $this->username),
 					'exception' => $e
 				);
 

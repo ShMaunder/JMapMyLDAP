@@ -133,6 +133,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10917 - Failed to change password, current password not specified. [LIB_SHUSERADAPTERSLDAP_ERR_10917]
 10918 - Failed to change password, current password is incorrect. [LIB_SHUSERADAPTERSLDAP_ERR_10918]
 
+10922 - Changing LDAP username is not supported. [LIB_SHUSERADAPTERSLDAP_ERR_10922]
 10924 - Successfully committed '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_INFO_10924]
 10926 - Failed to commit '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_ERR_10926]
 
