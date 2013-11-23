@@ -27,8 +27,6 @@ class PlgLdapCreation extends JPlugin
 
 	protected $templateBase = null;
 
-	protected $includeHelper = null;
-
 	protected $domain = null;
 
 	protected $helper = null;
@@ -56,7 +54,6 @@ class PlgLdapCreation extends JPlugin
 
 		$this->templateName = $this->params->get('template_name', 'default');
 		$this->templateBase = $this->params->get('template_base', JPATH_PLUGINS . '/ldap/creation/templates');
-		$this->includeHelper = $this->params->get('include_helper', false);
 		$this->domain = $this->params->get('default_domain', null);
 	}
 
@@ -98,15 +95,12 @@ class PlgLdapCreation extends JPlugin
 			);
 
 			// Include the helper file only if it exists
-			if ($this->includeHelper)
+			if ($this->helper = $this->_getHelperFile())
 			{
-				if ($this->helper = $this->_getHelperFile())
+				// Calculate the correct domain to insert user on
+				if (method_exists($this->helper, 'getDomain'))
 				{
-					// Calculate the correct domain to insert user on
-					if (method_exists($this->helper, 'getDomain'))
-					{
-						$this->domain = $this->helper->getDomain($user);
-					}
+					$this->domain = $this->helper->getDomain($user);
 				}
 			}
 
