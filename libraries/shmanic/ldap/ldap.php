@@ -201,14 +201,6 @@ class SHLdap
 	protected $allow_anon = false;
 
 	/**
-	 * If true then use search to find user.
-	 *
-	 * @var    boolean
-	 * @since  1.0
-	 */
-	protected $use_search = false;
-
-	/**
 	 * Base DN to use for searching (e.g. dc=acme,dc=local / o=company).
 	 *
 	 * @var    string
@@ -442,6 +434,11 @@ class SHLdap
 
 			case 'info':
 				return $this->host . ':' . $this->port;
+				break;
+
+			case 'use_search':
+				// Deprecated attribute for BC
+				return (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $this->user_qry)) ? true : false;
 				break;
 		}
 
@@ -1203,13 +1200,19 @@ class SHLdap
 
 		$replaced = str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
 
+		/*
+		 * A basic detection check for LDAP filter.
+		 * (i.e. distinguished names do not start and end with brackets).
+		 */
+		$useSearch = (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $this->user_qry)) ? true : false;
+
 		$this->addDebug(
 			"Attempt to retrieve user distinguished name using '{$replaced}' " .
-			($this->use_search ? ' with search.' : ' with direct bind.')
+			($useSearch ? ' with search.' : ' with direct bind.')
 		);
 
 		// Get a array of distinguished names from either the search or direct bind methods.
-		$DNs = $this->use_search ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
+		$DNs = $useSearch ? $this->getUserDnBySearch($username) : $this->getUserDnDirectly($username);
 
 		if (empty($DNs))
 		{
@@ -1238,7 +1241,7 @@ class SHLdap
 				}
 			}
 
-			if ($this->use_search)
+			if ($useSearch)
 			{
 				// User found, but was unable to bind with the supplied password
 				throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10303'), 10303, $username);
@@ -1253,7 +1256,7 @@ class SHLdap
 		{
 			$result = false;
 
-			if ($this->use_search)
+			if ($useSearch)
 			{
 				/* We can be sure the distinguished name(s) exists in the Ldap
 				 * directory. However, we cannot be sure if the correct
@@ -1337,12 +1340,6 @@ class SHLdap
 		$username 	= SHLdapHelper::escape($username);
 		$search 	= str_replace(self::USERNAME_REPLACE, $username, $this->user_qry);
 
-		// Basic check for LDAP filter (i.e. brackets). Could still be a distinguished name.
-		if (!preg_match('/\((.)*\)/', $search))
-		{
-			$search = "({$search})";
-		}
-
 		if (empty($this->base_dn))
 		{
 			// No base distinguished name specified, cannot proceed.
@@ -1394,16 +1391,6 @@ class SHLdap
 
 		// Splits each of the distinguished names into indivdual elements
 		$DNs = explode(';', $search);
-
-		/*
-		 * A basic check to ensure a filter isnt being used.
-		 * (i.e. distinguished names do not start and end with brackets).
-		 */
-		if (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $search))
-		{
-			// Cannot continue as brackets are present
-			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10331'), 10331);
-		}
 
 		// We need to find the correct distinguished name from the set of elements
 		foreach ($DNs as $dn)

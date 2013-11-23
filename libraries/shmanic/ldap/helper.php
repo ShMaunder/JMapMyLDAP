@@ -423,10 +423,7 @@ abstract class SHLdapHelper
 
 			$converted['base_dn']			= $params->get('base_dn');
 
-			$converted['use_search'] = ($params->get('auth_method') == 'search') ?
-				true : false;
-
-			if ($converted['use_search'])
+			if ($params->get('auth_method') == 'search')
 			{
 				// Build the search filter
 				$tmp = trim($params->get('search_string'));
@@ -443,7 +440,7 @@ abstract class SHLdapHelper
 		}
 
 		// Dodgy detection for SHLdap parameters
-		elseif ($params->get('user_qry') && $params->get('use_search'))
+		elseif ($params->get('user_qry'))
 		{
 			if ($convert === 'SHLdap')
 			{
@@ -467,7 +464,7 @@ abstract class SHLdapHelper
 
 			$converted['base_dn']			= $params->get('base_dn');
 
-			$converted['auth_method'] = ($params->get('use_search')) ?
+			$converted['auth_method'] = (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $params->get('user_qry'))) ?
 					'search' : 'bind';
 
 			if ($converted['auth_method'] == 'search')
