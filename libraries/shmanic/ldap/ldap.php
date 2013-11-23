@@ -585,7 +585,7 @@ class SHLdap
 		else
 		{
 			// If a DN is returned, then this user is successfully authenticated/authorised
-			$dn = $this->getUserDN($username, $password, ($authenticate === self::AUTH_USER) ? true : false);
+			$dn = $this->getUserDn($username, $password, ($authenticate === self::AUTH_USER) ? true : false);
 		}
 
 		// Successfully authenticated and retrieved User DN.
@@ -1207,7 +1207,7 @@ class SHLdap
 	 * @throws  SHLdapException           Ldap specific error.
 	 * @throws  SHExceptionInvaliduser    User invalid error.
 	 */
-	public function getUserDN($username = null, $password = null, $authenticate = false)
+	public function getUserDn($username = null, $password = null, $authenticate = false)
 	{
 		if (empty($this->user_qry))
 		{

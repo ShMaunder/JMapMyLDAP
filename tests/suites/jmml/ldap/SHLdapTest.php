@@ -623,7 +623,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->connect();
 
 		$user = TestsHelper::getUserCreds();
-		$dn = $ldap->getUserDN($user['username'], $user['password'], true);
+		$dn = $ldap->getUserDn($user['username'], $user['password'], true);
 	}
 
 	public function testSlapdGetUserDNSearchAuthFail()
@@ -635,7 +635,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		// We use a incorrect password here
 		$user = TestsHelper::getUserCreds();
-		$dn = $ldap->getUserDN($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
+		$dn = $ldap->getUserDn($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
 	}
 
 	public function testSlapdGetUserDNSearchUsernameFail()
@@ -647,7 +647,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		// We use a incorrect username
 		$user = TestsHelper::getUserCreds();
-		$dn = $ldap->getUserDN($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
+		$dn = $ldap->getUserDn($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
 	}
 
 	public function testSlapdGetUserDNSearchAuthSuccess()
@@ -663,7 +663,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 			$this->assertEquals(
 				$user['dn'],
-				$ldap->getUserDN($user['username'], $user['password'], true),
+				$ldap->getUserDn($user['username'], $user['password'], true),
 				"Failed to get User DN for {$user['dn']}"
 			);
 		}
@@ -682,7 +682,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 			$this->assertEquals(
 				$user['dn'],
-				$ldap->getUserDN($user['username'], null, false),
+				$ldap->getUserDn($user['username'], null, false),
 				"Failed to get User DN for {$user['dn']}"
 			);
 		}
@@ -697,7 +697,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$user = TestsHelper::getUserCreds('shaun.maunder');
 
-		$ldap->getUserDN($user['username'] . 'asdas', null, false);
+		$ldap->getUserDn($user['username'] . 'asdas', null, false);
 	}
 
 	public function testSlapdGetUserDNDirectlyAuthFail()
@@ -709,7 +709,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$user = TestsHelper::getUserCreds('shaun.maunder');
 
-		$ldap->getUserDN($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
+		$ldap->getUserDn($user['username'], ($user['password'] . 'kjfs!"£$%^&*()fkjsd'), true);
 	}
 
 	public function testSlapdGetUserDNDirectlyUsernameFail()
@@ -721,7 +721,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$user = TestsHelper::getUserCreds('shaun.maunder');
 
-		$ldap->getUserDN($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
+		$ldap->getUserDn($user['username'] . 'osjgo!"£$%^&*()', ($user['password']), true);
 	}
 
 	public function testSlapdGetUserDNDirectlyAuthSuccess()
@@ -733,7 +733,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals(
 			$user['dn'],
-			$ldap->getUserDN($user['username'], $user['password'], true)
+			$ldap->getUserDn($user['username'], $user['password'], true)
 		);
 	}
 
@@ -746,7 +746,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals(
 			$user['dn'],
-			$ldap->getUserDN($user['username'], null, false)
+			$ldap->getUserDn($user['username'], null, false)
 		);
 	}
 
@@ -759,7 +759,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$user = TestsHelper::getUserCreds('shaun.maunder');
 
-		$ldap->getUserDN($user['username'] . 'sadhrtresa', null, false);
+		$ldap->getUserDn($user['username'] . 'sadhrtresa', null, false);
 	}
 
 	public function testSlapdGetUserDNDirectlyNoAuthNoProxy()
@@ -776,7 +776,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		// It should come back with the DN
 		$this->assertEquals(
 			$user['dn'],
-			$ldap->getUserDN($user['username'], null, false)
+			$ldap->getUserDn($user['username'], null, false)
 		);
 	}
 
@@ -823,7 +823,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 			$this->assertEquals(
 				$user['dn'],
-				$ldap->getUserDN($user['username'], null, false),
+				$ldap->getUserDn($user['username'], null, false),
 				"Failed to get User DN for {$user['dn']}"
 			);
 		}
@@ -852,7 +852,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 			$this->assertEquals(
 				$user['dn'],
-				$ldap->getUserDN($user['username'], null, false),
+				$ldap->getUserDn($user['username'], null, false),
 				"Failed to get User DN for {$user['dn']}"
 			);
 		}
@@ -901,7 +901,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		// Test Last User DN
 		$this->assertNull($ldap->lastUserDn);
-		$ldap->getUserDN($user['username'], $user['password']);
+		$ldap->getUserDn($user['username'], $user['password']);
 		$this->assertEquals($user['dn'], $ldap->lastUserDn);
 
 		// Test All user Filter

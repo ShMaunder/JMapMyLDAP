@@ -37,7 +37,7 @@ try
 		echo '<br /><p style="background-color:#BBF;display:block;padding:4px 0;font-weight:bold;"><strong>NOTE: after changing proxy password, save before testing otherwise it will fail!</strong></p><br />';
 	}
 
-	$dn = $client->getUserDN($this->debug['username'], $this->debug['password'], true);
+	$dn = $client->getUserDn($this->debug['username'], $this->debug['password'], true);
 
 	echo "Successfully found distinguished name {$dn}.<br />";
 

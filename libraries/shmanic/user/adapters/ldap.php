@@ -244,7 +244,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				if ($authenticate && $this->client->bindStatus !== SHLdap::AUTH_USER)
 				{
 					// Bind with the user now
-					$this->client->getUserDN($this->username, $this->password, true);
+					$this->client->getUserDn($this->username, $this->password, true);
 				}
 
 				// Dn has already been discovered so lets return it
@@ -260,7 +260,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			{
 				$this->client = new SHLdap($this->_config);
 				$this->client->connect();
-				$this->_dn = $this->client->getUserDN($this->username, $this->password, $authenticate);
+				$this->_dn = $this->client->getUserDn($this->username, $this->password, $authenticate);
 			}
 			else
 			{
@@ -1239,7 +1239,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	{
 		try
 		{
-			$this->client->getUserDN($this->username, null, false);
+			$this->client->getUserDn($this->username, null, false);
 
 			return true;
 		}
