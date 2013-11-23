@@ -791,7 +791,7 @@ class PlgLdapProfile extends JPlugin
 		foreach ($attributes as $attribute)
 		{
 			// Lets check for a delimiter (this is the indicator that multiple values are supported)
-			$delimiter 	= null;
+			$delimiter = null;
 			$xmlField = $xml->xpath("fieldset/field[@name='$attribute']");
 			$value = null;
 
@@ -829,15 +829,8 @@ class PlgLdapProfile extends JPlugin
 				}
 			}
 
-			if (!is_null($value))
-			{
-				$status = $this->checkSqlField($current, $attribute, $value);
-			}
-			else
-			{
-				// This record should be deleted
-				$status = 3;
-			}
+			// Get the action status required against the SQL table
+			$status = $this->checkSqlField($current, $attribute, $value);
 
 			switch ($status)
 			{
@@ -859,7 +852,7 @@ class PlgLdapProfile extends JPlugin
 		 * in steps (delete, add, update) and return the
 		 * result.
 		 */
-		$results 	= array();
+		$results = array();
 
 		if (count($deleteRecords))
 		{
@@ -1108,16 +1101,32 @@ class PlgLdapProfile extends JPlugin
 	*/
 	protected function checkSqlField($sql, $key, $value)
 	{
-		$status = 2;
+		if (is_null($value))
+		{
+			// LDAP value is null so lets default to SQL being correct
+			$status = 0;
+		}
+		else
+		{
+			// LDAP value is populated so lets default to SQL addition
+			$status = 2;
+		}
 
 		foreach ($sql as $record)
 		{
 			if ($record['profile_key'] == $key)
 			{
+				// The value exists in SQL but it may not be the correct value
 				$status = 1;
 
-				if ($record['profile_value'] == $value)
+				if (is_null($value))
 				{
+					// The value exists in SQL but not in LDAP
+					$status = 3;
+				}
+				elseif ($record['profile_value'] == $value)
+				{
+					// The value exists in SQL and has the same value as LDAP
 					$status = 0;
 				}
 			}
