@@ -650,6 +650,8 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 	/**
 	 * Sets the users password.
+	 * This method throws a 10638 exception when the password has updated successfully
+	 * but some other attribute during the commit process failed.
 	 *
 	 * @param   string  $new           New password.
 	 * @param   string  $old           Current password.
@@ -693,15 +695,26 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 		$this->setAttributes(array($key => $password));
 
-		if ($this->commitChanges())
-		{
-			// Update the password inside this adapter
-			$this->updateCredential($new);
+		$results = SHLdapHelper::commitChanges($this, true, false);
 
-			return true;
+		if ($results !== true)
+		{
+			if (isset($results['password']) && $results['password']['status'] === JLog::INFO)
+			{
+				// Password updated successfully, but something else failed
+				throw new RuntimeException(JText::_('LIB_SHLDAPHELPER_ERR_10638'), 10638);
+			}
+			else
+			{
+				// Password update FAILED
+				return false;
+			}
 		}
 
-		return false;
+		// Update the password inside this adapter
+		$this->updateCredential($new);
+
+		return true;
 	}
 
 	/**
@@ -912,6 +925,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			}
 		}
 
+		$passwordKey = $this->getPassword(true);
 		$results = array('status' => true);
 		$commits = array();
 
@@ -922,20 +936,65 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 		foreach ($operations as $operation => $commit)
 		{
+			$password = false;
+
+			if (isset($commit[$passwordKey]))
+			{
+				// Save the password for a seperate commit
+				$password = $commit[$passwordKey];
+
+				// Remove from the rest of the batch
+				unset ($commit[$passwordKey]);
+			}
+
+			// Copy commit array to logging array
+			$logCommit = $commit;
+
+			$method = "{$operation}Attributes";
+
+			try
+			{
+				// Commit the Ldap password operation
+				if ($password !== false)
+				{
+					$this->client->$method($this->_dn, array($passwordKey => $password));
+
+					// Successful commit so say so
+					$commits['password'] = array(
+						'status' => JLog::INFO,
+						'info' => JText::sprintf('LIB_SHUSERADAPTERSLDAP_INFO_10914', $this->username, $operation)
+					);
+				}
+			}
+			catch (Exception $e)
+			{
+				// An error happened trying to commit the change so lets log it
+				$commits['password'] = array(
+					'status' => JLog::ERROR,
+					'info' => JText::sprintf('LIB_SHUSERADAPTERSLDAP_ERR_10915', $this->username, $operation),
+					'exception' => $e
+				);
+
+				$results['status'] = false;
+			}
+
 			// Check there are some attributes to process for this commit
 			if (count($commit))
 			{
-				$method = "{$operation}Attributes";
-
 				try
 				{
-					// Commit the Ldap attribute operating
+					// Commit the Ldap attribute operation
 					$this->client->$method($this->_dn, $commit);
 
 					// Successful commit so say so
 					$commits[$operation] = array(
 						'status' => JLog::INFO,
-						'info' => preg_replace('/\s+/', ' ', var_export($commit, true))
+						'info' => JText::sprintf(
+							'LIB_SHUSERADAPTERSLDAP_INFO_10924',
+							$operation,
+							$this->username,
+							preg_replace('/\s+/', ' ', var_export($logCommit, true))
+						)
 					);
 
 					// Change the attribute field for this commit
@@ -966,10 +1025,15 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				}
 				catch (Exception $e)
 				{
-					// An error happened trying to commit the change
+					// An error happened trying to commit the change so lets log it
 					$commits[$operation] = array(
 						'status' => JLog::ERROR,
-						'info' => preg_replace('/\s+/', ' ', var_export($commit, true)),
+						'info' => JText::sprintf(
+							'LIB_SHUSERADAPTERSLDAP_ERR_10926',
+							$operation,
+							$this->username,
+							preg_replace('/\s+/', ' ', var_export($logCommit, true))
+						),
 						'exception' => $e
 					);
 

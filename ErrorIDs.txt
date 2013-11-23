@@ -112,6 +112,12 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10621 - Cannot instantiate the ldap file configuration or namespace [LIB_SHLDAPHELPER_ERR_10621]
 10622 - Cannot load the file for the ldap configuration [LIB_SHLDAPHELPER_ERR_10622]
 
+10634 - Entry for the commited user changes and their attributes after success.
+
+10636 - Entry for the commited user changes and their attributes after error.
+10637 - Entry for LDAP exception error after user commit failed.
+
+10638 - Failed to commit user changes to LDAP. [LIB_SHLDAPHELPER_ERR_10638]
 
 
 -- LDAP User Adapter [10800-10979] --
@@ -122,10 +128,13 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 10912 - Login cancelled due to LDAP plug-in returning false. [LIB_SHUSERADAPTERSLDAP_ERR_10912]
 
+10914 - Successfully committed password change. [LIB_SHUSERADAPTERSLDAP_INFO_10914]
+10915 - Failed to change password, the LDAP operation failed. [LIB_SHUSERADAPTERSLDAP_ERR_10915]
 10917 - Failed to change password, current password not specified. [LIB_SHUSERADAPTERSLDAP_ERR_10917]
 10918 - Failed to change password, current password is incorrect. [LIB_SHUSERADAPTERSLDAP_ERR_10918]
 
-
+10924 - Successfully committed '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_INFO_10924]
+10926 - Failed to commit '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_ERR_10926]
 
 -- LDAP Event Bouncer [10980-10999] --
 

@@ -261,7 +261,7 @@ class SHLdapEventBouncer extends JEvent
 				try
 				{
 					// Commit the changes to the Adapter if present
-					$adapter->commitChanges();
+					SHLdapHelper::commitChanges($adapter, true, true);
 					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10986', $username), 10986, JLog::DEBUG, 'ldap');
 				}
 				catch (Excpetion $e)
@@ -294,7 +294,7 @@ class SHLdapEventBouncer extends JEvent
 						{
 							// Commit the changes to the Adapter if present
 							$adapter = SHFactory::getUserAdapter($username);
-							$adapter->commitChanges();
+							SHLdapHelper::commitChanges($adapter, true, true);
 						}
 						catch (Exception $e)
 						{
