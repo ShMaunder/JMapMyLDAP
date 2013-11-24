@@ -78,11 +78,13 @@ class PlgLdapPassword extends JPlugin
 				// Get the user adapter then set the password on it
 				$adapter = SHFactory::getUserAdapter($auth);
 
-				return $adapter->setPassword(
+				$adapter->setPassword(
 					$password,
 					JArrayHelper::getValue($new, 'current-password', null, 'string'),
 					$authenticate
 				);
+
+				SHLog::add(JText::sprintf('PLG_LDAP_PASSWORD_INFO_12411', $username), 12411, JLog::INFO, 'ldap');
 			}
 			catch (Exception $e)
 			{

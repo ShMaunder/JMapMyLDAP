@@ -128,8 +128,6 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 10912 - Login cancelled due to LDAP plug-in returning false. [LIB_SHUSERADAPTERSLDAP_ERR_10912]
 
-10914 - Successfully committed password change. [LIB_SHUSERADAPTERSLDAP_INFO_10914]
-10915 - Failed to change password, the LDAP operation failed. [LIB_SHUSERADAPTERSLDAP_ERR_10915]
 10917 - Failed to change password, current password not specified. [LIB_SHUSERADAPTERSLDAP_ERR_10917]
 10918 - Failed to change password, current password is incorrect. [LIB_SHUSERADAPTERSLDAP_ERR_10918]
 
@@ -210,6 +208,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 12401 - General Error ID for raising a exception log in onUserAfterSave
 
+12411 - Successfully committed password change for user '%1$s'. [PLG_LDAP_PASSWORD_INFO_12411]
 
 
 -- SHAdapter Authentication [12600-12799] --
