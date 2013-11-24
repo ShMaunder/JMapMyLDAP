@@ -594,23 +594,6 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		);
 	}
 
-	public function testSlapdGetUserDNDirectlyInvalidQry()
-	{
-		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10331', 10331);
-
-		// Use a filter instead of a DN
-		$config = TestsHelper::getLdapConfig(220);
-		$config['user_qry'] = '(uid=[username])';
-
-		$ldap = new SHLdap($config);
-		$ldap->connect();
-
-		$user = TestsHelper::getUserCreds('shaun.maunder');
-
-		JArrayHelper::getValue($ldap->getUserDnDirectly($user['username']), 0);
-	}
-
-
 	public function testSlapdGetUserDNNoUserQryFail()
 	{
 		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAP_ERR_10301', 10301);
