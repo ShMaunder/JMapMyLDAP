@@ -11,9 +11,8 @@
  */
 
 defined('_JEXEC') or die;
+require_once JPATH_COMPONENT . '/views/settings/header.php';
 
-JHtml::_('behavior.tooltip');
-JHtml::_('behavior.formvalidation');
 ?>
 <script type="text/javascript">
 	Joomla.submitbutton = function(task)
