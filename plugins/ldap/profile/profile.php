@@ -366,13 +366,32 @@ class PlgLdapProfile extends JPlugin
 			{
 				$id = JArrayHelper::getValue($inForm, 'id', 0, 'int');
 
-				if (SHLdapHelper::isUserLdap($id))
+				if ($id === 0)
 				{
-					$domain = SHUserHelper::getDomainParam($id);
+					// Ask all plugins if there is a plugin willing to deal with user creation for ldap
+					if (count($results = SHFactory::getDispatcher('ldap')->trigger('askUserCreation')))
+					{
+						// Due to being unaware of the domain for this new user, we are forced to use the default domain
+						$domain = SHFactory::getConfig()->get('ldap.defaultconfig');
+					}
+					else
+					{
+						// LDAP creation not enabled
+						$showForm = false;
+					}
 				}
 				else
 				{
-					$showForm = false;
+					if (SHLdapHelper::isUserLdap($id))
+					{
+						// Existing ldap user
+						$domain = SHUserHelper::getDomainParam($id);
+					}
+					else
+					{
+						// Existing non-ldap user
+						$showForm = false;
+					}
 				}
 			}
 		}
