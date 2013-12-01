@@ -134,18 +134,18 @@ class PlgAuthenticationSHAdapter extends JPlugin
 	}
 
 	/**
-	* This method handles the user adapter authorisation and reports
-	* back to the subject. This method is also used for single sign on.
-	*
-	* There is no custom logging in the authentication.
-	*
-	* @param   array  $response  Authentication response object from onUserAuthenticate()
-	* @param   array  $options   Array of extra options
-	*
-	* @return  JAuthenticationResponse  Authentication response object
-	*
-	* @since   2.0
-	*/
+	 * This method handles the user adapter authorisation and reports
+	 * back to the subject. This method is also used for single sign on.
+	 *
+	 * There is no custom logging in the authentication.
+	 *
+	 * @param   array  $response  Authentication response object from onUserAuthenticate()
+	 * @param   array  $options   Array of extra options
+	 *
+	 * @return  JAuthenticationResponse  Authentication response object
+	 *
+	 * @since   2.0
+	 */
 	public function onUserAuthorisation($response, $options = array())
 	{
 		// Create a new authentication response

@@ -603,17 +603,17 @@ abstract class SHLdapHelper
 	}
 
 	/**
-	* Escape an input string based on the type of query (DN or Filter). This
-	* method follows the RFC2254 guidelines.
-	* Adapted from source: http://www.php.net/manual/en/function.ldap-search.php#90158
-	*
-	* @param   string   $str  Input string to escape.
-	* @param   boolean  $dn   Set flag to true if escaping a distinguished name.
-	*
-	* @return  string  An escaped string.
-	*
-	* @since   1.0
-	*/
+	 * Escape an input string based on the type of query (DN or Filter). This
+	 * method follows the RFC2254 guidelines.
+	 * Adapted from source: http://www.php.net/manual/en/function.ldap-search.php#90158
+	 *
+	 * @param   string   $str  Input string to escape.
+	 * @param   boolean  $dn   Set flag to true if escaping a distinguished name.
+	 *
+	 * @return  string  An escaped string.
+	 *
+	 * @since   1.0
+	 */
 	public static function escape($str, $dn = false)
 	{
 		// Characters to escpae depending whether if the dn flag is set

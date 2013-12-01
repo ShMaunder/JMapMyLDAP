@@ -51,6 +51,8 @@ class ShconfigViewSettings extends JViewLegacy
 	/**
 	 * Method to configure the toolbar for this view.
 	 *
+	 * @param   string  $lName  Layout name.
+	 *
 	 * @return  void
 	 *
 	 * @since   2.0

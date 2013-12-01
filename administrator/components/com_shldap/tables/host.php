@@ -24,12 +24,12 @@ class ShldapTableHost extends JTable
 	protected $table = null;
 
 	/**
-	* Constructor
-	*
-	* @param   object  &$db  Database object
-	*
-	* @since   2.0
-	*/
+	 * Constructor
+	 *
+	 * @param   object  &$db  Database object
+	 *
+	 * @since   2.0
+	 */
 	public function __construct(&$db)
 	{
 		$this->table = SHFactory::getConfig()->get('ldap.table', '#__sh_ldap_config');

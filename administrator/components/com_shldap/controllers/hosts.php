@@ -40,14 +40,14 @@ class ShldapControllerHosts extends JControllerAdmin
 	}
 
 	/**
-	* Removes an item.
-	*
-	* Overrides JControllerAdmin::delete to check the core.admin permission.
-	*
-	* @return  void
-	*
-	* @since   2.0
-	*/
+	 * Removes an item.
+	 *
+	 * Overrides JControllerAdmin::delete to check the core.admin permission.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
 	public function delete()
 	{
 		if (!JFactory::getUser()->authorise('core.admin', $this->option))

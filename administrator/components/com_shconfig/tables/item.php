@@ -22,12 +22,12 @@ defined('_JEXEC') or die;
 class ShconfigTableItem extends JTable
 {
 	/**
-	* Constructor
-	*
-	* @param   object  &$db  Database object
-	*
-	* @since   2.0
-	*/
+	 * Constructor
+	 *
+	 * @param   object  &$db  Database object
+	 *
+	 * @since   2.0
+	 */
 	public function __construct(&$db)
 	{
 		parent::__construct('#__sh_config', 'id', $db);

@@ -302,13 +302,13 @@ class PlgLdapCreation extends JPlugin
 	}
 
 	/**
-	* Gets the XML for the creation template.
-	*
-	* @return  SimpleXMLElement  Required XML fields.
-	*
-	* @since   2.0
-	* @throws  RuntimeException
-	*/
+	 * Gets the XML for the creation template.
+	 *
+	 * @return  SimpleXMLElement  Required XML fields.
+	 *
+	 * @since   2.0
+	 * @throws  RuntimeException
+	 */
 	private function _getXMLFields()
 	{
 		$file = $this->templateBase . '/' . $this->templateName . '.xml';

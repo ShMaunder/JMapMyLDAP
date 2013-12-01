@@ -84,7 +84,7 @@ class PlgLdapMapping extends JPlugin
 	 *
 	 * @var    boolean
 	 * @since  2.0
-	*/
+	 */
 	protected $dn_validate = true;
 
 	/**
@@ -999,36 +999,36 @@ class PlgLdapMapping extends JPlugin
 class SHLdapMappingEntry extends JObject
 {
 	/**
-	* An array of RDNs to form the DN
-	*
-	* @var    array
-	* @since  1.0
-	*/
+	 * An array of RDNs to form the DN
+	 *
+	 * @var    array
+	 * @since  1.0
+	 */
 	protected $rdn = array();
 
 	/**
-	* The original unaltered dn
-	*
-	* @var    string
-	* @since  1.0
-	*/
+	 * The original unaltered dn
+	 *
+	 * @var    string
+	 * @since  1.0
+	 */
 	protected $dn = false;
 
 	/**
-	* Valid entry
-	*
-	* @var    boolean
-	* @since  1.0
-	*/
+	 * Valid entry
+	 *
+	 * @var    boolean
+	 * @since  1.0
+	 */
 	protected $valid = false;
 
 	/**
-	* Contains either ldap group memberships or joomla group id's
-	* depending on this instance
-	*
-	* @var    array
-	* @since  1.0
-	*/
+	 * Contains either ldap group memberships or joomla group id's
+	 * depending on this instance
+	 *
+	 * @var    array
+	 * @since  1.0
+	 */
 	protected $groups = array();
 
 	/**
@@ -1109,12 +1109,12 @@ class SHLdapMappingEntry extends JObject
 	}
 
 	/**
-	* Return whether this entry is valid.
-	*
-	* @return  boolean  Valid entry.
-	*
-	* @since   2.0
-	*/
+	 * Return whether this entry is valid.
+	 *
+	 * @return  boolean  Valid entry.
+	 *
+	 * @since   2.0
+	 */
 	public function isValid()
 	{
 		return $this->valid;

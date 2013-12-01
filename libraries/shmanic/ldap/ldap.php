@@ -673,13 +673,13 @@ class SHLdap
 	}
 
 	/**
-	* Checks whether a resource is defined in the LDAP resource variable.
-	* Note: this isn't reliable as an object is created when a connection is attempted.
-	*
-	* @return  boolean  True if connected otherwise returns False.
-	*
-	* @since   2.0
-	*/
+	 * Checks whether a resource is defined in the LDAP resource variable.
+	 * Note: this isn't reliable as an object is created when a connection is attempted.
+	 *
+	 * @return  boolean  True if connected otherwise returns False.
+	 *
+	 * @since   2.0
+	 */
 	public function isConnected()
 	{
 		return is_resource($this->resource);

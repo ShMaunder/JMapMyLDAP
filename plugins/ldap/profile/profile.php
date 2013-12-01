@@ -34,8 +34,8 @@ class PlgLdapProfile extends JPlugin
 	/**
 	 * Holds the reference to the xml file.
 	 *
-	 *  @var    SimpleXMLElement[]
-	 *  @since  2.0
+	 * @var    SimpleXMLElement[]
+	 * @since  2.0
 	 */
 	protected $xml = array();
 
@@ -48,12 +48,12 @@ class PlgLdapProfile extends JPlugin
 	protected $permittedForms = array();
 
 	/**
-	* Synchronise fullname with joomla database
-	* 0-No Sync | 1-Sync From LDAP | 2- Sync To and From LDAP
-	*
-	* @var    integer
-	* @since  2.0
-	*/
+	 * Synchronise fullname with joomla database
+	 * 0-No Sync | 1-Sync From LDAP | 2- Sync To and From LDAP
+	 *
+	 * @var    integer
+	 * @since  2.0
+	 */
 	protected $sync_name = null;
 
 	/**
@@ -74,27 +74,27 @@ class PlgLdapProfile extends JPlugin
 	protected $use_domain = false;
 
 	/**
-	* Profile XML name to use.
-	*
-	* @var    string
-	* @since  2.0
-	*/
+	 * Profile XML name to use.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
 	protected $profile_name = null;
 
 	/**
-	* Profile XML base to use.
-	*
-	* @var    string
-	* @since  2.0
-	*/
+	 * Profile XML base to use.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
 	protected $profile_base = null;
 
 	/**
-	* Language base to use.
-	*
-	* @var    string
-	* @since  2.0
-	*/
+	 * Language base to use.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
 	protected $lang_base = null;
 
 	/**
@@ -619,15 +619,15 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Include the optional profile language and return the XML profile fields.
-	*
-	* @param   string  $domain  Optional domain to use.
-	*
-	* @return  SimpleXMLElement  Required XML profile fields
-	*
-	* @since   2.0
-	* @throws  RuntimeException
-	*/
+	 * Include the optional profile language and return the XML profile fields.
+	 *
+	 * @param   string  $domain  Optional domain to use.
+	 *
+	 * @return  SimpleXMLElement  Required XML profile fields
+	 *
+	 * @since   2.0
+	 * @throws  RuntimeException
+	 */
 	protected function getXMLFields($domain = null)
 	{
 		// Get the File and Path for the Profile XML
@@ -706,17 +706,17 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Stage the mandatory data to LDAP ready for committing.
-	*
-	* @param   string  $username  Username of profile owner to change.
-	* @param   string  $name      Value of the new name.
-	* @param   string  $email     Value of the new email.
-	*
-	* @return  void
-	*
-	* @since   2.0
-	* @throws  Exception
-	*/
+	 * Stage the mandatory data to LDAP ready for committing.
+	 *
+	 * @param   string  $username  Username of profile owner to change.
+	 * @param   string  $name      Value of the new name.
+	 * @param   string  $email     Value of the new email.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 * @throws  Exception
+	 */
 	protected function saveMandatoryToLdap($username, $name, $email)
 	{
 		$adapter = SHFactory::getUserAdapter($username);
@@ -745,14 +745,14 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Return the attributes required from the users LDAP account.
-	*
-	* @param   SimpleXMLElement  $xml  The XML profile to process.
-	*
-	* @return  array  An array of attributes
-	*
-	* @since   2.0
-	*/
+	 * Return the attributes required from the users LDAP account.
+	 *
+	 * @param   SimpleXMLElement  $xml  The XML profile to process.
+	 *
+	 * @return  array  An array of attributes
+	 *
+	 * @since   2.0
+	 */
 	protected function getAttributes($xml)
 	{
 		$attributes = array();
@@ -770,17 +770,17 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Save the users profile to the database.
-	*
-	* @param   integer        $userId    Joomla user ID to save.
-	* @param   string         $username  Joomla username to save.
-	* @param   SHUserAdapter  $adapter   User adapter of LDAP user.
-	* @param   array          $options   An optional set of options.
-	*
-	* @return  boolean  True on success
-	*
-	* @since   2.0
-	*/
+	 * Save the users profile to the database.
+	 *
+	 * @param   integer        $userId    Joomla user ID to save.
+	 * @param   string         $username  Joomla username to save.
+	 * @param   SHUserAdapter  $adapter   User adapter of LDAP user.
+	 * @param   array          $options   An optional set of options.
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   2.0
+	 */
 	protected function saveProfile($userId, $username, $adapter, $options = array())
 	{
 		$xml = $this->getXMLFields($adapter->getDomain());
@@ -925,15 +925,15 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Delete the entire profile of the user.
-	*
-	* @param   integer  $userId  The user ID of the JUser
-	*
-	* @return  boolean  True on success
-	*
-	* @since   2.0
-	* @throws  JDatabaseException
-	*/
+	 * Delete the entire profile of the user.
+	 *
+	 * @param   integer  $userId  The user ID of the JUser
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   2.0
+	 * @throws  JDatabaseException
+	 */
 	protected function deleteProfile($userId)
 	{
 		$db = JFactory::getDBO();
@@ -949,15 +949,15 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Return the records of a users profile.
-	*
-	* @param   integer  $userId  The user ID of the JUser
-	* @param   boolean  $clean   If true remove the profile prefix from the keys
-	*
-	* @return  array  Associated array of records (profile_key=>, profile_value=>)
-	*
-	* @since   2.0
-	*/
+	 * Return the records of a users profile.
+	 *
+	 * @param   integer  $userId  The user ID of the JUser
+	 * @param   boolean  $clean   If true remove the profile prefix from the keys
+	 *
+	 * @return  array  Associated array of records (profile_key=>, profile_value=>)
+	 *
+	 * @since   2.0
+	 */
 	protected function queryProfile($userId, $clean = false)
 	{
 		$db = JFactory::getDBO();
@@ -986,16 +986,16 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Add profile records (attributes) for a user to the database.
-	*
-	* @param   integer  $userId      The user ID of the JUser
-	* @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
-	* @param   integer  $order       The ordering number to use as a base
-	*
-	* @return  boolean  True on success
-	*
-	* @since   2.0
-	*/
+	 * Add profile records (attributes) for a user to the database.
+	 *
+	 * @param   integer  $userId      The user ID of the JUser
+	 * @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
+	 * @param   integer  $order       The ordering number to use as a base
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   2.0
+	 */
 	protected function addRecords($userId, $attributes, $order)
 	{
 		$db = JFactory::getDBO();
@@ -1031,15 +1031,15 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Update profile records (attributes) for a user to the database.
-	*
-	* @param   integer  $userId      The user ID of the JUser
-	* @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
-	*
-	* @return  boolean  True on success
-	*
-	* @since   2.0
-	*/
+	 * Update profile records (attributes) for a user to the database.
+	 *
+	 * @param   integer  $userId      The user ID of the JUser
+	 * @param   array    $attributes  An array of associated attributes (profile_key=>profile_value)
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   2.0
+	 */
 	protected function updateRecords($userId, $attributes)
 	{
 		$result = true;
@@ -1069,15 +1069,15 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Delete profile records (attributes) for a user from the database.
-	*
-	* @param   integer  $userId      The user ID of the JUser
-	* @param   array    $attributes  An array of attribute/profile keys
-	*
-	* @return  boolean  True on success
-	*
-	* @since   2.0
-	*/
+	 * Delete profile records (attributes) for a user from the database.
+	 *
+	 * @param   integer  $userId      The user ID of the JUser
+	 * @param   array    $attributes  An array of attribute/profile keys
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   2.0
+	 */
 	protected function deleteRecords($userId, $attributes)
 	{
 		$result = true;
@@ -1106,18 +1106,18 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Check the database (sql parameter) for the current status of a key and its
-	* value. This method will return with either a 0-match, 1-modify, 2-addition
-	* or 3-deletion flag for this key.
-	*
-	* @param   array   $sql    Associated array of records (profile_key=>, profile_value=>)
-	* @param   string  $key    The profile key to check
-	* @param   string  $value  The profile value to check against the key
-	*
-	* @return  integer  0-match | 1-modify | 2-addition | 3-delete
-	*
-	* @since   2.0
-	*/
+	 * Check the database (sql parameter) for the current status of a key and its
+	 * value. This method will return with either a 0-match, 1-modify, 2-addition
+	 * or 3-deletion flag for this key.
+	 *
+	 * @param   array   $sql    Associated array of records (profile_key=>, profile_value=>)
+	 * @param   string  $key    The profile key to check
+	 * @param   string  $value  The profile value to check against the key
+	 *
+	 * @return  integer  0-match | 1-modify | 2-addition | 3-delete
+	 *
+	 * @since   2.0
+	 */
 	protected function checkSqlField($sql, $key, $value)
 	{
 		if (is_null($value))
@@ -1155,15 +1155,15 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Cleans the form fields to return only XML enabled form fields.
-	*
-	* @param   SimpleXMLElement  $xml     The XML profile to process.
-	* @param   array             $fields  An array of fields to be processed.
-	*
-	* @return  array  An array of fields that are enabled.
-	*
-	* @since   2.0
-	*/
+	 * Cleans the form fields to return only XML enabled form fields.
+	 *
+	 * @param   SimpleXMLElement  $xml     The XML profile to process.
+	 * @param   array             $fields  An array of fields to be processed.
+	 *
+	 * @return  array  An array of fields that are enabled.
+	 *
+	 * @since   2.0
+	 */
 	protected function cleanInput($xml, $fields = array())
 	{
 		$clean = array();
@@ -1185,17 +1185,17 @@ class PlgLdapProfile extends JPlugin
 	}
 
 	/**
-	* Stage the profile to LDAP ready for committing.
-	*
-	* @param   SimpleXMLElement  $xml       The XML profile to process.
-	* @param   string            $username  Username of profile owner to change.
-	* @param   array             $profile   Array of profile fields to save (key=>value).
-	*
-	* @return  boolean  True on success
-	*
-	* @since   2.0
-	* @throws  Exception
-	*/
+	 * Stage the profile to LDAP ready for committing.
+	 *
+	 * @param   SimpleXMLElement  $xml       The XML profile to process.
+	 * @param   string            $username  Username of profile owner to change.
+	 * @param   array             $profile   Array of profile fields to save (key=>value).
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   2.0
+	 * @throws  Exception
+	 */
 	protected function saveProfileToLdap($xml, $username, $profile = array())
 	{
 		// Setup the profile user in user adapter
