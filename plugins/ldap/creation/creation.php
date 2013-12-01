@@ -54,7 +54,7 @@ class PlgLdapCreation extends JPlugin
 
 		$this->templateName = $this->params->get('template_name', 'default');
 		$this->templateBase = $this->params->get('template_base', JPATH_PLUGINS . '/ldap/creation/templates');
-		$this->domain = $this->params->get('default_domain', null);
+		$this->domain = SHFactory::getConfig()->get('ldap.defaultconfig');
 	}
 
 	/**
