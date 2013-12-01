@@ -53,7 +53,7 @@ $canEdit	= $user->authorise('core.edit', 'com_shconfig');
 					<?php echo JHtml::_('grid.sort', 'COM_SHCONFIG_ITEMS_HEADING_KEY', 'a.name', $listDirn, $listOrder); ?>
 				</th>
 				<th>
-					<?php echo JHtml::_('grid.sort', 'COM_SHCONFIG_ITEMS_HEADING_VALUE', 'a.key', $listDirn, $listOrder); ?>
+					<?php echo $this->escape(JText::_('COM_SHCONFIG_ITEMS_HEADING_VALUE')); ?>
 				</th>
 			</tr>
 		</thead>
