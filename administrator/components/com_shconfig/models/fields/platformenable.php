@@ -12,7 +12,7 @@
 
 defined('_JEXEC') or die;
 
-JFormHelper::loadFieldClass('radio');
+JFormHelper::loadFieldClass('list');
 
 /**
  * Platform Enable field for config.
@@ -21,7 +21,7 @@ JFormHelper::loadFieldClass('radio');
  * @subpackage  Shconfig
  * @since       2.0
  */
-class JFormFieldPlatformEnable extends JFormFieldRadio
+class JFormFieldPlatformEnable extends JFormFieldList
 {
 	/**
 	 * The form field type.

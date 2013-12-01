@@ -4,7 +4,7 @@
 		<field name="platform:enable"
 			type="platformenable"
 			default="0"
-			class="btn-group"
+			class="inputbox chzn-color-state"
 			label="COM_SHCONFIG_SETTINGS_BASE_FIELD_PLATFORM_ENABLE_LABEL"
 			description="COM_SHCONFIG_SETTINGS_BASE_FIELD_PLATFORM_ENABLE_DESC"
 		>
