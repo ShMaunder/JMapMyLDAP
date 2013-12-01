@@ -12,7 +12,7 @@
 
 defined('_JEXEC') or die;
 
-jimport('joomla.event.dispatcher');
+jimport('joomla.application.component.modellist');
 
 /**
  * Hosts model class for Shldap.
@@ -21,8 +21,31 @@ jimport('joomla.event.dispatcher');
  * @subpackage  Shldap
  * @since       2.0
  */
-class ShldapModelHosts extends JModelLegacy
+class ShldapModelHosts extends JModelList
 {
+	/**
+	 * Constructor.
+	 *
+	 * @param   array  $config  An optional associative array of configuration settings.
+	 *
+	 * @see     JController
+	 * @since   2.0
+	 */
+	public function __construct($config = array())
+	{
+		if (empty($config['filter_fields']))
+		{
+			$config['filter_fields'] = array(
+				'id', 'a.id',
+				'name', 'a.name',
+				'enabled', 'a.enabled',
+				'ordering', 'a.ordering'
+			);
+		}
+
+		parent::__construct($config);
+	}
+
 	/**
 	 * Gets all the LDAP configurations.
 	 *
@@ -32,39 +55,130 @@ class ShldapModelHosts extends JModelLegacy
 	 */
 	public function getItems()
 	{
-		try
+		$store = $this->getStoreId();
+
+		// Try to load the data from internal storage.
+		if (isset($this->cache[$store]))
 		{
-			$results = array();
+			return $this->cache[$store];
+		}
 
-			// Get all the Ldap config IDs and Names
-			$ids = SHLdapHelper::getConfigIDs();
+		$config = SHFactory::getConfig();
 
-			foreach ($ids as $id => $name)
+		// Config managed default domain
+		$default = $config->get('ldap.defaultconfig');
+
+		// Config managed LDAP host source
+		$source = (int) $config->get('ldap.config', SHLdapHelper::CONFIG_SQL);
+
+		if ($source === SHLdapHelper::CONFIG_SQL)
+		{
+			parent::getItems();
+
+			foreach ($this->cache[$store] as $row)
 			{
-				// Get this specific Ldap configuration based on name
-				$config = SHLdapHelper::getConfig($name);
+				/*
+				 * We need to mark the LDAP hosts that is default.
+				 */
+				$row->default = ($row->name == $default) ? true : false;
 
-				$result = new stdClass;
-				$result->id = $id;
-				$result->name = $name;
-				$result->host = $config->get('host');
-				$result->port = $config->get('port');
-				$result->attribute_uid = $config->get('ldap_uid');
-				$result->attribute_email = $config->get('ldap_email');
-				$result->attribute_name = $config->get('ldap_fullname');
-				$result->users = $this->getCountDomain($result->id, $result->name);
+				/*
+				 * Count the ID number of users in each LDAP host.
+				 */
+				$row->users = $this->getCountDomain($row->id, $row->name);
 
-				// Lets add this config to our results pool
-				$results[] = $result;
+				/*
+				 * Decode the paramters to get the host and port
+				 */
+				$decode = json_decode($row->params);
+				$row->host = $decode->host;
+				$row->port = $decode->port;
 			}
-
-			return $results;
 		}
-		catch (Exception $e)
+		else
 		{
-			// We need to look for a string instead of an array on error
-			return $e->getMessage();
+			try
+			{
+				// Get all the Ldap config IDs and Names
+				$ids = SHLdapHelper::getConfigIDs();
+
+				$this->cache[$store] = array();
+
+				foreach ($ids as $id => $name)
+				{
+					// Get this specific Ldap configuration based on name
+					$config = SHLdapHelper::getConfig($name);
+
+					$result = new stdClass;
+					$result->id = $id;
+					$result->name = $name;
+					$result->host = $config->get('host');
+					$result->port = $config->get('port');
+					$result->users = $this->getCountDomain($result->id, $result->name);
+
+					// Lets add this config to our results pool
+					$this->cache[$store][] = $result;
+				}
+			}
+			catch (Exception $e)
+			{
+				// We need to look for a string instead of an array on error
+				return $e->getMessage();
+			}
 		}
+
+		return $this->cache[$store];
+	}
+
+	/**
+	 * Returns whether the records can be edited. Currently,
+	 * we can only edit if its SQL.
+	 *
+	 * @return  boolean  True if editable.
+	 *
+	 * @since   2.0
+	 */
+	public function getIsEditable()
+	{
+		$source = (int) SHFactory::getConfig()->get('ldap.config', SHLdapHelper::CONFIG_SQL);
+
+		if ($source === SHLdapHelper::CONFIG_SQL)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 *
+	 * Note. Calling getState in this method will result in recursion.
+	 *
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		$app = JFactory::getApplication('administrator');
+
+		// Load the filter state.
+		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+		$this->setState('filter.search', $search);
+
+		$state = $this->getUserStateFromRequest($this->context . '.filter.state', 'filter_state', '', 'string');
+		$this->setState('filter.state', $state);
+
+		// Load the parameters.
+		$params = JComponentHelper::getParams('com_shldap');
+		$this->setState('params', $params);
+
+		// List state information.
+		parent::populateState('ordering', 'asc');
 	}
 
 	/**
@@ -95,5 +209,55 @@ class ShldapModelHosts extends JModelLegacy
 			);
 
 		return (int) $db->setQuery($query)->loadResult();
+	}
+
+	/**
+	 * Method to get a JDatabaseQuery object for retrieving the data set from a database.
+	 *
+	 * @return  JDatabaseQuery   A JDatabaseQuery object to retrieve the data set.
+	 *
+	 * @since   2.0
+	 */
+	public function getListQuery()
+	{
+		// Create a new query object.
+		$db = $this->getDbo();
+		$query = $db->getQuery(true);
+
+		// Select the required fields from the table.
+		$query->select(
+			$db->escape(
+				$this->getState(
+					'list.select',
+					'a.*'
+				)
+			)
+		);
+
+		$query->from($db->quoteName(SHFactory::getConfig()->get('ldap.table', '#__sh_ldap_config')) . ' AS a');
+
+		// Filter the items over the search string if set.
+		$search = $this->getState('filter.search');
+
+		if (!empty($search))
+		{
+			if (stripos($search, 'id:') === 0)
+			{
+				$query->where($db->quoteName('a.id') . ' = ' . $db->quote((int) substr($search, 3)));
+			}
+			else
+			{
+				// Note: * we use an escape so no quote required *
+				$search = $db->quote('%' . $db->escape($search, true) . '%');
+				$query->where(
+					'(' . $db->quoteName('name') . ' LIKE ' . $search . ')'
+				);
+			}
+		}
+
+		// Add the list ordering clause.
+		$query->order($db->escape($this->getState('list.ordering', 'ordering')) . ' ' . $db->escape($this->getState('list.direction', 'ASC')));
+
+		return $query;
 	}
 }

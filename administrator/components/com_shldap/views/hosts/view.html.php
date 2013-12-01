@@ -27,6 +27,8 @@ class ShldapViewHosts extends JViewLegacy
 
 	protected $state = null;
 
+	protected $editable = false;
+
 	/**
 	 * Method to display the view.
 	 *
@@ -39,6 +41,9 @@ class ShldapViewHosts extends JViewLegacy
 	public function display($tpl = null)
 	{
 		$this->items = $this->get('Items');
+		$this->pagination = $this->get('Pagination');
+		$this->state = $this->get('State');
+		$this->editable = $this->get('IsEditable');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
@@ -75,5 +80,21 @@ class ShldapViewHosts extends JViewLegacy
 
 			JToolBarHelper::preferences('com_shldap');
 		}
+	}
+
+	/**
+	 * Returns an array of fields the table can be sorted by
+	 *
+	 * @return  array  Array containing the field name to sort by as the key and display text as value
+	 *
+	 * @since   3.0
+	 */
+	protected function getSortFields()
+	{
+		return array(
+				'ordering' => JText::_('JGRID_HEADING_ORDERING'),
+				'a.state' => JText::_('JSTATUS'),
+				'name' => JText::_('JGLOBAL_TITLE'),
+		);
 	}
 }

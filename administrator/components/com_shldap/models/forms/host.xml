@@ -17,6 +17,25 @@
 			size="20" required="true"
 			validate="sh.ldapdomain"
 		/>
+		<field
+			name="enabled"
+			type="list"
+			label="JSTATUS"
+			description="COM_SHLDAP_FIELD_ENABLED_DESC"
+			class="inputbox chzn-color-state"
+			size="1"
+			default="1"
+		>
+			<option value="1">JENABLED</option>
+			<option value="0">JDISABLED</option>
+		</field>
+		<field
+			name="ordering"
+			type="Hostordering"
+			class="inputbox"
+			label="JFIELD_ORDERING_LABEL"
+			description="JFIELD_ORDERING_DESC"
+		/>
 	</fieldset>
 	
 	<fieldset name="host" label="COM_SHLDAP_HOST_FIELDSET_LABEL">

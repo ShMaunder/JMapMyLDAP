@@ -12,10 +12,20 @@
 
 defined('_JEXEC') or die;
 
-JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 
-JHtml::_('behavior.framework', true);
+$version = new JVersion;
+
+if ($version->isCompatible('3.0.0'))
+{
+	JHtml::_('formbehavior.chosen', 'select');
+	JHtml::_('bootstrap.tooltip');
+}
+else
+{
+	JHtml::_('behavior.tooltip');
+	JHtml::_('behavior.framework', true);
+}
 
 ?>
 <script type="text/javascript">

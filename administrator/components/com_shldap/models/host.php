@@ -155,4 +155,101 @@ class ShldapModelHost extends JModelAdmin
 			'password' => $form->getValue('debug_password')
 		);
 	}
+
+	/**
+	 * Method to save the form data.
+	 *
+	 * @param   array  $data  The form data.
+	 *
+	 * @return  boolean  True on success, False on error.
+	 *
+	 * @since   11.1
+	 */
+	public function save($data)
+	{
+		// Initialise variables;
+		$table = $this->getTable();
+		$key = $table->getKeyName();
+		$pk = (!empty($data[$key])) ? $data[$key] : (int) $this->getState($this->getName() . '.id');
+		$isNew = true;
+
+		// Unset some debug data
+		unset($data['debug_username']);
+		unset($data['debug_password']);
+
+		// Allow an exception to be thrown.
+		try
+		{
+			// Load the row if saving an existing record.
+			if ($pk > 0)
+			{
+				$table->load($pk);
+				$isNew = false;
+			}
+
+			// Deal with the proxy encryption if the password has changed
+			if (isset($data['proxy_encryption'])
+				&& $data['proxy_encryption']
+				&& (!$table->proxy_encryption || $table->proxy_password != $data['proxy_password']))
+			{
+				$crypt = SHFactory::getCrypt();
+
+				$data['proxy_password'] = $crypt->encrypt($data['proxy_password']);
+			}
+		}
+		catch (Exception $e)
+		{
+			$this->setError($e->getMessage());
+
+			return false;
+		}
+
+		return parent::save($data);
+	}
+
+	/**
+	 * Method to set default in shconfig.
+	 *
+	 * @param   integer  $pk  The ID of the primary key to set default
+	 *
+	 * @return  mixed  False on failure or error, true on success, null if the $pk is empty (no items selected).
+	 *
+	 * @since   11.1
+	 */
+	public function setDefault($pk)
+	{
+		// Initialise variables.
+		$table = $this->getTable();
+
+		$table->reset();
+
+		if ($this->canEditState($table) && $table->load($pk) && $this->checkout($pk))
+		{
+			$name = $table->name;
+
+			$db = JFactory::getDbo();
+
+			// We want to use the platform table here - show lets use the platform's component
+			JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_shconfig/tables');
+
+			$configTable = JTable::getInstance('Item', 'ShconfigTable', array());
+
+			$configTable->load(array('name' => 'ldap:defaultconfig'));
+
+			$configTable->bind(array('name' => 'ldap:defaultconfig', 'value' => $name));
+
+			if ($configTable->check())
+			{
+				$configTable->store();
+			}
+
+			$this->checkin($pk);
+
+			$this->cleanCache();
+
+			return true;
+		}
+
+		return false;
+	}
 }

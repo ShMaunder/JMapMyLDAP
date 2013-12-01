@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS `#__sh_ldap_config` (
   `enabled` tinyint(3) NOT NULL DEFAULT '1',
   `ordering` int(11) DEFAULT '0',
   `params` text NOT NULL,
+  `checked_out` int(10) NOT NULL DEFAULT '0',
+  `checked_out_time` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_name` (`name`)
 );
