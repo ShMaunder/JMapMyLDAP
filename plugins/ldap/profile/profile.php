@@ -653,6 +653,18 @@ class PlgLdapProfile extends JPlugin
 			{
 				SHLog::add(JText::_('PLG_LDAP_PROFILE_DEBUG_12202'), 12202, JLog::DEBUG, 'ldap');
 
+				// Register the JForm rules classes
+				if (file_exists($this->profile_base . '/rules'))
+				{
+					JForm::addRulePath($this->profile_base . '/rules');
+				}
+
+				// Register the JForm fields classes
+				if (file_exists($this->profile_base . '/fields'))
+				{
+					JForm::addFieldPath($this->profile_base . '/fields');
+				}
+
 				// Attempt to load profile language
 				$lang = JFactory::getLanguage();
 				$lang->load($file, $this->lang_base);
