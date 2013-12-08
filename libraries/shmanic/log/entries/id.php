@@ -6,7 +6,7 @@
  * @subpackage  Log.Entries
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
- * @copyright   Copyright (C) 2011-2012 Shaun Maunder. All rights reserved.
+ * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
