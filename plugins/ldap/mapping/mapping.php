@@ -186,7 +186,7 @@ class PlgLdapMapping extends JPlugin
 	 */
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		if (!$this->doSetup())
+		if (!$this->doSetup() || $isNew)
 		{
 			return;
 		}
