@@ -86,14 +86,6 @@ abstract class SHSsoHelper
 	const SESSION_PLUGIN_KEY = 'sso_plugin';
 
 	/**
-	 * When set to true, redirect after login.
-	 *
-	 * @var    string
-	 * @since  2.0
-	 */
-	protected static $redirect = false;
-
-	/**
 	 * Returns whether SSO is allowed to perform actions in the current session.
 	 *
 	 * @return  integer  True if session is enabled or False if SSO disabled.
@@ -155,8 +147,6 @@ abstract class SHSsoHelper
 					return self::STATUS_BEHAVIOUR_DISABLED;
 				}
 			}
-
-			self::$redirect = true;
 		}
 
 		// Default to SSO enabled
@@ -209,7 +199,7 @@ abstract class SHSsoHelper
 	}
 
 	/**
-	 * Redirect internally when login success and task matches.
+	 * Redirects if a return is present and is an internal Joomla URL
 	 *
 	 * @return  void
 	 *
@@ -217,19 +207,12 @@ abstract class SHSsoHelper
 	 */
 	public static function redirect()
 	{
-		if (self::$redirect)
-		{
-			$input = new JInput;
-			$return = $input->get('return', null, 'base64');
+		$input = new JInput;
+		$return = $input->get('return', null, 'base64');
 
-			if (empty($return) || !JUri::isInternal(base64_decode($return)))
-			{
-				$redirect = JURI::base();
-			}
-			else
-			{
-				$redirect = base64_decode($return);
-			}
+		if (!empty($return) && JUri::isInternal(base64_decode($return)))
+		{
+			$redirect = base64_decode($return);
 
 			$app = JFactory::getApplication();
 			$app->redirect($redirect);
