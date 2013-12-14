@@ -33,7 +33,7 @@ class Com_ShldapInstallerScript
 	 * @var    string
 	 * @since  2.0
 	 */
-	const MIN_PLATFORM_VERSION = '2.0.0.300';
+	const MIN_PLATFORM_VERSION = '2.0.0.374';
 
 	/**
 	 * Method to run before an install/update/uninstall method.
