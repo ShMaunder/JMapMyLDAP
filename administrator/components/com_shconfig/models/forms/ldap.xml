@@ -4,7 +4,7 @@
 		<field name="ldap:defaultconfig"
 			type="sh.ldapdomain"
 			label="COM_SHCONFIG_SETTINGS_LDAP_FIELD_DEFAULTCONFIG_LABEL"
-			description="COM_SHCONFIG_SETTINGS_LDAP_FIELD_DEFAULTCONFIG_LABEL"
+			description="COM_SHCONFIG_SETTINGS_LDAP_FIELD_DEFAULTCONFIG_DESC"
 		/>
 		<field name="ldap:config"
 			type="list"
