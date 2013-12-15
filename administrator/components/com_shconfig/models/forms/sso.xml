@@ -60,7 +60,7 @@
 		/>
 		<field name="sso:behaviour"
 			type="list"
-			default="2"
+			default="1"
 			label="COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_LABEL"
 			description="COM_SHCONFIG_SETTINGS_SSO_FIELD_BEHAVIOUR_DESC"
 		>
