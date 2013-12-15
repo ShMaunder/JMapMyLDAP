@@ -14,7 +14,7 @@
 <p>Version <strong>2.x</strong></p>
 <ul>
  <li>Requires Joomla! 2.5+ or Joomla! Platform 12.1+</li>
- <li>Test builds available</li>
+ <li>Release candidate avilable!</li>
 </ul>
 
 <h2>Building</h2>
@@ -23,7 +23,6 @@
 
 <h2>Known Issues</h2>
 <ul>
- <li>SSO framework and configuration need to support jauthtools-sso plug-ins for SSI/SSO solutions</li>
- <li>Groups do not save to LDAP after creating a new user through the Joomla user manager</li>
+ <li>SSO framework and configuration does not currently support providers</li>
  <li>Username change code is missing meaning sites should disable it</li>
 </ul>
