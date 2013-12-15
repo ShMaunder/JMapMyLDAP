@@ -5,9 +5,9 @@
 		<packagename>ldap_core</packagename>
 		<description></description>
 		<type>package</type>
-		<infourl title="Project Home">http://shmanic.com/tool/jmapmyldap</infourl>
+		<infourl title="Project Home">http://shmanic.com/tools/jmapmyldap</infourl>
 		<downloads>
-			<downloadurl type="full" format="zip"><![CDATA[http://shmanic.com/tool/joomla/file.php?name=pkg_ldap_core.zip]]></downloadurl>
+			<downloadurl type="full" format="zip"><![CDATA[http://shmanic.com/media/file.php?project=jmmldap&name=pkg_ldap_core.zip]]></downloadurl>
 		</downloads>
 		<maintainer>Shaun Maunder</maintainer>
 		<maintainerurl>http://www.shmanic.com</maintainerurl>
