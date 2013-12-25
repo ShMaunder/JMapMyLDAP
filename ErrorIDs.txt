@@ -230,6 +230,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 [IT]12811 - The XML user creation template '%1$s' does not exist. [PLG_LDAP_CREATION_ERR_12811]
 [IT]12812 - The XML user creation template '%1$s' is invalid. [PLG_LDAP_CREATION_ERR_12812]
+12813 - The XML user creation template '%1$s' is invalid for domain '%2$s'. [PLG_LDAP_CREATION_ERR_12813]
 
 [IT]12821 - The user '%1$s' has been successfully created. [PLG_LDAP_CREATION_INFO_12821]
 [I]12826 - The user '%1$s' has been deleted due to user creation failure. [PLG_LDAP_CREATION_INFO_12826]

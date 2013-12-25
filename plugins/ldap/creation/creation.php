@@ -330,6 +330,9 @@ class PlgLdapCreation extends JPlugin
 			{
 				return $xml[0];
 			}
+
+			// XML loaded correctly but could not load the path - could be the domain
+			throw new RuntimeException(JText::sprintf('PLG_LDAP_CREATION_ERR_12813', $file, $this->domain), 12813);
 		}
 
 		// Something is invalid about the XML file
