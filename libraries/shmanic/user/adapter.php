@@ -192,4 +192,37 @@ interface SHUserAdapter
 	 * @since   2.0
 	 */
 	public function delete($options = array());
+
+	/**
+	 * Retrieves the groups this user is a member of.
+	 *
+	 * @param   mixed  $default  The default value.
+	 *
+	 * @return  SHGroupAdapter[]  Array of group adapters.
+	 *
+	 * @since   2.1
+	 */
+	public function getGroups($default = null);
+
+	/**
+	 * Adds the specified group to the user.
+	 *
+	 * @param   string  $id  Group identifer.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @since   2.1
+	 */
+	public function addGroup($id);
+
+	/**
+	 * Removes the specified group from the user.
+	 *
+	 * @param   string  $id  Group identifer.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @since   2.1
+	 */
+	public function removeGroup($id);
 }

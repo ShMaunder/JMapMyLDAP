@@ -1113,6 +1113,48 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	}
 
 	/**
+	 * Retrieves the groups this user is a member of.
+	 *
+	 * @param   mixed  $default  The default value.
+	 *
+	 * @return  SHGroupAdaptersLdap[]  Array of group adapters.
+	 *
+	 * @since   2.1
+	 */
+	public function getGroups($default = null)
+	{
+		return array();
+	}
+
+	/**
+	 * Adds the specified group to the user.
+	 *
+	 * @param   string  $id  Group name or group distinguished name.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @since   2.1
+	 */
+	public function addGroup($id)
+	{
+		return true;
+	}
+
+	/**
+	 * Removes the specified group from the user.
+	 *
+	 * @param   string  $id  Group name or group distinguished name.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @since   2.1
+	 */
+	public function removeGroup($id)
+	{
+		return true;
+	}
+
+	/**
 	 * This method is used as a helper to the makeChanges() method. It checks
 	 * whether a field/attribute is up-to-date in the Ldap directory (not live).
 	 * The method returns whether it is:
