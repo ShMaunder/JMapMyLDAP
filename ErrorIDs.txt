@@ -28,7 +28,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 2121 - Failed to instanitate a user adapter due to empty username. [LIB_SHFACTORY_ERR_2121]
 2123 - Cannot find User Adapter class %1$s. [LIB_SHFACTORY_ERR_2123]
 2125 - The user '%1$s' is blacklisted. [LIB_SHFACTORY_ERR_2125]
-
+2131 - Failed to find a suitable LDAP config. [LIB_SHFACTORY_ERR_2131]
 2200 - Failed to add Joomla log entry. [LIB_SHLOG_ERR_2200]
 
 

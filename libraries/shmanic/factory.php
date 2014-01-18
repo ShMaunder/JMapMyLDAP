@@ -46,6 +46,14 @@ abstract class SHFactory
 	public static $adapters = array();
 
 	/**
+	 * An array of ldap clients.
+	 *
+	 * @var    SHLdap[]
+	 * @since  2.0
+	 */
+	public static $ldap = array();
+
+	/**
 	 * Returns a specific dispatcher object. This dispatcher is independent
 	 * of other dispatchers or the global dispatcher and therefore, will only
 	 * call events that has been registered to it.
@@ -201,7 +209,7 @@ abstract class SHFactory
 
 			if (is_null($type))
 			{
-				// Get the default/primary user adpater type from the database
+				// Get the default/primary user adapter type from the database
 				$type = $config->get('user.type');
 			}
 
@@ -229,6 +237,78 @@ abstract class SHFactory
 		}
 
 		return self::$adapters[$username];
+	}
+
+	/**
+	 * This method is similar to SHLdap::getInstance but also it stores
+	 * all instantiated SHLdap objects in a static variable for later use.
+	 *
+	 * @param   integer|string  $domain    Optional domain or configuration record ID.
+	 * @param   JRegsitry[]     $configs   Optional array of LDAP configs (can also be single JRegistry without array).
+	 * @param   JRegistry       $registry  Optional override for platform configuration registry.
+	 *
+	 * @return  SHLdap[]  An array of SHLdap objects.
+	 *
+	 * @since   2.1
+	 * @throws  InvalidArgumentException  Invalid configurations
+	 */
+	public static function getLdapClient($domain = null, $configs = array(), JRegistry $registry = null)
+	{
+		if (isset(self::$ldap[$domain]))
+		{
+			return array(self::$ldap[$domain]);
+		}
+
+		// Get the platform registry config from the factory if required
+		$registry = is_null($registry) ? self::getConfig() : $registry;
+
+		if (empty($configs))
+		{
+			/*
+			 * Get all the Ldap configs that are enabled and available. An optional
+			 * domain is passed - when this is passed, only one config will be returned.
+			 */
+			$configs = SHLdapHelper::getConfig($domain, $registry);
+		}
+
+		// Check if only one configuration result was found
+		if ($configs instanceof JRegistry)
+		{
+			// Wrap this around an array so we can use the same code below
+			$configs = array($configs);
+		}
+
+		// This will be all the LDAP clients that match the domain
+		$clients = array();
+
+		// Loop around each of the Ldap configs until one authenticates
+		foreach ($configs as $config)
+		{
+			/*
+			 * We won't catch exceptions now as it will mean either ldap
+			 * extension missing OR a very bad problem with this LDAP configuraiton.
+			 */
+			$ldap = new SHLdap($config);
+
+			if (!isset(self::$ldap[$ldap->domain]))
+			{
+				// We want to store this client for potential use later on
+				self::$ldap[$ldap->domain] = $ldap;
+			}
+
+			$clients[] = self::$ldap[$ldap->domain];
+
+			unset($ldap);
+		}
+
+		if (count($clients))
+		{
+			// Found some LDAP configs - lets return them
+			return $clients;
+		}
+
+		// No errors happened, but unable to find suitable LDAP config for the domain
+		throw new InvalidArgumentException(JText::_('LIB_SHFACTORY_ERR_2131'), 2131);
 	}
 
 	/**
