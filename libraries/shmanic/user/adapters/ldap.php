@@ -160,19 +160,9 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			 * the Ldap library otherwise use pre-configured platform configurations
 			 * through the Ldap library.
 			 */
-			if (!is_null($this->_config))
-			{
-				$this->client = new SHLdap($this->_config);
-				$this->client->connect();
-				$this->client->proxyBind();
-			}
-			else
-			{
-				$this->client = SHLdap::getInstance(
-					$this->domain, array(
-						'authenticate' => SHLdap::AUTH_PROXY)
-				);
-			}
+			$this->client = SHFactory::getLdapClient($this->domain, $this->_config);
+			$this->client->connect();
+			$this->client->proxyBind();
 
 			// Check whether the user already exists
 			if ($this->_checkUserExists())
@@ -228,6 +218,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	 * @throws  Exception
 	 * @throws  SHLdapException
 	 * @throws  SHExceptionInvaliduser
+	 * @throws  SHExceptionStacked        User or configuration issues (may not be important)
 	 */
 	public function getId($authenticate)
 	{
@@ -256,26 +247,50 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			 * the Ldap library otherwise use pre-configured platform configurations
 			 * through the Ldap library.
 			 */
-			if (!is_null($this->_config))
-			{
-				$this->client = new SHLdap($this->_config);
-				$this->client->connect();
-				$this->_dn = $this->client->getUserDn($this->username, $this->password, $authenticate);
-			}
-			else
-			{
-				$this->client = SHLdap::getInstance(
-					$this->domain, array(
-						'username' => $this->username,
-						'password' => $this->password,
-						'authenticate' => ($authenticate ? SHLdap::AUTH_USER : SHLdap::AUTH_NONE))
-				);
+			$clients = SHFactory::getLdapClient($this->domain, $this->_config);
 
-				$this->_dn = $this->client->lastUserDn;
+			// Keep a record of any exceptions called
+			$errors = array();
+
+			// We have to get the correct LDAP client for this user
+			foreach ($clients as $client)
+			{
+				if (!$client->isConnected())
+				{
+					// Start the connection procedure (throws an error if it fails)
+					$client->connect();
+				}
+
+				try
+				{
+					// If a DN is returned, then this user is successfully authenticated/authorised
+					$this->_dn = $client->getUserDn($this->username, $this->password, $authenticate);
+
+					$this->client = $client;
+
+					// Emulate dn as an attribute
+					$this->_attributes['dn'] = array($this->_dn);
+
+					return $this->_dn;
+				}
+				catch (Exception $e)
+				{
+					// Add the error to the stack
+					$errors[] = $e;
+				}
 			}
 
-			// Emulate dn as an attribute
-			$this->_attributes['dn'] = array($this->_dn);
+			// Failed to find any configs to match
+			if (count($errors) > 1)
+			{
+				// More than one config caused issues, use the stacked exception
+				throw new SHExceptionStacked(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10915'), 10915, $errors);
+			}
+			elseif (count($errors > 0))
+			{
+				// Just rethrow the one exception
+				throw $errors[0];
+			}
 		}
 		catch (Exception $e)
 		{
@@ -1123,6 +1138,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	 */
 	public function getGroups($default = null)
 	{
+		//TODO: complete this method
 		return array();
 	}
 
@@ -1137,6 +1153,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	 */
 	public function addGroup($id)
 	{
+		//TODO: complete this method
 		return true;
 	}
 
@@ -1151,6 +1168,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	 */
 	public function removeGroup($id)
 	{
+		//TODO: complete this method
 		return true;
 	}
 
