@@ -118,6 +118,14 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	private $_config = null;
 
 	/**
+	 * User parameters from LDAP client.
+	 *
+	 * @var    array
+	 * @since  2.1
+	 */
+	private $_userParams = array();
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param   array  $credentials  Ldap credentials to use for this object (this is not a proxy user).
@@ -136,6 +144,9 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			$this->domain = (string) preg_replace('/[^A-Z0-9_\.-\s]/i', '', $credentials['domain']);
 			$this->domain = ltrim($this->domain, '.');
 		}
+
+		// Register a callback for validating LDAP parameters
+		SHUtilValidate::getInstance()->register(__CLASS__ . '::validate');
 
 		if (is_array($config) && count($config))
 		{
@@ -160,9 +171,13 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			 * the Ldap library otherwise use pre-configured platform configurations
 			 * through the Ldap library.
 			 */
-			$this->client = SHFactory::getLdapClient($this->domain, $this->_config);
+			$client = SHFactory::getLdapClient($this->domain, $this->_config);
+			$this->client = $client[0];
 			$this->client->connect();
 			$this->client->proxyBind();
+
+			// We need to check that this ldap client config has the required user based parameters
+			$this->_userParams = (array) $this->client->userParams;
 
 			// Check whether the user already exists
 			if ($this->_checkUserExists())
@@ -235,7 +250,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				if ($authenticate && $this->client->bindStatus !== SHLdap::AUTH_USER)
 				{
 					// Bind with the user now
-					$this->client->getUserDn($this->username, $this->password, true);
+					$this->_getDn(true);
 				}
 
 				// Dn has already been discovered so lets return it
@@ -263,10 +278,13 @@ class SHUserAdaptersLdap implements SHUserAdapter
 
 				try
 				{
-					// If a DN is returned, then this user is successfully authenticated/authorised
-					$this->_dn = $client->getUserDn($this->username, $this->password, $authenticate);
-
 					$this->client = $client;
+
+					// We need to check that this ldap client config has the required user based parameters
+					$this->_userParams = (array) $this->client->userParams;
+
+					// If a DN is returned, then this user is successfully authenticated/authorised
+					$this->_dn = $this->_getDn($authenticate);
 
 					// Emulate dn as an attribute
 					$this->_attributes['dn'] = array($this->_dn);
@@ -277,6 +295,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 				{
 					// Add the error to the stack
 					$errors[] = $e;
+					$this->client = null;
 				}
 			}
 
@@ -1173,6 +1192,222 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	}
 
 	/**
+	 * Get a users Ldap distinguished name with optional bind authentication.
+	 *
+	 * @param   boolean  $authenticate  Attempt to authenticate the user (i.e.
+	 *						bind the user with the password supplied)
+	 *
+	 * @return  string  User DN.
+	 *
+	 * @since   2.1
+	 * @throws  InvalidArgumentException  Invalid argument in config related error
+	 * @throws  SHLdapException           Ldap specific error.
+	 * @throws  SHExceptionInvaliduser    User invalid error.
+	 */
+	private function _getDn($authenticate = false)
+	{
+		$replaced = str_replace(SHLdap::USERNAME_REPLACE, $this->username, $this->_userParams['user_query']);
+
+		/*
+		 * A basic detection check for LDAP filter.
+		 * (i.e. distinguished names do not start and end with brackets).
+		 */
+		$useSearch = (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $this->_userParams['user_query'])) ? true : false;
+
+		SHLog::add(
+			"Attempt to retrieve user distinguished name using '{$replaced}' " .
+			($useSearch ? ' with search.' : ' with direct bind.'), 102, JLog::DEBUG, 'ldap'
+		);
+
+		// Get a array of distinguished names from either the search or direct bind methods.
+		$DNs = $useSearch ? $this->_getDnBySearch() : $this->_getDnDirect();
+
+		if (empty($DNs))
+		{
+			/*
+			 * Cannot find the specified username. We are going to throw
+			 * a special user not found error to try to split between
+			 * configuration errors and invalid errors. However, this might
+			 * still be a configuration error.
+			 */
+			throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10302'), 10302, $this->username);
+		}
+
+		// Check if we have to authenticate the distinguished name with a password
+		if ($authenticate)
+		{
+			// Attempt to bind each distinguished name with the specified password then return it
+			foreach ($DNs as $dn)
+			{
+				if ($this->client->bind($dn, $this->password))
+				{
+					// Successfully binded with this distinguished name
+					SHLog::add(
+						"Successfully authenticated {$this->username} with distinguished name {$dn}.",
+						102, JLog::DEBUG, 'ldap'
+					);
+
+					return $dn;
+				}
+			}
+
+			if ($useSearch)
+			{
+				// User found, but was unable to bind with the supplied password
+				throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10303'), 10303, $this->username);
+			}
+			else
+			{
+				// Unable to bind directly to the given distinguished name parameters
+				throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10304'), 10304, $this->username);
+			}
+		}
+		else
+		{
+			$result = false;
+
+			if ($useSearch)
+			{
+				/* We can be sure the distinguished name(s) exists in the Ldap
+				 * directory. However, we cannot be sure if the correct
+				 * distinguished name is returned for the specified user without
+				 * authenticating. Therefore, we have to assume the first (and
+				 * hopefully only) distinguished name is correct.
+				 * If the correct configuration has been given and the Ldap
+				 * directory is well organised, this will always be correct.
+				 */
+				$result = $DNs[0];
+			}
+			else
+			{
+				/* Unlike searching, binding directly means we cannot be sure
+				 * if the distinguished name(s) exists in the Ldap directory.
+				 * Therefore, lets attempt to bind with a proxy user, then Ldap
+				 * read each distinguished name's entity to check if it exists.
+				 * If binding with the proxy user fails, then we have no option
+				 * but to assume the first distinguished name exists.
+				 */
+				if ($this->client->proxyBind())
+				{
+					foreach ($DNs as $dn)
+					{
+						try
+						{
+							$read = $this->client->read($dn, null, array('dn'));
+						}
+						catch (Exception $e)
+						{
+							// We don't need to worry about the exception too much
+							SHLog::add("Failed to read direct bind without auth DN {$dn}.", 102, JLog::DEBUG, 'ldap');
+							continue;
+						}
+
+						// Check if the distinguished name entity exists
+						if ($read->countEntries() > 0)
+						{
+							// It exists so we assume this is the correct distinguished name.
+							$result = $dn;
+							break;
+						}
+					}
+
+					if ($result === false)
+					{
+						// Failed to find any of the distinguished name(s) in the Ldap directory.
+						throw new SHExceptionInvaliduser(JText::_('LIB_SHLDAP_ERR_10305'), 10305, $this->username);
+					}
+				}
+				else
+				{
+					// Unable to check Ldap directory, so have to assume the first is correct
+					$result = $DNs[0];
+				}
+			}
+
+			SHLog::add("Using distinguished name {$result} for user {$this->username}.", 102, JLog::DEBUG, 'ldap');
+
+			return $result;
+		}
+	}
+
+	/**
+	 * Get a user's dn by attempting to search for it in the directory.
+	 *
+	 * This method uses the query as a filter to find where the user is located in the directory
+	 *
+	 * @return  array  An array containing user DNs.
+	 *
+	 * @since   2.1
+	 * @throws  InvalidArgumentException  Invalid argument in config related error
+	 * @throws  SHLdapException           Ldap search error
+	 */
+	private function _getDnBySearch()
+	{
+		// Fixes special usernames and provides simple protection against ldap injections
+		$username 	= SHLdapHelper::escape($this->username);
+		$search 	= str_replace(SHLdap::USERNAME_REPLACE, $username, $this->_userParams['user_query']);
+
+		// We can either use a specific user base dn or use SHLdap's default
+		$baseDn = (isset($this->_userParams['user_base_dn']) && !empty($this->_userParams['user_base_dn']))
+			? $this->_userParams['user_base_dn'] : null;
+
+		// Bind using the proxy user so the user can be found in the Ldap directory.
+		if (!$this->client->proxyBind())
+		{
+			// Failed to bind with proxy user
+			throw new InvalidArgumentException(JText::_('LIB_SHLDAP_ERR_10322'), 10322);
+		}
+
+		// Search the directory for the user
+		$result = $this->client->search($baseDn, $search, array($this->_userParams['user_uid']));
+
+		$return 	= array();
+		$count 		= $result->countEntries();
+
+		// Store the distinguished name for each user found
+		for ($i = 0; $i < $count; ++$i)
+		{
+			$return[] = $result->getValue($i, 'dn', 0);
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Get a user's distinguished name by attempting to replace the username keyword
+	 * in the query. Supports multiple distinguished names in a list.
+	 *
+	 * @return  array  An array containing distinguished names.
+	 *
+	 * @since   2.1
+	 */
+	private function _getDnDirect()
+	{
+		$return = array();
+
+		// Fixes special usernames and provides protection against distinguished name injection
+		$username = SHLdapHelper::escape($this->username, true);
+
+		// Replace the username placeholder with the authenticating username
+		$search = str_replace(SHLdap::USERNAME_REPLACE, $username, $this->_userParams['user_query']);
+
+		// Splits each of the distinguished names into indivdual elements
+		$DNs = explode(';', $search);
+
+		// We need to find the correct distinguished name from the set of elements
+		foreach ($DNs as $dn)
+		{
+			// Remove whitespacing from the distinguished name and check there is a length > 1
+			if ($dn = trim($dn))
+			{
+				$return[] = $dn;
+			}
+		}
+
+		return $return;
+	}
+
+	/**
 	 * This method is used as a helper to the makeChanges() method. It checks
 	 * whether a field/attribute is up-to-date in the Ldap directory (not live).
 	 * The method returns whether it is:
@@ -1244,13 +1479,83 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	{
 		try
 		{
-			$this->client->getUserDn($this->username, null, false);
+			$this->_getDn(false);
 
 			return true;
 		}
 		catch (Exception $e)
 		{
 			return false;
+		}
+	}
+
+	/**
+	 * Validates the user parameters from the LDAP configuration.
+	 *
+	 * @param   JRegistry  &$config  LDAP configuration.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 * @throws  InvalidArgumentException  Thrown when user parameters are invalid
+	 */
+	public static function validate(JRegistry &$config)
+	{
+		try
+		{
+			$params = (array) json_decode($config->get('userParams', '{}'));
+
+			if (!empty($params))
+			{
+				if (!isset($params['user_query']) || empty($params['user_query']))
+				{
+					throw new Exception(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10933'));
+				}
+				elseif (!isset($params['user_uid']) || empty($params['user_uid']))
+				{
+					throw new Exception(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10934'));
+				}
+				elseif (!isset($params['user_fullname']) || empty($params['user_fullname']))
+				{
+					throw new Exception(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10935'));
+				}
+				elseif (!isset($params['user_email']) || empty($params['user_email']))
+				{
+					throw new Exception(JText::_('LIB_SHUSERADAPTERSLDAP_ERR_10936'));
+				}
+
+				// Backwards compatibility with 2.0
+				$config->set('user_qry', $params['user_query']);
+				$config->set('ldap_uid', $params['user_uid']);
+				$config->set('ldap_fullname', $params['user_fullname']);
+				$config->set('ldap_email', $params['user_email']);
+				$config->set('ldap_password', JArrayHelper::getValue($params, 'user_password'));
+				$config->set('password_hash', JArrayHelper::getValue($params, 'user_password_hash'));
+				$config->set('password_prefix', JArrayHelper::getValue($params, 'user_password_prefix'));
+				$config->set('all_user_filter', JArrayHelper::getValue($params, 'user_mass_query'));
+			}
+			else
+			{
+				// Forward compatibility with 2.1
+				$params = array(
+					'user_query' => $config->get('user_qry'),
+					'user_uid' => $config->get('ldap_uid'),
+					'user_fullname' => $config->get('ldap_fullname'),
+					'user_email' => $config->get('ldap_email'),
+					'user_password' => $config->get('ldap_password'),
+					'user_password_hash' => $config->get('password_hash'),
+					'user_password_prefix' => $config->get('password_prefix'),
+					'user_mass_query' => $config->get('all_user_filter'),
+				);
+
+				$config->set('user_params', json_encode($params));
+			}
+		}
+		catch (Exception $e)
+		{
+			throw new InvalidArgumentException(
+				JText::sprintf('LIB_SHUSERADAPTERSLDAP_ERR_10931', $e->getMessage(), $config->get('domain')), 10931
+			);
 		}
 	}
 }
