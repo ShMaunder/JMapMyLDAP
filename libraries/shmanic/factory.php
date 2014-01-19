@@ -101,11 +101,7 @@ abstract class SHFactory
 		{
 			if ($type === 'sql')
 			{
-				if (!isset($options['handler']))
-				{
-					// Uses the default Joomla database object
-					$options['handler'] = JFactory::getDbo();
-				}
+				$options['handler'] = (isset($options['handler'])) ? $options['handler'] : null;
 
 				if (!isset($options['table']))
 				{
@@ -113,8 +109,13 @@ abstract class SHFactory
 					$options['table'] = '#__sh_config';
 				}
 
-				// Retrieve the platform config via SQL
-				self::$config = self::createDBConfig($options['handler'], $options['table']);
+				// Retrieve the platform config via cached SQL
+				$cache = JFactory::getCache('shplatform', 'callback');
+				self::$config = $cache->get(
+					array(__CLASS__, 'createDBConfig'),
+					array($options['handler'], $options['table']),
+					null
+				);
 			}
 			elseif ($type === 'file')
 			{
@@ -385,8 +386,10 @@ abstract class SHFactory
 	 *
 	 * @since   2.0
 	 */
-	protected static function createDBConfig(JDatabase $handler, $table)
+	public static function createDBConfig($handler, $table)
 	{
+		$handler = is_null($handler) ? JFactory::getDbo() : $handler;
+
 		// Create the registry with a default namespace of config
 		$registry = new JRegistry;
 
