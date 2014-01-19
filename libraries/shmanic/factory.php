@@ -255,13 +255,62 @@ abstract class SHFactory
 	 */
 	public static function getLdapClient($domain = null, $config = array(), JRegistry $registry = null)
 	{
-		if (isset(self::$ldap[$domain]))
-		{
-			return array(self::$ldap[$domain]);
-		}
-
 		// Get the platform registry config from the factory if required
 		$registry = is_null($registry) ? self::getConfig() : $registry;
+
+		$cache = JFactory::getCache('shldap', '');
+
+		if (!empty($domain))
+		{
+			$hash = md5($domain . serialize($config) . serialize($registry));
+
+			if (isset(self::$ldap[$hash]))
+			{
+				return array(self::$ldap[$hash]);
+			}
+
+			// Reconstruct the LDAP configuration object from cache and ensure it is valid
+			if ($cachedConfig = $cache->get($hash) && ($cachedConfig instanceof SHLdap))
+			{
+				self::$ldap[$hash] = $cachedConfig;
+
+				return array(self::$ldap[$hash]);
+			}
+		}
+		else
+		{
+			$hash = md5('all_domains' . serialize($config) . serialize($registry));
+
+			// Check if we have done a "all domain" LDAP config retrieve
+			if (($cachedConfigs = $cache->get($hash)) && is_array($cachedConfigs))
+			{
+				$valid = true;
+				$configs = array();
+
+				foreach ($cachedConfigs as $configHash)
+				{
+					// Reconstruct the "all domain" configurations from cache and check they are valid
+					if (($cachedConfig = $cache->get($configHash)) && ($cachedConfig instanceof SHLdap))
+					{
+						$configs[] = $cachedConfig;
+					}
+					else
+					{
+						// One of the configs are invalid and therefore we must run everything again
+						$valid = false;
+						break;
+					}
+				}
+
+				if ($valid)
+				{
+					return $configs;
+				}
+			}
+		}
+
+		// Potentially we will need the original input config later
+		$inputConfig = $config;
 
 		if (empty($config))
 		{
@@ -285,6 +334,9 @@ abstract class SHFactory
 			// This will be all the LDAP clients that match the domain
 			$clients = array();
 
+			// Store all the hashes that we generate for caching purposes
+			$hashes = array();
+
 			// Loop around each of the Ldap configs until one authenticates
 			foreach ($configs as $config)
 			{
@@ -297,19 +349,33 @@ abstract class SHFactory
 				 */
 				$ldap = new SHLdap($config);
 
-				if (!isset(self::$ldap[$ldap->domain]))
+				$hash = md5($ldap->domain . serialize($inputConfig) . serialize($registry));
+
+				if (!isset(self::$ldap[$hash]))
 				{
 					// We want to store this client for potential use later on
-					self::$ldap[$ldap->domain] = $ldap;
+					self::$ldap[$hash] = $ldap;
+
+					// Lets cache the LDAP client for future use
+					$cache->store(self::$ldap[$hash], $hash);
 				}
 
-				$clients[] = self::$ldap[$ldap->domain];
+				$hashes[] = $hash;
+
+				$clients[] = self::$ldap[$hash];
 
 				unset($ldap);
 			}
 
 			if (count($clients))
 			{
+				if (empty($domain))
+				{
+					// Cache all domains in the correct order so we can use it for future use
+					$hash = md5('all_domains' . serialize($inputConfig) . serialize($registry));
+					$cache->store($hashes, $hash);
+				}
+
 				// Found some LDAP configs - lets return them
 				return $clients;
 			}

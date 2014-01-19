@@ -728,12 +728,13 @@ class SHLdap
 		{
 			// Close the current connection to Ldap and reset the resource variable
 			ldap_close($this->resource);
-			$this->resource = null;
 			$this->addDebug('Closed connection.');
 		}
 
 		// Default the bind level to none
 		$this->bind_status = self::AUTH_NONE;
+
+		$this->resource = null;
 	}
 
 	/**
@@ -1509,6 +1510,19 @@ class SHLdap
 	public static function explodeDn($dn, $attrib = 0)
 	{
 		return ldap_explode_dn($dn, $attrib);
+	}
+
+	/**
+	 * Executed on deserialization to reset class.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 */
+	public function __wakeup()
+	{
+		// Reset various variables and allow a fresh start
+		$this->close();
 	}
 
 	/**
