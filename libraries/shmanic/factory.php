@@ -244,7 +244,7 @@ abstract class SHFactory
 	 * all instantiated SHLdap objects in a static variable for later use.
 	 *
 	 * @param   integer|string  $domain    Optional domain or configuration record ID.
-	 * @param   JRegsitry[]     $configs   Optional array of LDAP configs (can also be single JRegistry without array).
+	 * @param   JRegistry       $config    Optional LDAP config (can also be single JRegistry without array).
 	 * @param   JRegistry       $registry  Optional override for platform configuration registry.
 	 *
 	 * @return  SHLdap[]  An array of SHLdap objects.
@@ -252,7 +252,7 @@ abstract class SHFactory
 	 * @since   2.1
 	 * @throws  InvalidArgumentException  Invalid configurations
 	 */
-	public static function getLdapClient($domain = null, $configs = array(), JRegistry $registry = null)
+	public static function getLdapClient($domain = null, $config = array(), JRegistry $registry = null)
 	{
 		if (isset(self::$ldap[$domain]))
 		{
@@ -262,7 +262,7 @@ abstract class SHFactory
 		// Get the platform registry config from the factory if required
 		$registry = is_null($registry) ? self::getConfig() : $registry;
 
-		if (empty($configs))
+		if (empty($config))
 		{
 			/*
 			 * Get all the Ldap configs that are enabled and available. An optional
@@ -270,41 +270,48 @@ abstract class SHFactory
 			 */
 			$configs = SHLdapHelper::getConfig($domain, $registry);
 		}
-
-		// Check if only one configuration result was found
-		if ($configs instanceof JRegistry)
+		else
 		{
-			// Wrap this around an array so we can use the same code below
-			$configs = array($configs);
+			// Use the specified config
+			$configs = ($config instanceof JRegistry) ? $config : new JRegistry($config);
 		}
 
-		// This will be all the LDAP clients that match the domain
-		$clients = array();
-
-		// Loop around each of the Ldap configs until one authenticates
-		foreach ($configs as $config)
+		if (!empty($configs))
 		{
-			/*
-			 * We won't catch exceptions now as it will mean either ldap
-			 * extension missing OR a very bad problem with this LDAP configuraiton.
-			 */
-			$ldap = new SHLdap($config);
+			// If only 1 config result, wrap around an array so we can use the same code
+			$configs = ($configs instanceof JRegistry) ? array($configs) : $configs;
 
-			if (!isset(self::$ldap[$ldap->domain]))
+			// This will be all the LDAP clients that match the domain
+			$clients = array();
+
+			// Loop around each of the Ldap configs until one authenticates
+			foreach ($configs as $config)
 			{
-				// We want to store this client for potential use later on
-				self::$ldap[$ldap->domain] = $ldap;
+				// Validate the config from any registered listeners (this can also change the config)
+				SHUtilValidate::getInstance()->validate($config);
+
+				/*
+				 * We won't catch exceptions now as it will mean either ldap
+				 * extension missing OR a very bad problem with this LDAP configuraiton.
+				 */
+				$ldap = new SHLdap($config);
+
+				if (!isset(self::$ldap[$ldap->domain]))
+				{
+					// We want to store this client for potential use later on
+					self::$ldap[$ldap->domain] = $ldap;
+				}
+
+				$clients[] = self::$ldap[$ldap->domain];
+
+				unset($ldap);
 			}
 
-			$clients[] = self::$ldap[$ldap->domain];
-
-			unset($ldap);
-		}
-
-		if (count($clients))
-		{
-			// Found some LDAP configs - lets return them
-			return $clients;
+			if (count($clients))
+			{
+				// Found some LDAP configs - lets return them
+				return $clients;
+			}
 		}
 
 		// No errors happened, but unable to find suitable LDAP config for the domain
