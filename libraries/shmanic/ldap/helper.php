@@ -93,7 +93,10 @@ abstract class SHLdapHelper
 			if (empty($id))
 			{
 				// Get all the enabled Ldap configurations from SQL
-				$query->select($db->quoteName('name'))->select($db->quoteName('params'))
+				$query->select($db->quoteName('name'))
+					->select($db->quoteName('params'))
+					->select($db->quoteName('user_params'))
+					->select($db->quoteName('group_params'))
 					->from($db->quoteName($table))
 					->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
 					->order($db->quoteName('ordering'));
@@ -112,6 +115,10 @@ abstract class SHLdapHelper
 						// Inject the domain ID into the config
 						$newConfig->set('domain', $row['name']);
 
+						// Inject the user_params and group_params
+						$newConfig->set('user_params', $row['user_params']);
+						$newConfig->set('group_params', $row['group_params']);
+
 						// Push the Ldap config onto the return array
 						$configs[] = $newConfig;
 					}
@@ -129,7 +136,10 @@ abstract class SHLdapHelper
 			elseif (is_numeric($id))
 			{
 				// Get the enabled configuration of the specified ID
-				$query->select($db->quoteName('name'))->select($db->quoteName('params'))
+				$query->select($db->quoteName('name'))
+					->select($db->quoteName('params'))
+					->select($db->quoteName('user_params'))
+					->select($db->quoteName('group_params'))
 					->from($db->quoteName($table))
 					->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
 					->where($db->quoteName('id') . ' = ' . $db->quote((int) $id));
@@ -142,6 +152,10 @@ abstract class SHLdapHelper
 
 					// Inject the domain ID into the config
 					$config->set('domain', $row['name']);
+
+					// Inject the user_params and group_params
+					$config->set('user_params', $row['user_params']);
+					$config->set('group_params', $row['group_params']);
 
 					// Return our configuration result
 					return $config;
@@ -158,18 +172,24 @@ abstract class SHLdapHelper
 			{
 				// Get the enabled configuration of the specified name
 				$query->select($db->quoteName('params'))
+					->select($db->quoteName('user_params'))
+					->select($db->quoteName('group_params'))
 					->from($db->quoteName($table))
 					->where($db->quoteName('enabled') . ' >= ' . $db->quote('1'))
 					->where($db->quoteName('name') . ' = ' . $db->quote((string) $id));
 
 				// Execute the query
-				if ($param = $db->setQuery($query)->loadResult())
+				if ($row = $db->setQuery($query)->loadAssoc())
 				{
 					$config = new JRegistry;
-					$config->loadString($param, 'JSON');
+					$config->loadString($row['params'], 'JSON');
 
 					// Inject the domain ID into the config
 					$config->set('domain', (string) $id);
+
+					// Inject the user_params and group_params
+					$config->set('user_params', $row['user_params']);
+					$config->set('group_params', $row['group_params']);
 
 					// Return our configuration result
 					return $config;
@@ -181,6 +201,7 @@ abstract class SHLdapHelper
 				}
 			}
 		}
+		// WARNING: pulling attributes from a plugin is deprecated since 2.0 and is now broken
 		elseif ($source === self::CONFIG_PLUGIN)
 		{
 			// Grab the plug-in name from the registry
@@ -362,6 +383,38 @@ abstract class SHLdapHelper
 
 			// Inject the domain ID into the config
 			$config->set('domain', $namespace);
+
+			$hostParams = array();
+			$userParams = array();
+			$groupParams = array();
+
+			foreach ($config->toArray() as $key => $value)
+			{
+				if (substr($key, 0, 5) == 'user_')
+				{
+					$userParams[$key] = $value;
+				}
+				elseif (substr($key, 0, 6) == 'group_')
+				{
+					$groupParams[$key] = $value;
+				}
+				else
+				{
+					$hostParams[$key] = $value;
+				}
+			}
+
+			$config = new JRegistry($hostParams);
+
+			// Inject the user_params and group_params
+			$config->set('user_params', json_encode($userParams));
+			$config->set('group_params', json_encode($groupParams));
+
+			if (isset($userParams['user_qry']))
+			{
+				// Backwards compatibility with 2.0
+				$config->set('user_qry', $userParams['user_qry']);
+			}
 
 			return $config;
 		}
