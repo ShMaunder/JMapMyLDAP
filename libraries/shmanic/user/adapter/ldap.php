@@ -3,7 +3,7 @@
  * PHP Version 5.3
  *
  * @package     Shmanic.Libraries
- * @subpackage  User.Adapters
+ * @subpackage  User.Adapter
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
  * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
@@ -16,10 +16,10 @@ defined('JPATH_PLATFORM') or die;
  * Implementation of an LDAP user adapter
  *
  * @package     Shmanic.Libraries
- * @subpackage  User.Adapters
+ * @subpackage  User.Adapter
  * @since       2.0
  */
-class SHUserAdaptersLdap implements SHUserAdapter
+class SHUserAdapterLdap implements SHUserAdapter
 {
 	/**
 	 * Name of this adapter implementation.
@@ -1558,4 +1558,17 @@ class SHUserAdaptersLdap implements SHUserAdapter
 			);
 		}
 	}
+}
+
+/**
+ * Deprecated class name for SHUserAdaptersLdap
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  User.Adapter
+ * @since       2.0
+ *
+ * @deprecated  [2.1] Use SHUserAdaptersLdap
+ */
+class SHUserAdaptersLdap extends SHUserAdapterLdap
+{
 }

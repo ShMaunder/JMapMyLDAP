@@ -49,6 +49,9 @@ if (file_exists(SHPATH_PLATFORM . '/form/rules'))
 	JForm::addRulePath(SHPATH_PLATFORM . '/form/rules');
 }
 
+// Define deprecated class names file paths for the autoloader
+SHLoader::register('SHUserAdaptersLdap', SHPATH_PLATFORM . '/user/adapter/ldap.php');
+
 // We need to check for the legacy folder which indicates Joomla 3+ / Platform
 if (file_exists(JPATH_PLATFORM . '/legacy'))
 {
