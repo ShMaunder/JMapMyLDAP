@@ -255,7 +255,7 @@ abstract class SHFactory
 	 */
 	public static function getLdapClient($domain = null, $config = array(), JRegistry $registry = null)
 	{
-		// Get the platform registry config from the factory if required
+		// Get the platform registry config from the factory $domain . d
 		$registry = is_null($registry) ? self::getConfig() : $registry;
 
 		$cache = JFactory::getCache('shldap', '');

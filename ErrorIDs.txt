@@ -112,6 +112,10 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10621 - Cannot instantiate the ldap file configuration or namespace [LIB_SHLDAPHELPER_ERR_10621]
 10622 - Cannot load the file for the ldap configuration [LIB_SHLDAPHELPER_ERR_10622]
 
+10623 - Cannot instantiate the LDAP configuration file class '%1$s'. File status %2$s. [LIB_SHLDAPHELPER_ERR_10623]
+10624 - loaded [LIB_SHLDAPHELPER_INFO_10624]
+10625 - failed to load [LIB_SHLDAPHELPER_INFO_10625]
+
 10634 - Entry for the commited user changes and their attributes after success.
 
 10636 - Entry for the commited user changes and their attributes after error.

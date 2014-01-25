@@ -854,7 +854,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$auth = array('authenticate' => SHLdap::AUTH_USER, 'username' => $user['username'], 'password' => $user['password'] . 'asdas');
 
-		$ldap = SHLdap::getInstance(null, $auth, $platform);
+		$ldap = SHLdap::getInstance('', $auth, $platform);
 
 		$ldap->connect();
 	}

@@ -80,13 +80,13 @@ class SHLdapHelperTest extends PHPUnit_Framework_TestCase
 
 	public function testConfigInvalidFileBad()
 	{
-		$this->setExpectedException('RuntimeException', 'LIB_SHLDAPHELPER_ERR_10621', 10621);
+		$this->setExpectedException('RuntimeException', 'LIB_SHLDAPHELPER_ERR_10623', 10623);
 
 		// Change it to a bad file source
 		$platform = clone(SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE, 'namespace' => 'single')));
 		$platform->set('ldap.file', static::LDAP_BAD_CONFIG_FILE);
 
-		SHLdapHelper::getConfig(null, $platform);
+		SHLdapHelper::getConfig('Bad', $platform);
 	}
 
 	public function testConfigSuccessMultiNSFile()
@@ -98,8 +98,8 @@ class SHLdapHelperTest extends PHPUnit_Framework_TestCase
 
 		$registrySearchByString = SHLdapHelper::getConfig('search', $platform);
 		$registryBindByString = SHLdapHelper::getConfig('bind', $platform);
-		$registrySearchByPosition = SHLdapHelper::getConfig(0, $platform);
-		$registryBindByPosition = SHLdapHelper::getConfig(1, $platform);
+		$registrySearchByPosition = SHLdapHelper::getConfig(1, $platform);
+		$registryBindByPosition = SHLdapHelper::getConfig(2, $platform);
 
 		$registryAll = SHLdapHelper::getConfig(null, $platform);
 
@@ -108,31 +108,19 @@ class SHLdapHelperTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($ldapSearch['user_qry'], $registryAll[0]->get('user_qry'));
 		$this->assertEquals($ldapBind['user_qry'], $registryBindByString->get('user_qry'));
 		$this->assertEquals($ldapBind['user_qry'], $registryBindByPosition->get('user_qry'));
-		$this->assertEquals($ldapBind['user_qry'], $registryAll[1]->get('user_qry'));
+		$this->assertEquals($ldapBind['user_qry'], $registryAll[2]->get('user_qry'));
 	}
 
 	public function testConfigSuccessSingleNSFile()
 	{
 		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE, 'namespace' => 'single'));
 
-		$registry = SHLdapHelper::getConfig(null, $platform);
+		$registry = SHLdapHelper::getConfig('', $platform);
 
 		$ldapConfig = TestsHelper::getLdapConfig(214);
 
 		$this->assertEquals($ldapConfig['user_qry'], $registry->get('user_qry'));
 		$this->assertEquals($ldapConfig['host'], $registry->get('host'));
-	}
-
-	public function testConfigInvalidFilePath()
-	{
-		$this->setExpectedException('InvalidArgumentException', 'LIB_SHLDAPHELPER_ERR_10622', 10622);
-
-		// Change it to a invalid file source path
-		$platform = SHFactory::getConfig('file', array('file' => static::PLATFORM_CONFIG_FILE, 'namespace' => 'single'));
-		$platform->set('ldap.file', 'thisdoesntexist.php');
-		$platform->set('ldap.namespaces', 'nonexist');
-
-		SHLdapHelper::getConfig(null, $platform);
 	}
 
 	public function testConfigInvalidSource()

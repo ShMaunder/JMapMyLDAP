@@ -54,6 +54,14 @@ abstract class SHLdapHelper
 	const CONFIG_PLUGIN = 4;
 
 	/**
+	 * LDAP configuration file prefix.
+	 *
+	 * @var    string
+	 * @since  2.1
+	 */
+	const CONFIG_PREFIX = 'SHLdapConfig';
+
+	/**
 	 * Loads the correct Ldap configuration based on the record ID specified. Then uses
 	 * this configuration to instantiate an SHLdap client.
 	 *
@@ -237,24 +245,47 @@ abstract class SHLdapHelper
 			// Define some default variables
 			$namespace = '';
 			$position = 0;
+			$fileInc = false;
 
-			// Grab the file path/name from the registry
-			$file = $registry->get('ldap.file', JPATH_CONFIGURATION . '/ldap.php');
+			// Grab the LDAP configuration file path from the registry and include it
+			if ($file = $registry->get('ldap.file', JPATH_CONFIGURATION . '/ldap.php'))
+			{
+				$fileInc = @include_once $file;
+			}
 
-			// Get and split the namespaces
-			$namespaces = explode(';', $registry->get('ldap.namespaces', ''));
+			// Lets find all classes in the LDAP configuration file
+			$classes = array_values(preg_grep('/(' . self::CONFIG_PREFIX . '){1}\w*/i', get_declared_classes()));
+
+			if (empty($classes))
+			{
+				$fileInc = ($fileInc) ? JText::_('LIB_SHLDAPHELPER_INFO_10624') : JText::_('LIB_SHLDAPHELPER_INFO_10625');
+
+				// Either file not lopaded or file has no valid classes
+				throw new RuntimeException(
+					JText::sprintf('LIB_SHLDAPHELPER_ERR_10623', $id, $fileInc),
+					10623
+				);
+			}
+
+			$namespaces = $classes;
+
+			// Retrieve the namespaces from the classes
+			foreach ($namespaces as &$namespace)
+			{
+				$namespace = strtolower(str_ireplace(self::CONFIG_PREFIX, '', $namespace));
+			}
 
 			if (is_null($id))
 			{
 				if (count($namespaces) === 1)
 				{
 					// We will use a single namespace here
-					$namespace = $namespaces[0];
+					$nsKeys = array(0);
 				}
 				elseif (count($namespaces) > 1)
 				{
 					// We will return an array of configs
-					$namespace = $namespaces;
+					$nsKeys = array_keys($namespaces);
 				}
 			}
 			else
@@ -264,7 +295,7 @@ abstract class SHLdapHelper
 					// Need to treat the ID as a position - check if it exists
 					if (isset($namespaces[$id]))
 					{
-						$namespace = $namespaces[$id];
+						$nsKeys = array($id);
 					}
 					else
 					{
@@ -274,8 +305,17 @@ abstract class SHLdapHelper
 				}
 				elseif (is_string($id))
 				{
-					// Treat the ID as a namespace
-					$namespace = $id;
+					$key = array_search(strtolower($id), $namespaces, false);
+
+					if ($key !== false)
+					{
+						$nsKeys = array($key);
+					}
+					else
+					{
+						// Unable to load the file namespace specified
+						throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10609', $id), 10609);
+					}
 				}
 				else
 				{
@@ -284,47 +324,61 @@ abstract class SHLdapHelper
 				}
 			}
 
-			// Check if we are dealing with one namespace
-			if (is_string($namespace))
-			{
-				// Only need to get and return one namespace
-				return self::createFileConfig($namespace, $file);
-			}
-			else
-			{
-				$configs = array();
+			$configs = array();
 
-				// Multiple namespaces so loop around each and attempt to create one
-				foreach ($namespaces as $namespace)
+			// We need to instantiate the config classes from the file and store them in the configs
+			foreach ($nsKeys as $nsKey)
+			{
+				$class = $classes[$nsKey];
+
+				$config = new JRegistry;
+
+				// Create the JConfig object
+				$params = new $class;
+
+				// Load the configuration values into the registry
+				$config->loadObject($params);
+
+				// Inject the domain ID into the config
+				$config->set('domain', empty($namespaces[$nsKey]) ? 'default' : $namespaces[$nsKey]);
+
+				$hostParams = array();
+				$userParams = array();
+				$groupParams = array();
+
+				foreach ($config->toArray() as $key => $value)
 				{
-					try
+					if (substr($key, 0, 5) == 'user_')
 					{
-						// Add the namespace'd config to the array
-						$configs[] = self::createFileConfig($namespace, $file);
+						$userParams[$key] = $value;
 					}
-					catch (Exception $e)
+					elseif (substr($key, 0, 6) == 'group_')
 					{
-						// We will have some debugging logging here
-						SHLog::add(
-							JText::sprintf(
-								'LIB_SHLDAPHELPER_DEBUG_10607', $namespace, $e->getCode(), $e->getMessage()
-							), 10607, JLog::DEBUG, 'ldap'
-						);
+						$groupParams[$key] = $value;
+					}
+					else
+					{
+						$hostParams[$key] = $value;
 					}
 				}
 
-				// Check we have some configs
-				if (count($configs))
+				$config = new JRegistry($hostParams);
+
+				// Inject the user_params and group_params
+				$config->set('user_params', json_encode($userParams));
+				$config->set('group_params', json_encode($groupParams));
+
+				if (isset($userParams['user_qry']))
 				{
-					// Return the multiple configs
-					return $configs;
+					// Backwards compatibility with 2.0
+					$config->set('user_qry', $userParams['user_qry']);
 				}
-				else
-				{
-					// No file configurations found
-					throw new RuntimeException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10608', $file), 10608);
-				}
+
+				$configs[] = $config;
 			}
+
+			// We only return an array when the ID is null
+			return (!is_null($id)) ? $configs[0] : $configs;
 		}
 		else
 		{
@@ -334,93 +388,6 @@ abstract class SHLdapHelper
 
 		// Failed to find a valid config
 		return false;
-	}
-
-	/**
-	 * Creates and returns a registry to the specified namespace class.
-	 * This is used for LDAP configuration files.
-	 *
-	 * @param   string  $namespace  Name of namespace.
-	 * @param   string  $file       File path to configuration.
-	 *
-	 * @return  JRegistry  Configuration registry.
-	 *
-	 * @since   2.0
-	 * @throws  InvalidArgumentException  Failed to include config
-	 * @throws  RuntimeException          Failed to instantiate config
-	 */
-	protected static function createFileConfig($namespace, $file = null)
-	{
-		// Sanitize the namespace
-		$namespace = ucfirst((string) preg_replace('/[^A-Z_]/i', '', $namespace));
-
-		// Build the class name
-		$class = 'SHLdapConfig' . $namespace;
-
-		// Try to include the file if the class doesnt currently exist
-		if (!class_exists($class))
-		{
-			if (is_null($file) || !file_exists($file))
-			{
-				// Failed to create config file
-				throw new InvalidArgumentException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10622', $class, $file), 10622);
-			}
-
-			// Include the file
-			include_once $file;
-		}
-
-		// Handle the PHP configuration type.
-		if (class_exists($class))
-		{
-			$config = new JRegistry;
-
-			// Create the JConfig object
-			$params = new $class;
-
-			// Load the configuration values into the registry
-			$config->loadObject($params);
-
-			// Inject the domain ID into the config
-			$config->set('domain', $namespace);
-
-			$hostParams = array();
-			$userParams = array();
-			$groupParams = array();
-
-			foreach ($config->toArray() as $key => $value)
-			{
-				if (substr($key, 0, 5) == 'user_')
-				{
-					$userParams[$key] = $value;
-				}
-				elseif (substr($key, 0, 6) == 'group_')
-				{
-					$groupParams[$key] = $value;
-				}
-				else
-				{
-					$hostParams[$key] = $value;
-				}
-			}
-
-			$config = new JRegistry($hostParams);
-
-			// Inject the user_params and group_params
-			$config->set('user_params', json_encode($userParams));
-			$config->set('group_params', json_encode($groupParams));
-
-			if (isset($userParams['user_qry']))
-			{
-				// Backwards compatibility with 2.0
-				$config->set('user_qry', $userParams['user_qry']);
-			}
-
-			return $config;
-		}
-
-		// Failed to create config file
-		throw new RuntimeException(JText::sprintf('LIB_SHLDAPHELPER_ERR_10621', $class), 10621);
 	}
 
 	/**
@@ -614,11 +581,24 @@ abstract class SHLdapHelper
 		}
 		elseif ($source === self::CONFIG_FILE)
 		{
-			// Generate the namesapce
-			if ($namespaces = $registry->get('ldap.namespaces', false))
+			// Grab the LDAP configuration file path from the registry and include it
+			if ($file = $registry->get('ldap.file', JPATH_CONFIGURATION . '/ldap.php'))
 			{
-				// Split multiple namespaces
-				$namespaces = explode(';', $namespaces);
+				@include_once $file;
+			}
+
+			// Lets find all classes in the LDAP configuration file
+			$classes = array_values(preg_grep('/(' . self::CONFIG_PREFIX . '){1}\w*/i', get_declared_classes()));
+
+			if (!empty($classes))
+			{
+				$namespaces = $classes;
+
+				// Retrieve the namespaces from the classes
+				foreach ($namespaces as &$namespace)
+				{
+					$namespace = str_ireplace(self::CONFIG_PREFIX, '', $namespace);
+				}
 
 				return $namespaces;
 			}
