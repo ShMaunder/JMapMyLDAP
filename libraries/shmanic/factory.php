@@ -260,6 +260,11 @@ abstract class SHFactory
 
 		$cache = JFactory::getCache('shldap', '');
 
+		$domain = is_null($domain) ? $domain : strtolower($domain);
+
+		// Generate a unique hash for this configuration depending on the domain requested
+		$domainHash = empty($domain) ? '' : $domain;
+
 		if (!empty($domain))
 		{
 			$hash = md5($domain . serialize($config) . serialize($registry));
@@ -281,18 +286,17 @@ abstract class SHFactory
 		{
 			$hash = md5('all_domains' . serialize($config) . serialize($registry));
 
-			// Check if we have done a "all domain" LDAP config retrieve
-			if (($cachedConfigs = $cache->get($hash)) && is_array($cachedConfigs))
+			if (isset(self::$ldap[$hash]))
 			{
 				$valid = true;
 				$configs = array();
 
-				foreach ($cachedConfigs as $configHash)
+				// Reconstruct all domains in order
+				foreach (self::$ldap[$hash] as $hash)
 				{
-					// Reconstruct the "all domain" configurations from cache and check they are valid
-					if (($cachedConfig = $cache->get($configHash)) && ($cachedConfig instanceof SHLdap))
+					if (isset(self::$ldap[$hash]))
 					{
-						$configs[] = $cachedConfig;
+						$configs[] = self::$ldap[$hash];
 					}
 					else
 					{
@@ -300,11 +304,40 @@ abstract class SHFactory
 						$valid = false;
 						break;
 					}
-				}
 
-				if ($valid)
+					if ($valid)
+					{
+						return $configs;
+					}
+				}
+			}
+			else
+			{
+				// Check if we have done a "all domain" LDAP config retrieve
+				if (($cachedConfigs = $cache->get($hash)) && is_array($cachedConfigs))
 				{
-					return $configs;
+					$valid = true;
+					$configs = array();
+
+					foreach ($cachedConfigs as $configHash)
+					{
+						// Reconstruct the "all domain" configurations from cache and check they are valid
+						if (($cachedConfig = $cache->get($configHash)) && ($cachedConfig instanceof SHLdap))
+						{
+							$configs[] = $cachedConfig;
+						}
+						else
+						{
+							// One of the configs are invalid and therefore we must run everything again
+							$valid = false;
+							break;
+						}
+					}
+
+					if ($valid)
+					{
+						return $configs;
+					}
 				}
 			}
 		}
@@ -349,7 +382,7 @@ abstract class SHFactory
 				 */
 				$ldap = new SHLdap($config);
 
-				$hash = md5($ldap->domain . serialize($inputConfig) . serialize($registry));
+				$hash = md5(strtolower($ldap->domain) . serialize($inputConfig) . serialize($registry));
 
 				if (!isset(self::$ldap[$hash]))
 				{
@@ -374,6 +407,8 @@ abstract class SHFactory
 					// Cache all domains in the correct order so we can use it for future use
 					$hash = md5('all_domains' . serialize($inputConfig) . serialize($registry));
 					$cache->store($hashes, $hash);
+
+					self::$ldap[$hash] = $hashes;
 				}
 
 				// Found some LDAP configs - lets return them
