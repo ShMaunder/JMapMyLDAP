@@ -340,7 +340,7 @@ abstract class SHLdapHelper
 				$config->loadObject($params);
 
 				// Inject the domain ID into the config
-				$config->set('domain', empty($namespaces[$nsKey]) ? 'default' : $namespaces[$nsKey]);
+				$config->def('domain', empty($namespaces[$nsKey]) ? 'default' : $namespaces[$nsKey]);
 
 				$hostParams = array();
 				$userParams = array();
