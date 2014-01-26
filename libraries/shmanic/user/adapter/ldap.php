@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @subpackage  User.Adapter
  * @since       2.0
  */
-class SHUserAdapterLdap implements SHUserAdapter
+class SHUserAdapterLdap extends SHUserAdapter
 {
 	/**
 	 * Name of this adapter implementation.
@@ -27,7 +27,7 @@ class SHUserAdapterLdap implements SHUserAdapter
 	 * @var    string
 	 * @since  2.0
 	 */
-	const ADAPTER_TYPE = 'LDAP';
+	const NAME = 'LDAP';
 
 	/**
 	 * Ldap client library (also known as driver).
@@ -44,38 +44,6 @@ class SHUserAdapterLdap implements SHUserAdapter
 	 * @since  2.0
 	 */
 	private $_dn = null;
-
-	/**
-	 * Ldap username for Ldap user.
-	 *
-	 * @var    string
-	 * @since  2.0
-	 */
-	protected $username = null;
-
-	/**
-	 * Ldap password for Ldap user.
-	 *
-	 * @var    string
-	 * @since  2.0
-	 */
-	protected $password = null;
-
-	/**
-	 * Ldap domain for Ldap user.
-	 *
-	 * @var    string
-	 * @since  2.0
-	 */
-	protected $domain = null;
-
-	/**
-	 * Holds wether the user is new.
-	 *
-	 * @var    Boolean
-	 * @since  2.0
-	 */
-	protected $isNew = false;
 
 	/**
 	 * Ldap attributes for this user (cached).
@@ -136,14 +104,7 @@ class SHUserAdapterLdap implements SHUserAdapter
 	 */
 	public function __construct(array $credentials, $config = null, array $options = array())
 	{
-		$this->username = JArrayHelper::getValue($credentials, 'username');
-		$this->password = JArrayHelper::getValue($credentials, 'password');
-
-		if (isset($credentials['domain']))
-		{
-			$this->domain = (string) preg_replace('/[^A-Z0-9_\.-\s]/i', '', $credentials['domain']);
-			$this->domain = ltrim($this->domain, '.');
-		}
+		parent::__construct($credentials, $config, $options);
 
 		// Register a callback for validating LDAP parameters
 		SHUtilValidate::getInstance()->register(__CLASS__ . '::validate');
@@ -162,7 +123,7 @@ class SHUserAdapterLdap implements SHUserAdapter
 		}
 
 		// If the user is new then the user creation script needs to provide a dn for the new object
-		if ($this->isNew = JArrayHelper::getValue($options, 'isNew', false, 'boolean'))
+		if ($this->isNew)
 		{
 			$this->_dn = JArrayHelper::getValue($credentials, 'dn');
 
@@ -203,22 +164,19 @@ class SHUserAdapterLdap implements SHUserAdapter
 	{
 		switch ($name)
 		{
+			/*
+			 * These SHLdap variables are deprecated since 2.1.
+			 * Use SHFactory::getLdapClient instead.
+			 */
 			case 'client':
-				return $this->$name;
-				break;
-
 			case 'usersource':
 			case 'driver':
 			case 'ldap':
 				return $this->client;
 				break;
-
-			case 'type':
-				return self::ADAPTER_TYPE;
-				break;
 		}
 
-		return null;
+		return parent::__get($name);
 	}
 
 	/**
@@ -323,22 +281,18 @@ class SHUserAdapterLdap implements SHUserAdapter
 	}
 
 	/**
-	 * Returns the type/name of this adapter.
+	 * Returns the name of this adapter.
 	 *
-	 * @param   string  $type  An optional string to compare against the adapter type.
+	 * @param   string  $name  An optional string to compare against the adapter name.
 	 *
-	 * @return  string|false  Adapter type/name or False on non-matching parameter.
+	 * @return  string|false  Adapter name or False on non-matching parameter.
 	 *
 	 * @since   2.0
+	 * @deprecated  [2.1] Use SHUserAdapterLdap::getName instead
 	 */
-	public static function getType($type = null)
+	public static function getType($name = null)
 	{
-		if (is_null($type) || strtoupper($type) === self::ADAPTER_TYPE)
-		{
-			return self::ADAPTER_TYPE;
-		}
-
-		return false;
+		return parent::getName($name);
 	}
 
 	/**
@@ -357,7 +311,7 @@ class SHUserAdapterLdap implements SHUserAdapter
 			$this->domain = $this->client->domain;
 		}
 
-		return $this->domain;
+		return parent::getDomain();
 	}
 
 	/**
@@ -1561,13 +1515,13 @@ class SHUserAdapterLdap implements SHUserAdapter
 }
 
 /**
- * Deprecated class name for SHUserAdaptersLdap
+ * Deprecated class name for SHUserAdapterLdap.
  *
  * @package     Shmanic.Libraries
  * @subpackage  User.Adapter
  * @since       2.0
  *
- * @deprecated  [2.1] Use SHUserAdaptersLdap
+ * @deprecated  [2.1] Use SHUserAdapterLdap instead
  */
 class SHUserAdaptersLdap extends SHUserAdapterLdap
 {

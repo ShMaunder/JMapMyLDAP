@@ -33,7 +33,7 @@ class SHUserAdaptersLdapTest extends TestCase
 
 		$adapter = new SHUserAdaptersLdap($user, $ldap);
 
-		$this->assertEquals('LDAP', $adapter->type);
+		$this->assertEquals('LDAP', $adapter->name);
 	}
 
 	public function testGetIdBasicSuccess()
