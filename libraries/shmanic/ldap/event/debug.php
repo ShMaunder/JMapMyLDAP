@@ -124,7 +124,7 @@ class SHLdapEventDebug extends JEvent
 				'LIB_SHLDAPEVENTDEBUG_DEBUG_11951',
 				preg_replace('/\s+/', ' ', var_export($user, true)),
 				preg_replace('/\s+/', ' ', var_export($new, true))
-			), 11900, JLog::DEBUG, 'ldap'
+			), 11951, JLog::DEBUG, 'ldap'
 		);
 	}
 
