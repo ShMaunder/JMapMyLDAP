@@ -158,6 +158,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 [S]11909 - onContentPrepareData called.
 [S]11910 - onContentPrepareForm called.
 
+11951 - onUserBeforeSave user array '%1$s', new array '%2$s'. [LIB_SHLDAPEVENTDEBUG_DEBUG_11951]
 
 
 - LDAP Plug-in Errors [12000-14999] -

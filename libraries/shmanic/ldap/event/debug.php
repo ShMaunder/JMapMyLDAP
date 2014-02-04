@@ -98,6 +98,34 @@ class SHLdapEventDebug extends JEvent
 		SHLog::add(
 			JText::sprintf('LIB_SHLDAPEVENTDEBUG_CALLED', __METHOD__), 11904, JLog::DEBUG, 'ldap'
 		);
+
+		if (isset($user['password']) && $user['password'])
+		{
+			$user['password'] = '__OBSECURED__';
+		}
+
+		if (isset($user['password_clear']) && $user['password_clear'])
+		{
+			$user['password_clear'] = '__OBSECURED__';
+		}
+
+		if (isset($new['password']) && $new['password'])
+		{
+			$new['password'] = '__OBSECURED__';
+		}
+
+		if (isset($new['password_clear']) && $new['password_clear'])
+		{
+			$new['password_clear'] = '__OBSECURED__';
+		}
+
+		SHLog::add(
+			JText::sprintf(
+				'LIB_SHLDAPEVENTDEBUG_DEBUG_11951',
+				preg_replace('/\s+/', ' ', var_export($user, true)),
+				preg_replace('/\s+/', ' ', var_export($new, true))
+			), 11900, JLog::DEBUG, 'ldap'
+		);
 	}
 
 	/**
