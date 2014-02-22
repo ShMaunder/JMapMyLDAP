@@ -66,6 +66,8 @@ abstract class SHFactory
 	 */
 	public static function getDispatcher($name = 'SHFactory')
 	{
+		$name = strtolower($name);
+
 		if (!isset(self::$dispatcher[$name]))
 		{
 			// Something is up with the deprecation of JDispatcher in newer Joomla Versions

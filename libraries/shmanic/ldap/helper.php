@@ -735,24 +735,12 @@ abstract class SHLdapHelper
 	 * @return  boolean  Result of all function calls.
 	 *
 	 * @since   2.0
+	 *
+	 * @deprecated  Use SHAdapterEventHelper::triggerEvent() instead
 	 */
 	public static function triggerEvent($event, $args = null)
 	{
-		$results = SHFactory::getDispatcher('ldap')->trigger($event, $args);
-
-		// We want to return the actual result (false, true or blank)
-		if (in_array(false, $results, true))
-		{
-			return false;
-		}
-		elseif (in_array(true, $results, true))
-		{
-			return true;
-		}
-		else
-		{
-			return;
-		}
+		return SHAdapterEventHelper::triggerEvent('ldap', $event, $args);
 	}
 
 	/**
@@ -765,42 +753,10 @@ abstract class SHLdapHelper
 	 *
 	 * @return  true|array
 	 *
-	 * @exception
+	 * @deprecated  Use SHAdapterHelper::commitChanges() instead
 	 */
 	public static function commitChanges($adapter, $log = false, $throw = true)
 	{
-		$results = $adapter->commitChanges();
-
-		if ($log)
-		{
-			// Lets log all the commits
-			foreach ($results['commits'] as $commit)
-			{
-				if ($commit['status'] === JLog::INFO)
-				{
-					SHLog::add($commit['info'], 10634, JLog::INFO, 'ldap');
-				}
-				else
-				{
-					SHLog::add($commit['info'], 10636, JLog::ERROR, 'ldap');
-					SHLog::add($commit['exception'], 10637, JLog::ERROR, 'ldap');
-				}
-			}
-		}
-
-		// Check if any of the commits failed
-		if (!$results['status'])
-		{
-			if ($throw)
-			{
-				throw new RuntimeException(JText::_('LIB_SHLDAPHELPER_ERR_10638'), 10638);
-			}
-			else
-			{
-				return $results;
-			}
-		}
-
-		return true;
+		return SHAdapterHelper::commitChanges($adapter, $log, $throw);
 	}
 }
