@@ -40,7 +40,7 @@ class JFormFieldUserAdapter extends JFormFieldList
 	 */
 	public function getOptions()
 	{
-		$files = scandir(JPATH_PLATFORM . '/shmanic/user/adapters');
+		$files = scandir(JPATH_PLATFORM . '/shmanic/user/adapter');
 
 		$adapters = array();
 
