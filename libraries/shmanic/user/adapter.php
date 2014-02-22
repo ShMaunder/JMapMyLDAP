@@ -13,46 +13,93 @@
 defined('JPATH_PLATFORM') or die;
 
 /**
- * Interface class for an implementation of a user adapter.
+ * Abstract user adapter base class.
  *
  * @package     Shmanic.Libraries
  * @subpackage  User
- * @since       2.0
+ * @since       2.1
  */
-interface SHUserAdapter
+abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 {
+	/**
+	 * Defines adapter type as user based.
+	 *
+	 * @var    string
+	 * @since  2.1
+	 */
+	const TYPE = self::TYPE_USER;
+
+	/**
+	 * Username for user.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $username = null;
+
+	/**
+	 * Password for user.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $password = null;
+
+	/**
+	 * Domain for user.
+	 *
+	 * @var    string
+	 * @since  2.0
+	 */
+	protected $domain = null;
+
+	/**
+	 * Holds wether the user is new.
+	 *
+	 * @var    Boolean
+	 * @since  2.0
+	 */
+	protected $isNew = false;
+
 	/**
 	 * Class constructor.
 	 *
-	 * @param   array  $credentials  User credentials to use for this object.
-	 * @param   mixed  $config       Configuration options for the driver library (e.g. ldap, xml).
-	 * @param   array  $options      Extra options.
+	 * @param   array  $credentials  User credentials to use.
+	 * @param   mixed  $config       Configuration options for driver.
+	 * @param   array  $options      Extra options such as isNew.
 	 *
 	 * @since   2.0
 	 */
-	public function __construct(array $credentials, $config = null, array $options = array());
+	public function __construct(array $credentials, $config = null, array $options = array())
+	{
+		$this->username = JArrayHelper::getValue($credentials, 'username');
+		$this->password = JArrayHelper::getValue($credentials, 'password');
+		$this->isNew = JArrayHelper::getValue($options, 'isNew', false, 'boolean');
+
+		if (isset($credentials['domain']))
+		{
+			$this->domain = (string) preg_replace('/[^A-Z0-9_\.-\s]/i', '', $credentials['domain']);
+			$this->domain = ltrim($this->domain, '.');
+		}
+	}
 
 	/**
-	 * Get the drivers unique identifier of the user.
+	 * Method to get certain otherwise inaccessible properties from the user adapter object.
 	 *
-	 * @param   boolean  $authenticate  True to authenticate user with the driver source using the password supplied.
+	 * @param   string  $name  The property name for which to the the value.
 	 *
-	 * @return  mixed  Unique identifier.
+	 * @return  mixed  The property value or null.
 	 *
 	 * @since   2.0
 	 */
-	public function getId($authenticate);
+	public function __get($name)
+	{
+		switch ($name)
+		{
+		}
 
-	/**
-	 * Returns the type/name of this adapter.
-	 *
-	 * @param   string  $type  An optional string to compare against the adapter type.
-	 *
-	 * @return  string|false  Adapter type/name or False on non-matching parameter.
-	 *
-	 * @since   2.0
-	 */
-	public static function getType($type = null);
+		return parent::__get($name);
+	}
 
 	/**
 	 * Returns the domain or the configuration ID used for this specific user.
@@ -61,135 +108,23 @@ interface SHUserAdapter
 	 *
 	 * @since   2.0
 	 */
-	public function getDomain();
+	public function getDomain()
+	{
+		return $this->domain;
+	}
 
 	/**
-	 * Return specified user attributes from the source.
+	 * Returns the name of this adapter.
 	 *
-	 * @param   string|array  $input    Optional string or array of attributes to return.
-	 * @param   boolean       $null     Include null or non existent values.
-	 * @param   boolean       $changes  Use the attribute changes (before change commit).
+	 * @param   string  $name  An optional string to compare against the adapter name.
 	 *
-	 * @return  mixed  Ldap attribute results.
+	 * @return  string|false  Adapter name or False on non-matching parameter.
 	 *
 	 * @since   2.0
+	 * @deprecated  [2.1] Use SHUserAdapterLdap::getName instead
 	 */
-	public function getAttributes($input = null, $null = false, $changes = false);
-
-	/**
-	 * Return the users unique identifier for Joomla.
-	 *
-	 * @param   boolean  $key      If true returns the key of the UID instead of value.
-	 * @param   mixed    $default  The default value.
-	 *
-	 * @return  mixed  Either the Key, Value or Default value.
-	 *
-	 * @since   2.0
-	 */
-	public function getUid($key = false, $default = null);
-
-	/**
-	 * Return the users full name for Joomla.
-	 *
-	 * @param   boolean  $key      If true returns the key of the full name instead of value.
-	 * @param   mixed    $default  The default value.
-	 *
-	 * @return  mixed  Either the Key, Value or Default value.
-	 *
-	 * @since   2.0
-	 */
-	public function getFullname($key = false, $default = null);
-
-	/**
-	 * Return the users email for Joomla.
-	 *
-	 * @param   boolean  $key      If true returns the key of the Email instead of value.
-	 * @param   mixed    $default  The default value.
-	 *
-	 * @return  mixed  Either the Key, Value or Default value.
-	 *
-	 * @since   2.0
-	 */
-	public function getEmail($key = false, $default = null);
-
-	/**
-	 * Return the users password for Joomla.
-	 *
-	 * @param   boolean  $key      If true returns the key of the password instead of value.
-	 * @param   mixed    $default  The default value.
-	 *
-	 * @return  mixed  Either the Key, Value or Default value.
-	 *
-	 * @since   2.0
-	 */
-	public function getPassword($key = false, $default = null);
-
-	/**
-	 * Sets the users password.
-	 *
-	 * @param   string  $new           New password.
-	 * @param   string  $old           Current password.
-	 * @param   string  $authenticate  Authenticate the old password before setting new.
-	 *
-	 * @return  boolean  True on success or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public function setPassword($new, $old = null, $authenticate = false);
-
-	/**
-	 * Updates the adapters stored password (this doesnt change anything in the driver source).
-	 *
-	 * @param   string  $password  New password to update.
-	 * @param   array   $options   Optional array of options.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0
-	 */
-	public function updateCredential($password = null, $options = array());
-
-	/**
-	 * Sets new attributes for the user but doesnt commit to the driver.
-	 *
-	 * @param   array  $attributes  An array of the new/changed attributes for the object.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0
-	 */
-	public function setAttributes(array $attributes);
-
-	/**
-	 * Commits any changes to the user including attribute changes.
-	 *
-	 * @param   array  $options  Optional array of options.
-	 *
-	 * @return  boolean  True on success or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public function commitChanges($options = array());
-
-	/**
-	 * Creates the user in the driver.
-	 *
-	 * @param   array  $options  Optional array of options.
-	 *
-	 * @return  boolean  True on success or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public function create($options = array());
-
-	/**
-	 * Deletes the user in the driver.
-	 *
-	 * @param   array  $options  Optional array of options.
-	 *
-	 * @return  boolean  True on success or False on error.
-	 *
-	 * @since   2.0
-	 */
-	public function delete($options = array());
+	public static function getType($name = null)
+	{
+		return parent::getName($name);
+	}
 }

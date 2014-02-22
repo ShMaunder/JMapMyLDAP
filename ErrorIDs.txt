@@ -28,7 +28,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 2121 - Failed to instanitate a user adapter due to empty username. [LIB_SHFACTORY_ERR_2121]
 2123 - Cannot find User Adapter class %1$s. [LIB_SHFACTORY_ERR_2123]
 2125 - The user '%1$s' is blacklisted. [LIB_SHFACTORY_ERR_2125]
-
+2131 - Failed to find a suitable LDAP config. [LIB_SHFACTORY_ERR_2131]
 2200 - Failed to add Joomla log entry. [LIB_SHLOG_ERR_2200]
 
 
@@ -112,6 +112,10 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10621 - Cannot instantiate the ldap file configuration or namespace [LIB_SHLDAPHELPER_ERR_10621]
 10622 - Cannot load the file for the ldap configuration [LIB_SHLDAPHELPER_ERR_10622]
 
+10623 - Cannot instantiate the LDAP configuration file class '%1$s'. File status %2$s. [LIB_SHLDAPHELPER_ERR_10623]
+10624 - loaded [LIB_SHLDAPHELPER_INFO_10624]
+10625 - failed to load [LIB_SHLDAPHELPER_INFO_10625]
+
 10634 - Entry for the commited user changes and their attributes after success.
 
 10636 - Entry for the commited user changes and their attributes after error.
@@ -128,12 +132,21 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 10912 - Login cancelled due to LDAP plug-in returning false. [LIB_SHUSERADAPTERSLDAP_ERR_10912]
 
+10415 - No LDAP configurations found to match this specific user. [LIB_SHUSERADAPTERSLDAP_ERR_10415] (stacked)
+
 10917 - Failed to change password, current password not specified. [LIB_SHUSERADAPTERSLDAP_ERR_10917]
 10918 - Failed to change password, current password is incorrect. [LIB_SHUSERADAPTERSLDAP_ERR_10918]
 
 10922 - Changing LDAP username is not supported. [LIB_SHUSERADAPTERSLDAP_ERR_10922]
 10924 - Successfully committed '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_INFO_10924]
 10926 - Failed to commit '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_ERR_10926]
+
+10931 - Validation for %2$s config of LDAP user adapter failed. Reason: %1$s. [LIB_SHUSERADAPTERSLDAP_ERR_10931]
+10933 - missing user query field
+10934 - missing uid field
+10935 - missing fullname field
+10936 - missing email field
+
 
 -- LDAP Event Bouncer [10980-10999] --
 
@@ -144,6 +157,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 [IT]10989 - Exception thrown on save user.
 10991 - General Error ID for failing to get the user.
 10999 - Cancelled login for user '%1$s'. Refer to the error log for more information. [LIB_SHLDAPEVENTBOUNCER_ERR_10999]
+
 
 -- LDAP plug-in calls for Monitor (DEBUG ONLY) [11901-11999] --
 

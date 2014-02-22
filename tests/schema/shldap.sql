@@ -17,5 +17,7 @@ CREATE TABLE IF NOT EXISTS `jos_sh_ldap_config` (
   `enabled` tinyint(3) NOT NULL DEFAULT '1',
   `ordering` int(11) DEFAULT '0',
   `params` text NOT NULL,
+  `user_params` text NOT NULL,
+  `group_params` text NOT NULL,
   PRIMARY KEY (`id`)
 );

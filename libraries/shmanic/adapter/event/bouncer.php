@@ -3,7 +3,7 @@
  * PHP Version 5.3
  *
  * @package     Shmanic.Libraries
- * @subpackage  Ldap.Event
+ * @subpackage  Adapter.Event
  * @author      Shaun Maunder <shaun@shmanic.com>
  *
  * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
@@ -14,39 +14,41 @@ defined('JPATH_PLATFORM') or die;
 
 /**
  * This class observes the global JDispatcher. On Joomla event calls, it evaluates whether
- * the event should be passed onto the corresponding Ldap event by checking the event's context.
+ * the event should be passed onto the corresponding adapter event by checking the event's
+ * context.
  *
  * @package     Shmanic.Libraries
- * @subpackage  Ldap.Event
- * @since       2.0
+ * @subpackage  Adapter.Event
+ * @since       2.1
  */
-class SHLdapEventBouncer extends JEvent
+class SHAdapterEventBouncer extends JEvent
 {
 	/**
-	 * Holds if the current user/session is Ldap based.
+	 * Holds the user adapter name of the current session user.
 	 *
-	 * @var    boolean
+	 * @var    null|string
 	 * @since  2.0
 	 */
-	protected $isLdap = false;
+	protected $adapterUser = null;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param   object  &$subject  The JDispatcher object to observe.
 	 *
-	 * @since  2.0
+	 * @since   2.0
 	 */
 	public function __construct(&$subject)
 	{
-		// Check if the current user is Ldap authenticated
-		$this->isLdap = SHLdapHelper::isUserLdap();
+		// Gets the user adapter name for the curernt session user
+		$userLink = SHAdapterLink::getUserLink();
+		$this->adapterUser = $userLink['name'];
 
 		parent::__construct($subject);
 	}
 
 	/**
-	 * Proxy method for onAfterInitialise to fix potential race conditions.
+	 * Proxy method for onAfterInitialise to fix potential ordering issue.
 	 *
 	 * @return  void
 	 *
@@ -66,9 +68,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onAfterInitialise()
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
-			SHLdapHelper::triggerEvent('onAfterInitialise');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onAfterInitialise');
 		}
 	}
 
@@ -81,9 +83,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onAfterRoute()
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
-			SHLdapHelper::triggerEvent('onAfterRoute');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onAfterRoute');
 		}
 	}
 
@@ -96,9 +98,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onAfterDispatch()
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
-			SHLdapHelper::triggerEvent('onAfterDispatch');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onAfterDispatch');
 		}
 	}
 
@@ -111,9 +113,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onBeforeRender()
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
-			SHLdapHelper::triggerEvent('onBeforeRender');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onBeforeRender');
 		}
 	}
 
@@ -126,9 +128,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onAfterRender()
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
-			SHLdapHelper::triggerEvent('onAfterRender');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onAfterRender');
 		}
 	}
 
@@ -141,15 +143,15 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onBeforeCompileHead()
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
-			SHLdapHelper::triggerEvent('onBeforeCompileHead');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onBeforeCompileHead');
 		}
 	}
 
 	/**
 	 * Method prepares the data on a form.
-	 * Note: Ldap user validation, if required, has to be done in plugin.
+	 * Note: This dispatches to all dispatchers without restrictions.
 	 *
 	 * @param   string  $context  Context / namespace of the form (i.e. form name).
 	 * @param   object  $data     The associated data for the form.
@@ -160,12 +162,12 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onContentPrepareData($context, $data)
 	{
-		return SHLdapHelper::triggerEvent('onContentPrepareData', array($context, $data));
+		return SHAdapterEventHelper::triggerEvent(null, 'onContentPrepareData', array($context, $data));
 	}
 
 	/**
 	 * Method prepares a form in the way of fields.
-	 * Note: Ldap user validation, if required, has to be done in plugin.
+	 * Note: This dispatches to all dispatchers without restrictions.
 	 *
 	 * @param   JForm   $form  The form to be alterted.
 	 * @param   object  $data  The associated data for the form.
@@ -176,7 +178,7 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onContentPrepareForm($form, $data)
 	{
-		return SHLdapHelper::triggerEvent('onContentPrepareForm', array($form, $data));
+		return SHAdapterEventHelper::triggerEvent(null, 'onContentPrepareForm', array($form, $data));
 	}
 
 	/**
@@ -190,9 +192,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserBeforeDelete($user)
 	{
-		if (SHLdapHelper::isUserLdap($user))
+		if ($userLink = SHAdapterLink::getUserLink($user) && $userLink['adapter'])
 		{
-			SHLdapHelper::triggerEvent('onUserBeforeDelete', array($user));
+			SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserBeforeDelete', array($user));
 		}
 	}
 
@@ -209,9 +211,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
-		if (SHLdapHelper::isUserLdap($user))
+		if ($userLink = SHAdapterLink::getUserLink($user) && $userLink['adapter'])
 		{
-			SHLdapHelper::triggerEvent('onUserAfterDelete', array($user, $success, $msg));
+			SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserAfterDelete', array($user, $success, $msg));
 		}
 	}
 
@@ -228,9 +230,6 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserBeforeSave($user, $isNew, $new)
 	{
-		$isAdapterExisting 	= true;
-		$isLdapExisting 	= false;
-
 		// Get the correct username where new username must be used when user isNew
 		$username = $isNew ? $new['username'] : $user['username'];
 
@@ -239,29 +238,26 @@ class SHLdapEventBouncer extends JEvent
 			// We want to check if this user is an existing user in an Adapter
 			$adapter = SHFactory::getUserAdapter($username);
 			$adapter->getId(false);
+
+			// We need to gather the adapter name to call the correct dispatcher
+			$adapterName = $adapter::getName();
 		}
 		catch (Exception $e)
 		{
 			// We will assume this user doesnt exist in an Adapter
-			$isAdapterExisting = false;
+			$adapterName = false;
 		}
 
-		if ($isAdapterExisting)
+		if ($adapterName)
 		{
-			// We need to check the adapter is LDAP or not
-			$isLdapExisting = $adapter->getType('LDAP');
-		}
+			$this->adapterUser = $adapterName;
 
-		if ($isLdapExisting)
-		{
-			$this->isLdap = true;
-
-			if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)) !== false)
+			if (SHAdapterEventHelper::triggerEvent($adapterName, 'onUserBeforeSave', array($user, $isNew, $new)) !== false)
 			{
 				try
 				{
 					// Commit the changes to the Adapter if present
-					SHLdapHelper::commitChanges($adapter, true, true);
+					SHAdapterHelper::commitChanges($adapter, true, true);
 					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10986', $username), 10986, JLog::DEBUG, 'ldap');
 				}
 				catch (Excpetion $e)
@@ -277,38 +273,36 @@ class SHLdapEventBouncer extends JEvent
 		}
 		elseif ($isNew)
 		{
-			// Ask all plugins if there is a plugin willing to deal with user creation for ldap
-			if (count($results = SHFactory::getDispatcher('ldap')->trigger('askUserCreation')))
+			// Use a default user adapter
+			$name = SHFactory::getConfig()->get('user.type');
+
+			// We must create and save the user as plugins may talk to LDAP directly and expect LDAP user object
+			if (SHAdapterEventHelper::triggerEvent($name, 'onUserCreation', array($new)) === true)
 			{
-				// First, we must create and save the user as some plugins may talk to LDAP directly and cannot be delayed
-				$result = SHLdapHelper::triggerEvent('onUserCreation', array($new));
+				$this->adapterUser = $name;
 
-				// Allow Ldap events to be called
-				if ($this->isLdap = $result)
+				JFactory::getSession()->set('created', $username, 'shuser');
+
+				if (SHAdapterEventHelper::triggerEvent($name, 'onUserBeforeSave', array($user, $isNew, $new)) !== false)
 				{
-					JFactory::getSession()->set('created', $username, 'ldap');
-
-					if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+					try
 					{
-						try
-						{
-							// Commit the changes to the Adapter if present
-							$adapter = SHFactory::getUserAdapter($username);
-							SHLdapHelper::commitChanges($adapter, true, true);
-						}
-						catch (Exception $e)
-						{
-							SHLog::add($e, 10981, JLog::ERROR, 'ldap');
-						}
-
-						// For now lets NOT block the user from logging in even with a error
-						return true;
+						// Commit the changes to the Adapter if present
+						$adapter = SHFactory::getUserAdapter($username);
+						SHAdapterHelper::commitChanges($adapter, true, true);
 					}
-				}
+					catch (Exception $e)
+					{
+						SHLog::add($e, 10981, JLog::ERROR, 'ldap');
+					}
 
-				// Something went wrong with the user creation
-				return false;
+					// For now lets NOT block the user from logging in even with an error
+					return true;
+				}
 			}
+
+			// Something went wrong with the user creation
+			return false;
 		}
 	}
 
@@ -326,7 +320,7 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		if ($this->isLdap)
+		if ($this->adapterUser)
 		{
 			if ($isNew && $success)
 			{
@@ -339,8 +333,8 @@ class SHLdapEventBouncer extends JEvent
 				SHUserHelper::save($instance, false);
 			}
 
-			SHLdapHelper::triggerEvent('onUserAfterSave', array($user, $isNew, $success, $msg));
-			JFactory::getSession()->clear('created', 'ldap');
+			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onUserAfterSave', array($user, $isNew, $success, $msg));
+			JFactory::getSession()->clear('created', 'shuser');
 		}
 	}
 
@@ -366,11 +360,13 @@ class SHLdapEventBouncer extends JEvent
 		// Get the processed user adapter directly from the static adapter holder
 		$adapter = SHFactory::$adapters[strtolower($user['username'])];
 
-		if (!(isset($user['type']) && $adapter::getType($user['type']) && $adapter::getType('LDAP')))
+		if (!(isset($user['type']) && $adapter::getName($user['type'])))
 		{
 			// Incorrect authentication type for this adapter OR is not compatible with LDAP
 			return;
 		}
+
+		$adapterName = $adapter::getName();
 
 		// Lets pass the getUser method the adapter so it can get extra values
 		$options['adapter'] = $adapter;
@@ -389,7 +385,7 @@ class SHLdapEventBouncer extends JEvent
 		}
 
 		// Fire the ldap specific on login events
-		$result = SHLdapHelper::triggerEvent('onUserLogin', array(&$instance, $options));
+		$result = SHAdapterEventHelper::triggerEvent($adapterName, 'onUserLogin', array(&$instance, $options));
 
 		if ($result === false)
 		{
@@ -417,7 +413,7 @@ class SHLdapEventBouncer extends JEvent
 		}
 
 		// Allow Ldap events to be called
-		$this->isLdap = true;
+		$this->adapterUser = $adapterName;
 
 		return true;
 	}
@@ -434,9 +430,9 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserLogout($user, $options = array())
 	{
-		if ($this->isLdap)
+		if ($userLink = SHAdapterLink::getUserLink($user['username']) && $userLink['adapter'])
 		{
-			return SHLdapHelper::triggerEvent('onUserLogout', array($user, $options));
+			return SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserLogout', array($user, $options));
 		}
 	}
 
@@ -451,17 +447,30 @@ class SHLdapEventBouncer extends JEvent
 	 */
 	public function onUserLoginFailure($response)
 	{
-		// Check if the attempted login was an Ldap user, if so then fire the event
 		if ($username = JArrayHelper::getValue($response, 'username', false, 'string'))
 		{
 			// Check if the user exists in the J! database
 			if ($id = JUserHelper::getUserId($username))
 			{
-				if (SHLdapHelper::isUserLdap($id))
+				// Check if the attempted login was an adapter user, if so then fire the event
+				if ($userLink = SHAdapterLink::getUserLink($id) && $userLink['adapter'])
 				{
-					SHLdapHelper::triggerEvent('onUserLoginFailure', array($response));
+					SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserLoginFailure', array($response));
 				}
 			}
 		}
 	}
+}
+
+/**
+ * Deprecated class for SHAdapterEventBouncer.
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Adapter.Event
+ * @since       2.0
+ *
+ * @deprecated  [2.1] Use SHAdapterEventBouncer instead
+ */
+class SHLdapEventBouncer extends SHAdapterEventBouncer
+{
 }

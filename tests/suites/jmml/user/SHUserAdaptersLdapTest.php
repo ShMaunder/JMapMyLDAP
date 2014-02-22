@@ -10,6 +10,7 @@ class SHUserAdaptersLdapTest extends TestCase
 	{
 		// Clear the static config from factory
 		SHFactory::$config = null;
+		SHFactory::$ldap = null;
 
 		// Create some files
 		TestsHelper::createPlatformConfigFile(1, static::PLATFORM_CONFIG_FILE);
@@ -32,7 +33,7 @@ class SHUserAdaptersLdapTest extends TestCase
 
 		$adapter = new SHUserAdaptersLdap($user, $ldap);
 
-		$this->assertEquals('LDAP', $adapter->type);
+		$this->assertEquals('LDAP', $adapter->name);
 	}
 
 	public function testGetIdBasicSuccess()

@@ -46,12 +46,16 @@
 		<column>enabled</column>
 		<column>ordering</column>
 		<column>params</column>
+		<column>user_params</column>
+		<column>group_params</column>
 		<row>
 			<value>1</value>
 			<value>slapd</value>
 			<value>1</value>
 			<value>0</value>
 			<value>{"host":"ldap1.shmanic.net","port":"389","use_v3":"1","negotiate_tls":"0","use_referrals":"0","proxy_username":"cn=admin,dc=shmanic,dc=net","proxy_password":"shmanic.com","proxy_encryption":"0","base_dn":"dc=shmanic,dc=net","use_search":"1","user_qry":"(uid=[username])","ldap_uid":"uid","ldap_email":"mail","ldap_fullname":"cn","ldap_password":"userPassword","password_hash":"sha","password_prefix":"1","all_user_filter":"(objectClass=person)"}</value>
+			<value>{}</value>
+			<value>{}</value>
 		</row>
 		<row>
 			<value>2</value>
@@ -59,6 +63,8 @@
 			<value>1</value>
 			<value>1</value>
 			<value>{"host":"ldaps://ad1.shmanic.net","port":"636","use_v3":"1","negotiate_tls":"0","use_referrals":"0","proxy_username":"administrator@shmanic.net","proxy_password":"shmanic.com","proxy_encryption":"0","base_dn":"dc=shmanic,dc=net","use_search":"1","user_qry":"(sAMAccountName=[username])","ldap_uid":"sAMAccountName","ldap_email":"mail","ldap_fullname":"displayName","ldap_password":"unicodePwd","password_hash":"unicode","password_prefix":"0","all_user_filter":"(objectClass=user)"}</value>
+			<value>{}</value>
+			<value>{}</value>
 		</row>
 	</table>
 </dataset>

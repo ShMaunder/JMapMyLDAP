@@ -181,6 +181,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  1.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $ldap_fullname = null;
 
@@ -189,6 +191,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  1.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $ldap_email = null;
 
@@ -197,6 +201,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  1.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $ldap_uid = null;
 
@@ -221,6 +227,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  1.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $user_qry = null;
 
@@ -229,6 +237,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  2.0
+	 *
+	 * @deprecated  [2.1] Use SHUserAdaptersLdap::getId instead
 	 */
 	protected $last_user_dn = null;
 
@@ -237,6 +247,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  2.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $all_user_filter = '(objectclass=user)';
 
@@ -245,6 +257,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  2.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $ldap_password = null;
 
@@ -253,6 +267,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  2.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $password_hash = null;
 
@@ -261,6 +277,8 @@ class SHLdap
 	 *
 	 * @var    string
 	 * @since  2.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $password_salt = null;
 
@@ -269,6 +287,8 @@ class SHLdap
 	 *
 	 * @var    boolean
 	 * @since  2.0
+	 *
+	 * @deprecated  [2.1] Use SHLdap::userParams
 	 */
 	protected $password_prefix = false;
 
@@ -311,6 +331,8 @@ class SHLdap
 	 * @since   2.0
 	 * @throws  InvalidArgumentException  Invalid configurations
 	 * @throws  SHExceptionStacked        User or configuration issues (may not be important)
+	 *
+	 * @deprecated  [2.1] Use SHFactory::getLdapClient instead.
 	 */
 	public static function getInstance($id = null, array $authorised = array(), JRegistry $registry = null)
 	{
@@ -453,6 +475,12 @@ class SHLdap
 				// Deprecated attribute for BC
 				return (preg_match('/(?<!\S)[\(]([\S]+)[\)](?!\S)/', $this->user_qry)) ? true : false;
 				break;
+
+			case 'groupParams':
+				return isset($this->extras['group_params']) ? json_decode($this->extras['group_params']) : array();
+
+			case 'userParams':
+				return isset($this->extras['user_params']) ? json_decode($this->extras['user_params']) : array();
 		}
 
 		return null;
@@ -556,6 +584,8 @@ class SHLdap
 	 * @throws  Exception               Configuration error
 	 * @throws  SHLdapException         Ldap specific error
 	 * @throws  SHExceptionInvaliduser  User invalid error
+	 *
+	 * @deprecated  [2.1] Use SHUserAdaptersLdap::getId instead.
 	 */
 	public function authenticate($authenticate = self::AUTH_NONE, $username = null, $password = null)
 	{
@@ -698,12 +728,13 @@ class SHLdap
 		{
 			// Close the current connection to Ldap and reset the resource variable
 			ldap_close($this->resource);
-			$this->resource = null;
 			$this->addDebug('Closed connection.');
 		}
 
 		// Default the bind level to none
 		$this->bind_status = self::AUTH_NONE;
+
+		$this->resource = null;
 	}
 
 	/**
@@ -1206,6 +1237,8 @@ class SHLdap
 	 * @throws  InvalidArgumentException  Invalid argument in config related error
 	 * @throws  SHLdapException           Ldap specific error.
 	 * @throws  SHExceptionInvaliduser    User invalid error.
+	 *
+	 * @deprecated  [2.1] Use SHUserAdaptersLdap::getId instead.
 	 */
 	public function getUserDn($username = null, $password = null, $authenticate = false)
 	{
@@ -1350,6 +1383,8 @@ class SHLdap
 	 * @since   1.0
 	 * @throws  InvalidArgumentException  Invalid argument in config related error
 	 * @throws  SHLdapException           Ldap search error
+	 *
+	 * @deprecated  [2.1] Use SHUserAdaptersLdap::getId instead.
 	 */
 	public function getUserDnBySearch($username)
 	{
@@ -1395,6 +1430,8 @@ class SHLdap
 	 *
 	 * @since   1.0
 	 * @throws  InvalidArgumentException  Invalid argument in config related error
+	 *
+	 * @deprecated  [2.1] Use SHUserAdaptersLdap::getId instead.
 	 */
 	public function getUserDnDirectly($username)
 	{
@@ -1473,6 +1510,19 @@ class SHLdap
 	public static function explodeDn($dn, $attrib = 0)
 	{
 		return ldap_explode_dn($dn, $attrib);
+	}
+
+	/**
+	 * Executed on deserialization to reset class.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 */
+	public function __wakeup()
+	{
+		// Reset various variables and allow a fresh start
+		$this->close();
 	}
 
 	/**

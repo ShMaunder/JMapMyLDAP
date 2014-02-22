@@ -242,7 +242,7 @@ class PlgLdapCreation extends JPlugin
 			try
 			{
 				// Check the session to ensure this user was created successfully last time
-				if (JFactory::getSession()->get('creation', null, 'ldap') == $this->username)
+				if (JFactory::getSession()->get('creation', null, 'shuser') == $this->username)
 				{
 					$adapter = SHFactory::getUserAdapter($this->username);
 					$adapter->delete();
