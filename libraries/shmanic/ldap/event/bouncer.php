@@ -288,7 +288,7 @@ class SHLdapEventBouncer extends JEvent
 				{
 					JFactory::getSession()->set('created', $username, 'ldap');
 
-					if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)))
+					if (SHLdapHelper::triggerEvent('onUserBeforeSave', array($user, $isNew, $new)) !== false)
 					{
 						try
 						{
