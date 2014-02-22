@@ -1,5 +1,5 @@
 <h1>JMapMyLDAP</h1>
-<p>Welcome to the project home for JMapMyLDAP (jmmLDAP).</p>
+<p>Welcome to the project home for JMapMyLDAP (jmmLDAP). This branch contains the latest code for the version 2.0.x series.</p>
 <p>Currently, the main site at <a href="http://shmanic.com/tools/jmapmyldap">http://shmanic.com/tools/jmapmyldap</a> contains all the documentation and updates for this project.
 <p>Discussions for this tool can be found in the Joomla! Forums <a href="http://forum.joomla.org/viewtopic.php?f=46&t=657124">http://forum.joomla.org/viewtopic.php?f=46&t=657124</a></p>
 
