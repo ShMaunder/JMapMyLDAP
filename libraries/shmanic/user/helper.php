@@ -21,6 +21,14 @@ defined('JPATH_PLATFORM') or die;
  */
 abstract class SHUserHelper
 {
+	/**
+	 * Session key for user related session data.
+	 *
+	 * @var    string
+	 * @since  2.1
+	 */
+	const SESSION_KEY = 'shuser';
+
 	const PARAM_AUTH_TYPE = 'auth_type';
 
 	const PARAM_AUTH_DOMAIN = 'auth_domain';

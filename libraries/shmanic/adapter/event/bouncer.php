@@ -258,11 +258,11 @@ class SHAdapterEventBouncer extends JEvent
 				{
 					// Commit the changes to the Adapter if present
 					SHAdapterHelper::commitChanges($adapter, true, true);
-					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10986', $username), 10986, JLog::DEBUG, 'ldap');
+					SHLog::add(JText::sprintf('LIB_SHADAPTEREVENTBOUNCER_DEBUG_10986', $username), 10986, JLog::DEBUG, $adapterName);
 				}
 				catch (Excpetion $e)
 				{
-					SHLog::add($e, 10981, JLog::ERROR, 'ldap');
+					SHLog::add($e, 10981, JLog::ERROR, $adapterName);
 				}
 
 				// For now lets NOT block the user from logging in even with a error
@@ -276,12 +276,12 @@ class SHAdapterEventBouncer extends JEvent
 			// Use a default user adapter
 			$name = SHFactory::getConfig()->get('user.type');
 
-			// We must create and save the user as plugins may talk to LDAP directly and expect LDAP user object
+			// We must create and save the user as plugins may talk to adapter driver and expect a user object
 			if (SHAdapterEventHelper::triggerEvent($name, 'onUserCreation', array($new)) === true)
 			{
 				$this->adapterUser = $name;
 
-				JFactory::getSession()->set('created', $username, 'shuser');
+				JFactory::getSession()->set('created', $username, SHUserHelper::SESSION_KEY);
 
 				if (SHAdapterEventHelper::triggerEvent($name, 'onUserBeforeSave', array($user, $isNew, $new)) !== false)
 				{
@@ -293,7 +293,7 @@ class SHAdapterEventBouncer extends JEvent
 					}
 					catch (Exception $e)
 					{
-						SHLog::add($e, 10981, JLog::ERROR, 'ldap');
+						SHLog::add($e, 10981, JLog::ERROR, $name);
 					}
 
 					// For now lets NOT block the user from logging in even with an error
@@ -324,7 +324,7 @@ class SHAdapterEventBouncer extends JEvent
 		{
 			if ($isNew && $success)
 			{
-				// Ensure Joomla knows this is a new Ldap user
+				// Ensure Joomla knows this is a new adapter user
 				$adapter = SHFactory::getUserAdapter($user['username']);
 				$options = array('adapter' => &$adapter);
 				$instance = SHUserHelper::getUser($user, $options);
@@ -334,7 +334,7 @@ class SHAdapterEventBouncer extends JEvent
 			}
 
 			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onUserAfterSave', array($user, $isNew, $success, $msg));
-			JFactory::getSession()->clear('created', 'shuser');
+			JFactory::getSession()->clear('created', SHUserHelper::SESSION_KEY);
 		}
 	}
 
@@ -362,7 +362,7 @@ class SHAdapterEventBouncer extends JEvent
 
 		if (!(isset($user['type']) && $adapter::getName($user['type'])))
 		{
-			// Incorrect authentication type for this adapter OR is not compatible with LDAP
+			// Incorrect authentication type for this adapter
 			return;
 		}
 
@@ -379,40 +379,40 @@ class SHAdapterEventBouncer extends JEvent
 		catch (Exception $e)
 		{
 			// Failed to get the user either due to save error or autoregister
-			SHLog::add($e, 10991, JLog::ERROR, 'ldap');
+			SHLog::add($e, 10991, JLog::ERROR, $adapterName);
 
 			return false;
 		}
 
-		// Fire the ldap specific on login events
+		// Fire the adapter driver specific on login events
 		$result = SHAdapterEventHelper::triggerEvent($adapterName, 'onUserLogin', array(&$instance, $options));
 
 		if ($result === false)
 		{
 			// Due to Joomla's inbuilt User Plugin, we have to raise an exception to abort login
-			throw new RuntimeException(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_ERR_10999', $user['username']), 10999);
+			throw new RuntimeException(JText::sprintf('LIB_SHADAPTEREVENTBOUNCER_ERR_10999', $user['username']), 10999);
 		}
 
 		// Check if any changes were made that need to be saved
 		if ($result === true || isset($options['change']))
 		{
-			SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_DEBUG_10984', $user['username']), 10984, JLog::DEBUG, 'ldap');
+			SHLog::add(JText::sprintf('LIB_SHADAPTEREVENTBOUNCER_DEBUG_10984', $user['username']), 10984, JLog::DEBUG, $adapterName);
 
 			try
 			{
 				// Save the user back to the Joomla database
 				if (!SHUserHelper::save($instance))
 				{
-					SHLog::add(JText::sprintf('LIB_SHLDAPEVENTBOUNCER_ERR_10988', $user['username']), 10988, JLog::ERROR, 'ldap');
+					SHLog::add(JText::sprintf('LIB_SHADAPTEREVENTBOUNCER_ERR_10988', $user['username']), 10988, JLog::ERROR, $adapterName);
 				}
 			}
 			catch (Exception $e)
 			{
-				SHLog::add($e, 10989, JLog::ERROR, 'ldap');
+				SHLog::add($e, 10989, JLog::ERROR, $adapterName);
 			}
 		}
 
-		// Allow Ldap events to be called
+		// Allow user adapter events to be called
 		$this->adapterUser = $adapterName;
 
 		return true;
