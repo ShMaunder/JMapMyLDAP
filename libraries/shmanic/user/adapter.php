@@ -112,4 +112,19 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 	{
 		return $this->domain;
 	}
+
+	/**
+	 * Returns the name of this adapter.
+	 *
+	 * @param   string  $name  An optional string to compare against the adapter name.
+	 *
+	 * @return  string|false  Adapter name or False on non-matching parameter.
+	 *
+	 * @since   2.0
+	 * @deprecated  [2.1] Use SHUserAdapterLdap::getName instead
+	 */
+	public static function getType($name = null)
+	{
+		return parent::getName($name);
+	}
 }

@@ -281,21 +281,6 @@ class SHUserAdapterLdap extends SHUserAdapter
 	}
 
 	/**
-	 * Returns the name of this adapter.
-	 *
-	 * @param   string  $name  An optional string to compare against the adapter name.
-	 *
-	 * @return  string|false  Adapter name or False on non-matching parameter.
-	 *
-	 * @since   2.0
-	 * @deprecated  [2.1] Use SHUserAdapterLdap::getName instead
-	 */
-	public static function getType($name = null)
-	{
-		return parent::getName($name);
-	}
-
-	/**
 	 * Returns the domain or the configuration ID used for this specific user.
 	 *
 	 * @return  string  Domain or Configuration ID.
