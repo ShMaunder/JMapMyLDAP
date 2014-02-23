@@ -116,12 +116,17 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10624 - loaded [LIB_SHLDAPHELPER_INFO_10624]
 10625 - failed to load [LIB_SHLDAPHELPER_INFO_10625]
 
-10634 - Entry for the commited user changes and their attributes after success.
 
-10636 - Entry for the commited user changes and their attributes after error.
-10637 - Entry for LDAP exception error after user commit failed.
 
-10638 - Failed to commit user changes to LDAP. [LIB_SHLDAPHELPER_ERR_10638]
+-- Platform Adatper Helper --
+
+10634 - Entry for the commited adapter changes and their attributes after success.
+
+10636 - Entry for the commited adapter changes and their attributes after error.
+10637 - Entry for exception error after adapter commit failed.
+
+10638 - Failed to commit changes to adapter. [LIB_SHADAPTERHELPER_ERR_10638]
+
 
 
 -- LDAP User Adapter [10800-10979] --
