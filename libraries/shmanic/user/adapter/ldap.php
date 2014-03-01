@@ -783,6 +783,9 @@ class SHUserAdapterLdap extends SHUserAdapter
 		// Get the current attributes
 		$current = $this->getAttributes(array_keys($this->_changes), false);
 
+		// Get the UID/username of the user
+		$uid = $this->getUid(false);
+
 		$deleteEntries 		= array();
 		$addEntries 		= array();
 		$replaceEntries		= array();
@@ -911,7 +914,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 						'info' => JText::sprintf(
 							'LIB_SHUSERADAPTERSLDAP_INFO_10924',
 							$operation,
-							$this->username,
+							$uid,
 							preg_replace('/\s+/', ' ', var_export($commit, true))
 						)
 					);
@@ -950,7 +953,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 						'info' => JText::sprintf(
 							'LIB_SHUSERADAPTERSLDAP_ERR_10926',
 							$operation,
-							$this->username,
+							$uid,
 							preg_replace('/\s+/', ' ', var_export($commit, true))
 						),
 						'exception' => $e

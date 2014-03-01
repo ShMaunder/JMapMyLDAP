@@ -96,6 +96,10 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 	{
 		switch ($name)
 		{
+			case 'loginuser':
+			case 'logonuser':
+				return $this->username;
+				break;
 		}
 
 		return parent::__get($name);
