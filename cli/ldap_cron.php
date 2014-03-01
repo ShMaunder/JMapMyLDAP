@@ -204,6 +204,9 @@ class LdapCron extends JApplicationCli
 							// Even if the sync does not need a save, do it anyway as Cron efficiency doesnt matter too much
 							SHUserHelper::save($instance);
 
+							// Update the user map linker
+							SHAdapterMap::setUser($adapter, $instance->id);
+
 							// Above should throw an exception on error so therefore we can report success
 							$this->out(JText::sprintf('CLI_SHMANIC_LDAP_INFO_13029', $username));
 							++$success;

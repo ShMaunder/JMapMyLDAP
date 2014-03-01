@@ -40,9 +40,21 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function __construct(&$subject)
 	{
-		// Gets the user adapter name for the curernt session user
-		$userLink = SHAdapterLink::getUserLink();
-		$this->adapterUser = $userLink['name'];
+		// Gets the user adapter name for the current session user
+		$session = JFactory::getSession();
+
+		$user = $session->get('user');
+
+		if (($user instanceof JUser) && $user->id > 0)
+		{
+			if (!($session->get('shuseradaptername', false)))
+			{
+				$userLink = SHAdapterMap::lookupFromJoomlaId(SHAdapterMap::TYPE_USER, $user->id);
+				$session->set('shuseradaptername', $userLink['adapter']);
+			}
+
+			$this->adapterUser = $session->get('shuseradaptername');
+		}
 
 		parent::__construct($subject);
 	}
@@ -192,9 +204,9 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserBeforeDelete($user)
 	{
-		if ($userLink = SHAdapterLink::getUserLink($user) && $userLink['adapter'])
+		if (($userLink = SHAdapterMap::lookupFromJoomlaId(SHAdapterMap::TYPE_USER, $user['id'])) && $userLink['adapter'])
 		{
-			SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserBeforeDelete', array($user));
+			SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserBeforeDelete', array($user));
 		}
 	}
 
@@ -211,9 +223,9 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
-		if ($userLink = SHAdapterLink::getUserLink($user) && $userLink['adapter'])
+		if (($userLink = SHAdapterMap::lookupFromJoomlaId(SHAdapterMap::TYPE_USER, $user['id'])) && $userLink['adapter'])
 		{
-			SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserAfterDelete', array($user, $success, $msg));
+			SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserAfterDelete', array($user, $success, $msg));
 		}
 	}
 
@@ -331,6 +343,9 @@ class SHAdapterEventBouncer extends JEvent
 
 				// Silently resave the user without calling the onUserSave events
 				SHUserHelper::save($instance, false);
+
+				// Update the user map linker
+				SHAdapterMap::setUser($adapter, $instance->id);
 			}
 
 			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onUserAfterSave', array($user, $isNew, $success, $msg));
@@ -412,6 +427,9 @@ class SHAdapterEventBouncer extends JEvent
 			}
 		}
 
+		// Update the user map linker
+		SHAdapterMap::setUser($adapter, $instance->id);
+
 		// Allow user adapter events to be called
 		$this->adapterUser = $adapterName;
 
@@ -430,9 +448,9 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserLogout($user, $options = array())
 	{
-		if ($userLink = SHAdapterLink::getUserLink($user['username']) && $userLink['adapter'])
+		if ($userLink = SHAdapterMap::getUserLink($user['username']) && $userLink['adapter'])
 		{
-			return SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserLogout', array($user, $options));
+			return SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserLogout', array($user, $options));
 		}
 	}
 
@@ -453,9 +471,9 @@ class SHAdapterEventBouncer extends JEvent
 			if ($id = JUserHelper::getUserId($username))
 			{
 				// Check if the attempted login was an adapter user, if so then fire the event
-				if ($userLink = SHAdapterLink::getUserLink($id) && $userLink['adapter'])
+				if ($userLink = SHAdapterMap::getUserLink($id) && $userLink['adapter'])
 				{
-					SHAdapterEventHelper::triggerEvent($userLink['name'], 'onUserLoginFailure', array($response));
+					SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserLoginFailure', array($response));
 				}
 			}
 		}

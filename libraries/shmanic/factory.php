@@ -185,17 +185,15 @@ abstract class SHFactory
 				}
 			}
 
-			// If the JUser ID has been specified then use it (more efficient)
-			if ($id = isset($credentials['id']) ? (int) $credentials['id'] : JUserHelper::getUserId($username))
+			// Attempts to get the user linking entry to determine domain and type of user
+			if (($link = SHAdapterMap::getUser($username)) && $link['adapter'])
 			{
-				$jUser = JFactory::getUser($id);
-
 				if ((boolean) $config->get('user.usedomain', true))
 				{
 					if (!isset($credentials['domain']))
 					{
 						// Attempt to get the domain for this user
-						$credentials['domain'] = SHUserHelper::getDomainParam($jUser);
+						$credentials['domain'] = $link['domain'];
 					}
 				}
 				else
@@ -203,10 +201,10 @@ abstract class SHFactory
 					unset($credentials['domain']);
 				}
 
-				if (!isset($credentials['type']))
+				if (!isset($credentials['type']) && is_null($type))
 				{
-					// Attempt to get the User Adapter type
-					$type = SHUserHelper::getTypeParam($jUser);
+					// Attempt to get the User Adapter name
+					$type = $link['adapter'];
 				}
 			}
 
