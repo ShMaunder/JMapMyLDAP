@@ -143,11 +143,14 @@ class SHUserAdapterLdap extends SHUserAdapter
 			// Check whether the user already exists
 			if ($this->_checkUserExists())
 			{
+				$this->state = self::STATE_EXISTS;
 				throw new RuntimeException(JText::sprintf('LIB_SHUSERADAPTERSLDAP_ERR_10909', $this->username), 10909);
 			}
 
 			// Emulate dn as an attribute
 			$this->_attributes['dn'] = array($this->_dn);
+
+			$this->state = self::STATE_NEW;
 		}
 	}
 
@@ -246,6 +249,8 @@ class SHUserAdapterLdap extends SHUserAdapter
 
 					// Emulate dn as an attribute
 					$this->_attributes['dn'] = array($this->_dn);
+
+					$this->state = self::STATE_EXISTS;
 
 					return $this->_dn;
 				}
@@ -984,6 +989,8 @@ class SHUserAdapterLdap extends SHUserAdapter
 	 */
 	public function create($options = array())
 	{
+		$this->state = self::STATE_FAILED;
+
 		if ($this->_dn instanceof Exception)
 		{
 			// Do not retry. Ldap configuration or user has problems.
@@ -1054,6 +1061,8 @@ class SHUserAdapterLdap extends SHUserAdapter
 
 		$this->_changes = array();
 		$this->isNew = false;
+
+		$this->state = self::STATE_CREATED;
 
 		return true;
 	}
@@ -1131,6 +1140,18 @@ class SHUserAdapterLdap extends SHUserAdapter
 	{
 		//TODO: complete this method
 		return true;
+	}
+
+	/**
+	 * Returns all available domains for this adapter type.
+	 *
+	 * @return  array  An array of domain names.
+	 *
+	 * @since   2.1
+	 */
+	public static function getDomains()
+	{
+		return SHLdapHelper::getConfigIDs();
 	}
 
 	/**

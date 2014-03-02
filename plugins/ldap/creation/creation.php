@@ -241,10 +241,11 @@ class PlgLdapCreation extends JPlugin
 		{
 			try
 			{
-				// Check the session to ensure this user was created successfully last time
-				if (JFactory::getSession()->get('creation', null, SHUserHelper::SESSION_KEY) == $this->username)
+				$adapter = SHFactory::getUserAdapter($this->username);
+
+				// Check to ensure this user was created successfully
+				if ($adapter->state === $adapter::STATE_CREATED)
 				{
-					$adapter = SHFactory::getUserAdapter($this->username);
 					$adapter->delete();
 					SHLog::add(JTest::sprintf('PLG_LDAP_CREATION_INFO_12826', $this->username), 12826, JLog::INFO, 'ldap');
 				}

@@ -64,6 +64,54 @@ abstract class SHAdapter
 	const TYPE_GROUP = 2;
 
 	/**
+	 * State of adapter is unknown (default).
+	 *
+	 * @var    integer
+	 * @since  2.1
+	 */
+	const STATE_UNKNOWN = 0;
+
+	/**
+	 * Object already exists in driver.
+	 *
+	 * @var    integer
+	 * @since  2.1
+	 */
+	const STATE_EXISTS = 1;
+
+	/**
+	 * Object does not exist in driver.
+	 *
+	 * @var    integer
+	 * @since  2.1
+	 */
+	const STATE_NEW = 2;
+
+	/**
+	 * Object was created in driver.
+	 *
+	 * @var    integer
+	 * @since  2.1
+	 */
+	const STATE_CREATED = 3;
+
+	/**
+	 * Object creation failed in driver.
+	 *
+	 * @var    integer
+	 * @since  2.1
+	 */
+	const STATE_FAILED = 4;
+
+	/**
+	 * Holds the current state of this adapter.
+	 *
+	 * @var    integer
+	 * @since  2.1
+	 */
+	protected $state = self::STATE_UNKNOWN;
+
+	/**
 	 * Method to get certain otherwise inaccessible properties from the global adapter object.
 	 *
 	 * @param   string  $name  The property name for which to the the value.
@@ -78,6 +126,10 @@ abstract class SHAdapter
 		{
 			case 'name':
 				return static::NAME;
+				break;
+
+			case 'state':
+				return $this->state;
 				break;
 		}
 
@@ -111,4 +163,13 @@ abstract class SHAdapter
 	 * @since   2.1
 	 */
 	abstract public function getDomain();
+
+	/**
+	 * Returns all available domains for this adapter type.
+	 *
+	 * @return  array  An array of domain names.
+	 *
+	 * @since   2.1
+	 */
+	abstract public static function getDomains();
 }
