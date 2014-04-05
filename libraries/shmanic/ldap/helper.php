@@ -738,34 +738,42 @@ abstract class SHLdapHelper
 	{
 		$results = $adapter->commitChanges();
 
-		if ($log)
+		// Only if there is an array can we actually do anything here
+		if (is_array($results))
 		{
-			// Lets log all the commits
-			foreach ($results['commits'] as $commit)
+			if ($log)
 			{
-				if ($commit['status'] === JLog::INFO)
+				// Lets log all the commits
+				foreach ($results['commits'] as $commit)
 				{
-					SHLog::add($commit['info'], 10634, JLog::INFO, 'ldap');
+					if ($commit['status'] === JLog::INFO)
+					{
+						SHLog::add($commit['info'], 10634, JLog::INFO, 'ldap');
+					}
+					else
+					{
+						SHLog::add($commit['info'], 10636, JLog::ERROR, 'ldap');
+						SHLog::add($commit['exception'], 10637, JLog::ERROR, 'ldap');
+					}
+				}
+			}
+
+			// Check if any of the commits failed
+			if (!$results['status'])
+			{
+				if ($throw)
+				{
+					throw new RuntimeException(JText::_('LIB_SHLDAPHELPER_ERR_10638'), 10638);
 				}
 				else
 				{
-					SHLog::add($commit['info'], 10636, JLog::ERROR, 'ldap');
-					SHLog::add($commit['exception'], 10637, JLog::ERROR, 'ldap');
+					return $results;
 				}
 			}
 		}
-
-		// Check if any of the commits failed
-		if (!$results['status'])
+		else
 		{
-			if ($throw)
-			{
-				throw new RuntimeException(JText::_('LIB_SHLDAPHELPER_ERR_10638'), 10638);
-			}
-			else
-			{
-				return $results;
-			}
+			return $results;
 		}
 
 		return true;
