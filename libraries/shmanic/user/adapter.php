@@ -46,27 +46,11 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 	protected $password = null;
 
 	/**
-	 * Domain for user.
-	 *
-	 * @var    string
-	 * @since  2.0
-	 */
-	protected $domain = null;
-
-	/**
-	 * Holds wether the user is new.
-	 *
-	 * @var    Boolean
-	 * @since  2.0
-	 */
-	protected $isNew = false;
-
-	/**
 	 * Class constructor.
 	 *
 	 * @param   array  $credentials  User credentials to use.
 	 * @param   mixed  $config       Configuration options for driver.
-	 * @param   array  $options      Extra options such as isNew.
+	 * @param   array  $options      Extra options such as isNew and adapter_id.
 	 *
 	 * @since   2.0
 	 */
@@ -74,13 +58,14 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 	{
 		$this->username = JArrayHelper::getValue($credentials, 'username');
 		$this->password = JArrayHelper::getValue($credentials, 'password');
-		$this->isNew = JArrayHelper::getValue($options, 'isNew', false, 'boolean');
 
 		if (isset($credentials['domain']))
 		{
 			$this->domain = (string) preg_replace('/[^A-Z0-9_\.-\s]/i', '', $credentials['domain']);
 			$this->domain = ltrim($this->domain, '.');
 		}
+
+		parent::__construct($options);
 	}
 
 	/**
@@ -98,23 +83,12 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 		{
 			case 'loginuser':
 			case 'logonuser':
+				// The username used to find the user in LDAP
 				return $this->username;
 				break;
 		}
 
 		return parent::__get($name);
-	}
-
-	/**
-	 * Returns the domain or the configuration ID used for this specific user.
-	 *
-	 * @return  string  Domain or Configuration ID.
-	 *
-	 * @since   2.0
-	 */
-	public function getDomain()
-	{
-		return $this->domain;
 	}
 
 	/**
