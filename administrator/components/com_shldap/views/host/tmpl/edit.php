@@ -55,7 +55,7 @@ else
 			{
 				url: url,
 				method: 'post',
-				data: data.parseQueryString(),
+				data: data,
 				onRequest: function()
 				{
 					$('debug-output').set('text', 'Processing...');
