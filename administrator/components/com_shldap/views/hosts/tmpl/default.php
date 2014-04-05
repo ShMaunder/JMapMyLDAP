@@ -150,7 +150,7 @@ if ($version->isCompatible('3.0.0'))
 					<td>
 						<?php if ($canEdit) : ?>
 							<?php if ($this->editable && $item->checked_out) : ?>
-								<?php echo JHtml::_('jgrid.checkedout', $i, $item->editor, $item->checked_out_time, 'hosts.', 1); ?>
+								<?php echo JHtml::_('jgrid.checkedout', $i, $item->name, $item->checked_out_time, 'hosts.', 1); ?>
 							<?php endif; ?>
 							<a href="<?php echo JRoute::_('index.php?option=com_shldap&task=host.edit&id='.$item->id);?>" title="<?php echo $this->escape($item->name); ?>">
 							 <?php echo $this->escape(str_replace(JURI::root(), '', $item->name)); ?>
