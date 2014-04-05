@@ -47,13 +47,17 @@ class SHAdapterEventBouncer extends JEvent
 
 		if (($user instanceof JUser) && $user->id > 0)
 		{
-			if (!($session->get('shuseradaptername', false)))
+			// We try to cache the user adapter name to the user's session to save a db query
+			if (!($session->get('SHUserAdapterName', false)))
 			{
-				$userLink = SHAdapterMap::lookupFromJoomlaId(SHAdapterMap::TYPE_USER, $user->id);
-				$session->set('shuseradaptername', $userLink['adapter']);
+				// There should only be one user link, in any case we will only use one
+				if ($userLink = SHAdapterMap::getUser($user->id, true))
+				{
+					$session->set('SHUserAdapterName', $userLink[0]['adapter']);
+				}
 			}
 
-			$this->adapterUser = $session->get('shuseradaptername');
+			$this->adapterUser = $session->get('SHUserAdapterName');
 		}
 
 		parent::__construct($subject);
@@ -204,9 +208,9 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserBeforeDelete($user)
 	{
-		if (($userLink = SHAdapterMap::lookupFromJoomlaId(SHAdapterMap::TYPE_USER, $user['id'])) && $userLink['adapter'])
+		if ($userLink = SHAdapterMap::getUser($user['id'], true))
 		{
-			SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserBeforeDelete', array($user));
+			SHAdapterEventHelper::triggerEvent($userLink[0]['adapter'], 'onUserBeforeDelete', array($user));
 		}
 	}
 
@@ -223,9 +227,36 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
-		if (($userLink = SHAdapterMap::lookupFromJoomlaId(SHAdapterMap::TYPE_USER, $user['id'])) && $userLink['adapter'])
+		if ($userLink = SHAdapterMap::getUser($user['id'], true))
 		{
-			SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserAfterDelete', array($user, $success, $msg));
+			//TODO: pulled from deletion plugin, need a parameter to enable
+			if ($success && false === true)
+			{
+				try
+				{
+					$username = $user['username'];
+
+					//TODO: rename
+					SHLog::add(JText::sprintf('PLG_LDAP_DELETION_DEBUG_12905', $username), 12905, JLog::DEBUG, 'ldap');
+
+					// Pick up the user and delete it using the User Adapter
+					//Danger - we can no longer rely on username, must also be domain
+					$adapter = SHFactory::getUserAdapter(array('username' => $username, 'domain' => $userLink[0]['domain']));
+					$adapter->delete();
+
+					SHAdapterMap::deleteUser($user['id']);
+
+					//TODO: rename
+					SHLog::add(JText::sprintf('PLG_LDAP_DELETION_INFO_12908', $username), 12908, JLog::INFO, 'ldap');
+				}
+				catch (Exception $e)
+				{
+					SHLog::add($e, 12901, JLog::ERROR, 'ldap');
+					$success = false;
+				}
+			}
+
+			SHAdapterEventHelper::triggerEvent($userLink[0]['adapter'], 'onUserAfterDelete', array($user, $success, $msg));
 		}
 	}
 
@@ -262,8 +293,6 @@ class SHAdapterEventBouncer extends JEvent
 
 		if ($adapterName)
 		{
-			$this->adapterUser = $adapterName;
-
 			if (SHAdapterEventHelper::triggerEvent($adapterName, 'onUserBeforeSave', array($user, $isNew, $new)) !== false)
 			{
 				try
@@ -291,10 +320,6 @@ class SHAdapterEventBouncer extends JEvent
 			// We must create and save the user as plugins may talk to adapter driver and expect a user object
 			if (SHAdapterEventHelper::triggerEvent($name, 'onUserCreation', array($new)) === true)
 			{
-				$this->adapterUser = $name;
-
-				JFactory::getSession()->set('created', $username, SHUserHelper::SESSION_KEY);
-
 				if (SHAdapterEventHelper::triggerEvent($name, 'onUserBeforeSave', array($user, $isNew, $new)) !== false)
 				{
 					try
@@ -332,24 +357,26 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserAfterSave($user, $isNew, $success, $msg)
 	{
-		if ($this->adapterUser)
+		$adapter = SHFactory::getUserAdapter($user['username']);
+		$adapterName = $adapter::getName();
+
+		if ($isNew && $success && $adapter->state === $adapter::STATE_CREATED)
 		{
-			if ($isNew && $success)
-			{
-				// Ensure Joomla knows this is a new adapter user
-				$adapter = SHFactory::getUserAdapter($user['username']);
-				$options = array('adapter' => &$adapter);
-				$instance = SHUserHelper::getUser($user, $options);
+			// Ensure Joomla knows this is a new adapter user
+			$options = array('adapter' => &$adapter);
+			$instance = SHUserHelper::getUser($user, $options);
 
-				// Silently resave the user without calling the onUserSave events
-				SHUserHelper::save($instance, false);
+			// Silently resave the user without calling the onUserSave events
+			SHUserHelper::save($instance, false);
 
-				// Update the user map linker
-				SHAdapterMap::setUser($adapter, $instance->id);
-			}
+			// Update the user map linker
+			SHAdapterMap::setUser($adapter, $instance->id);
 
-			SHAdapterEventHelper::triggerEvent($this->adapterUser, 'onUserAfterSave', array($user, $isNew, $success, $msg));
-			JFactory::getSession()->clear('created', SHUserHelper::SESSION_KEY);
+			SHAdapterEventHelper::triggerEvent($adapterName, 'onUserAfterSave', array($user, $isNew, $success, $msg));
+		}
+		elseif ($adapter->state !== $adapter::STATE_UNKNOWN)
+		{
+			SHAdapterEventHelper::triggerEvent($adapterName, 'onUserAfterSave', array($user, $isNew, $success, $msg));
 		}
 	}
 
@@ -448,9 +475,9 @@ class SHAdapterEventBouncer extends JEvent
 	 */
 	public function onUserLogout($user, $options = array())
 	{
-		if ($userLink = SHAdapterMap::getUserLink($user['username']) && $userLink['adapter'])
+		if ($userLink = SHAdapterMap::getUser($user['id'], true))
 		{
-			return SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserLogout', array($user, $options));
+			return SHAdapterEventHelper::triggerEvent($userLink[0]['adapter'], 'onUserLogout', array($user, $options));
 		}
 	}
 
@@ -471,11 +498,112 @@ class SHAdapterEventBouncer extends JEvent
 			if ($id = JUserHelper::getUserId($username))
 			{
 				// Check if the attempted login was an adapter user, if so then fire the event
-				if ($userLink = SHAdapterMap::getUserLink($id) && $userLink['adapter'])
+				if ($userLink = SHAdapterMap::getUser($id, true))
 				{
-					SHAdapterEventHelper::triggerEvent($userLink['adapter'], 'onUserLoginFailure', array($response));
+					SHAdapterEventHelper::triggerEvent($userLink[0]['adapter'], 'onUserLoginFailure', array($response));
 				}
 			}
+		}
+	}
+
+	public function onUserBeforeSaveGroup($form, $table, $isNew)
+	{
+		$groupname = $table->title;
+
+		try
+		{
+			// We want to check if this group is an existing group in an Adapter
+			$adapter = SHFactory::getGroupAdapter($groupname);
+			$adapter->getId();
+
+			// We need to gather the adapter name to call the correct dispatcher
+			$adapterName = $adapter::getName();
+		}
+		catch (Exception $e)
+		{
+			// We will assume this group doesnt exist in an Adapter
+			$adapterName = false;
+		}
+
+		if ($adapterName)
+		{
+			$event = SHAdapterEventHelper::triggerEvent($adapterName, 'onGroupBeforeSave', array($groupname, $isNew));
+
+			if ($event !== false)
+			{
+				try
+				{
+					// Commit the changes to the Adapter if present
+					SHAdapterHelper::commitChanges($adapter, true, true);
+
+					//TODO: newId
+					SHLog::add(JText::sprintf('LIB_SHADAPTEREVENTBOUNCER_DEBUG_10986', $groupname), 10986, JLog::DEBUG, $adapterName);
+
+					return true;
+				}
+				catch (Excpetion $e)
+				{
+					//TODO: newId
+					SHLog::add($e, 10981, JLog::ERROR, $adapterName);
+				}
+			}
+
+			return $event;
+		}
+		elseif ($isNew)
+		{
+			// Use a default group adapter
+			$name = SHFactory::getConfig()->get('user.type');
+
+			// We must create and save the group as plugins may talk to adapter driver and expect a group object
+			if (SHAdapterEventHelper::triggerEvent($name, 'onGroupCreation', array($groupname)) === true)
+			{
+				JFactory::getSession()->set('created', $groupname, SHGroupHelper::SESSION_KEY);
+
+				$event = SHAdapterEventHelper::triggerEvent($adapterName, 'onGroupBeforeSave', array($groupname, $isNew));
+
+				if ($event !== false)
+				{
+					try
+					{
+						// Commit the changes to the Adapter if present
+						$adapter = SHFactory::getGroupAdapter($groupname);
+						SHAdapterHelper::commitChanges($adapter, true, true);
+
+						return true;
+					}
+					catch (Exception $e)
+					{
+						//TODO: newId
+						SHLog::add($e, 10981, JLog::ERROR, $name);
+					}
+				}
+
+				return $event;
+			}
+
+			// Something went wrong with the group creation
+			return false;
+		}
+	}
+
+	public function onUserAfterSaveGroup($form, $table, $isNew)
+	{
+		$groupname = $table->title;
+
+		$adapter = SHFactory::getGroupAdapter($groupname);
+		$adapterName = $adapter::getName();
+
+		if ($isNew && $adapter->state === $adapter::STATE_CREATED)
+		{
+			// Update the group map linker
+			//SHAdapterMap::setUser($adapter, $table->id);
+
+			SHAdapterEventHelper::triggerEvent($adapterName, 'onGroupAfterSave', array($groupname, $isNew));
+		}
+		elseif ($adapter->state !== $adapter::STATE_UNKNOWN)
+		{
+			SHAdapterEventHelper::triggerEvent($adapterName, 'onGroupAfterSave', array($groupname, $isNew));
 		}
 	}
 }
