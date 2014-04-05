@@ -72,34 +72,13 @@ class SHLdapException extends RuntimeException
 			$this->backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		parent::__construct($message, $code, null);
-	}
 
-	/**
-	 * Magic method to override the to string value for the exception.
-	 *
-	 * @return  string  Exception string.
-	 *
-	 * @since   2.0
-	 */
-	public function __toString()
-	{
-		if (is_null($this->ldapCode))
+		if (!is_null($this->ldapCode))
 		{
-			// Print without Ldap errors
-			return sprintf(
-				'Exception %1$d message \'%2$s\' in %3$s:%4$d',
-				$this->getCode(), $this->getMessage(),
-				$this->getFile(), $this->getLine()
-			);
-		}
-		else
-		{
-			// Print to include Ldap errors
-			return sprintf(
-				'Exception %1$d message \'%2$s\' in %3$s:%4$d with Ldap error %5$d (%6$s).',
-				$this->getCode(), $this->getMessage(),
-				$this->getFile(), $this->getLine(),
-				$this->getLdapCode(), $this->getLdapMessage()
+			// Update the message to include the Ldap error
+			$this->message = sprintf(
+				'%1$s (%2$d) %3$s.',
+				$this->getMessage(), $this->getLdapCode(), $this->getLdapMessage()
 			);
 		}
 	}
