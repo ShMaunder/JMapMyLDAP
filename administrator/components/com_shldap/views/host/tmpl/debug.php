@@ -24,6 +24,7 @@ try
 	}
 
 	$client = $this->get('LdapObject');
+	$client::fullDebug();
 
 	echo "Attempting LDAP connection with {$client->info}... <br />";
 
