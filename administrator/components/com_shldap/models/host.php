@@ -187,6 +187,9 @@ class ShldapModelHost extends JModelAdmin
 				$isNew = false;
 			}
 
+			// Sets a default proxy encryption flag in the table
+			$table->proxy_encryption = isset($table->proxy_encryption) ? $table->proxy_encryption : false;
+
 			// Deal with the proxy encryption if the password has changed
 			if (isset($data['proxy_encryption'])
 				&& $data['proxy_encryption']

@@ -150,6 +150,7 @@ class ShldapTableHost extends JTable
 		{
 			// Get the current set of params
 			$params = json_decode($this->params);
+			$params = $params ? $params : new stdClass;
 
 			// Remove params from this object as well
 			foreach (array_keys($this->getProperties()) as $f)
