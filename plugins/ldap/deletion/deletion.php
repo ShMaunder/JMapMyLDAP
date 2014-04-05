@@ -20,6 +20,7 @@ jimport('joomla.plugin.plugin');
  * @package     Shmanic.Plugin
  * @subpackage  Ldap.Deletion
  * @since       2.0
+ * @deprecated  [2.1] Adapter event bouncer implements this, plug-in pending deletion
  */
 class PlgLdapDeletion extends JPlugin
 {
@@ -30,6 +31,7 @@ class PlgLdapDeletion extends JPlugin
 	 * @param   array   $config    An array that holds the plugin configuration
 	 *
 	 * @since  2.0
+	 * @deprecated
 	 */
 	public function __construct(&$subject, $config = array())
 	{
@@ -49,6 +51,7 @@ class PlgLdapDeletion extends JPlugin
 	 * @return  void
 	 *
 	 * @since   2.0
+	 * @deprecated
 	 */
 	public function onUserAfterDelete($user, $success, $msg)
 	{
