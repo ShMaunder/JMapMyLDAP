@@ -55,13 +55,17 @@ class JFormFieldPlatformImport extends JFormFieldCheckboxes
 					'select.option', (string) $option['value'], trim((string) $option['label']), 'value', 'text', 0
 				);
 
+				$tmp->checked = false;
+
 				$options[] = $tmp;
 			}
 		}
 
 		// Replace the value with a decoded json version
-		$value = json_decode($this->value);
-		$this->value = array_combine($value, $value);
+		$value = json_decode($this->value, true);
+		$this->value = $value ? array_combine($value, $value) : array();
+
+		reset($options);
 
 		return $options;
 	}
