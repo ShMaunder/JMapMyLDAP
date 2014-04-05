@@ -1,5 +1,24 @@
 <?php
+/**
+ * PHP Version 5.3
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Adapter
+ * @author      Shaun Maunder <shaun@shmanic.com>
+ *
+ * @copyright   Copyright (C) 2011-2013 Shaun Maunder. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
 
+defined('JPATH_PLATFORM') or die;
+
+/**
+ * Helper class for SHAdapter for events.
+ *
+ * @package     Shmanic.Libraries
+ * @subpackage  Adapter
+ * @since       2.1
+ */
 abstract class SHAdapterEventHelper
 {
 	/**
