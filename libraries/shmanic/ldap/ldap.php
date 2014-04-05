@@ -1513,6 +1513,18 @@ class SHLdap
 	}
 
 	/**
+	 * Sets the PHP LDAP debug level to highest.
+	 *
+	 * @return  null
+	 *
+	 * @since   2.0
+	 */
+	public static function fullDebug()
+	{
+		ldap_set_option(null, 'LDAP_OPT_DEBUG_LEVEL', 7);
+	}
+
+	/**
 	 * Executed on deserialization to reset class.
 	 *
 	 * @return  void
