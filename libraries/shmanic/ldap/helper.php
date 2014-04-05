@@ -617,19 +617,22 @@ abstract class SHLdapHelper
 	 * @return  boolean  True if user is Ldap authenticated or False otherwise.
 	 *
 	 * @since   2.0
+	 * @deprecated  [2.1] Use SHAdapterMap::getUser instead.
 	 */
 	public static function isUserLdap($user = null)
 	{
-		$type = SHUserHelper::getTypeParam($user);
-
-		// Create a new adapter
-		if ($type = ucfirst(strtolower($type)))
+		// This is inefficient but has to be done to prevent issues with numeric usernames
+		if (!($id = JUserHelper::getUserId($user)))
 		{
-			$class = "SHUserAdapters${type}";
+			$id = $user;
+		}
 
-			$adapter = new $class(array('username' => '', 'password' => ''));
-
-			return $adapter->getType('LDAP') ? true : false;
+		if ($links = SHAdapterMap::getUser($id, true))
+		{
+			if (strtolower($links[0]['adapter']) === 'ldap')
+			{
+				return true;
+			}
 		}
 
 		return false;
