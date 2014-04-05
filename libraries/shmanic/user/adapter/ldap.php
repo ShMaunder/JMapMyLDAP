@@ -513,8 +513,16 @@ class SHUserAdapterLdap extends SHUserAdapter
 		{
 			if (isset($value[$key][0]))
 			{
-				// Uid (username) found so lets return it
-				return $value[$key][0];
+				if ($this->domainAppend)
+				{
+					// We must append the domain
+					return $value[$key][0] . '@' . $this->domain;
+				}
+				else
+				{
+					// Uid (username) found so lets return it
+					return $value[$key][0];
+				}
 			}
 		}
 

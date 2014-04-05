@@ -46,6 +46,14 @@ abstract class SHFactory
 	public static $adapters = array();
 
 	/**
+	 * An array of group adapters.
+	 *
+	 * @var    SHGroupAdapter[]
+	 * @since  2.1
+	 */
+	public static $groups = array();
+
+	/**
 	 * An array of ldap clients.
 	 *
 	 * @var    SHLdap[]
@@ -186,14 +194,15 @@ abstract class SHFactory
 			}
 
 			// Attempts to get the user linking entry to determine domain and type of user
-			if (($link = SHAdapterMap::getUser($username)) && $link['adapter'])
+			//TODO: allow multiple domains from links
+			if ($links = SHAdapterMap::getUser($username))
 			{
 				if ((boolean) $config->get('user.usedomain', true))
 				{
 					if (!isset($credentials['domain']))
 					{
 						// Attempt to get the domain for this user
-						$credentials['domain'] = $link['domain'];
+						$credentials['domain'] = $links[0]['domain'];
 					}
 				}
 				else
@@ -204,14 +213,14 @@ abstract class SHFactory
 				if (!isset($credentials['type']) && is_null($type))
 				{
 					// Attempt to get the User Adapter name
-					$type = $link['adapter'];
+					$type = $links[0]['adapter'];
 				}
 			}
 
 			if (is_null($type))
 			{
 				// Get the default/primary user adapter type from the database
-				$type = $config->get('user.type');
+				$type = $config->get('user.type', 'Default');
 			}
 
 			// Camel case friendly for class name
@@ -238,6 +247,85 @@ abstract class SHFactory
 		}
 
 		return self::$adapters[$username];
+	}
+
+	/**
+	 * Gets a group adapter for the group specified. Creates a new group
+	 * adapter if one doesnt already exist.
+	 *
+	 * @param   string  $group    Group name.
+	 * @param   string  $type     Type of adapter (e.g. ldap, xml, federated).
+	 * @param   array   $options  An array of optional options including isNew.
+	 *
+	 * @return  SHGroupAdapter  Object to group adapter.
+	 *
+	 * @since   2.0
+	 * @throws  Exception
+	 */
+	public static function getGroupAdapter($group, $type = null, $options = array())
+	{
+		$groupname = strtolower((string) $group);
+
+		if (!isset(self::$groups[$groupname]))
+		{
+			$config = self::getConfig();
+
+			// Check if this group is in the blacklist
+			if ($blacklist = (array) json_decode($config->get('group.blacklist')))
+			{
+				if (in_array($groupname, $blacklist))
+				{
+					//TODO: newID
+					throw new RuntimeException(JText::sprintf('LIB_SHFACTORY_ERR_2125', $groupname), 2125);
+				}
+			}
+
+			// Attempts to get the user linking entry to determine domain and type of user
+			/*if (($link = SHAdapterMap::getUser($username)) && $link['adapter'])
+			{
+				if ((boolean) $config->get('user.usedomain', true))
+				{
+					if (!isset($credentials['domain']))
+					{
+						// Attempt to get the domain for this user
+						$credentials['domain'] = $link['domain'];
+					}
+				}
+				else
+				{
+					unset($credentials['domain']);
+				}
+
+				if (!isset($credentials['type']) && is_null($type))
+				{
+					// Attempt to get the User Adapter name
+					$type = $link['adapter'];
+				}
+			}
+			*/
+			if (is_null($type))
+			{
+				// Get the default/primary user adapter type from the database
+				$type = $config->get('user.type', 'Default');
+			}
+
+			// Camel case friendly for class name
+			$type = ucfirst(strtolower($type));
+			$class = "SHGroupAdapter${type}";
+
+			if (class_exists($class))
+			{
+				// Create the adapter (note: remember to unset if using multiple adapters!)
+				self::$groups[$groupname] = new $class($group, null, $options);
+			}
+			else
+			{
+				//TODO: new id
+				throw new RuntimeException(JText::sprintf('LIB_SHFACTORY_ERR_2123', $class), 2123);
+			}
+		}
+
+		return self::$groups[$groupname];
 	}
 
 	/**
