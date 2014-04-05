@@ -1521,7 +1521,7 @@ class SHLdap
 	 */
 	public static function fullDebug()
 	{
-		ldap_set_option(null, 'LDAP_OPT_DEBUG_LEVEL', 7);
+		ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, 7);
 	}
 
 	/**
