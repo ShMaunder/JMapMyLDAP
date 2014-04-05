@@ -112,6 +112,58 @@ abstract class SHAdapter
 	protected $state = self::STATE_UNKNOWN;
 
 	/**
+	 * Domain for this adapter.
+	 *
+	 * @var    string
+	 * @since  2.1
+	 */
+	protected $domain = null;
+
+	/**
+	 * Holds wether the user is new.
+	 *
+	 * @var    Boolean
+	 * @since  2.0
+	 */
+	protected $isNew = false;
+
+	/**
+	 * Holds the unconfirmed ID for this adapter instance.
+	 *
+	 * @var    string
+	 * @since  2.1
+	 */
+	protected $id = null;
+
+	/**
+	 * Appends the domain to the ID (e.g. username/groupname).
+	 *
+	 * @var    boolean
+	 * @since  2.1
+	 */
+	protected $domainAppend = false;
+
+	/**
+	 * Class constructor.
+	 *
+	 * @param   array  $options  Options such as isNew and adapter_id.
+	 *
+	 * @since   2.1
+	 */
+	public function __construct($options = array())
+	{
+		if (isset($options['isNew']))
+		{
+			$this->isNew = $options['isNew'];
+		}
+
+		if (isset($options['adapter_id']))
+		{
+			$this->id = $options['adapter_id'];
+		}
+	}
+
+	/**
 	 * Method to get certain otherwise inaccessible properties from the global adapter object.
 	 *
 	 * @param   string  $name  The property name for which to the the value.
@@ -130,6 +182,10 @@ abstract class SHAdapter
 
 			case 'state':
 				return $this->state;
+				break;
+
+			case 'domain':
+				return $this->domain;
 				break;
 		}
 
@@ -156,13 +212,16 @@ abstract class SHAdapter
 	}
 
 	/**
-	 * Returns the domain or the configuration ID used for this specific user.
+	 * Returns the domain or the configuration ID used for this adapter.
 	 *
 	 * @return  string  Domain or Configuration ID.
 	 *
 	 * @since   2.1
 	 */
-	abstract public function getDomain();
+	public function getDomain()
+	{
+		return $this->domain;
+	}
 
 	/**
 	 * Returns all available domains for this adapter type.
