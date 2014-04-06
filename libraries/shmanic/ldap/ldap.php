@@ -1487,7 +1487,7 @@ class SHLdap
 		ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, 7);
 	}
 
- 	/**
+	/**
 	 * Class Destructor.
 	 *
 	 * @since   2.0
