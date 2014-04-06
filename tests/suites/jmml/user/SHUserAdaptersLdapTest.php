@@ -358,8 +358,11 @@ class SHUserAdaptersLdapTest extends TestCase
 			// Save the new phone number to the user
 			$changes = array('telephoneNumber' => array($newPhone));
 			$adapter->setAttributes($changes);
-			$this->assertTrue(JArrayHelper::getValue($adapter->commitChanges(), 'status'));
-			$this->assertTrue(JArrayHelper::getValue($adapter->commitChanges(), 'nochanges'));
+
+			$commit = $adapter->commitChanges();
+
+			$this->assertTrue($commit->status);
+			$this->assertTrue($commit->changes);
 
 			// Test to see if the adapter has updated it own internal attributes
 			$this->assertEquals(array('telephoneNumber' => array($newPhone)), $adapter->getAttributes('telephoneNumber'));
@@ -370,7 +373,8 @@ class SHUserAdaptersLdapTest extends TestCase
 
 			// Set back to the old attributes
 			$adapter->setAttributes($currentPhone);
-			$this->assertTrue(JArrayHelper::getValue($adapter->commitChanges(), 'status'));
+			$commit = $adapter->commitChanges();
+			$this->assertTrue($commit->status);
 
 			// Test its changeed back
 			$testAdapter = new SHUserAdaptersLdap($user, $ldap);
@@ -390,7 +394,8 @@ class SHUserAdaptersLdapTest extends TestCase
 			// Create the new user
 			$adapter = new SHUserAdaptersLdap($user, $ldap, array('isNew' => 1));
 			$adapter->setAttributes($user);
-			$this->assertTrue($adapter->commitChanges());
+			$commit = $adapter->commitChanges();
+			$this->assertTrue($commit->status);
 
 			// Test the new user
 			$testAdapter = new SHUserAdaptersLdap($user, $ldap);
