@@ -217,6 +217,17 @@
 	</fieldset>
 	
 	<fieldset name="debug" label="COM_SHLDAP_DEBUG_FIELDSET_LABEL">
+		<field name="debug_full"
+			type="radio"
+			default="0"
+			class="btn-group"
+			description="COM_SHLDAP_DEBUG_FIELD_FULL_DESC"
+			label="COM_SHLDAP_DEBUG_FIELD_FULL_LABEL"
+		>
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
+
 		<field name="debug_username"
 			type="text"
 			description="COM_SHLDAP_DEBUG_FIELD_USERNAME_DESC"
