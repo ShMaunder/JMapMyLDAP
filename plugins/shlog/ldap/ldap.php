@@ -49,7 +49,7 @@ class PlgShlogLdap extends JPlugin
 	public function onLogInitialise()
 	{
 		// This is the columns that the log files will use
-		$fileFormat = str_replace('\t', "\t", $this->params->get('FILE_FORMAT', '{DATETIME}\t{ID}\t{MESSAGE}'));
+		$fileFormat = str_replace('\t', "\t", $this->params->get('file_format', '{DATETIME}\t{ID}\t{MESSAGE}'));
 
 		// Categories to log
 		$categories = array('ldap', 'auth');
