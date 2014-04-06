@@ -151,6 +151,7 @@ class ShldapModelHost extends JModelAdmin
 		}
 
 		return array(
+			'full' => $form->getValue('debug_full'),
 			'username' => $form->getValue('debug_username'),
 			'password' => $form->getValue('debug_password')
 		);
@@ -174,6 +175,7 @@ class ShldapModelHost extends JModelAdmin
 		$isNew = true;
 
 		// Unset some debug data
+		unset($data['debug_full']);
 		unset($data['debug_username']);
 		unset($data['debug_password']);
 
