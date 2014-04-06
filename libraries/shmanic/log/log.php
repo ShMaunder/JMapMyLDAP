@@ -116,9 +116,29 @@ class SHLog
 			}
 			catch (Exception $e)
 			{
-				// Logging is broken - this isn't a reason though to
+				// Logging is broken - this isn't a reason to blow up though
 				error_log(JText::_('LIB_SHLOG_ERR_2200'));
 			}
 		}
+	}
+
+	/**
+	 * Method to add an entry to the log (adapter and ID enabled).
+	 *
+	 * @param   SHAdapter  $adapter   Adapter to log.
+	 * @param   string     $message   Message to log.
+	 * @param   integer    $id        ID of the entry.
+	 * @param   integer    $priority  Message priority.
+	 * @param   string     $category  Type of entry.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 */
+	public static function addAdapter(SHAdapter $adapter, $message, $id, $priority = JLog::INFO, $category = null)
+	{
+		$entry = new SHLogEntriesAdapter($adapter, $message, $id, $priority, $category);
+
+		self::add($entry, $id);
 	}
 }
