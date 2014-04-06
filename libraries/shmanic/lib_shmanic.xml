@@ -12,6 +12,8 @@
 	<buildDate></buildDate>
 	<description>LIB_SHMANIC_PLATFORM_XML_DESCRIPTION</description>
 	<build>
+		<folder>adapter</folder>
+		<folder>adapter/response</folder>
 		<folder>exception</folder>
 		<folder>form</folder>
 		<folder>form/fields</folder>
@@ -26,6 +28,8 @@
 		<folder>user</folder>
 		<folder>user/adapters</folder>
 		<folder>util</folder>
+		<filename>adapter/response/commit.php</filename>
+		<filename>adapter/response/commits.php</filename>
 		<filename>exception/invaliduser.php</filename>
 		<filename>exception/stacked.php</filename>
 		<filename>form/fields/jsontextarea.php</filename>
