@@ -29,7 +29,7 @@ abstract class SHAdapterHelper
 	 * @param   boolean    $log      Log any errors directly to SHLog.
 	 * @param   boolean    $throw    Throws an exception on error OR return array on error.
 	 *
-	 * @return  true|array
+	 * @return  true|SHAdapterResponseCommits
 	 *
 	 * @since   2.1
 	 */
@@ -38,42 +38,34 @@ abstract class SHAdapterHelper
 		$results = $adapter->commitChanges();
 		$adapterName = $adapter->getName();
 
-		// Only if there is an array can we actually do anything here
-		if (is_array($results))
+		if ($log)
 		{
-			if ($log)
+			// Lets log all the commits
+			foreach ($results->getCommits() as $commit)
 			{
-				// Lets log all the commits
-				foreach ($results['commits'] as $commit)
+				if ($commit->status === JLog::INFO)
 				{
-					if ($commit['status'] === JLog::INFO)
-					{
-						SHLog::add($commit['info'], 10634, JLog::INFO, $adapterName);
-					}
-					else
-					{
-						SHLog::add($commit['info'], 10636, JLog::ERROR, $adapterName);
-						SHLog::add($commit['exception'], 10637, JLog::ERROR, $adapterName);
-					}
-				}
-			}
-
-			// Check if any of the commits failed
-			if (!$results['status'])
-			{
-				if ($throw)
-				{
-					throw new RuntimeException(JText::_('LIB_SHADAPTERHELPER_ERR_10638'), 10638);
+					SHLog::addAdapter($adapter, $commit->getSummary(), 10634, JLog::INFO);
 				}
 				else
 				{
-					return $results;
+					SHLog::addAdapter($adapter, $commit->getSummary(), 10636, JLog::ERROR);
+					SHLog::add($commit->exception, 10637, JLog::ERROR, $adapterName);
 				}
 			}
 		}
-		else
+
+		// Check if any of the commits failed
+		if (!$results->status)
 		{
-			return $results;
+			if ($throw)
+			{
+				throw new RuntimeException(JText::_('LIB_SHADAPTERHELPER_ERR_10638'), 10638);
+			}
+			else
+			{
+				return $results;
+			}
 		}
 
 		return true;

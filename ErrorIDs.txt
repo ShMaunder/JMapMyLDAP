@@ -118,7 +118,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 
 
--- Platform Adatper Helper --
+-- Platform Adapter Helper --
 
 10634 - Entry for the commited adapter changes and their attributes after success.
 
@@ -129,7 +129,13 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 
 
 
--- LDAP User Adapter [10800-10979] --
+-- Adapter Response [10800-10829]
+
+10801 - Successfully committed %1$s operation with attributes %2$s. [LIB_SHADAPTERRESPONSE_INFO_10801]
+
+
+
+-- LDAP User Adapter [10900-10949] --
 
 10901 - Cannot complete LDAP operation due to failure of binding as proxy user. [LIB_SHUSERADAPTERSLDAP_ERR_10901]
 10906 - User has been deleted from LDAP. [LIB_SHUSERADAPTERSLDAP_ERR_10906]
@@ -143,7 +149,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10918 - Failed to change password, current password is incorrect. [LIB_SHUSERADAPTERSLDAP_ERR_10918]
 
 10922 - Changing LDAP username is not supported. [LIB_SHUSERADAPTERSLDAP_ERR_10922]
-10924 - Successfully committed '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_INFO_10924]
+[DEPREACTED]10924 - Successfully committed '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_INFO_10924]
 10926 - Failed to commit '%1$s' operation for user '%2$s' with attributes %3$s. [LIB_SHUSERADAPTERSLDAP_ERR_10926]
 
 10931 - Validation for %2$s config of LDAP user adapter failed. Reason: %1$s. [LIB_SHUSERADAPTERSLDAP_ERR_10931]
@@ -153,7 +159,7 @@ LIB_SHLDAP_ERR_10341="Failed to retrieve LDAP attributes for the user '%1$s' (%2
 10936 - missing email field
 
 
--- Generic Event Bouncer [10980-10999] --
+-- Generic Event Bouncer [10950-10999] --
 
 [S]10981 - Failed to commit the user changes to adapter.
 [IT]10984 - Saving changes to Joomla user '%1$s'. [LIB_SHADAPTEREVENTBOUNCER_DEBUG_10984]

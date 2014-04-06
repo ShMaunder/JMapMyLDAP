@@ -27,7 +27,7 @@ class SHAdapterResponseCommits
 	 * @var    SHAdapterResponseCommit[]
 	 * @since  2.1
 	 */
-	public $commits;
+	protected $commits;
 
 	/**
 	 * True if changes were made in the commits.
@@ -48,15 +48,99 @@ class SHAdapterResponseCommits
 	/**
 	 * Class constructor.
 	 *
-	 * @param   SHAdapterResponseCommit[]  $commits  Array of commit objects.
+	 * @since   2.1
+	 */
+	public function __construct()
+	{
+		$this->commits = array();
+		$this->update();
+	}
+
+	/**
+	 * Method to get certain otherwise inaccessible class properties.
+	 *
+	 * @param   string  $name  The property name for which to the the value.
+	 *
+	 * @return  mixed  The property value or null.
 	 *
 	 * @since   2.1
 	 */
-	public function __construct(array $commits)
+	public function __get($name)
 	{
-		$this->commits = $commits;
+		switch ($name)
+		{
+			case 'nochanges':
+				return !$this->changes;
+				break;
 
-		$this->changes = count($commits) ? true : false;
+			case 'commits':
+				return $this->commits;
+				break;
+		}
+
+		return $this->$name;
+	}
+
+	/**
+	 * Method to set class properties.
+	 *
+	 * @param   string  $name   The property name.
+	 * @param   string  $value  The property value.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 */
+	public function __set($name, $value)
+	{
+		$this->$name = $value;
+
+		if ($name === 'commits')
+		{
+			$this->update();
+		}
+	}
+
+	/**
+	 * Gets commits.
+	 *
+	 * @return  SHAdapterResponseCommit[]  Array of commits.
+	 *
+	 * @since   2.1
+	 */
+	public function getCommits()
+	{
+		return $this->commits;
+	}
+
+	/**
+	 * Adds a commit to the commits stack.
+	 *
+	 * @param   string     $operation  The commit operation name (e.g. add, replace, delete).
+	 * @param   string     $message    Describe the changes made in the commit.
+	 * @param   integer    $status     @see JLog constants.
+	 * @param   Exception  $exception  The exception object if something went wrong.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 */
+	public function addCommit($operation, $message, $status = JLog::INFO, $exception = null)
+	{
+		$this->commits[] = new SHAdapterResponseCommit($operation, $message, $status, $exception);
+		$this->update();
+	}
+
+	/**
+	 * Updates the changes and status by inspecting the commits.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.1
+	 */
+	protected function update()
+	{
+		$this->changes = count($this->commits) ? true : false;
 
 		$this->status = true;
 
@@ -71,24 +155,5 @@ class SHAdapterResponseCommits
 				}
 			}
 		}
-	}
-
-	/**
-	 * Method to get certain otherwise inaccessible properties from the commits response.
-	 *
-	 * @param   string  $name  The property name for which to the the value.
-	 *
-	 * @return  mixed  The property value or null.
-	 *
-	 * @since   2.1
-	 */
-	public function __get($name)
-	{
-		if ($name === 'nochanges')
-		{
-			return !$this->changes;
-		}
-
-		return parent::__get($name);
 	}
 }

@@ -79,10 +79,11 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 	 */
 	public function __get($name)
 	{
-		switch ($name)
+		switch (strtolower($name))
 		{
 			case 'loginuser':
 			case 'logonuser':
+			case 'username':
 				// The username used to find the user in LDAP
 				return $this->username;
 				break;

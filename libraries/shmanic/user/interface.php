@@ -145,7 +145,7 @@ interface SHUserInterface
 	 *
 	 * @param   array  $options  Optional array of options.
 	 *
-	 * @return  boolean  True on success or False on error.
+	 * @return  SHAdapterResponseCommits  Stores all commit objects and status.
 	 *
 	 * @since   2.0
 	 */
@@ -156,7 +156,7 @@ interface SHUserInterface
 	 *
 	 * @param   array  $options  Optional array of options.
 	 *
-	 * @return  boolean  True on success or False on error.
+	 * @return  SHAdapterResponseCommit  Stores the add commit object and status.
 	 *
 	 * @since   2.0
 	 */

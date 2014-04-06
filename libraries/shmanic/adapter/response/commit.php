@@ -46,4 +46,20 @@ class SHAdapterResponseCommit
 		$this->status = $status;
 		$this->exception = $exception;
 	}
+
+	/**
+	 * Composes a human readable summary of the operation and message.
+	 *
+	 * @return   string
+	 *
+	 * @since    2.1
+	 */
+	public function getSummary()
+	{
+		return JText::sprintf(
+			'LIB_SHADAPTERRESPONSE_INFO_10801',
+			$this->operation,
+			$this->message
+		);
+	}
 }

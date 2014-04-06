@@ -191,7 +191,7 @@ class PlgLdapCreation extends JPlugin
 			$adapter->setAttributes($attributes);
 
 			// Create the LDAP user now
-			$adapter->create();
+			SHAdapterHelper::commitChanges($adapter, true, true);
 			SHLog::add(JText::sprintf('PLG_LDAP_CREATION_INFO_12821', $mandatory['username']), 12821, JLog::INFO, 'ldap');
 
 			$this->username = $mandatory['username'];

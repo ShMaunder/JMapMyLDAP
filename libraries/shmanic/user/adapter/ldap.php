@@ -762,7 +762,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 	 *
 	 * @param   array  $options  Optional array of options.
 	 *
-	 * @return  array  Array of commits, exceptions and status.
+	 * @return  SHAdapterResponseCommits  Stores all commit objects and status.
 	 *
 	 * @since   2.0
 	 * @throws  RuntimeException
@@ -775,16 +775,22 @@ class SHUserAdapterLdap extends SHUserAdapter
 			throw $this->_dn;
 		}
 
+		$response = new SHAdapterResponseCommits;
+
 		if ($this->isNew)
 		{
+			$options['nothrow'] = true;
+
 			// We only want to create the user
-			return $this->create($options);
+			$response->commits = array($this->create($options));
+
+			return $response;
 		}
 
 		if (empty($this->_changes))
 		{
 			// There is nothing to commit
-			return array('status' => true, 'nochanges' => true);
+			return $response;
 		}
 
 		// If the user write is enabled then we should just try to authenticate now
@@ -897,9 +903,6 @@ class SHUserAdapterLdap extends SHUserAdapter
 			}
 		}
 
-		$results = array('status' => true);
-		$commits = array();
-
 		if (isset($this->_changes['dn']) && ($this->_changes['dn'] != $this->_dn))
 		{
 			// TODO: Need to rename the DN using SHLdap::rename()
@@ -922,15 +925,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 					$this->client->$method($this->_dn, $commit);
 
 					// Successful commit so say so
-					$commits[$operation] = array(
-						'status' => JLog::INFO,
-						'info' => JText::sprintf(
-							'LIB_SHUSERADAPTERSLDAP_INFO_10924',
-							$operation,
-							$uid,
-							preg_replace('/\s+/', ' ', var_export($commit, true))
-						)
-					);
+					$response->addCommit($operation, preg_replace('/\s+/', ' ', var_export($commit, true)));
 
 					// Change the attribute field for this commit
 					$this->_attributes = array_merge($this->_attributes, $commit);
@@ -961,18 +956,12 @@ class SHUserAdapterLdap extends SHUserAdapter
 				catch (Exception $e)
 				{
 					// An error happened trying to commit the change so lets log it
-					$commits[$operation] = array(
-						'status' => JLog::ERROR,
-						'info' => JText::sprintf(
-							'LIB_SHUSERADAPTERSLDAP_ERR_10926',
-							$operation,
-							$uid,
-							preg_replace('/\s+/', ' ', var_export($commit, true))
-						),
-						'exception' => $e
+					$response->addCommit(
+						$operation,
+						preg_replace('/\s+/', ' ', var_export($commit, true)),
+						JLog::ERROR,
+						$e
 					);
-
-					$results['status'] = false;
 				}
 			}
 		}
@@ -980,10 +969,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 		// Clear the changes even if they failed
 		$this->_changes = array();
 
-		// Save the commits for potential audit
-		$results['commits'] = $commits;
-
-		return $results;
+		return $response;
 	}
 
 	/**
@@ -991,7 +977,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 	 *
 	 * @param   array  $options  Optional array of options.
 	 *
-	 * @return  boolean  True on success or False on error.
+	 * @return  SHAdapterResponseCommit  Stores the add commit object and status.
 	 *
 	 * @since   2.0
 	 */
@@ -1065,14 +1051,40 @@ class SHUserAdapterLdap extends SHUserAdapter
 			$this->_changes[$this->getPassword(true)] = array($password);
 		}
 
-		$this->client->add($this->_dn, $this->_changes);
+		$response = new SHAdapterResponseCommit('add', null);
 
-		$this->_changes = array();
-		$this->isNew = false;
+		try
+		{
+			$this->client->add($this->_dn, $this->_changes);
+		}
+		catch (Exception $e)
+		{
+			if (!isset($options['nothrow']))
+			{
+				throw $e;
+			}
 
-		$this->state = self::STATE_CREATED;
+			$response->exception = $e;
+			$response->status = JLog::ERROR;
+		}
 
-		return true;
+		if (isset($this->_changes[$this->getPassword(true)]))
+		{
+			// NEVER audit the actual password!
+			$this->_changes[$this->getPassword(true)] = '*********';
+		}
+
+		$response->message = preg_replace('/\s+/', ' ', var_export($this->_changes, true));
+
+		if ($response->status !== JLog::ERROR)
+		{
+			$this->_changes = array();
+			$this->isNew = false;
+
+			$this->state = self::STATE_CREATED;
+		}
+
+		return $response;
 	}
 
 	/**
