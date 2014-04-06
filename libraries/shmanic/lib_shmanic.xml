@@ -62,6 +62,7 @@
 		<filename>lib_shmanic.xml</filename>
 	</build>
 	<files>
+		<folder>adapter</folder>
 		<folder>exception</folder>
 		<folder>form</folder>
 		<folder>import</folder>
