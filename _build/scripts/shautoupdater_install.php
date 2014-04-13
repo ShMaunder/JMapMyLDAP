@@ -66,6 +66,8 @@ class Pkg_ShautoupdaterInstallerScript
 			{
 				$list = $db->setQuery($query)->loadAssocList('name');
 
+				$ldapSsoCore = false;
+
 				// List of included packages in this autoupdater
 				$files = clone($parent->manifest->files);
 				$parent->manifest->files = null;
@@ -82,6 +84,23 @@ class Pkg_ShautoupdaterInstallerScript
 
 					if (isset($list[$name]) && $list[$name]['type'] == $type)
 					{
+						/*
+						 * We have to check for some specific extensions due to bc on pre-release
+						 * versions. This is to prevent packages being updated twice and causing
+						 * fatal errors in the installer scripts being redeclared.
+						 */
+						if ($type === 'package')
+						{
+							if ($name === 'ldap_core' && $ldapSsoCore)
+							{
+								continue;
+							}
+							elseif ($name === 'ldap_sso_core')
+							{
+								$ldapSsoCore = true;
+							}
+						}
+
 						// This extension is installed so add it to the update list
 						$parent->manifest->files->addChild('file', (string) $file);
 					}
