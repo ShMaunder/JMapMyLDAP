@@ -66,12 +66,16 @@ class Pkg_ShautoupdaterInstallerScript
 			{
 				$list = $db->setQuery($query)->loadAssocList('name');
 
+				// List of included packages in this autoupdater
+				$files = clone($parent->manifest->files);
+				$parent->manifest->files = null;
+
 				/*
 				 * Check all files that were packaged in this auto updater with that
 				 * of currently installed Joomla extensions. If extension is installed
 				 * then add to the update list.
 				 */
-				foreach ($parent->manifest->autoupdates->file as $file)
+				foreach ($files->file as $file)
 				{
 					$type = (string) $file->attributes()->type;
 					$name = (string) $file->attributes()->id;
