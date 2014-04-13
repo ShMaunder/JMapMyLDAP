@@ -173,7 +173,7 @@ CentOS/RHEL: yum install xmlstarlet
 		</phingcall>
 
 		<phingcall target="package">
-			<property name="manifest" value="pkg_autoupdater.xml" />
+			<property name="manifest" value="pkg_shautoupdater.xml" />
 		</phingcall>
 
 		<phingcall target="updates" />
