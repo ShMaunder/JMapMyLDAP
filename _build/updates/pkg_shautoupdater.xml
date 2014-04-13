@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<updates>
+	<update>
+		<name>Shmanic Auto Updater</name>
+		<packagename>shautoupdater</packagename>
+		<description></description>
+		<type>package</type>
+		<infourl title="Project Home">http://shmanic.com/tools/jmapmyldap</infourl>
+		<downloads>
+			<downloadurl type="full" format="zip"><![CDATA[http://shmanic.com/media/file.php?project=jmmldap&name=pkg_shautoupdater.zip]]></downloadurl>
+		</downloads>
+		<maintainer>Shaun Maunder</maintainer>
+		<maintainerurl>http://www.shmanic.com</maintainerurl>
+		<targetplatform name="joomla" version=".*" />
+	</update>
+</updates>
