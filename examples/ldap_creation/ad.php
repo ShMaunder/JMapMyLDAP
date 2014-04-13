@@ -113,7 +113,12 @@ final class LdapCreation_ad
 	protected function genLastname($name)
 	{
 		// Get the last name (if no space then return whole name)
-		return substr($name, strrpos($name, ' ') + 1);
+		if ($pos = strrpos($name, ' '))
+		{
+			return substr($name, $pos + 1);
+		}
+
+		return $name;
 	}
 
 	/**
