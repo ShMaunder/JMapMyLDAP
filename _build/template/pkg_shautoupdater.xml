@@ -6,14 +6,15 @@
 	<authorEmail>shaun@shmanic.com</authorEmail>
 	<authorUrl>www.shmanic.com</authorUrl>
 	<author>Shaun Maunder</author>
-	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_sso_core.zip</packagerurl>
+	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_shautoupdater.zip</packagerurl>
 	<buildDate></buildDate>
 	<description>PKG_SHAUTOUPDATER_DESCRIPTION</description>
 	<scriptfile>shautoupdater_install.php</scriptfile>
 	<files>
-		<!-- Order matters!!! -->
+		<!-- Order matters! Platform is always a dependency therefore it must be first. -->
 		<file type="package" id="shplatform">pkg_shplatform.zip</file>
 		<file type="package" id="ldap_sso_core">pkg_ldap_sso_core.zip</file>
+		<file type="package" id="ldap_sso_core">pkg_ldap_core.zip</file>
 		<file type="package" id="ldap_plugins">pkg_ldap_plugins.zip</file>
 	</files>
 	<languages>
