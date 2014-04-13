@@ -172,6 +172,10 @@ CentOS/RHEL: yum install xmlstarlet
 			<property name="manifest" value="pkg_ldap_plugins.xml" />
 		</phingcall>
 
+		<phingcall target="package">
+			<property name="manifest" value="pkg_autoupdater.xml" />
+		</phingcall>
+
 		<phingcall target="updates" />
 
 		<phingcall target="zipall" />
