@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="package" version="2.5" method="upgrade">
+	<name>pkg_shautoupdater</name>
+	<packagename>shautoupdater</packagename>
+	<version>2.0.1.9</version>
+	<authorEmail>shaun@shmanic.com</authorEmail>
+	<authorUrl>www.shmanic.com</authorUrl>
+	<author>Shaun Maunder</author>
+	<packagerurl>http://www.shmanic.com/tool/jmapmyldap/file.php?name=pkg_ldap_sso_core.zip</packagerurl>
+	<buildDate>Fri Apr 11 22:28:03 2014</buildDate>
+	<description>PKG_SHAUTOUPDATER_DESCRIPTION</description>
+	<scriptfile>shautoupdater_install.php</scriptfile>
+	<autoupdates>
+		<!-- Order matters!!! -->
+		<file type="package" id="shplatform">pkg_shplatform.zip</file>
+		<file type="package" id="ldap_sso_core">pkg_ldap_sso_core.zip</file>
+		<file type="package" id="ldap_plugins">pkg_ldap_plugins.zip</file>
+	</autoupdates>
+	<files />
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_shautoupdater.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.pkg_shautoupdater.sys.ini</language>
+	</languages>
+</extension>
