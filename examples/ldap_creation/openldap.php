@@ -123,7 +123,7 @@ final class LdapCreation_openldap
 					->update($db->quoteName('#__sh_config'))
 					->set(array($db->quoteName('value') . ' = ' . $db->quoteName('value') . ' + 1' ))
 					->where($db->quoteName('name') . ' = ' . $db->quote(self::UID_NAME))
-			)->loadResult();
+			)->execute();
 		}
 		else
 		{
@@ -133,9 +133,9 @@ final class LdapCreation_openldap
 					->insert($db->quoteName('#__sh_config'))
 					->columns(array($db->quoteName('name'), $db->quoteName('value')))
 					->values($db->quote(self::UID_NAME) . ', ' . $db->quote(self::UID_DEFAULT + 1))
-			)->loadResult();
+			)->execute();
 
-			$uid = UID_DEFAULT;
+			$uid = self::UID_DEFAULT;
 		}
 
 		return $uid;
@@ -175,7 +175,12 @@ final class LdapCreation_openldap
 	protected function genLastname($name)
 	{
 		// Get the last name (if no space then return whole name)
-		return substr($name, strrpos($name, ' ') + 1);
+		if ($pos = strrpos($name, ' '))
+		{
+			return substr($name, $pos + 1);
+		}
+
+		return $name;
 	}
 
 	/**
