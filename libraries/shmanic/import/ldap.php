@@ -28,6 +28,27 @@ if (!defined('SHLDAP_VERSION'))
 // Load the global Ldap language file
 JFactory::getLanguage()->load('shmanic_ldap', JPATH_ROOT);
 
+// Push the reqcert setting if defined
+if ($reqcert = (int) SHFactory::getConfig()->get('ldap.reqcert', 0))
+{
+	if ($reqcert === 1)
+	{
+		putenv('LDAPTLS_REQCERT=never');
+	}
+	elseif ($reqcert === 2)
+	{
+		putenv('LDAPTLS_REQCERT=allow');
+	}
+	elseif ($reqcert === 3)
+	{
+		putenv('LDAPTLS_REQCERT=try');
+	}
+	elseif ($reqcert === 4)
+	{
+		putenv('LDAPTLS_REQCERT=hard');
+	}
+}
+
 // Setup and get the Ldap dispatcher
 $dispatcher = SHFactory::getDispatcher('ldap');
 

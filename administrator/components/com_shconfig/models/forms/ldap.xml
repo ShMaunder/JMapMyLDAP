@@ -6,6 +6,18 @@
 			label="COM_SHCONFIG_SETTINGS_LDAP_FIELD_DEFAULTCONFIG_LABEL"
 			description="COM_SHCONFIG_SETTINGS_LDAP_FIELD_DEFAULTCONFIG_DESC"
 		/>
+		<field name="ldap:certreq"
+			type="list"
+			default="0"
+			label="COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_LABEL"
+			description="COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_DESC"
+		>
+			<option value="0">COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_NOSET</option>
+			<option value="1">COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_NEVER</option>
+			<option value="2">COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_ALLOW</option>
+			<option value="3">COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_TRY</option>
+			<option value="3">COM_SHCONFIG_SETTINGS_LDAP_FIELD_CERTREQ_HARD</option>
+		</field>
 		<field name="ldap:config"
 			type="list"
 			default="2"
