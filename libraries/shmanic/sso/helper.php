@@ -96,7 +96,7 @@ abstract class SHSsoHelper
 	{
 		$config = SHFactory::getConfig();
 
-		$behaviour = (int) $config->get('sso.behaviour', 2);
+		$behaviour = (int) $config->get('sso.behaviour', 1);
 
 		$status = JFactory::getSession()->get(self::SESSION_STATUS_KEY, false);
 
