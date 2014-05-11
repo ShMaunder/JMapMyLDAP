@@ -61,8 +61,7 @@ abstract class SHUserAdapter extends SHAdapter implements SHUserInterface
 
 		if (isset($credentials['domain']))
 		{
-			$this->domain = (string) preg_replace('/[^A-Z0-9_\.-\s]/i', '', $credentials['domain']);
-			$this->domain = ltrim($this->domain, '.');
+			$this->domain = ltrim($credentials['domain'], '.');
 		}
 
 		parent::__construct($options);
