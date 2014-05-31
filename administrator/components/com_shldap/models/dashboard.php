@@ -169,8 +169,16 @@ class ShldapModelDashboard extends JModelList
 
 				$ldap = new SHLdap($config);
 
+				// Need to process the ldap formatting for the host configuration ready for a fsockopen
+				$processed = str_replace(array('ldap://', 'ldaps://'), '', $config->get('host'));
+
+				if ($pos = strpos($processed, chr(32)))
+				{
+					$processed = substr($processed, 0, $pos);
+				}
+
 				// Check if we can open a socket to the LDAP server:port to check the connection
-				if (@fsockopen($config->get('host'), $config->get('port')))
+				if (@fsockopen($processed, $config->get('port')))
 				{
 					$result->connect = true;
 				}
