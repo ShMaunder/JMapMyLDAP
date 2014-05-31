@@ -27,7 +27,7 @@ class SHFormRuleLdapdomain extends JFormRule
 	 * @var    string
 	 * @since  11.1
 	 */
-	protected $regex = '[A-Z0-9_\.-\s]+$';
+	protected $regex = '^[^<>"\'%;()&\\\\]+$';
 
 	/**
 	 * The regular expression modifiers to use when testing a form field value.
@@ -35,5 +35,5 @@ class SHFormRuleLdapdomain extends JFormRule
 	 * @var    string
 	 * @since  11.1
 	 */
-	protected $modifiers = 'i';
+	protected $modifiers = '';
 }
