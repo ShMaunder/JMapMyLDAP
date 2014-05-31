@@ -165,14 +165,19 @@ class ShldapModelDashboard extends JModelList
 				$result->name = $name;
 				$result->host = $config->get('host');
 				$result->port = $config->get('port');
+				$result->connect = false;
 
 				$ldap = new SHLdap($config);
+
+				// Check if we can open a socket to the LDAP server:port to check the connection
+				if (@fsockopen($config->get('host'), $config->get('port')))
+				{
+					$result->connect = true;
+				}
 
 				// Attempt to connect and bind and record the result
 				if ($ldap->connect())
 				{
-					$result->connect = true;
-
 					if ($ldap->proxyBind())
 					{
 						$result->bind = true;
