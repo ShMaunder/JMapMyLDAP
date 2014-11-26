@@ -1026,7 +1026,7 @@ class PlgLdapProfile extends JPlugin
 		foreach ($attributes as $key => $value)
 		{
 			$key = 'ldap.' . $key;
-
+			if($key=='thumbnailPhoto'){$value=base64_encode($value);};
 			$query->values(
 				$query->quote((int) $userId) . ', ' .
 				$query->quote($key) . ', ' .
@@ -1060,7 +1060,7 @@ class PlgLdapProfile extends JPlugin
 		$query = $db->getQuery(true);
 
 		foreach ($attributes as $key => $value)
-		{
+		{	if($key=='thumbnailPhoto'){$value=base64_encode($value);};
 			$key = 'ldap.' . $key;
 			$query->update($query->quoteName('#__user_profiles'))
 				->set($query->quoteName('profile_value') . ' = ' . $db->quote($value))
