@@ -26,7 +26,7 @@ class CBfield_ldapdirectreports extends CBfield_text {
 		//grab user profile id 
 		$thisuser = $user->id;
 	//var_dump($thisuser);
-	// grab ldap.thumbnailPhoto from user_profile table 
+	// grab ldap.directReports from user_profile table 
 	$db = JFactory::getDBO();
 	$query = $db->getQuery(true);
 	$query->select($db->quoteName('profile_value'))	
@@ -34,7 +34,7 @@ class CBfield_ldapdirectreports extends CBfield_text {
 		->where($query->quoteName('profile_key') . ' = ' . $query->quote('ldap.directReports'))
 		->where($query->quoteName('user_id') . ' = ' . $query->quote((int) $thisuser));
 	$db->setQuery($query);
-	$result=$db->loadResult();
+	$result=$db->loadResult(); 
 	
 	//check the result of the Query from the DB
 	if($result!==null){
