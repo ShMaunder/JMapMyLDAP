@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cbinstall version="1.0.0" type="plugin" group="user">
+	<name>CB ldap thumbnail</name>
+	<author>Kiran cheema</author>
+	<creationDate>2014-12-27</creationDate>
+	<copyright>(C) 2014 NHS Quality Observatory team</copyright>
+	<license>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU/GPL version 2</license>
+	<authorEmail>Kiran.cheema@nhs.net</authorEmail>
+	<authorUrl></authorUrl>
+	<version>2.0.2</version>
+	<release>1.0.0</release>
+	<description>
+		A Community Builder field plugin that displays a LDAP thubnailPhoto attribute stream.
+	</description>
+	<files>
+		<filename plugin="cb.ldapthumbnail">cb.ldapthumbnail.php</filename>
+		<filename>index.html</filename>
+	</files>
+		<fieldtypes>
+		<field type="ldapthumbnail" label="LDAPThumbnail Field">
+				</field>
+	</fieldtypes>
+	<params>
+	</params>
+	<install>
+	</install>
+	<uninstall>
+	</uninstall>
+	<database>
+	</database>
+</cbinstall>
