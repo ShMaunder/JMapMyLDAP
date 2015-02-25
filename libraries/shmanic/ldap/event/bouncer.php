@@ -452,7 +452,7 @@ class SHLdapEventBouncer extends JEvent
 	public function onUserLoginFailure($response)
 	{
 		// Check if the attempted login was an Ldap user, if so then fire the event
-		if ($username = JArrayHelper::getValue($response, 'username', false, 'string'))
+		if ($username = SHUtilArrayhelper::getValue($response, 'username', false, 'string'))
 		{
 			// Check if the user exists in the J! database
 			if ($id = JUserHelper::getUserId($username))

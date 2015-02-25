@@ -88,10 +88,10 @@ class PlgLdapCreation extends JPlugin
 
 			// Populate defaults for the mandatory
 			$mandatory = array(
-				'username' => JArrayHelper::getValue($user, 'username'),
-				'password' => JArrayHelper::getValue($user, 'password_clear'),
-				'email' => JArrayHelper::getValue($user, 'email'),
-				'name' => JArrayHelper::getValue($user, 'name')
+				'username' => SHUtilArrayhelper::getValue($user, 'username'),
+				'password' => SHUtilArrayhelper::getValue($user, 'password_clear'),
+				'email' => SHUtilArrayhelper::getValue($user, 'email'),
+				'name' => SHUtilArrayhelper::getValue($user, 'name')
 			);
 
 			// Include the helper file only if it exists

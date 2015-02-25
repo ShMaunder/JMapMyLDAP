@@ -147,7 +147,7 @@ abstract class SHFactory
 	{
 		if (is_array($user))
 		{
-			$username = strtolower(JArrayHelper::getValue($user, 'username', null, 'string'));
+			$username = strtolower(SHUtilArrayhelper::getValue($user, 'username', null, 'string'));
 			$credentials = $user;
 		}
 		else
@@ -222,7 +222,7 @@ abstract class SHFactory
 		else
 		{
 			// Update credentials if required
-			if ($password = JArrayHelper::getValue($user, 'password', false))
+			if ($password = SHUtilArrayhelper::getValue($user, 'password', false))
 			{
 				self::$adapters[$username]->updateCredential($password, $options);
 			}
@@ -242,7 +242,7 @@ abstract class SHFactory
 	 */
 	public static function getCrypt($options = array())
 	{
-		$source = strtolower(JArrayHelper::getValue($options, 'source', 'jconfig', 'string'));
+		$source = strtolower(SHUtilArrayhelper::getValue($options, 'source', 'jconfig', 'string'));
 
 		if ($source === 'jconfig')
 		{
@@ -262,7 +262,7 @@ abstract class SHFactory
 		}
 		elseif ($source === 'file')
 		{
-			$file = JArrayHelper::getValue($options, 'file', '', 'string');
+			$file = SHUtilArrayhelper::getValue($options, 'file', '', 'string');
 
 			if (file_exists($file))
 			{
@@ -273,8 +273,8 @@ abstract class SHFactory
 		$crypt = new JCrypt;
 
 		// Create some default options
-		$type = JArrayHelper::getValue($options, 'type', 'simple', 'string');
-		$key = JArrayHelper::getValue($options, 'key', 'DEFAULTKEY', 'string');
+		$type = SHUtilArrayhelper::getValue($options, 'type', 'simple', 'string');
+		$key = SHUtilArrayhelper::getValue($options, 'key', 'DEFAULTKEY', 'string');
 
 		$crypt->setKey(
 			new JCryptKey(

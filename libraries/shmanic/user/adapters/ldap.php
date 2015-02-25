@@ -128,8 +128,8 @@ class SHUserAdaptersLdap implements SHUserAdapter
 	 */
 	public function __construct(array $credentials, $config = null, array $options = array())
 	{
-		$this->username = JArrayHelper::getValue($credentials, 'username');
-		$this->password = JArrayHelper::getValue($credentials, 'password');
+		$this->username = SHUtilArrayhelper::getValue($credentials, 'username');
+		$this->password = SHUtilArrayhelper::getValue($credentials, 'password');
 
 		if (isset($credentials['domain']))
 		{
@@ -150,9 +150,9 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 
 		// If the user is new then the user creation script needs to provide a dn for the new object
-		if ($this->isNew = JArrayHelper::getValue($options, 'isNew', false, 'boolean'))
+		if ($this->isNew = SHUtilArrayhelper::getValue($options, 'isNew', false, 'boolean'))
 		{
-			$this->_dn = JArrayHelper::getValue($credentials, 'dn');
+			$this->_dn = SHUtilArrayhelper::getValue($credentials, 'dn');
 
 			/*
 			 * If the Ldap parameter override has been set then directly instantiate
@@ -807,7 +807,7 @@ class SHUserAdaptersLdap implements SHUserAdapter
 		}
 
 		// If the user write is enabled then we should just try to authenticate now
-		if ($userWrite = JArrayHelper::getValue($options, 'userWrite', false, 'boolean'))
+		if ($userWrite = SHUtilArrayhelper::getValue($options, 'userWrite', false, 'boolean'))
 		{
 			$this->getId(true);
 		}

@@ -364,7 +364,7 @@ class PlgLdapProfile extends JPlugin
 			 */
 			if ($inForm = JFactory::getApplication()->input->get('jform', false, 'array'))
 			{
-				$id = JArrayHelper::getValue($inForm, 'id', 0, 'int');
+				$id = SHUtilArrayhelper::getValue($inForm, 'id', 0, 'int');
 
 				if ($id === 0)
 				{
@@ -475,12 +475,12 @@ class PlgLdapProfile extends JPlugin
 		try
 		{
 			// Get username for adapter
-			$username = JArrayHelper::getValue($user, 'username', false, 'string');
+			$username = SHUtilArrayhelper::getValue($user, 'username', false, 'string');
 
 			if (empty($username))
 			{
 				// The old username isn't present so use new username
-				$username = JArrayHelper::getValue($new, 'username', false, 'string');
+				$username = SHUtilArrayhelper::getValue($new, 'username', false, 'string');
 			}
 
 			// Include the mandatory Joomla fields (fullname and email)
