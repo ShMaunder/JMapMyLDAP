@@ -508,7 +508,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		// Test Non-random one first
 		$this->assertEquals(
 			$user['dn'],
-			JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0)
+			SHUtilArrayhelper::getValue($ldap->getUserDnBySearch($user['username']), 0)
 		);
 
 		// Loop 50 times to test random users
@@ -519,7 +519,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 			$this->assertEquals(
 				$user['dn'],
-				JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0),
+				SHUtilArrayhelper::getValue($ldap->getUserDnBySearch($user['username']), 0),
 				"Failed to get User DN for {$user['dn']}"
 			);
 		}
@@ -538,7 +538,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 			$this->assertEquals(
 				$user['dn'],
-				JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0),
+				SHUtilArrayhelper::getValue($ldap->getUserDnBySearch($user['username']), 0),
 				"Failed to get User DN for {$user['dn']}"
 			);
 		}
@@ -556,7 +556,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->connect();
 
 		$user = TestsHelper::getUserCreds();
-		JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0);
+		SHUtilArrayhelper::getValue($ldap->getUserDnBySearch($user['username']), 0);
 	}
 
 	public function testSlapdGetUserDNSearchBaseDnFail()
@@ -571,7 +571,7 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 		$ldap->connect();
 
 		$user = TestsHelper::getUserCreds();
-		JArrayHelper::getValue($ldap->getUserDnBySearch($user['username']), 0);
+		SHUtilArrayhelper::getValue($ldap->getUserDnBySearch($user['username']), 0);
 	}
 
 	public function testSlapdGetUserDNDirectly()
@@ -583,14 +583,14 @@ class SHLdapTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals(
 			$user['dn'],
-			JArrayHelper::getValue($ldap->getUserDnDirectly($user['username']), 0)
+			SHUtilArrayhelper::getValue($ldap->getUserDnDirectly($user['username']), 0)
 		);
 
 		$user = TestsHelper::getUserCreds('kryten');
 
 		$this->assertEquals(
 			$user['dn'],
-			JArrayHelper::getValue($ldap->getUserDnDirectly($user['username']), 0)
+			SHUtilArrayhelper::getValue($ldap->getUserDnDirectly($user['username']), 0)
 		);
 	}
 

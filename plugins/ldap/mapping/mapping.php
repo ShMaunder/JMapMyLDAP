@@ -440,7 +440,7 @@ class PlgLdapMapping extends JPlugin
 			 */
 			$attribute = $this->lookup_type === self::LOOKUP_FORWARD ? $this->memberof_attribute : $this->member_attribute;
 			$attributes = $adapter->getAttributes($attribute);
-			$userGroups = JArrayHelper::getValue(
+			$userGroups = SHUtilArrayhelper::getValue(
 				$attributes, $attribute
 			);
 
@@ -1055,7 +1055,7 @@ class SHLdapMappingEntry extends JObject
 			 */
 			$explode = SHLdap::explodeDn($dn, 0);
 
-			if (JArrayHelper::getValue($explode, 'count', false))
+			if (SHUtilArrayhelper::getValue($explode, 'count', false))
 			{
 				// Break up the distinguished name into an array and lowercase it
 				$this->rdn = array_map('strToLower', $explode);

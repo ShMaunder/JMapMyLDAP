@@ -399,7 +399,7 @@ class SHUserAdaptersLdapTest extends TestCase
 			// Test the new user
 			$testAdapter = new SHUserAdaptersLdap($user, $ldap);
 			$this->assertEquals($user['dn'], $testAdapter->getId(true));
-			$phone = JArrayHelper::getValue($testAdapter->getAttributes('telephoneNumber'), 'telephoneNumber');
+			$phone = SHUtilArrayhelper::getValue($testAdapter->getAttributes('telephoneNumber'), 'telephoneNumber');
 			$this->assertEquals($user['telephoneNumber'], $phone);
 
 			// Delete the new user

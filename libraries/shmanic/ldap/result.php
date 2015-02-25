@@ -95,7 +95,7 @@ final class SHLdapResult
 	 */
 	public function getEntry($entry, $default = false)
 	{
-		return JArrayHelper::getValue($this->_results, $entry, $default);
+		return SHUtilArrayhelper::getValue($this->_results, $entry, $default);
 	}
 
 	/**
@@ -131,7 +131,7 @@ final class SHLdapResult
 			return $default;
 		}
 
-		$values = JArrayHelper::getValue($getEntry, $attribute, $default);
+		$values = SHUtilArrayhelper::getValue($getEntry, $attribute, $default);
 
 		return $values;
 	}
@@ -220,7 +220,7 @@ final class SHLdapResult
 	{
 		$array = array_keys($this->getEntry($entry));
 
-		return JArrayHelper::getValue(
+		return SHUtilArrayhelper::getValue(
 			$array, $index, $default
 		);
 	}
@@ -284,6 +284,6 @@ final class SHLdapResult
 			return $default;
 		}
 
-		return JArrayHelper::getValue($getAttribute, $value, $default);
+		return SHUtilArrayhelper::getValue($getAttribute, $value, $default);
 	}
 }

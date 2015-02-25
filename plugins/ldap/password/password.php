@@ -59,8 +59,8 @@ class PlgLdapPassword extends JPlugin
 		}
 
 		// Get username and password to use for authenticating with Ldap
-		$username 	= JArrayHelper::getValue($user, 'username', false, 'string');
-		$password 	= JArrayHelper::getValue($new, 'password_clear', null, 'string');
+		$username 	= SHUtilArrayhelper::getValue($user, 'username', false, 'string');
+		$password 	= SHUtilArrayhelper::getValue($new, 'password_clear', null, 'string');
 
 		if (!empty($password))
 		{
@@ -80,7 +80,7 @@ class PlgLdapPassword extends JPlugin
 
 				$adapter->setPassword(
 					$password,
-					JArrayHelper::getValue($new, 'current-password', null, 'string'),
+					SHUtilArrayhelper::getValue($new, 'current-password', null, 'string'),
 					$authenticate
 				);
 

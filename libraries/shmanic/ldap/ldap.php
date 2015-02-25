@@ -318,9 +318,9 @@ class SHLdap
 		$registry = is_null($registry) ? SHFactory::getConfig() : $registry;
 
 		// Get the optional authentication/authorisation options
-		$authenticate = JArrayHelper::getValue($authorised, 'authenticate', self::AUTH_NONE);
-		$username = JArrayHelper::getValue($authorised, 'username', null);
-		$password = JArrayHelper::getValue($authorised, 'password', null);
+		$authenticate = SHUtilArrayhelper::getValue($authorised, 'authenticate', self::AUTH_NONE);
+		$username = SHUtilArrayhelper::getValue($authorised, 'username', null);
+		$password = SHUtilArrayhelper::getValue($authorised, 'password', null);
 
 		// Get all the Ldap configs that are enabled and available
 		$configs = SHLdapHelper::getConfig($id, $registry);

@@ -56,6 +56,7 @@
 		<filename>user/adapters/ldap.php</filename>
 		<filename>user/helper.php</filename>
 		<filename>util/ip.php</filename>
+		<filename>util/arrayhelper.php</filename>
 		<filename>factory.php</filename>
 		<filename>import.php</filename>
 		<filename>loader.php</filename>
