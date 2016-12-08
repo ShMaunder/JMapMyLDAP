@@ -71,20 +71,28 @@ try
 		echo "<p style=\"{$errorStyle}\">Invalid Map User ID.</p>";
 	}
 
-	if ($fullname = $read->getValue(0, $client->keyName, 0))
+	foreach(explode(',', $client->keyName) as $attr)
 	{
-		echo "Full Name: {$fullname} <br />";
+		if ($fullname = $read->getValue(0, $attr, 0))
+		{
+			echo "Full Name: {$fullname} <br />";
+			break;
+		}
 	}
-	else
+	if (!$fullname)
 	{
 		echo "<p style=\"{$errorStyle}\">Invalid Map Full Name.</p>";
 	}
 
-	if ($email = $read->getValue(0, $client->keyEmail, 0))
+	foreach(explode(',', $client->keyEmail) as $attr)
 	{
-		echo "Email: {$email} <br />";
+		if ($email = $read->getValue(0, $attr, 0))
+		{
+			echo "Email: {$email} <br />";
+			break;
+		}
 	}
-	else
+	if (!$email)
 	{
 		echo "<p style=\"{$errorStyle}\">Invalid Map Email. If your LDAP server does not use emails, then use a 'fake' email.</p>";
 	}
