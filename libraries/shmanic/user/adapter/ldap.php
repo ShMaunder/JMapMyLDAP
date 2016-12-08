@@ -377,7 +377,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 			}
 
 			// Add both of the uid and fullname to the set of attributes to get.
-			$needToFind[] = $this->client->ldap_fullname;
+			$needToFind = array_merge($needToFind, explode(',',$this->client->ldap_fullname));
 			$needToFind[] = $this->client->ldap_uid;
 
 			// Check for a fake email
@@ -386,7 +386,7 @@ class SHUserAdapterLdap extends SHUserAdapter
 			// Add the email attribute only if not a fake email is supplied.
 			if (!$fakeEmail)
 			{
-				$needToFind[] = $this->client->ldap_email;
+				$needToFind = array_merge($needToFind,explode(',',$this->client->ldap_email));
 			}
 
 			// Re-order array to ensure an LDAP read is successful and no duplicates exist.
@@ -546,18 +546,23 @@ class SHUserAdapterLdap extends SHUserAdapter
 			// Only return the key id
 			$this->getId(false);
 
-			return $this->client->keyName;
+			return explode(',',$this->client->keyName)[0];
 		}
 
-		// Find the Ldap attribute name key
-		$key = $this->client->keyName;
+		// Find the Ldap attribute(s) name key
+		$key_attrs = $this->client->keyName;
 
-		if ($value = $this->getAttributes($key))
+		$keys=explode(',',$key_attrs);
+
+		foreach ($keys as $key)
 		{
-			if (isset($value[$key][0]))
+			if ($value = $this->getAttributes($key))
 			{
-				// Fullname found so lets return it
-				return $value[$key][0];
+				if (isset($value[$key][0]))
+				{
+					// Fullname found so lets return it
+					return $value[$key][0];
+				}
 			}
 		}
 
@@ -581,18 +586,22 @@ class SHUserAdapterLdap extends SHUserAdapter
 			// Only return the key id
 			$this->getId(false);
 
-			return $this->client->keyEmail;
+			return explode(',',$this->client->keyEmail)[0];
 		}
 
-		// Find the Ldap attribute email key
-		$key = $this->client->keyEmail;
+		// Find the Ldap attribute(s) email key
+		$key_attrs = $this->client->keyEmail;
 
-		if ($value = $this->getAttributes($key))
+		$keys=explode(',',$key_attrs);
+		foreach ($keys as $key)
 		{
-			if (isset($value[$key][0]))
+			if ($value = $this->getAttributes($key))
 			{
-				// Email found so lets return it
-				return $value[$key][0];
+				if (isset($value[$key][0]))
+				{
+					// Email found so lets return it
+					return $value[$key][0];
+				}
 			}
 		}
 
