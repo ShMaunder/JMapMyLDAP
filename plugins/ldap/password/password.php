@@ -95,4 +95,55 @@ class PlgLdapPassword extends JPlugin
 			}
 		}
 	}
+	
+	/**
+	 * Method is called after user data is stored in the database.
+	 *
+	 * Clears the password field in J!'s user table if nullpasword option is set
+	 *
+	 * @param   array    $user     Holds the new user data.
+	 * @param   boolean  $isNew    True if a new user has been stored.
+	 * @param   boolean  $success  True if user was successfully stored in the database.
+	 * @param   string   $msg      An error message.
+	 *
+	 * @return  void
+	 *
+	 * @since   2.0
+	 */
+	public function onUserAfterSave($user, $isNew, $success, $msg)
+	{
+		if ($isNew || !$success)
+		{
+			// We dont want to deal with new users here, or if user wasnn't saved
+			return;
+		}
+
+		if (SHFactory::getConfig()->get('user.nullpassword') && $this->changed)
+		{
+			// Get the processed user adapter directly from the static adapter holder
+			$adapter = SHFactory::$adapters[strtolower($user['username'])];
+
+			// Lets pass the getUser method the adapter so it can get extra values
+			$options['adapter'] = $adapter;
+
+			try
+			{
+				// Get a handle to the Joomla User object ready to be passed to the individual plugins
+				$instance = SHUserHelper::getUser($user, $options);
+				// Clear the password and silently resave the user without calling the onUserSave events
+				$instance->password       = '';
+				$instance->password_clear = '';
+				SHUserHelper::save($instance, false);
+			}
+			catch (Exception $e)
+			{
+				// Failed to get the user either due to save error or autoregister
+				SHLog::add($e, 10991, JLog::ERROR, 'ldap');
+
+				return false;
+			}
+
+		}
+	}
+
 }
