@@ -36,7 +36,7 @@ abstract class SHUtilIp
 	 */
 	public static function check($ip, $ranges)
 	{
-		if (!is_array($ranges) && !count($ranges))
+		if (!is_array($ranges) || !count($ranges))
 		{
 			return false;
 		}
