@@ -115,7 +115,7 @@ class PlgSSOEDirLDAP extends JPlugin
 			}
 		}
 
-		if ($value = $result->getValue(0, $ldapuid, 0))
+		if ($value = $result->getValue(0, $ldapUid, 0))
 		{
 			// Username was found logged in on this client machine
 			return $value;
